@@ -66,6 +66,7 @@ public class ParseSegment extends NutchTool implements Tool {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String SKIP_TRUNCATED = "parser.skip.truncated";
+  public static final String DELETE_FAILED_PARSE = "parser.delete.failed";
 
   public ParseSegment() {
     this(null);

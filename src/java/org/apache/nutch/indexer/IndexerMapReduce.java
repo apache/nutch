@@ -225,6 +225,7 @@ public class IndexerMapReduce extends Configured {
     private Counter deletedGoneCounter;
     private Counter deletedRedirectsCounter;
     private Counter deletedDuplicatesCounter;
+    private Counter deletedFailedParseCounter;
     private Counter skippedNotModifiedCounter;
     private Counter errorsScoringFilterCounter;
     private Counter errorsIndexingFilterCounter;
@@ -277,6 +278,8 @@ public class IndexerMapReduce extends Configured {
           NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_DELETED_REDIRECTS_TOTAL);
       deletedDuplicatesCounter = context.getCounter(
           NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_DELETED_DUPLICATES_TOTAL);
+      deletedFailedParseCounter = context.getCounter(
+          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_DELETED_FAILED_PARSE_TOTAL);
       skippedNotModifiedCounter = context.getCounter(
           NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_SKIPPED_NOT_MODIFIED_TOTAL);
       errorsScoringFilterCounter = context.getCounter(
@@ -354,6 +357,15 @@ public class IndexerMapReduce extends Configured {
         }
       }
 
+      // Whether to delete pages where parsing failed
+      if (delete && fetchDatum != null) {
+        if (fetchDatum.getStatus() == CrawlDatum.STATUS_PARSE_FAILED
+            || dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_PARSE_FAILED) {
+          deletedFailedParseCounter.increment(1);
+          context.write(key, DELETE_ACTION);
+          return;
+        }
+      }
       // Whether to delete GONE or REDIRECTS
       if (delete && fetchDatum != null) {
         if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_GONE

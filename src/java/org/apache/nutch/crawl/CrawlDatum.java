@@ -75,6 +75,8 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   public static final byte STATUS_DB_DUPLICATE = 0x07;
   /** Page was marked as orphan, e.g. has no inlinks anymore */
   public static final byte STATUS_DB_ORPHAN = 0x08;
+  /** Page parsing failed */
+  public static final byte STATUS_DB_PARSE_FAILED = 0x09;
 
   /** Maximum value of DB-related status. */
   public static final byte STATUS_DB_MAX = 0x1f;
@@ -103,6 +105,8 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   public static final byte STATUS_LINKED = 0x43;
   /** Page got metadata from a parser */
   public static final byte STATUS_PARSE_META = 0x44;
+  /** Page parse failed */
+  public static final byte STATUS_PARSE_FAILED = 0x45;
 
   public static final HashMap<Byte, String> statNames = new HashMap<>();
   static {
@@ -114,6 +118,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     statNames.put(STATUS_DB_NOTMODIFIED, "db_notmodified");
     statNames.put(STATUS_DB_DUPLICATE, "db_duplicate");
     statNames.put(STATUS_DB_ORPHAN, "db_orphan");
+    statNames.put(STATUS_DB_PARSE_FAILED, "db_parse_failed");
     statNames.put(STATUS_SIGNATURE, "signature");
     statNames.put(STATUS_INJECTED, "injected");
     statNames.put(STATUS_LINKED, "linked");
@@ -124,6 +129,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     statNames.put(STATUS_FETCH_GONE, "fetch_gone");
     statNames.put(STATUS_FETCH_NOTMODIFIED, "fetch_notmodified");
     statNames.put(STATUS_PARSE_META, "parse_metadata");
+    statNames.put(STATUS_PARSE_FAILED, "parse_failed");
 
     oldToNew.put(OLD_STATUS_DB_UNFETCHED, STATUS_DB_UNFETCHED);
     oldToNew.put(OLD_STATUS_DB_FETCHED, STATUS_DB_FETCHED);
