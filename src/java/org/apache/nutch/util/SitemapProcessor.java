@@ -151,6 +151,15 @@ public class SitemapProcessor extends Configured implements Tool {
       }
 
       // Initialize cached counter references
+      initCounters(context);
+      // Initialize error tracker with cached counters
+      errorTracker = new ErrorTracker(NutchMetrics.GROUP_SITEMAP, context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
       filteredRecordsCounter = context.getCounter(
           NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FILTERED_RECORDS_TOTAL);
       seedsCounter = context.getCounter(
@@ -161,8 +170,6 @@ public class SitemapProcessor extends Configured implements Tool {
           NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FILTERED_FROM_HOSTNAME_TOTAL);
       failedFetchesCounter = context.getCounter(
           NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FAILED_FETCHES_TOTAL);
-      // Initialize error tracker with cached counters
-      errorTracker = new ErrorTracker(NutchMetrics.GROUP_SITEMAP, context);
     }
 
     @Override
@@ -377,6 +384,13 @@ public class SitemapProcessor extends Configured implements Tool {
       this.overwriteExisting = conf.getBoolean(SITEMAP_OVERWRITE_EXISTING, false);
 
       // Initialize cached counter references
+      initCounters(context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
       existingEntriesCounter = context.getCounter(
           NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_EXISTING_ENTRIES_TOTAL);
       newEntriesCounter = context.getCounter(

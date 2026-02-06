@@ -18,13 +18,16 @@ package org.apache.nutch.crawl;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
@@ -52,6 +55,9 @@ public class CrawlDbReducer extends
   private FetchSchedule schedule;
   private ErrorTracker errorTracker;
 
+  // Cached counter references for status-based metrics
+  private Map<Byte, Counter> statusCounters = new HashMap<>();
+
   @Override
   public void setup(Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
     Configuration conf = context.getConfiguration();
@@ -64,6 +70,15 @@ public class CrawlDbReducer extends
     linked = new InlinkPriorityQueue(maxLinks);
     // Initialize error tracker with cached counters
     errorTracker = new ErrorTracker(NutchMetrics.GROUP_CRAWLDB, context);
+  }
+
+  /**
+   * Get counter for status, caching for subsequent lookups.
+   */
+  private Counter getStatusCounter(byte status, Context context) {
+    return statusCounters.computeIfAbsent(status, 
+        s -> context.getCounter(NutchMetrics.GROUP_CRAWLDB, 
+            CrawlDatum.getStatusName(s)));
   }
 
   @Override
@@ -170,8 +185,7 @@ public class CrawlDbReducer extends
         }
         context.write(key, old);
         // Dynamic counter based on status name
-        context.getCounter(NutchMetrics.GROUP_CRAWLDB,
-            CrawlDatum.getStatusName(old.getStatus())).increment(1);
+        getStatusCounter(old.getStatus(), context).increment(1);
       } else {
         LOG.warn("Missing fetch and old value, signature={}",
             StringUtil.toHexString(signature));
@@ -329,8 +343,7 @@ public class CrawlDbReducer extends
     result.getMetaData().remove(Nutch.WRITABLE_GENERATE_TIME_KEY);
     context.write(key, result);
     // Dynamic counter based on status name
-    context.getCounter(NutchMetrics.GROUP_CRAWLDB,
-        CrawlDatum.getStatusName(result.getStatus())).increment(1);
+    getStatusCounter(result.getStatus(), context).increment(1);
   }
 
 }

@@ -24,6 +24,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -130,6 +131,12 @@ public class Injector extends NutchTool implements Tool {
     private boolean filterNormalizeAll = false;
     private ErrorTracker errorTracker;
 
+    // Cached counter references for performance
+    private Counter urlsFilteredCounter;
+    private Counter urlsInjectedCounter;
+    private Counter urlsPurged404Counter;
+    private Counter urlsPurgedFilterCounter;
+
     @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
@@ -151,6 +158,22 @@ public class Injector extends NutchTool implements Tool {
       url404Purging = conf.getBoolean(CrawlDb.CRAWLDB_PURGE_404, false);
       // Initialize error tracker with cached counters
       errorTracker = new ErrorTracker(NutchMetrics.GROUP_INJECTOR, context);
+      // Initialize cached counter references
+      initCounters(context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
+      urlsFilteredCounter = context.getCounter(
+          NutchMetrics.GROUP_INJECTOR, NutchMetrics.INJECTOR_URLS_FILTERED_TOTAL);
+      urlsInjectedCounter = context.getCounter(
+          NutchMetrics.GROUP_INJECTOR, NutchMetrics.INJECTOR_URLS_INJECTED_TOTAL);
+      urlsPurged404Counter = context.getCounter(
+          NutchMetrics.GROUP_INJECTOR, NutchMetrics.INJECTOR_URLS_PURGED_404_TOTAL);
+      urlsPurgedFilterCounter = context.getCounter(
+          NutchMetrics.GROUP_INJECTOR, NutchMetrics.INJECTOR_URLS_PURGED_FILTER_TOTAL);
     }
 
     /* Filter and normalize the input url */
@@ -223,8 +246,7 @@ public class Injector extends NutchTool implements Tool {
 
         url = filterNormalize(url);
         if (url == null) {
-          context.getCounter(NutchMetrics.GROUP_INJECTOR,
-              NutchMetrics.INJECTOR_URLS_FILTERED_TOTAL).increment(1);
+          urlsFilteredCounter.increment(1);
         } else {
           CrawlDatum datum = new CrawlDatum();
           datum.setStatus(CrawlDatum.STATUS_INJECTED);
@@ -245,8 +267,7 @@ public class Injector extends NutchTool implements Tool {
                 url, e.getMessage());
             errorTracker.incrementCounters(e);
           }
-          context.getCounter(NutchMetrics.GROUP_INJECTOR,
-              NutchMetrics.INJECTOR_URLS_INJECTED_TOTAL).increment(1);
+          urlsInjectedCounter.increment(1);
           context.write(key, datum);
         }
       } else if (value instanceof CrawlDatum) {
@@ -256,16 +277,14 @@ public class Injector extends NutchTool implements Tool {
 
         // remove 404 urls
         if (url404Purging && CrawlDatum.STATUS_DB_GONE == datum.getStatus()) {
-          context.getCounter(NutchMetrics.GROUP_INJECTOR,
-              NutchMetrics.INJECTOR_URLS_PURGED_404_TOTAL).increment(1);
+          urlsPurged404Counter.increment(1);
           return;
         }
 
         if (filterNormalizeAll) {
           String url = filterNormalize(key.toString());
           if (url == null) {
-            context.getCounter(NutchMetrics.GROUP_INJECTOR,
-                NutchMetrics.INJECTOR_URLS_PURGED_FILTER_TOTAL).increment(1);
+            urlsPurgedFilterCounter.increment(1);
           } else {
             key.set(url);
             context.write(key, datum);
@@ -287,6 +306,10 @@ public class Injector extends NutchTool implements Tool {
     private CrawlDatum old = new CrawlDatum();
     private CrawlDatum injected = new CrawlDatum();
 
+    // Cached counter references for performance
+    private Counter urlsInjectedUniqueCounter;
+    private Counter urlsMergedCounter;
+
     @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
@@ -296,6 +319,19 @@ public class Injector extends NutchTool implements Tool {
       update = conf.getBoolean("db.injector.update", false);
       LOG.info("Injector: overwrite: {}", overwrite);
       LOG.info("Injector: update: {}", update);
+      
+      // Initialize cached counter references
+      initCounters(context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
+      urlsInjectedUniqueCounter = context.getCounter(
+          NutchMetrics.GROUP_INJECTOR, NutchMetrics.INJECTOR_URLS_INJECTED_UNIQUE_TOTAL);
+      urlsMergedCounter = context.getCounter(
+          NutchMetrics.GROUP_INJECTOR, NutchMetrics.INJECTOR_URLS_MERGED_TOTAL);
     }
 
     /**
@@ -351,11 +387,9 @@ public class Injector extends NutchTool implements Tool {
         }
       }
       if (injectedSet) {
-        context.getCounter(NutchMetrics.GROUP_INJECTOR,
-            NutchMetrics.INJECTOR_URLS_INJECTED_UNIQUE_TOTAL).increment(1);
+        urlsInjectedUniqueCounter.increment(1);
         if (oldSet) {
-          context.getCounter(NutchMetrics.GROUP_INJECTOR,
-              NutchMetrics.INJECTOR_URLS_MERGED_TOTAL).increment(1);
+          urlsMergedCounter.increment(1);
         }
       }
       context.write(key, result);

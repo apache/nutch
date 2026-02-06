@@ -194,6 +194,17 @@ public class Generator extends NutchTool implements Tool {
     private JexlScript expr = null;
     private ErrorTracker errorTracker;
 
+    // Cached counter references for performance
+    private Counter urlFiltersRejectedCounter;
+    private Counter scheduleRejectedCounter;
+    private Counter waitForUpdateCounter;
+    private Counter exprRejectedCounter;
+    private Counter statusRejectedCounter;
+    private Counter scoreTooLowCounter;
+    private Counter intervalRejectedCounter;
+    private Counter hostsAffectedPerHostOverflowCounter;
+    private Counter urlsSkippedPerHostOverflowCounter;
+
     @Override
     public void setup(
         Mapper<Text, CrawlDatum, FloatWritable, SelectorEntry>.Context context)
@@ -219,6 +230,32 @@ public class Generator extends NutchTool implements Tool {
       expr = JexlUtil.parseExpression(conf.get(GENERATOR_EXPR, null));
       // Initialize error tracker with cached counters
       errorTracker = new ErrorTracker(NutchMetrics.GROUP_GENERATOR, context);
+      // Initialize cached counter references
+      initCounters(context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
+      urlFiltersRejectedCounter = context.getCounter(
+          NutchMetrics.GROUP_GENERATOR, NutchMetrics.GENERATOR_URL_FILTERS_REJECTED_TOTAL);
+      scheduleRejectedCounter = context.getCounter(
+          NutchMetrics.GROUP_GENERATOR, NutchMetrics.GENERATOR_SCHEDULE_REJECTED_TOTAL);
+      waitForUpdateCounter = context.getCounter(
+          NutchMetrics.GROUP_GENERATOR, NutchMetrics.GENERATOR_WAIT_FOR_UPDATE_TOTAL);
+      exprRejectedCounter = context.getCounter(
+          NutchMetrics.GROUP_GENERATOR, NutchMetrics.GENERATOR_EXPR_REJECTED_TOTAL);
+      statusRejectedCounter = context.getCounter(
+          NutchMetrics.GROUP_GENERATOR, NutchMetrics.GENERATOR_STATUS_REJECTED_TOTAL);
+      scoreTooLowCounter = context.getCounter(
+          NutchMetrics.GROUP_GENERATOR, NutchMetrics.GENERATOR_SCORE_TOO_LOW_TOTAL);
+      intervalRejectedCounter = context.getCounter(
+          NutchMetrics.GROUP_GENERATOR, NutchMetrics.GENERATOR_INTERVAL_REJECTED_TOTAL);
+      hostsAffectedPerHostOverflowCounter = context.getCounter(
+          NutchMetrics.GROUP_GENERATOR, NutchMetrics.GENERATOR_HOSTS_AFFECTED_PER_HOST_OVERFLOW_TOTAL);
+      urlsSkippedPerHostOverflowCounter = context.getCounter(
+          NutchMetrics.GROUP_GENERATOR, NutchMetrics.GENERATOR_URLS_SKIPPED_PER_HOST_OVERFLOW_TOTAL);
     }
 
     @Override
@@ -230,8 +267,7 @@ public class Generator extends NutchTool implements Tool {
         // URLFilters
         try {
           if (filters.filter(url.toString()) == null) {
-            context.getCounter(NutchMetrics.GROUP_GENERATOR,
-                NutchMetrics.GENERATOR_URL_FILTERS_REJECTED_TOTAL).increment(1);
+            urlFiltersRejectedCounter.increment(1);
             return;
           }
         } catch (URLFilterException e) {
@@ -245,8 +281,7 @@ public class Generator extends NutchTool implements Tool {
       if (!schedule.shouldFetch(url, crawlDatum, curTime)) {
         LOG.debug("-shouldFetch rejected '{}', fetchTime={}, curTime={}", url,
             crawlDatum.getFetchTime(), curTime);
-        context.getCounter(NutchMetrics.GROUP_GENERATOR,
-            NutchMetrics.GENERATOR_SCHEDULE_REJECTED_TOTAL).increment(1);
+        scheduleRejectedCounter.increment(1);
         return;
       }
 
@@ -255,8 +290,7 @@ public class Generator extends NutchTool implements Tool {
       if (oldGenTime != null) { // awaiting fetch & update
         if (oldGenTime.get() + genDelay > curTime) { // still wait for
           // update
-          context.getCounter(NutchMetrics.GROUP_GENERATOR,
-              NutchMetrics.GENERATOR_WAIT_FOR_UPDATE_TOTAL).increment(1);
+          waitForUpdateCounter.increment(1);
           return;
         }
       }
@@ -271,22 +305,19 @@ public class Generator extends NutchTool implements Tool {
       // check expr
       if (expr != null) {
         if (!crawlDatum.execute(expr, key.toString())) {
-          context.getCounter(NutchMetrics.GROUP_GENERATOR,
-              NutchMetrics.GENERATOR_EXPR_REJECTED_TOTAL).increment(1);
+          exprRejectedCounter.increment(1);
           return;
         }
       }
 
       if (restrictStatus != -1 && restrictStatus != crawlDatum.getStatus()) {
-        context.getCounter(NutchMetrics.GROUP_GENERATOR,
-            NutchMetrics.GENERATOR_STATUS_REJECTED_TOTAL).increment(1);
+        statusRejectedCounter.increment(1);
         return;
       }
 
       // consider only entries with a score superior to the threshold
       if (!Float.isNaN(scoreThreshold) && sort < scoreThreshold) {
-        context.getCounter(NutchMetrics.GROUP_GENERATOR,
-            NutchMetrics.GENERATOR_SCORE_TOO_LOW_TOTAL).increment(1);
+        scoreTooLowCounter.increment(1);
         return;
       }
 
@@ -294,8 +325,7 @@ public class Generator extends NutchTool implements Tool {
       // threshold
       if (intervalThreshold != -1
           && crawlDatum.getFetchInterval() > intervalThreshold) {
-        context.getCounter(NutchMetrics.GROUP_GENERATOR,
-            NutchMetrics.GENERATOR_INTERVAL_REJECTED_TOTAL).increment(1);
+        intervalRejectedCounter.increment(1);
         return;
       }
 
@@ -331,6 +361,10 @@ public class Generator extends NutchTool implements Tool {
     private JexlScript fetchDelayExpr = null;
     private Map<String, HostDatum> hostDatumCache = new HashMap<>();
     private ErrorTracker errorTracker;
+    
+    // Cached counter references for performance
+    private Counter hostsAffectedPerHostOverflowCounter;
+    private Counter urlsSkippedPerHostOverflowCounter;
     
     public void readHostDb() throws IOException {
       if (conf.get(GENERATOR_HOSTDB) == null) {
@@ -426,8 +460,20 @@ public class Generator extends NutchTool implements Tool {
       }
       // Initialize error tracker with cached counters
       errorTracker = new ErrorTracker(NutchMetrics.GROUP_GENERATOR, context);
+      // Initialize cached counter references
+      initReducerCounters(context);
       
       readHostDb();
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initReducerCounters(Context context) {
+      hostsAffectedPerHostOverflowCounter = context.getCounter(
+          NutchMetrics.GROUP_GENERATOR, NutchMetrics.GENERATOR_HOSTS_AFFECTED_PER_HOST_OVERFLOW_TOTAL);
+      urlsSkippedPerHostOverflowCounter = context.getCounter(
+          NutchMetrics.GROUP_GENERATOR, NutchMetrics.GENERATOR_URLS_SKIPPED_PER_HOST_OVERFLOW_TOTAL);
     }
 
     @Override
@@ -555,15 +601,13 @@ public class Generator extends NutchTool implements Tool {
               hostCount[1] = 1;
             } else {
               if (hostCount[1] == (maxCount+1)) {
-                context.getCounter(NutchMetrics.GROUP_GENERATOR,
-                    NutchMetrics.GENERATOR_HOSTS_AFFECTED_PER_HOST_OVERFLOW_TOTAL).increment(1);
+                hostsAffectedPerHostOverflowCounter.increment(1);
                 LOG.info(
                     "Host or domain {} has more than {} URLs for all {} segments. Additional URLs won't be included in the fetchlist.",
                     hostordomain, maxCount, maxNumSegments);
               }
               // skip this entry
-              context.getCounter(NutchMetrics.GROUP_GENERATOR,
-                  NutchMetrics.GENERATOR_URLS_SKIPPED_PER_HOST_OVERFLOW_TOTAL).increment(1);
+              urlsSkippedPerHostOverflowCounter.increment(1);
               continue;
             }
           }
