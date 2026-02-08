@@ -1204,10 +1204,13 @@ public class Generator extends NutchTool implements Tool {
     }
 
     LOG.info("Generator: number of items rejected during selection:");
-    for (Counter counter : job.getCounters().getGroup("Generator")) {
-      LOG.info("Generator: {}  {}",
-          String.format(Locale.ROOT, "%6d", counter.getValue()),
-          counter.getName());
+    for (Counter counter : job.getCounters()
+        .getGroup(NutchMetrics.GROUP_GENERATOR)) {
+      long counterValue = counter.getValue();
+      if (counterValue > 0) {
+        LOG.info("Generator: {}  {}",
+            String.format(Locale.ROOT, "%6d", counterValue), counter.getName());
+      }
     }
     if (!getConf().getBoolean(GENERATE_UPDATE_CRAWLDB, false)) {
       /*
