@@ -93,7 +93,7 @@ import org.apache.nutch.util.URLUtil;
  * 
  * <h2>HostDb Integration (NUTCH-2455)</h2>
  * <p>
- * When configured with a HostDb (via {@code -hostdb} option or 
+ * When configured with a HostDb (via {@code -hostdb} option or
  * {@code generate.hostdb} property), the Generator can apply per-host settings
  * using JEXL expressions:
  * </p>
@@ -104,19 +104,14 @@ import org.apache.nutch.util.URLUtil;
  * 
  * <h3>Performance Characteristics</h3>
  * <p>
- * The HostDb integration uses secondary sorting via MapReduce to efficiently
- * merge HostDb entries with CrawlDb entries. This approach has the following
- * performance benefits compared to loading the entire HostDb into memory:
+ * The HostDb integration uses partitioning and secondary sorting via MapReduce
+ * to efficiently cache HostDb entries. The HostDb entry and all CrawlDb entries
+ * of one host are streamed ("partitioned") to the same reducer. If multiple
+ * reducers are used, the reducer needs to cache only a part of the HostDb. To
+ * use use the Generator in combination with a large HostDb, please also use a
+ * high enough number of reducers, see the property
+ * <code>mapreduce.job.reduces</code>.
  * </p>
- * <ul>
- *   <li><b>Memory efficiency:</b> HostDb entries are streamed through the reducer
- *       rather than cached entirely in memory. Only per-host metadata is retained
- *       during URL processing.</li>
- *   <li><b>Scalability:</b> Can handle HostDb with millions of hosts without
- *       running out of heap space in the reducer.</li>
- *   <li><b>I/O efficiency:</b> Uses Hadoop's sorted merge join pattern, leveraging
- *       disk-based sorting and sequential reads.</li>
- * </ul>
  * 
  * <h3>Backward Compatibility</h3>
  * <p>
