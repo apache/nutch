@@ -36,6 +36,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
@@ -127,6 +128,7 @@ public class Injector extends NutchTool implements Tool {
     private boolean url404Purging;
     private String scope;
     private boolean filterNormalizeAll = false;
+    private ErrorTracker errorTracker;
 
     @Override
     public void setup(Context context) {
@@ -147,6 +149,8 @@ public class Injector extends NutchTool implements Tool {
       curTime = conf.getLong("injector.current.time",
           System.currentTimeMillis());
       url404Purging = conf.getBoolean(CrawlDb.CRAWLDB_PURGE_404, false);
+      // Initialize error tracker with cached counters
+      errorTracker = new ErrorTracker(NutchMetrics.GROUP_INJECTOR, context);
     }
 
     /* Filter and normalize the input url */
@@ -239,6 +243,7 @@ public class Injector extends NutchTool implements Tool {
             LOG.warn(
                 "Cannot filter injected score for url {}, using default ({})",
                 url, e.getMessage());
+            errorTracker.incrementCounters(e);
           }
           context.getCounter(NutchMetrics.GROUP_INJECTOR,
               NutchMetrics.INJECTOR_URLS_INJECTED_TOTAL).increment(1);

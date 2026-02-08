@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -394,6 +395,8 @@ public class DOMContentUtils {
    * @param node a {@link Node} under which to discover anchors
    */
   public void getOutlinks(URL base, ArrayList<Outlink> outlinks, Node node) {
+    // Use a LinkedHashMap to deduplicate outlinks by URL while preserving insertion order
+    LinkedHashMap<String, Outlink> outlinkMap = new LinkedHashMap<>();
 
     NodeWalker walker = new NodeWalker(node);
     while (walker.hasNext()) {
@@ -435,16 +438,30 @@ public class DOMContentUtils {
               try {
 
                 URL url = URLUtil.resolveURL(base, target);
-                Outlink outlink = new Outlink(url.toString(), linkText
-                    .toString().trim());
-                outlinks.add(outlink);
-
-                // NUTCH-2433 - Keep the node name where the URL was found into
-                // the outlink metadata
-                if (keepNodenames) {
-                  MapWritable metadata = new MapWritable();
-                  metadata.put(new Text(srcTagMetaName), new Text(nodeName));
-                  outlink.setMetadata(metadata);
+                String urlStr = url.toString();
+                String anchor = linkText.toString().trim();
+                
+                // Only add if URL not seen, or replace if current has better anchor
+                Outlink existing = outlinkMap.get(urlStr);
+                if (existing == null) {
+                  Outlink outlink = new Outlink(urlStr, anchor);
+                  // NUTCH-2433 - Keep the node name where the URL was found into
+                  // the outlink metadata
+                  if (keepNodenames) {
+                    MapWritable metadata = new MapWritable();
+                    metadata.put(new Text(srcTagMetaName), new Text(nodeName));
+                    outlink.setMetadata(metadata);
+                  }
+                  outlinkMap.put(urlStr, outlink);
+                } else if (existing.getAnchor().isEmpty() && !anchor.isEmpty()) {
+                  // Replace empty anchor with non-empty one
+                  Outlink outlink = new Outlink(urlStr, anchor);
+                  if (keepNodenames) {
+                    MapWritable metadata = new MapWritable();
+                    metadata.put(new Text(srcTagMetaName), new Text(nodeName));
+                    outlink.setMetadata(metadata);
+                  }
+                  outlinkMap.put(urlStr, outlink);
                 }
               } catch (MalformedURLException e) {
                 // don't care
@@ -456,6 +473,8 @@ public class DOMContentUtils {
         }
       }
     }
+    
+    outlinks.addAll(outlinkMap.values());
   }
 
   // This one is used by NUTCH-1918
@@ -464,6 +483,9 @@ public class DOMContentUtils {
     String target = null;
     String anchor = null;
     boolean noFollow = false;
+    
+    // Use a LinkedHashMap to deduplicate outlinks by URL while preserving insertion order
+    LinkedHashMap<String, Outlink> outlinkMap = new LinkedHashMap<>();
 
     for (Link link : tikaExtractedOutlinks) {
       target = link.getUri();
@@ -475,17 +497,27 @@ public class DOMContentUtils {
         if (target != null && !noFollow) {
           try {
             URL url = URLUtil.resolveURL(base, target);
+            String urlStr = url.toString();
 
             // clean the anchor
             anchor = anchor.replaceAll("\\s+", " ");
             anchor = anchor.trim();
 
-            outlinks.add(new Outlink(url.toString(), anchor));
+            // Only add if URL not seen, or replace if current has better anchor
+            Outlink existing = outlinkMap.get(urlStr);
+            if (existing == null) {
+              outlinkMap.put(urlStr, new Outlink(urlStr, anchor));
+            } else if (existing.getAnchor().isEmpty() && !anchor.isEmpty()) {
+              // Replace empty anchor with non-empty one
+              outlinkMap.put(urlStr, new Outlink(urlStr, anchor));
+            }
           } catch (MalformedURLException e) {
             // don't care
           }
         }
       }
     }
+    
+    outlinks.addAll(outlinkMap.values());
   }
 }
