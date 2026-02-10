@@ -26,6 +26,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -89,6 +90,9 @@ public class CleaningJob implements Tool {
 
     IndexWriters writers = null;
 
+    // Cached counter reference for performance
+    private Counter deletedDocumentsCounter;
+
     @Override
     public void setup(Reducer<ByteWritable, Text, Text, ByteWritable>.Context context) {
       Configuration conf = context.getConfiguration();
@@ -99,6 +103,17 @@ public class CleaningJob implements Tool {
         throw new RuntimeException(e);
       }
       noCommit = conf.getBoolean("noCommit", false);
+      
+      // Initialize cached counter reference
+      initCounters(context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
+      deletedDocumentsCounter = context.getCounter(
+          NutchMetrics.GROUP_CLEANING, NutchMetrics.CLEANING_DELETED_DOCUMENTS_TOTAL);
     }
 
     @Override
@@ -119,8 +134,7 @@ public class CleaningJob implements Tool {
       for (Text document : values) {
         writers.delete(document.toString());
         totalDeleted++;
-        context.getCounter(NutchMetrics.GROUP_CLEANING,
-            NutchMetrics.CLEANING_DELETED_DOCUMENTS_TOTAL).increment(1);
+        deletedDocumentsCounter.increment(1);
       }
     }
   }

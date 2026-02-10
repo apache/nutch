@@ -128,11 +128,25 @@ public class DeduplicationJob extends NutchTool implements Tool {
 
     protected String[] compareOrder;
     
+    // Cached counter reference for performance
+    private Counter documentsMarkedDuplicateCounter;
+    
     @Override
     public void setup(
         Reducer<K, CrawlDatum, Text, CrawlDatum>.Context context) {
       Configuration conf = context.getConfiguration();
       compareOrder = conf.get(DEDUPLICATION_COMPARE_ORDER).split(",");
+      
+      // Initialize cached counter reference
+      initCounters(context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
+      documentsMarkedDuplicateCounter = context.getCounter(
+          NutchMetrics.GROUP_DEDUP, NutchMetrics.DEDUP_DOCUMENTS_MARKED_DUPLICATE_TOTAL);
     }
 
     protected void writeOutAsDuplicate(CrawlDatum datum,
@@ -140,8 +154,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
         throws IOException, InterruptedException {
       datum.setStatus(CrawlDatum.STATUS_DB_DUPLICATE);
       Text key = (Text) datum.getMetaData().remove(urlKey);
-      context.getCounter(NutchMetrics.GROUP_DEDUP,
-          NutchMetrics.DEDUP_DOCUMENTS_MARKED_DUPLICATE_TOTAL).increment(1);
+      documentsMarkedDuplicateCounter.increment(1);
       context.write(key, datum);
     }
 

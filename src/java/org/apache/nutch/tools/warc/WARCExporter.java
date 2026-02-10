@@ -124,6 +124,15 @@ public class WARCExporter extends Configured implements Tool {
       @Override
       public void setup(Context context) {
         // Initialize cached counter references
+        initCounters(context);
+        // Initialize error tracker with cached counters
+        errorTracker = new ErrorTracker(NutchMetrics.GROUP_WARC_EXPORTER, context);
+      }
+
+      /**
+       * Initialize cached counter references to avoid repeated lookups in hot paths.
+       */
+      private void initCounters(Context context) {
         missingContentCounter = context.getCounter(
             NutchMetrics.GROUP_WARC_EXPORTER, NutchMetrics.WARC_MISSING_CONTENT_TOTAL);
         missingMetadataCounter = context.getCounter(
@@ -132,8 +141,6 @@ public class WARCExporter extends Configured implements Tool {
             NutchMetrics.GROUP_WARC_EXPORTER, NutchMetrics.WARC_OMITTED_EMPTY_RESPONSE_TOTAL);
         recordsGeneratedCounter = context.getCounter(
             NutchMetrics.GROUP_WARC_EXPORTER, NutchMetrics.WARC_RECORDS_GENERATED_TOTAL);
-        // Initialize error tracker with cached counters
-        errorTracker = new ErrorTracker(NutchMetrics.GROUP_WARC_EXPORTER, context);
       }
 
       @Override

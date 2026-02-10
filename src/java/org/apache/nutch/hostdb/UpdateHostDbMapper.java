@@ -80,10 +80,17 @@ public class UpdateHostDbMapper
       normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_DEFAULT);
 
     // Initialize cached counter references
-    filteredRecordsCounter = context.getCounter(
-        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_FILTERED_RECORDS_TOTAL);
+    initCounters(context);
     // Initialize error tracker with cached counters
     errorTracker = new ErrorTracker(NutchMetrics.GROUP_HOSTDB, context);
+  }
+
+  /**
+   * Initialize cached counter references to avoid repeated lookups in hot paths.
+   */
+  private void initCounters(Context context) {
+    filteredRecordsCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_FILTERED_RECORDS_TOTAL);
   }
 
   /**

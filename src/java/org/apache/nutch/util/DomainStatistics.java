@@ -28,6 +28,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -38,6 +39,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,10 +53,6 @@ public class DomainStatistics extends Configured implements Tool {
 
   private static final Text FETCHED_TEXT = new Text("FETCHED");
   private static final Text NOT_FETCHED_TEXT = new Text("NOT_FETCHED");
-
-  public static enum MyCounter {
-    FETCHED, NOT_FETCHED, EMPTY_RESULT
-  };
 
   private static final int MODE_HOST = 1;
   private static final int MODE_DOMAIN = 2;
@@ -158,10 +156,29 @@ public class DomainStatistics extends Configured implements Tool {
       Mapper<Text, CrawlDatum, Text, LongWritable> {
     int mode = 0;
 
+    // Cached counter references for performance
+    private Counter fetchedCounter;
+    private Counter notFetchedCounter;
+    private Counter emptyResultCounter;
+
     @Override
     public void setup(Context context) {
       mode = context.getConfiguration().getInt("domain.statistics.mode",
           MODE_DOMAIN);
+      // Initialize cached counter references
+      initCounters(context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
+      fetchedCounter = context.getCounter(
+          NutchMetrics.GROUP_DOMAIN_STATS, NutchMetrics.DOMAIN_STATS_FETCHED_TOTAL);
+      notFetchedCounter = context.getCounter(
+          NutchMetrics.GROUP_DOMAIN_STATS, NutchMetrics.DOMAIN_STATS_NOT_FETCHED_TOTAL);
+      emptyResultCounter = context.getCounter(
+          NutchMetrics.GROUP_DOMAIN_STATS, NutchMetrics.DOMAIN_STATS_EMPTY_RESULT_TOTAL);
     }
 
     @Override
@@ -197,17 +214,17 @@ public class DomainStatistics extends Configured implements Tool {
           }
           if (out.trim().equals("")) {
             LOG.info("url : {}", url);
-            context.getCounter(MyCounter.EMPTY_RESULT).increment(1);
+            emptyResultCounter.increment(1);
           }
 
           context.write(new Text(out), new LongWritable(1));
         } catch (Exception ex) {
         }
 
-        context.getCounter(MyCounter.FETCHED).increment(1);
+        fetchedCounter.increment(1);
         context.write(FETCHED_TEXT, new LongWritable(1));
       } else {
-        context.getCounter(MyCounter.NOT_FETCHED).increment(1);
+        notFetchedCounter.increment(1);
         context.write(NOT_FETCHED_TEXT, new LongWritable(1));
       }
     }
