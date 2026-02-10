@@ -60,6 +60,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.BooleanWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -158,12 +159,14 @@ public class Generator extends NutchTool implements Tool {
     public Text url;
     public CrawlDatum datum;
     public IntWritable segnum;
+    public BooleanWritable hasHostDatum;
     public HostDatum hostdatum;
 
     public SelectorEntry() {
       url = new Text();
       datum = new CrawlDatum();
       segnum = new IntWritable(0);
+      hasHostDatum = new BooleanWritable(false);
       hostdatum = new HostDatum();
     }
 
@@ -172,7 +175,10 @@ public class Generator extends NutchTool implements Tool {
       url.readFields(in);
       datum.readFields(in);
       segnum.readFields(in);
-      hostdatum.readFields(in);
+      hasHostDatum.readFields(in);
+      if (hasHostDatum.get()) {
+        hostdatum.readFields(in);
+      }
     }
 
     @Override
@@ -180,7 +186,10 @@ public class Generator extends NutchTool implements Tool {
       url.write(out);
       datum.write(out);
       segnum.write(out);
-      hostdatum.write(out);
+      hasHostDatum.write(out);
+      if (hasHostDatum.get()) {
+        hostdatum.write(out);
+      }
     }
 
     @Override
@@ -324,6 +333,7 @@ public class Generator extends NutchTool implements Tool {
     public void map(Text hostname, HostDatum value, Context context)
         throws IOException, InterruptedException {
       SelectorEntry hostDataSelector = new SelectorEntry();
+      hostDataSelector.hasHostDatum.set(true);
       try {
         hostDataSelector.hostdatum = (HostDatum) value.clone();
       } catch (CloneNotSupportedException e) {
