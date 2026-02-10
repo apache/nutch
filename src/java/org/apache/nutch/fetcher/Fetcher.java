@@ -34,6 +34,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobContext;
@@ -155,6 +156,13 @@ public class Fetcher extends NutchTool implements Tool {
     private boolean storingContent;
     private boolean parsing;
 
+    // Cached counter references for performance
+    private Counter bytesDownloadedCounter;
+    private Counter hitByThroughputThresholdCounter;
+    private Counter hitByTimelimitCounter;
+    private Counter hungThreadsCounter;
+    private Counter hitByTimeoutCounter;
+
     private AtomicInteger getActiveThreads() {
       return activeThreads;
     }
@@ -193,11 +201,28 @@ public class Fetcher extends NutchTool implements Tool {
       parsing = isParsing(conf);
     }
 
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
+      bytesDownloadedCounter = context.getCounter(
+          NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_BYTES_DOWNLOADED_TOTAL);
+      hitByThroughputThresholdCounter = context.getCounter(
+          NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_HIT_BY_THROUGHPUT_THRESHOLD_TOTAL);
+      hitByTimelimitCounter = context.getCounter(
+          NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_HIT_BY_TIMELIMIT_TOTAL);
+      hungThreadsCounter = context.getCounter(
+          NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_HUNG_THREADS_TOTAL);
+      hitByTimeoutCounter = context.getCounter(
+          NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_HIT_BY_TIMEOUT_TOTAL);
+    }
+
     @Override
     public void run(Context innerContext)
         throws IOException, InterruptedException {
 
       setup(innerContext);
+      initCounters(innerContext);
       try {
         Configuration conf = innerContext.getConfiguration();
         LinkedList<FetcherThread> fetcherThreads = new LinkedList<>();
@@ -292,8 +317,7 @@ public class Fetcher extends NutchTool implements Tool {
           pagesLastSec = pages.get() - pagesLastSec;
           bytesLastSec = (int) bytes.get() - bytesLastSec;
 
-          innerContext.getCounter(NutchMetrics.GROUP_FETCHER,
-              NutchMetrics.FETCHER_BYTES_DOWNLOADED_TOTAL).increment(bytesLastSec);
+          bytesDownloadedCounter.increment(bytesLastSec);
 
           reportStatus(innerContext, fetchQueues, pagesLastSec, bytesLastSec);
 
@@ -331,9 +355,7 @@ public class Fetcher extends NutchTool implements Tool {
                 int hitByThrougputThreshold = fetchQueues.emptyQueues();
 
                 if (hitByThrougputThreshold != 0)
-                  innerContext.getCounter(NutchMetrics.GROUP_FETCHER,
-                      NutchMetrics.FETCHER_HIT_BY_THROUGHPUT_THRESHOLD_TOTAL)
-                      .increment(hitByThrougputThreshold);
+                  hitByThroughputThresholdCounter.increment(hitByThrougputThreshold);
               }
             }
           }
@@ -414,8 +436,7 @@ public class Fetcher extends NutchTool implements Tool {
           if (!feeder.isAlive()) {
             int hitByTimeLimit = fetchQueues.checkTimelimit();
             if (hitByTimeLimit != 0)
-              innerContext.getCounter(NutchMetrics.GROUP_FETCHER,
-                  NutchMetrics.FETCHER_HIT_BY_TIMELIMIT_TOTAL).increment(hitByTimeLimit);
+              hitByTimelimitCounter.increment(hitByTimeLimit);
           }
 
           /*
@@ -431,8 +452,7 @@ public class Fetcher extends NutchTool implements Tool {
                 timeout);
             LOG.warn("Aborting with {} hung threads{}.", activeThreads,
                 feeder.isAlive() ? " (queue feeder still alive)" : "");
-            innerContext.getCounter(NutchMetrics.GROUP_FETCHER,
-                NutchMetrics.FETCHER_HUNG_THREADS_TOTAL).increment(activeThreads.get());
+            hungThreadsCounter.increment(activeThreads.get());
             for (int i = 0; i < fetcherThreads.size(); i++) {
               FetcherThread thread = fetcherThreads.get(i);
               if (thread.isAlive()) {
@@ -467,8 +487,7 @@ public class Fetcher extends NutchTool implements Tool {
                 fetchQueues.getTotalSize(), fetchQueues.getQueueCount(),
                 feeder.isAlive() ? " (queue feeder still alive)" : "");
             int hitByTimeout = fetchQueues.emptyQueues();
-            innerContext.getCounter(NutchMetrics.GROUP_FETCHER,
-                NutchMetrics.FETCHER_HIT_BY_TIMEOUT_TOTAL).increment(hitByTimeout);
+            hitByTimeoutCounter.increment(hitByTimeout);
             return;
           }
 
