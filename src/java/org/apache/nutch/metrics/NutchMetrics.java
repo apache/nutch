@@ -145,9 +145,6 @@ public final class NutchMetrics {
   /** URLs rejected by URL filters. */
   public static final String GENERATOR_URL_FILTERS_REJECTED_TOTAL = "url_filters_rejected_total";
 
-  /** URL filter exceptions. */
-  public static final String GENERATOR_URL_FILTER_EXCEPTION_TOTAL = "url_filter_exception_total";
-
   /** URLs rejected by fetch schedule. */
   public static final String GENERATOR_SCHEDULE_REJECTED_TOTAL = "schedule_rejected_total";
 
@@ -165,9 +162,6 @@ public final class NutchMetrics {
 
   /** URLs rejected due to fetch interval exceeding threshold. */
   public static final String GENERATOR_INTERVAL_REJECTED_TOTAL = "interval_rejected_total";
-
-  /** Malformed URLs encountered. */
-  public static final String GENERATOR_MALFORMED_URL_TOTAL = "malformed_url_total";
 
   /** URLs skipped due to per-host overflow. */
   public static final String GENERATOR_URLS_SKIPPED_PER_HOST_OVERFLOW_TOTAL = "urls_skipped_per_host_overflow_total";
@@ -202,12 +196,6 @@ public final class NutchMetrics {
 
   /** Documents skipped by indexing filter. */
   public static final String INDEXER_SKIPPED_BY_INDEXING_FILTER_TOTAL = "skipped_by_indexing_filter_total";
-
-  /** Scoring filter errors. */
-  public static final String INDEXER_ERRORS_SCORING_FILTER_TOTAL = "errors_scoring_filter_total";
-
-  /** Indexing filter errors. */
-  public static final String INDEXER_ERRORS_INDEXING_FILTER_TOTAL = "errors_indexing_filter_total";
 
   /** Documents indexed (added or updated). */
   public static final String INDEXER_INDEXED_TOTAL = "indexed_total";
@@ -250,9 +238,6 @@ public final class NutchMetrics {
   // =========================================================================
   // HostDb Counters
   // =========================================================================
-
-  /** Malformed URLs in HostDb. */
-  public static final String HOSTDB_MALFORMED_URL_TOTAL = "malformed_url_total";
 
   /** Records filtered in HostDb. */
   public static final String HOSTDB_FILTERED_RECORDS_TOTAL = "filtered_records_total";
@@ -349,14 +334,8 @@ public final class NutchMetrics {
   /** Omitted empty responses in WARC export. */
   public static final String WARC_OMITTED_EMPTY_RESPONSE_TOTAL = "omitted_empty_response_total";
 
-  /** Invalid URIs in WARC export. */
-  public static final String WARC_INVALID_URI_TOTAL = "invalid_uri_total";
-
   /** WARC records generated. */
   public static final String WARC_RECORDS_GENERATED_TOTAL = "records_generated_total";
-
-  /** Exceptions during WARC export. */
-  public static final String WARC_EXCEPTION_TOTAL = "exception_total";
 
   // =========================================================================
   // Domain Statistics Counters (enum-based, kept for compatibility)
@@ -392,5 +371,65 @@ public final class NutchMetrics {
    * Used with {@link LatencyTracker} to emit indexing timing counters.
    */
   public static final String INDEXER_LATENCY = "index_latency";
+
+  // =========================================================================
+  // Common Error Counter Names (used with component-specific groups)
+  // These constants are shared across all components for consistent error
+  // categorization. Use with ErrorTracker for automatic classification.
+  // =========================================================================
+
+  /**
+   * Total errors across all categories.
+   * This is incremented alongside any category-specific error counter.
+   */
+  public static final String ERROR_TOTAL = "errors_total";
+
+  /**
+   * Network-related errors.
+   * Includes: IOException, SocketException, ConnectException, UnknownHostException
+   */
+  public static final String ERROR_NETWORK_TOTAL = "errors_network_total";
+
+  /**
+   * Protocol errors.
+   * Includes: ProtocolException, ProtocolNotFound
+   */
+  public static final String ERROR_PROTOCOL_TOTAL = "errors_protocol_total";
+
+  /**
+   * Parsing errors.
+   * Includes: ParseException, ParserNotFound
+   */
+  public static final String ERROR_PARSING_TOTAL = "errors_parsing_total";
+
+  /**
+   * URL-related errors.
+   * Includes: MalformedURLException, URLFilterException
+   */
+  public static final String ERROR_URL_TOTAL = "errors_url_total";
+
+  /**
+   * Scoring filter errors.
+   * Includes: ScoringFilterException
+   */
+  public static final String ERROR_SCORING_TOTAL = "errors_scoring_total";
+
+  /**
+   * Indexing filter errors.
+   * Includes: IndexingException
+   */
+  public static final String ERROR_INDEXING_TOTAL = "errors_indexing_total";
+
+  /**
+   * Timeout errors.
+   * Includes: SocketTimeoutException, connection timeouts
+   */
+  public static final String ERROR_TIMEOUT_TOTAL = "errors_timeout_total";
+
+  /**
+   * Other uncategorized errors.
+   * Used as fallback for exceptions not matching any specific category.
+   */
+  public static final String ERROR_OTHER_TOTAL = "errors_other_total";
 }
 

@@ -48,6 +48,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -328,6 +329,10 @@ public class WebGraph extends Configured implements Tool {
       // url normalizers, filters and job configuration
       private Configuration conf;
 
+      // Cached counter references for performance
+      private Counter addedLinksCounter;
+      private Counter removedLinksCounter;
+
       /**
        * Configures the OutlinkDb job reducer. Sets up internal links and link limiting.
        */
@@ -340,6 +345,18 @@ public class WebGraph extends Configured implements Tool {
         limitPages = conf.getBoolean("link.ignore.limit.page", true);
         limitDomains = conf.getBoolean("link.ignore.limit.domain", true);
         
+        // Initialize cached counter references
+        initCounters(context);
+      }
+
+      /**
+       * Initialize cached counter references to avoid repeated lookups in hot paths.
+       */
+      private void initCounters(Context context) {
+        addedLinksCounter = context.getCounter(
+            NutchMetrics.GROUP_WEBGRAPH, NutchMetrics.WEBGRAPH_ADDED_LINKS_TOTAL);
+        removedLinksCounter = context.getCounter(
+            NutchMetrics.GROUP_WEBGRAPH, NutchMetrics.WEBGRAPH_REMOVED_LINKS_TOTAL);
       }
    
       @Override
@@ -362,16 +379,14 @@ public class WebGraph extends Configured implements Tool {
               mostRecent = timestamp;
             }
             outlinkList.add(WritableUtils.clone(next, conf));
-            context.getCounter(NutchMetrics.GROUP_WEBGRAPH,
-                NutchMetrics.WEBGRAPH_ADDED_LINKS_TOTAL).increment(1);
+            addedLinksCounter.increment(1);
           } else if (value instanceof BooleanWritable) {
             BooleanWritable delete = (BooleanWritable) value;
             // Actually, delete is always true, otherwise we don't emit it in the
             // mapper in the first place
             if (delete.get() == true) {
               // This page is gone, do not emit it's outlinks
-              context.getCounter(NutchMetrics.GROUP_WEBGRAPH,
-                  NutchMetrics.WEBGRAPH_REMOVED_LINKS_TOTAL).increment(1);
+              removedLinksCounter.increment(1);
               return;
             }
           }

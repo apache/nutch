@@ -38,6 +38,7 @@ import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.fetcher.Fetcher.FetcherRun;
 import org.apache.nutch.fetcher.FetcherThreadEvent.PublishEventType;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.LatencyTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.metadata.Metadata;
@@ -171,6 +172,9 @@ public class FetcherThread extends Thread {
   // Latency tracker for fetch timing metrics
   private LatencyTracker fetchLatencyTracker;
 
+  // Error tracker for categorized error metrics
+  private ErrorTracker errorTracker;
+
   public FetcherThread(Configuration conf, AtomicInteger activeThreads, FetchItemQueues fetchQueues, 
       QueueFeeder feeder, AtomicInteger spinWaiting, AtomicLong lastRequestStart, FetcherRun.Context context,
       AtomicInteger errors, String segmentName, boolean parsing, boolean storingContent, 
@@ -294,6 +298,9 @@ public class FetcherThread extends Thread {
     // Initialize latency tracker for fetch timing
     fetchLatencyTracker = new LatencyTracker(
         NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_LATENCY);
+    
+    // Initialize error tracker for categorized error metrics
+    errorTracker = new ErrorTracker(NutchMetrics.GROUP_FETCHER);
   }
 
   @Override
@@ -553,15 +560,7 @@ public class FetcherThread extends Thread {
         } catch (Throwable t) { // unexpected exception
           // unblock
           fetchQueues.finishFetchItem(fit);
-          String message;
-          if (LOG.isDebugEnabled()) {
-            message = StringUtils.stringifyException(t);
-          } else if (logUtil.logShort(t)) {
-            message = t.getClass().getName();
-          } else {
-            message = StringUtils.stringifyException(t);
-          }
-          logError(fit.url, message);
+          logError(fit.url, t);
           output(fit.url, fit.datum, null, ProtocolStatus.STATUS_FAILED,
               CrawlDatum.STATUS_FETCH_RETRY);
         }
@@ -575,6 +574,8 @@ public class FetcherThread extends Thread {
       }
       // Emit fetch latency metrics
       fetchLatencyTracker.emitCounters(context);
+      // Emit error metrics
+      errorTracker.emitCounters(context);
       activeThreads.decrementAndGet(); // count threads
       LOG.info("{} {} -finishing thread {}, activeThreads={}", getName(),
           Thread.currentThread().getId(), getName(), activeThreads);
@@ -694,10 +695,19 @@ public class FetcherThread extends Thread {
     return fit;
   }
 
+  private void logError(Text url, Throwable t) {
+    String message = t.getClass().getName() + ": " + t.getMessage();
+    LOG.info("{} {} fetch of {} failed with: {}", getName(),
+        Thread.currentThread().getId(), url, message);
+    errors.incrementAndGet();
+    errorTracker.recordError(t);
+  }
+
   private void logError(Text url, String message) {
     LOG.info("{} {} fetch of {} failed with: {}", getName(),
         Thread.currentThread().getId(), url, message);
     errors.incrementAndGet();
+    errorTracker.recordError(ErrorTracker.ErrorType.OTHER);
   }
 
   private ParseStatus output(Text key, CrawlDatum datum, Content content,
