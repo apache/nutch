@@ -61,7 +61,7 @@ done
 
 # if no args specified, show usage
 if [ $# = 0 ]; then
-  echo "nutch 1.22-SNAPSHOT"
+  echo "nutch 1.23-SNAPSHOT"
   echo "Usage: nutch COMMAND [-Dproperty=value]... [command-specific args]..."
   echo "where COMMAND is one of:"
   echo " (Crawl commands)"
