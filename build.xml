@@ -534,6 +534,10 @@
     <ant dir="src/plugin" target="test-single" inheritAll="false"/>
   </target>
 
+  <target name="test-indexer-integration" depends="resolve-test, compile, compile-core-test, job" description="--> run indexer plugin integration tests (Testcontainers)">
+    <ant dir="src/plugin" target="test-indexer-integration" inheritAll="false"/>
+  </target>
+
   <target name="nightly" depends="test, tar-src, zip-src" description="--> run the nightly target build">
   </target>
 

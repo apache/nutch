@@ -104,6 +104,8 @@ jobs:
               - 'src/testresources/**'
             plugins:
               - 'src/plugin/**'
+            indexer_plugins:
+              - 'src/plugin/indexer-*/**'
             buildconf:
               - 'build.xml'
               - 'ivy/ivy.xml'
@@ -120,6 +122,10 @@ jobs:
       - name: test plugins
         if: ${{ steps.filter.outputs.plugins == 'true' && steps.filter.outputs.core == 'false' && steps.filter.outputs.buildconf == 'false' }}
         run: ant clean test-plugins -buildfile build.xml
+      # run indexer integration tests when indexer plugin files change (Docker required, ubuntu-latest only)
+      - name: test indexer integration
+        if: ${{ steps.filter.outputs.indexer_plugins == 'true' && matrix.os == 'ubuntu-latest' }}
+        run: ant clean test-indexer-integration -buildfile build.xml
       - name: Check for test results
         id: check_tests
         if: always() && matrix.os == 'ubuntu-latest'
