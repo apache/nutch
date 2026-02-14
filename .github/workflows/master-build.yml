@@ -73,6 +73,27 @@ jobs:
       - name: Fail if any unknown licenses
         if: ${{ env.UNKNOWN_LICENSES != '0 Unknown Licenses' }}
         run: exit 1
+  openapi-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
+        id: filter
+        with:
+          filters: |
+            openapi:
+              - 'openapi.yaml'
+      - name: Set up Node.js
+        if: steps.filter.outputs.openapi == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install IBM OpenAPI Validator
+        if: steps.filter.outputs.openapi == 'true'
+        run: npm install -g ibm-openapi-validator
+      - name: Validate OpenAPI specification
+        if: steps.filter.outputs.openapi == 'true'
+        run: npx lint-openapi openapi.yaml
   tests:
     strategy:
       matrix:
