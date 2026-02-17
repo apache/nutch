@@ -21,6 +21,8 @@ import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.http.HttpHost;
+import org.apache.nutch.indexer.AbstractIndexWriterIT;
+import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.util.NutchConfiguration;
@@ -29,14 +31,11 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -45,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Integration tests for ElasticIndexWriter using Testcontainers.
  */
 @Testcontainers(disabledWithoutDocker = true)
-public class ElasticIndexWriterIT {
+public class ElasticIndexWriterIT extends AbstractIndexWriterIT {
 
   private static final String ELASTICSEARCH_IMAGE =
       "docker.elastic.co/elasticsearch/elasticsearch:7.10.2";
@@ -59,8 +58,8 @@ public class ElasticIndexWriterIT {
   private ElasticIndexWriter indexWriter;
   private Configuration conf;
 
-  @BeforeEach
-  void setUp() throws Exception {
+  @Override
+  public void setUpIndexWriter() throws Exception {
     conf = NutchConfiguration.create();
     indexWriter = new ElasticIndexWriter();
     indexWriter.setConf(conf);
@@ -75,56 +74,40 @@ public class ElasticIndexWriterIT {
     indexWriter.open(writerParams);
   }
 
-  @AfterEach
-  void tearDown() throws Exception {
+  @Override
+  public void tearDownIndexWriter() throws Exception {
     if (indexWriter != null) {
       try {
         indexWriter.close();
       } catch (Exception e) {
         // Ignore if open() failed and close state is invalid
       }
+      indexWriter = null;
     }
   }
 
-  @Test
-  void testWriteAndCommitDocument() throws Exception {
-    NutchDocument doc = new NutchDocument();
-    doc.add("id", "test-doc-1");
-    doc.add("title", "Test Document");
-    doc.add("content", "This is a test document for integration testing.");
+  @Override
+  public IndexWriter getIndexWriter() {
+    return indexWriter;
+  }
 
-    assertDoesNotThrow(() -> indexWriter.write(doc));
-    assertDoesNotThrow(() -> indexWriter.commit());
-    indexWriter.close();
-    indexWriter = null;  // prevent tearDown from closing again
+  @Override
+  public boolean supportsDelete() {
+    return true;
+  }
 
-    // Refresh index and verify document via RestHighLevelClient
+  @Override
+  public void verifyDocumentWritten(String docId, String expectedTitle) throws Exception {
     try (RestHighLevelClient client = new RestHighLevelClient(
         RestClient.builder(
             new HttpHost(elasticsearchContainer.getHost(),
                 elasticsearchContainer.getMappedPort(9200),
                 "http")))) {
-      GetRequest getRequest = new GetRequest("test-index", "test-doc-1");
+      GetRequest getRequest = new GetRequest("test-index", docId);
       GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
       assertTrue(getResponse.isExists(), "Document should exist in index");
       assertNotNull(getResponse.getSource());
-      assertEquals("Test Document", getResponse.getSource().get("title"));
+      assertEquals(expectedTitle, getResponse.getSource().get("title"));
     }
-  }
-
-  @Test
-  void testDeleteDocument() throws Exception {
-    String docId = "test-doc-to-delete";
-
-    // Write a document first
-    NutchDocument doc = new NutchDocument();
-    doc.add("id", docId);
-    doc.add("title", "Document to Delete");
-    indexWriter.write(doc);
-    indexWriter.commit();
-
-    // Delete the document
-    assertDoesNotThrow(() -> indexWriter.delete(docId));
-    assertDoesNotThrow(() -> indexWriter.commit());
   }
 }
