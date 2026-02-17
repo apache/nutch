@@ -16,10 +16,13 @@
  */
 package org.apache.nutch.indexer.geoip;
 
-import java.lang.invoke.MethodHandles;
-import java.net.URL;
-import java.io.File;
+import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
+import java.util.EnumMap;
+import java.util.Map;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -32,204 +35,224 @@ import org.apache.nutch.parse.ParseData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.maxmind.db.CHMCache;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.WebServiceClient;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
 
 /**
- * This plugin implements an indexing filter which takes advantage of the <a
- * href="https://github.com/maxmind/GeoIP2-java">GeoIP2-java API</a>.
+ * <p>This plugin implements an indexing filter which takes advantage of the <a
+ * href="https://github.com/maxmind/GeoIP2-java">GeoIP2-java API</a>.</p>
  * <p>
  * The third party library distribution provides an API for the GeoIP2 <a
- * href="https://dev.maxmind.com/geoip/geoip2/web-services/">Precision web
- * services</a> and <a
- * href="https://dev.maxmind.com/geoip/geoip2/downloadable/">databases</a>. The
- * API also works with the free <a
- * href="https://dev.maxmind.com/geoip/geoip2/geolite2/">GeoLite2 databases</a>.
+ * href="https://dev.maxmind.com/geoip/geolocate-an-ip/web-services">Precision web
+ * services</a>, <a
+ * href="https://dev.maxmind.com/geoip/geolite2-free-geolocation-data">
+ * GeoLite2 (free)</a> and <a
+ * href="https://dev.maxmind.com/geoip/geolocate-an-ip/databases">databases</a>.
  * </p>
  * <p>
- * Depending on the service level agreement, you have with the GeoIP service
- * provider, the plugin can add a number of the following fields to the index
- * data model:
- * <ol>
- * <li>Continent</li>
- * <li>Country</li>
- * <li>Regional Subdivision</li>
- * <li>City</li>
- * <li>Postal Code</li>
- * <li>Latitude/Longitude</li>
- * <li>ISP/Organization</li>
- * <li>AS Number</li>
- * <li>Confidence Factors</li>
- * <li>Radius</li>
- * <li>User Type</li>
- * </ol>
- * 
- * <p>
- * Some of the services are documented at the <a
- * href="https://www.maxmind.com/en/geoip2-precision-services">GeoIP2 Precision
- * Services</a> webpage where more information can be obtained.
+ * Multiple databases can be configured simultaneously. Configure each database
+ * type you want to use by setting its corresponding property:
  * </p>
- * 
+ * <ul>
+ *   <li><code>index.geoip.db.anonymous</code> - Anonymous IP database</li>
+ *   <li><code>index.geoip.db.asn</code> - ASN database</li>
+ *   <li><code>index.geoip.db.city</code> - City database</li>
+ *   <li><code>index.geoip.db.connection</code> - Connection Type database</li>
+ *   <li><code>index.geoip.db.country</code> - Country database</li>
+ *   <li><code>index.geoip.db.domain</code> - Domain database</li>
+ *   <li><code>index.geoip.db.isp</code> - ISP database</li>
+ * </ul>
  * <p>
- * You should also consult the following three properties in
- * <code>nutch-site.xml</code>
+ * Alternatively, use the MaxMind Insights web service by setting
+ * <code>index.geoip.insights.userid</code> and <code>index.geoip.insights.licensekey</code>.
  * </p>
- * 
- * <pre>
- *  {@code
- * <!-- index-geoip plugin properties -->
- * <property>
- *   <name>index.geoip.usage</name>
- *   <value>insightsService</value>
- *   <description>
- *   A string representing the information source to be used for GeoIP information
- *   association. Either enter 'cityDatabase', 'connectionTypeDatabase', 
- *   'domainDatabase', 'ispDatabase' or 'insightsService'. If you wish to use any one of the 
- *   Database options, you should make one of GeoIP2-City.mmdb, GeoIP2-Connection-Type.mmdb, 
- *   GeoIP2-Domain.mmdb or GeoIP2-ISP.mmdb files respectively available on the Hadoop classpath 
- *   and available at runtime. This can be achieved by adding it to `$NUTCH_HOME/conf`.
- *   Alternatively, also the GeoLite2 IP databases (GeoLite2-*.mmdb) can be used.
- *   </description>
- * </property>
- * 
- * <property>
- *   <name>index.geoip.userid</name>
- *   <value></value>
- *   <description>
- *   The userId associated with the GeoIP2 Precision Services account.
- *   </description>
- * </property>
- * 
- * <property>
- *   <name>index.geoip.licensekey</name>
- *   <value></value>
- *   <description>
- *   The license key associated with the GeoIP2 Precision Services account.
- *   </description>
- * </property>
- * }
- * </pre>
- * 
  */
-public class GeoIPIndexingFilter implements IndexingFilter {
+public class GeoIPIndexingFilter implements IndexingFilter, Closeable {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
+  /**
+   * Supported GeoIP database types.
+   */
+  public enum DatabaseType {
+    ANONYMOUS("anonymous"),
+    ASN("asn"),
+    CITY("city"),
+    CONNECTION("connection"),
+    COUNTRY("country"),
+    DOMAIN("domain"),
+    ISP("isp");
+
+    private final String propertyName;
+
+    DatabaseType(String propertyName) {
+      this.propertyName = propertyName;
+    }
+
+    public String getPropertyName() {
+      return propertyName;
+    }
+  }
+
+  private static final String DB_PROPERTY_PREFIX = "index.geoip.db.";
+  private static final String INSIGHTS_USERID = "index.geoip.insights.userid";
+  private static final String INSIGHTS_LICENSEKEY = "index.geoip.insights.licensekey";
+
   private Configuration conf;
-
-  private String usage = null;
-
-  WebServiceClient client = null;
-
-  DatabaseReader reader = null;
-
-  // private AbstractResponse response = null;
+  private Map<DatabaseType, DatabaseReader> readers;
+  private WebServiceClient insightsClient;
 
   /**
    * Default constructor for this plugin
    */
   public GeoIPIndexingFilter() {
+    readers = new EnumMap<>(DatabaseType.class);
   }
 
-  /**
-   * @see org.apache.hadoop.conf.Configurable#getConf()
-   */
   @Override
   public Configuration getConf() {
     return this.conf;
   }
 
-  /**
-   * @see org.apache.hadoop.conf.Configurable#setConf(org.apache.hadoop.conf.Configuration)
-   */
   @Override
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-    usage = conf.get("index.geoip.usage", "insightsService");
-    LOG.debug("GeoIP usage medium set to: {}", usage);
-    if (usage.equalsIgnoreCase("insightsService")) {
-      client = new WebServiceClient.Builder(
-          conf.getInt("index.geoip.userid", 12345),
-          conf.get("index.geoip.licensekey")).build();
-    } else {
-      String dbSuffix = null;
-      if (usage.equalsIgnoreCase("cityDatabase")) {
-        dbSuffix = "-City.mmdb";
-      } else if (usage.equalsIgnoreCase("connectionTypeDatabase")) {
-        dbSuffix = "-Connection-Type.mmdb";
-      } else if (usage.equalsIgnoreCase("domainDatabase")) {
-        dbSuffix = "-Domain.mmdb";
-      } else if (usage.equalsIgnoreCase("ispDatabase")) {
-        dbSuffix = "-ISP.mmdb";
-      }
-      String[] dbPrefixes = {"GeoIP2", "GeoLite2"};
-      for (String dbPrefix : dbPrefixes) {
-        String db = dbPrefix + dbSuffix;
-        URL dbFileUrl = conf.getResource(db);
-        if (dbFileUrl == null) {
-          LOG.error("GeoDb file {} not found on classpath", db);
-        } else {
-          try {
-            LOG.info("Reading GeoDb file {}", db);
-            buildDb(new File(dbFileUrl.getFile()));
-          } catch (Exception e) {
-            LOG.error("Failed to read geoDb file {}: ", db, e);
-          }
-        }
-      }
+  public void setConf(Configuration config) {
+    conf = config;
+    if (!config.getBoolean("store.ip.address", false)) {
+      LOG.warn("Plugin index-geoip is active but IP address is not stored. "
+          + "'store.ip.address' must be set to true in nutch-site.xml.");
     }
-    if (!conf.getBoolean("store.ip.address", false)) {
-      LOG.warn("Plugin index-geoip is active but IP address is not stored"
-          + "(store.ip.address == false)");
-    }
-  }
 
-  private void buildDb(File geoDb) {
-    try {
-      reader = new DatabaseReader.Builder(geoDb).build();
-    } catch (IOException e) {
-      LOG.error("Failed to build geoDb:", e);
+    // Initialize Insights web service if configured
+    String userId = config.get(INSIGHTS_USERID);
+    String licenseKey = config.get(INSIGHTS_LICENSEKEY);
+    if (userId != null && !userId.isEmpty() && licenseKey != null && !licenseKey.isEmpty()) {
+      insightsClient = new WebServiceClient.Builder(
+          Integer.parseInt(userId), licenseKey).build();
+      LOG.info("Initialized MaxMind Insights web service client.");
+    }
+
+    // Initialize database readers for each configured database type
+    for (DatabaseType dbType : DatabaseType.values()) {
+      String dbFile = config.get(DB_PROPERTY_PREFIX + dbType.getPropertyName());
+      if (dbFile != null && !dbFile.isEmpty()) {
+        loadDatabase(dbType, dbFile, config);
+      }
+    }
+
+    if (readers.isEmpty() && insightsClient == null) {
+      LOG.warn("No GeoIP databases or Insights service configured. "
+          + "Set index.geoip.db.<type> properties or index.geoip.insights.* properties.");
+    } else {
+      LOG.debug("GeoIP plugin initialized with {} database(s){}",
+          readers.size(),
+          insightsClient != null ? " and Insights service" : "");
     }
   }
 
   /**
-   * 
-   * @see org.apache.nutch.indexer.IndexingFilter#filter(org.apache.nutch.indexer.NutchDocument,
-   *      org.apache.nutch.parse.Parse, org.apache.hadoop.io.Text,
-   *      org.apache.nutch.crawl.CrawlDatum, org.apache.nutch.crawl.Inlinks)
+   * Load a GeoIP database from the classpath.
+   * @param dbType the database type
+   * @param dbFile the database file name
+   * @param config the Hadoop configuration
    */
+  private void loadDatabase(DatabaseType dbType, String dbFile, Configuration config) {
+    InputStream db = config.getConfResourceAsInputStream(dbFile);
+    if (db == null) {
+      LOG.error("GeoIP {} database file '{}' not found on classpath", dbType, dbFile);
+      return;
+    }
+    try {
+      DatabaseReader reader = new DatabaseReader.Builder(db)
+          .withCache(new CHMCache())
+          .build();
+      readers.put(dbType, reader);
+      LOG.debug("Loaded GeoIP {} database from file: {}", dbType, dbFile);
+    } catch (IOException e) {
+      LOG.error("Failed to load GeoIP {} database from file: {} - {}",
+          dbType, dbFile, e.getMessage());
+    }
+  }
+
   @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
-    return addServerGeo(doc, parse.getData(), url.toString());
+    return augmentNutchDocWithIPData(doc, parse.getData());
   }
 
-  private NutchDocument addServerGeo(NutchDocument doc, ParseData data,
-      String url) {
-
+  private NutchDocument augmentNutchDocWithIPData(NutchDocument doc, ParseData data) {
     String serverIp = data.getContentMeta().get("_ip_");
-    if (serverIp != null && reader != null) {
+    if (serverIp == null || serverIp.isEmpty()) {
+      return doc;
+    }
+
+    if (readers.isEmpty() && insightsClient == null) {
+      return doc;
+    }
+
+    // Query each configured database
+    for (Map.Entry<DatabaseType, DatabaseReader> entry : readers.entrySet()) {
       try {
-        if (usage.equalsIgnoreCase("cityDatabase")) {
-          doc = GeoIPDocumentCreator.createDocFromCityDb(serverIp, doc, reader);
-        } else if (usage.equalsIgnoreCase("connectionTypeDatabase")) {
-          doc = GeoIPDocumentCreator.createDocFromConnectionDb(serverIp, doc,
-              reader);
-        } else if (usage.equalsIgnoreCase("domainDatabase")) {
-          doc = GeoIPDocumentCreator.createDocFromDomainDb(serverIp, doc,
-              reader);
-        } else if (usage.equalsIgnoreCase("ispDatabase")) {
-          doc = GeoIPDocumentCreator.createDocFromIspDb(serverIp, doc, reader);
-        } else if (usage.equalsIgnoreCase("insightsService")) {
-          doc = GeoIPDocumentCreator.createDocFromInsightsService(serverIp, doc,
-              client);
-        }
-      } catch (Exception e) {
-        LOG.error("Failed to determine geoip:", e);
+        doc = queryDatabase(entry.getKey(), serverIp, doc, entry.getValue());
+      } catch (IOException | GeoIp2Exception e) {
+        LOG.error("Error querying {} database for IP {}: {}",
+            entry.getKey(), serverIp, e.getMessage());
       }
     }
+
+    // Query Insights service if configured
+    if (insightsClient != null) {
+      try {
+        doc = GeoIPDocumentCreator.createDocFromInsightsService(serverIp, doc, insightsClient);
+      } catch (IOException | GeoIp2Exception e) {
+        LOG.error("Error querying Insights service for IP {}: {}", serverIp, e.getMessage());
+      }
+    }
+
     return doc;
+  }
+
+  /**
+   * Query the appropriate database based on type.
+   */
+  private NutchDocument queryDatabase(DatabaseType dbType, String serverIp,
+      NutchDocument doc, DatabaseReader reader) throws IOException, GeoIp2Exception {
+    switch (dbType) {
+      case ANONYMOUS:
+        return GeoIPDocumentCreator.createDocFromAnonymousIpDb(serverIp, doc, reader);
+      case ASN:
+        return GeoIPDocumentCreator.createDocFromAsnDb(serverIp, doc, reader);
+      case CITY:
+        return GeoIPDocumentCreator.createDocFromCityDb(serverIp, doc, reader);
+      case CONNECTION:
+        return GeoIPDocumentCreator.createDocFromConnectionDb(serverIp, doc, reader);
+      case COUNTRY:
+        return GeoIPDocumentCreator.createDocFromCountryDb(serverIp, doc, reader);
+      case DOMAIN:
+        return GeoIPDocumentCreator.createDocFromDomainDb(serverIp, doc, reader);
+      case ISP:
+        return GeoIPDocumentCreator.createDocFromIspDb(serverIp, doc, reader);
+      default:
+        LOG.warn("Unknown database type: {}", dbType);
+        return doc;
+    }
+  }
+
+  @Override
+  public void close() throws IOException {
+    for (Map.Entry<DatabaseType, DatabaseReader> entry : readers.entrySet()) {
+      try {
+        entry.getValue().close();
+      } catch (IOException e) {
+        LOG.warn("Error closing {} database reader: {}", entry.getKey(), e.getMessage());
+      }
+    }
+    readers.clear();
+
+    // WebServiceClient doesn't implement Closeable in GeoIP2 5.x
+    insightsClient = null;
   }
 
 }

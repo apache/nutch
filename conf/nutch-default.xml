@@ -2231,33 +2231,98 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 </property>
 
 <!-- index-geoip plugin properties -->
+<!-- 
+  To use the index-geoip plugin, you must set 'store.ip.address' to true.
+  
+  Configure one or more GeoIP databases by setting the corresponding property below.
+  Each database type can be enabled independently - set any combination you need.
+  Database files must be in MMDB format and available on the Hadoop classpath
+  (e.g., place them in $NUTCH_HOME/conf).
+  
+  More information: https://support.maxmind.com/knowledge-base/articles/maxmind-database-formats
+-->
+
 <property>
-  <name>index.geoip.usage</name>
-  <value>insightsService</value>
+  <name>index.geoip.db.anonymous</name>
+  <value></value>
   <description>
-  A string representing the information source to be used for GeoIP information
-  association. Either enter 'cityDatabase', 'connectionTypeDatabase',
-  'domainDatabase', 'ispDatabase' or 'insightsService'. If you wish to use any one of the
-  Database options, you should make one of GeoIP2-City.mmdb, GeoIP2-Connection-Type.mmdb,
-  GeoIP2-Domain.mmdb or GeoIP2-ISP.mmdb files respectively available on the classpath and
-  available at runtime. Alternatively, also the GeoLite2 IP databases (GeoLite2-*.mmdb)
-  can be used.
+  GeoIP2 Anonymous IP database file (MMDB format).
+  Identifies anonymous proxies, VPNs, Tor exit nodes, and hosting providers.
   </description>
 </property>
 
 <property>
-  <name>index.geoip.userid</name>
+  <name>index.geoip.db.asn</name>
   <value></value>
   <description>
-  The userId associated with the GeoIP2 Precision Services account.
+  GeoIP2/GeoLite2 ASN database file (MMDB format).
+  Provides autonomous system number and organization information.
   </description>
 </property>
 
 <property>
-  <name>index.geoip.licensekey</name>
+  <name>index.geoip.db.city</name>
   <value></value>
   <description>
-  The license key associated with the GeoIP2 Precision Services account.
+  GeoIP2/GeoLite2 City database file (MMDB format).
+  Provides city, subdivision, country, continent, and location data.
+  </description>
+</property>
+
+<property>
+  <name>index.geoip.db.connection</name>
+  <value></value>
+  <description>
+  GeoIP2 Connection Type database file (MMDB format).
+  Identifies connection type: Cable/DSL, Cellular, Corporate, or Satellite.
+  </description>
+</property>
+
+<property>
+  <name>index.geoip.db.country</name>
+  <value></value>
+  <description>
+  GeoIP2/GeoLite2 Country database file (MMDB format).
+  Provides country, continent, and represented country information.
+  This is a lighter-weight alternative to the City database when only
+  country-level information is needed.
+  </description>
+</property>
+
+<property>
+  <name>index.geoip.db.domain</name>
+  <value></value>
+  <description>
+  GeoIP2 Domain database file (MMDB format).
+  Provides the second-level domain associated with the IP address.
+  </description>
+</property>
+
+<property>
+  <name>index.geoip.db.isp</name>
+  <value></value>
+  <description>
+  GeoIP2 ISP database file (MMDB format).
+  Provides ISP, organization, and autonomous system information.
+  </description>
+</property>
+
+<!-- MaxMind Insights Web Service (alternative to local databases) -->
+<property>
+  <name>index.geoip.insights.userid</name>
+  <value></value>
+  <description>
+  The userId for the MaxMind GeoIP2 Precision Insights web service.
+  If set along with licensekey, the Insights service will be queried in addition
+  to any configured local databases.
+  </description>
+</property>
+
+<property>
+  <name>index.geoip.insights.licensekey</name>
+  <value></value>
+  <description>
+  The license key for the MaxMind GeoIP2 Precision Insights web service.
   </description>
 </property>
 
