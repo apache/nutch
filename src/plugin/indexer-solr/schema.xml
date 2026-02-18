@@ -353,37 +353,85 @@
     <field name="tstamp" type="date" stored="true" indexed="false"/>
 
     <!-- fields for index-geoip plugin -->
-    <field name="ip" type="string" stored="true" indexed="true" />
-    <field name="cityName" type="string" stored="true" indexed="true" />
-    <field name="cityConfidence" type="int" stored="true" indexed="true" />
-    <field name="cityGeoNameId" type="int" stored="true" indexed="true" />
-    <field name="continentCode" type="string" stored="true" indexed="true" />
-    <field name="continentGeoNameId" type="int" stored="true" indexed="true" />
-    <field name="continentName" type="string" stored="true" indexed="true" />
+    <!-- Common fields -->
+    <field name="ip" type="string" stored="true" indexed="true"/>
+    
+    <!-- Database-specific network address fields -->
+    <field name="anonymousNetworkAddress" type="string" stored="true" indexed="true"/>
+    <field name="asnNetworkAddress" type="string" stored="true" indexed="true"/>
+    <field name="cityNetworkAddress" type="string" stored="true" indexed="true"/>
+    <field name="connectionNetworkAddress" type="string" stored="true" indexed="true"/>
+    <field name="countryNetworkAddress" type="string" stored="true" indexed="true"/>
+    <field name="domainNetworkAddress" type="string" stored="true" indexed="true"/>
+    <field name="insightsNetworkAddress" type="string" stored="true" indexed="true"/>
+    
+    <!-- City database fields -->
+    <field name="cityName" type="string" stored="true" indexed="true"/>
+    <field name="cityConfidence" type="pint" stored="true" indexed="true"/>
+    <field name="cityGeoNameId" type="pint" stored="true" indexed="true"/>
+    <field name="continentCode" type="string" stored="true" indexed="true"/>
+    <field name="continentGeoNameId" type="pint" stored="true" indexed="true"/>
+    <field name="continentName" type="string" stored="true" indexed="true"/>
     <field name="countryIsoCode" type="string" stored="true" indexed="true"/>
-    <field name="countryName" type="string" stored="true" indexed="true" />
-    <field name="countryConfidence" type="int" stored="true" indexed="true"/>
-    <field name="countryGeoNameId" type="int" stored="true" indexed="true"/>
+    <field name="countryName" type="string" stored="true" indexed="true"/>
+    <field name="countryConfidence" type="pint" stored="true" indexed="true"/>
+    <field name="countryGeoNameId" type="pint" stored="true" indexed="true"/>
+    <field name="countryInEuropeanUnion" type="boolean" stored="true" indexed="true"/>
     <field name="latLon" type="string" stored="true" indexed="true"/>
-    <field name="accRadius" type="int" stored="true" indexed="true"/>
+    <field name="accuracyRadius" type="pint" stored="true" indexed="true"/>
     <field name="timeZone" type="string" stored="true" indexed="true"/>
-    <field name="metroCode" type="int" stored="true" indexed="true" />
-    <field name="postalCode" type="string" stored="true" indexed="true" />
-    <field name="postalConfidence" type="int" stored="true" indexed="true" />
-    <field name="countryType" type="string" stored="true" indexed="true" />
-    <field name="subDivName" type="string" stored="true" indexed="true" />
-    <field name="subDivIsoCode" type="string" stored="true" indexed="true" />
-    <field name="subDivConfidence" type="int" stored="true" indexed="true" />
-    <field name="subDivGeoNameId" type="int" stored="true" indexed="true" /> 
-    <field name="autonSystemNum" type="int" stored="true" indexed="true" />
-    <field name="autonSystemOrg" type="string" stored="true" indexed="true" />
-    <field name="domain" type="string" stored="true" indexed="true" />
-    <field name="isp" type="string" stored="true" indexed="true" />
-    <field name="org" type="string" stored="true" indexed="true" />
-    <field name="userType" type="string" stored="true" indexed="true" />
-    <field name="isAnonProxy" type="boolean" stored="true" indexed="true" />
-    <field name="connType" type="string" stored="true" indexed="true" />
-    <field name="location" type="location" stored="true" indexed="true" />
+    <field name="populationDensity" type="pint" stored="true" indexed="true"/>
+    <field name="postalCode" type="string" stored="true" indexed="true"/>
+    <field name="postalConfidence" type="pint" stored="true" indexed="true"/>
+    <field name="countryType" type="string" stored="true" indexed="true"/>
+    
+    <!-- Subdivision fields (most specific) -->
+    <field name="mostSpecificSubDivName" type="string" stored="true" indexed="true"/>
+    <field name="mostSpecificSubDivIsoCode" type="string" stored="true" indexed="true"/>
+    <field name="mostSpecificSubDivConfidence" type="pint" stored="true" indexed="true"/>
+    <field name="mostSpecificSubDivGeoNameId" type="pint" stored="true" indexed="true"/>
+    
+    <!-- Subdivision fields (least specific) -->
+    <field name="leastSpecificSubDivName" type="string" stored="true" indexed="true"/>
+    <field name="leastSpecificSubDivIsoCode" type="string" stored="true" indexed="true"/>
+    <field name="leastSpecificSubDivConfidence" type="pint" stored="true" indexed="true"/>
+    <field name="leastSpecificSubDivGeoNameId" type="pint" stored="true" indexed="true"/>
+    
+    <!-- ASN/ISP database fields -->
+    <field name="autonomousSystemNumber" type="plong" stored="true" indexed="true"/>
+    <field name="autonomousSystemOrganization" type="string" stored="true" indexed="true"/>
+    <field name="autonSystemNum" type="plong" stored="true" indexed="true"/>
+    <field name="autonSystemOrg" type="string" stored="true" indexed="true"/>
+    <field name="isp" type="string" stored="true" indexed="true"/>
+    <field name="org" type="string" stored="true" indexed="true"/>
+    <field name="organization" type="string" stored="true" indexed="true"/>
+    
+    <!-- Domain database fields -->
+    <field name="domain" type="string" stored="true" indexed="true"/>
+    
+    <!-- Connection Type database fields -->
+    <field name="connectionType" type="string" stored="true" indexed="true"/>
+    
+    <!-- Anonymous IP / Traits fields -->
+    <field name="isAnonymous" type="boolean" stored="true" indexed="true"/>
+    <field name="isAnonymousVpn" type="boolean" stored="true" indexed="true"/>
+    <field name="isHostingProxy" type="boolean" stored="true" indexed="true"/>
+    <field name="isHostingProvider" type="boolean" stored="true" indexed="true"/>
+    <field name="isPublicProxy" type="boolean" stored="true" indexed="true"/>
+    <field name="isResidentialProxy" type="boolean" stored="true" indexed="true"/>
+    <field name="isTorExitNode" type="boolean" stored="true" indexed="true"/>
+    <field name="isAnycast" type="boolean" stored="true" indexed="true"/>
+    <field name="isLegitimateProxy" type="boolean" stored="true" indexed="true"/>
+    
+    <!-- Mobile/Network traits fields -->
+    <field name="mobileCountryCode" type="string" stored="true" indexed="true"/>
+    <field name="mobileNetworkCode" type="string" stored="true" indexed="true"/>
+    <field name="staticIpScore" type="pfloat" stored="true" indexed="true"/>
+    <field name="userCount" type="pint" stored="true" indexed="true"/>
+    <field name="userType" type="string" stored="true" indexed="true"/>
+    
+    <!-- Spatial location field (derived from latLon via copyField) -->
+    <field name="location" type="location" stored="true" indexed="true"/>
 
     <dynamicField name="*_coordinate" type="tdouble" indexed="true" stored="false"/>
 
