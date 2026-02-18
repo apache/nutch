@@ -211,7 +211,6 @@
           otherwise the Javascript search is broken,
           see https://bugs.openjdk.org/browse/JDK-8215291
       -->
-      <!-- no-module-directories flag not needed for Java 17+ -->
 
       <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
@@ -665,7 +664,6 @@
           otherwise the Javascript search is broken,
           see https://bugs.openjdk.org/browse/JDK-8215291
       -->
-      <!-- no-module-directories flag not needed for Java 17+ -->
 
       <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>

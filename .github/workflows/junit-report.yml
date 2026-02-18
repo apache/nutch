@@ -24,19 +24,11 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - artifact: junit-test-results-ubuntu-latest
-            check_name: JUnit Test Report (Ubuntu)
-          - artifact: junit-test-results-macos-latest
-            check_name: JUnit Test Report (macOS)
     steps:
-      - name: Download Test Report
-        id: download
+      - name: Download Test Report (Ubuntu)
         uses: dawidd6/action-download-artifact@v11
         with:
-          name: ${{ matrix.artifact }}
+          name: junit-test-results-ubuntu-latest
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
         continue-on-error: true
