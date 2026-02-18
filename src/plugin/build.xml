@@ -120,7 +120,7 @@
      <ant dir="index-anchor" target="test"/>
      <ant dir="index-arbitrary" target="test"/>
      <ant dir="index-basic" target="test"/>
-     <!--ant dir="index-geoip" target="test"/-->
+     <ant dir="index-geoip" target="test"/>
      <ant dir="index-jexl-filter" target="test"/>
      <ant dir="index-links" target="test"/>
      <ant dir="index-more" target="test"/>

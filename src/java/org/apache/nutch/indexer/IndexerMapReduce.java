@@ -41,6 +41,7 @@ import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.crawl.LinkDb;
 import org.apache.nutch.crawl.NutchWritable;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.LatencyTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.metadata.Metadata;
@@ -226,11 +227,12 @@ public class IndexerMapReduce extends Configured {
     private Counter deletedRedirectsCounter;
     private Counter deletedDuplicatesCounter;
     private Counter skippedNotModifiedCounter;
-    private Counter errorsScoringFilterCounter;
-    private Counter errorsIndexingFilterCounter;
     private Counter deletedByIndexingFilterCounter;
     private Counter skippedByIndexingFilterCounter;
     private Counter indexedCounter;
+    
+    // Error tracker with cached counters
+    private ErrorTracker errorTracker;
 
     @Override
     public void setup(Reducer<Text, NutchWritable, Text, NutchIndexAction>.Context context) {
@@ -279,16 +281,14 @@ public class IndexerMapReduce extends Configured {
           NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_DELETED_DUPLICATES_TOTAL);
       skippedNotModifiedCounter = context.getCounter(
           NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_SKIPPED_NOT_MODIFIED_TOTAL);
-      errorsScoringFilterCounter = context.getCounter(
-          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_ERRORS_SCORING_FILTER_TOTAL);
-      errorsIndexingFilterCounter = context.getCounter(
-          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_ERRORS_INDEXING_FILTER_TOTAL);
       deletedByIndexingFilterCounter = context.getCounter(
           NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_DELETED_BY_INDEXING_FILTER_TOTAL);
       skippedByIndexingFilterCounter = context.getCounter(
           NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_SKIPPED_BY_INDEXING_FILTER_TOTAL);
       indexedCounter = context.getCounter(
           NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_INDEXED_TOTAL);
+      // Initialize error tracker with cached counters
+      errorTracker = new ErrorTracker(NutchMetrics.GROUP_INDEXER, context);
     }
 
     @Override
@@ -416,7 +416,7 @@ public class IndexerMapReduce extends Configured {
         boost = scfilters.indexerScore(key, doc, dbDatum, fetchDatum, parse,
             inlinks, boost);
       } catch (final ScoringFilterException e) {
-        errorsScoringFilterCounter.increment(1);
+        errorTracker.incrementCounters(e);
         LOG.warn("Error calculating score {}: {}", key, e);
         return;
       }
@@ -451,7 +451,7 @@ public class IndexerMapReduce extends Configured {
         doc = filters.filter(doc, parse, key, fetchDatum, inlinks);
       } catch (final IndexingException e) {
         LOG.warn("Error indexing {}: ", key, e);
-        errorsIndexingFilterCounter.increment(1);
+        errorTracker.incrementCounters(e);
         return;
       }
 

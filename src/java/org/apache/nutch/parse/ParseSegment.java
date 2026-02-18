@@ -37,6 +37,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.LatencyTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.protocols.Response;
@@ -83,6 +84,7 @@ public class ParseSegment extends NutchTool implements Tool {
     private ScoringFilters scfilters;
     private boolean skipTruncated;
     private LatencyTracker parseLatencyTracker;
+    private ErrorTracker errorTracker;
 
     @Override
     public void setup(Mapper<WritableComparable<?>, Content, Text, ParseImpl>.Context context) {
@@ -91,6 +93,8 @@ public class ParseSegment extends NutchTool implements Tool {
       skipTruncated = conf.getBoolean(SKIP_TRUNCATED, true);
       parseLatencyTracker = new LatencyTracker(
           NutchMetrics.GROUP_PARSER, NutchMetrics.PARSER_LATENCY);
+      // Initialize error tracker with cached counters
+      errorTracker = new ErrorTracker(NutchMetrics.GROUP_PARSER, context);
     }
 
     @Override
@@ -133,6 +137,7 @@ public class ParseSegment extends NutchTool implements Tool {
         parseResult = parseUtil.parse(content);
       } catch (Exception e) {
         LOG.warn("Error parsing: {}: {}", key, StringUtils.stringifyException(e));
+        errorTracker.incrementCounters(e);
         return;
       }
 
@@ -164,6 +169,7 @@ public class ParseSegment extends NutchTool implements Tool {
           scfilters.passScoreAfterParsing(url, content, parse);
         } catch (ScoringFilterException e) {
           LOG.warn("Error passing score: {}: {}", url, e.getMessage());
+          errorTracker.incrementCounters(ErrorTracker.ErrorType.SCORING);
         }
 
         long end = System.currentTimeMillis();

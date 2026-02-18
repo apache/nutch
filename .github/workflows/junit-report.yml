@@ -41,19 +41,21 @@ jobs:
           run_id: ${{ github.event.workflow_run.id }}
         continue-on-error: true
       - name: Publish Test Report
-        if: steps.download.outcome == 'success'
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@v6
         with:
           report_paths: |-
             ./test/TEST-*.xml
             ./**/test/TEST-*.xml
-          check_name: ${{ matrix.check_name }}
+          check_name: |-
+            JUnit Test Report
+            JUnit Test Report Plugins
           commit: ${{ github.event.workflow_run.head_sha }}
           fail_on_failure: false
-          fail_on_parse_error: false
+          fail_on_parse_error: true
           require_tests: true
           require_passed_tests: true
           include_passed: false
+          include_skipped: true
           check_annotations: true
           annotate_notice: true
           job_summary: true

@@ -506,7 +506,7 @@
       <testclasses outputDir="${test.build.dir}" unless="testcase">
         <listener type="legacy-plain" sendSysOut="true" sendSysErr="true"/>
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
-        <fork>
+        <fork forkMode="perTestClass">
           <jvmarg value="-Xmx1000m"/>
           <sysproperty key="test.build.data" value="${test.build.data}"/>
           <sysproperty key="test.src.dir" value="${test.src.dir}"/>
@@ -522,7 +522,7 @@
       <testclasses outputDir="${test.build.dir}" if="testcase">
         <listener type="legacy-plain" sendSysOut="true" sendSysErr="true"/>
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
-        <fork>
+        <fork forkMode="perTestClass">
           <jvmarg value="-Xmx1000m"/>
           <sysproperty key="test.build.data" value="${test.build.data}"/>
           <sysproperty key="test.src.dir" value="${test.src.dir}"/>
@@ -1198,6 +1198,7 @@
         <source path="${plugins.dir}/index-basic/src/java/" />
         <source path="${plugins.dir}/index-basic/src/test/" />
         <source path="${plugins.dir}/index-geoip/src/java/" />
+        <source path="${plugins.dir}/index-geoip/src/test/" />
         <source path="${plugins.dir}/index-jexl-filter/src/java/" />
         <source path="${plugins.dir}/index-jexl-filter/src/test/" />
         <source path="${plugins.dir}/index-links/src/java/" />
