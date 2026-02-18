@@ -114,16 +114,15 @@ jobs:
       - name: Verify bytecode version
         run: |
           # Extract and verify the bytecode version of compiled classes
-          JAR_FILE="build/apache-nutch-*-SNAPSHOT.jar"
-          echo "Checking bytecode version in $JAR_FILE"
           # Java 11 = major version 55, Java 17 = major version 61
           EXPECTED_VERSION=${{ matrix.javac-version == '11' && '55' || '61' }}
           echo "Expected major version: $EXPECTED_VERSION (Java ${{ matrix.javac-version }})"
           
-          # Extract a class file and check its version
+          # Find a real class file (exclude package-info.class which may have different version)
           cd build/classes
-          CLASS_FILE=$(find . -name "*.class" | head -1)
+          CLASS_FILE=$(find . -name "*.class" ! -name "package-info.class" | head -1)
           if [ -n "$CLASS_FILE" ]; then
+            echo "Checking: $CLASS_FILE"
             ACTUAL_VERSION=$(javap -verbose "$CLASS_FILE" 2>/dev/null | grep "major version" | awk '{print $NF}')
             echo "Actual major version: $ACTUAL_VERSION"
             if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
@@ -131,6 +130,9 @@ jobs:
               exit 1
             fi
             echo "Bytecode version verified successfully"
+          else
+            echo "ERROR: No class files found"
+            exit 1
           fi
 
   # Verify runtime compatibility on Java 11
