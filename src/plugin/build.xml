@@ -172,6 +172,17 @@
     <ant dir="${plugin}" target="test"/>
   </target>
 
+  <!-- ======================================================  -->
+  <!-- Indexer plugin integration tests (Testcontainers)       -->
+  <!-- Run sequentially to avoid container resource contention -->
+  <!-- ======================================================  -->
+  <target name="test-indexer-integration">
+    <ant dir="indexer-elastic" target="test-indexer-integration"/>
+    <ant dir="indexer-kafka" target="test-indexer-integration"/>
+    <ant dir="indexer-rabbit" target="test-indexer-integration"/>
+    <ant dir="indexer-solr" target="test-indexer-integration"/>
+  </target>
+
   <!-- ====================================================== -->
   <!-- Clean all of the plugins.                              -->
   <!-- ====================================================== -->

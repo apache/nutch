@@ -128,6 +128,10 @@
     <dependency org="org.mockito" name="mockito-core" rev="5.18.0" conf="test->default"/>
     <dependency org="org.mockito" name="mockito-junit-jupiter" rev="5.18.0" conf="test->default"/>
 
+    <!-- Testcontainers for indexer plugin integration tests -->
+    <dependency org="org.testcontainers" name="testcontainers" rev="2.0.3" conf="test->default"/>
+    <dependency org="org.testcontainers" name="junit-jupiter" rev="1.21.4" conf="test->default"/>
+
 		<!-- Jetty used to serve test pages for unit tests, but is also provided as dependency of Hadoop -->
 		<dependency org="org.eclipse.jetty" name="jetty-server" rev="12.1.5" conf="test->default">
 			<exclude org="ch.qos.reload4j" module="*" />

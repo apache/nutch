@@ -36,7 +36,10 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.elasticsearch.client" name="elasticsearch-rest-high-level-client" rev="7.10.2"/>
+    <dependency org="org.testcontainers" name="testcontainers-elasticsearch" rev="2.0.3" conf="test->default"/>
+    <dependency org="org.elasticsearch.client" name="elasticsearch-rest-high-level-client" rev="7.10.2">
+      <exclude org="org.apache.logging.log4j" name="*"/>
+    </dependency>
     <dependency org="org.apache.lucene" name="lucene-analyzers-common" rev="8.11.2"/>
     <dependency org="org.apache.lucene" name="lucene-backward-codecs" rev="8.11.2"/>
     <dependency org="org.apache.lucene" name="lucene-core" rev="8.11.2"/>
