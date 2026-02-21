@@ -1,0 +1,1287 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+openapi: "3.0.3"
+
+info:
+  title: Apache Nutch REST API
+  description: >-
+    REST API for managing Apache Nutch crawl jobs, configurations, seed lists,
+    database queries, and data readers. The server is powered by Apache CXF
+    with JAX-RS.
+  version: "1.0.0"
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  contact:
+    name: Apache Nutch
+    url: https://nutch.apache.org
+
+servers:
+  - url: "{protocol}://localhost:{port}"
+    description: Nutch REST server
+    variables:
+      protocol:
+        default: http
+        enum:
+          - http
+          - https
+        description: The protocol used to access the Nutch server.
+      port:
+        default: "8081"
+        description: >-
+          The port the Nutch server listens on. Configurable via the --port
+          command-line argument.
+
+security:
+  - basicAuth: []
+
+tags:
+  - name: Admin
+    description: Server administration operations
+  - name: Configuration
+    description: Manage Nutch configurations
+  - name: Job
+    description: Manage crawl jobs
+  - name: Database
+    description: Query the CrawlDB and FetchDB
+  - name: Seed
+    description: Manage seed URL lists
+  - name: Reader
+    description: Read sequence files and webgraph data
+  - name: Services
+    description: Auxiliary service operations such as CommonCrawl data dumps
+
+paths:
+  # ---------------------------------------------------------------------------
+  # Admin
+  # ---------------------------------------------------------------------------
+  /admin/:
+    get:
+      tags:
+        - Admin
+      summary: Get server status
+      description: >-
+        Returns the current status of the Nutch server including start date,
+        known configurations, all jobs, and currently running jobs.
+      operationId: getServerStatus
+      responses:
+        "200":
+          description: Server status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NutchServerInfo"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /admin/stop:
+    get:
+      tags:
+        - Admin
+      summary: Stop the Nutch server
+      description: >-
+        Initiates a graceful shutdown of the Nutch server. If jobs are still
+        running and force is not set, the server will refuse to stop.
+      operationId: stopServer
+      parameters:
+        - name: force
+          in: query
+          required: false
+          description: >-
+            If true, kills any running jobs before stopping the server.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Shutdown status message.
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                stopping:
+                  value: "Stopping in server on port 8081"
+                busy:
+                  value: "Jobs still running -- Cannot stop server now"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ---------------------------------------------------------------------------
+  # Configuration
+  # ---------------------------------------------------------------------------
+  /config/:
+    get:
+      tags:
+        - Configuration
+      summary: List all configuration IDs
+      description: Returns the set of all known configuration identifiers.
+      operationId: getConfigs
+      responses:
+        "200":
+          description: A JSON array of configuration ID strings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                uniqueItems: true
+              example:
+                - default
+                - my-custom-config
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /config/{configId}:
+    get:
+      tags:
+        - Configuration
+      summary: Get configuration properties
+      description: Returns all key-value properties for the specified configuration.
+      operationId: getConfig
+      parameters:
+        - $ref: "#/components/parameters/configId"
+      responses:
+        "200":
+          description: A JSON object of configuration property key-value pairs.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+              example:
+                http.agent.name: "NutchBot"
+                http.robots.agents: "NutchBot,*"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags:
+        - Configuration
+      summary: Delete a configuration
+      description: >-
+        Removes the specified configuration from the list of known
+        configurations.
+      operationId: deleteConfig
+      parameters:
+        - $ref: "#/components/parameters/configId"
+      responses:
+        "204":
+          description: Configuration deleted successfully.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /config/{configId}/{propertyId}:
+    get:
+      tags:
+        - Configuration
+      summary: Get a single configuration property
+      description: >-
+        Returns the value of a specific property within the given
+        configuration.
+      operationId: getProperty
+      parameters:
+        - $ref: "#/components/parameters/configId"
+        - $ref: "#/components/parameters/propertyId"
+      responses:
+        "200":
+          description: The property value as plain text.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "NutchBot"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    put:
+      tags:
+        - Configuration
+      summary: Update a configuration property
+      description: >-
+        Adds or updates the value of a property in the specified
+        configuration.
+      operationId: updateProperty
+      parameters:
+        - $ref: "#/components/parameters/configId"
+        - $ref: "#/components/parameters/propertyId"
+      requestBody:
+        required: true
+        description: The new property value as plain text.
+        content:
+          text/plain:
+            schema:
+              type: string
+            example: "MyNewBot"
+      responses:
+        "200":
+          description: Property updated successfully.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /config/create:
+    post:
+      tags:
+        - Configuration
+      summary: Create a new configuration
+      description: >-
+        Creates a new Nutch configuration with the specified parameters.
+        Returns the configuration ID on success.
+      operationId: createConfig
+      requestBody:
+        required: true
+        description: The configuration to create.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NutchConfig"
+      responses:
+        "200":
+          description: Configuration created. Returns the configuration ID.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "my-custom-config"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ---------------------------------------------------------------------------
+  # Job
+  # ---------------------------------------------------------------------------
+  /job/:
+    get:
+      tags:
+        - Job
+      summary: List all jobs
+      description: >-
+        Returns job history for all jobs or filtered by crawl ID, regardless
+        of job state.
+      operationId: getJobs
+      parameters:
+        - name: crawlId
+          in: query
+          required: false
+          description: Optional crawl ID to filter jobs by.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A JSON array of job information objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JobInfo"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /job/{id}:
+    get:
+      tags:
+        - Job
+      summary: Get job info
+      description: Returns detailed information for a specific job.
+      operationId: getJobInfo
+      parameters:
+        - $ref: "#/components/parameters/jobId"
+        - name: crawlId
+          in: query
+          required: false
+          description: The crawl ID associated with the job.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobInfo"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /job/{id}/stop:
+    get:
+      tags:
+        - Job
+      summary: Stop a running job
+      description: Attempts to gracefully stop a running job.
+      operationId: stopJob
+      parameters:
+        - $ref: "#/components/parameters/jobId"
+        - name: crawlId
+          in: query
+          required: false
+          description: The crawl ID associated with the job.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Whether the job was successfully stopped.
+          content:
+            application/json:
+              schema:
+                type: boolean
+              example: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /job/{id}/abort:
+    get:
+      tags:
+        - Job
+      summary: Abort a job
+      description: >-
+        Forcefully aborts a job. Unlike stop, this kills the job immediately.
+      operationId: abortJob
+      parameters:
+        - $ref: "#/components/parameters/jobId"
+        - name: crawlId
+          in: query
+          required: false
+          description: The crawl ID associated with the job.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Whether the job was successfully aborted.
+          content:
+            application/json:
+              schema:
+                type: boolean
+              example: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /job/create:
+    post:
+      tags:
+        - Job
+      summary: Create a new job
+      description: >-
+        Creates and enqueues a new Nutch job (e.g., inject, generate, fetch,
+        parse, updatedb, index).
+      operationId: createJob
+      requestBody:
+        required: true
+        description: The job configuration specifying type, crawl ID, and arguments.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobConfig"
+      responses:
+        "200":
+          description: Job created. Returns the job information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobInfo"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ---------------------------------------------------------------------------
+  # Database
+  # ---------------------------------------------------------------------------
+  /db/crawldb:
+    post:
+      tags:
+        - Database
+      summary: Query the CrawlDB
+      description: >-
+        Executes a query against the Nutch CrawlDB. The type field in the
+        request body determines the operation: stats, dump, topN, or url.
+        The stats and url types return JSON; dump and topN return binary
+        octet-stream data.
+      operationId: readCrawlDb
+      requestBody:
+        required: true
+        description: The database query parameters.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DbQuery"
+      responses:
+        "200":
+          description: >-
+            Query results. Content type varies by query type: application/json
+            for stats and url queries; application/octet-stream for dump and
+            topN queries.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >-
+                  CrawlDB query result (returned for stats and url query
+                  types).
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+                description: >-
+                  Binary data stream (returned for dump and topN query types).
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /db/fetchdb:
+    get:
+      tags:
+        - Database
+      summary: Get FetchDB node information
+      description: >-
+        Returns fetch node database entries for the specified index range.
+        Both from and to default to 0; if to is 0 or exceeds the total
+        number of entries, all entries from the starting index are returned.
+      operationId: fetchDb
+      parameters:
+        - name: from
+          in: query
+          required: false
+          description: Starting index (inclusive). Defaults to 0.
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: to
+          in: query
+          required: false
+          description: Ending index (inclusive). Defaults to 0 (returns all).
+          schema:
+            type: integer
+            format: int32
+            default: 0
+      responses:
+        "200":
+          description: A JSON array of fetch node information objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FetchNodeDbInfo"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ---------------------------------------------------------------------------
+  # Seed
+  # ---------------------------------------------------------------------------
+  /seed/:
+    get:
+      tags:
+        - Seed
+      summary: List all seed lists
+      description: Returns a map of all created seed files keyed by name.
+      operationId: getSeedLists
+      responses:
+        "200":
+          description: A JSON object mapping seed list names to SeedList objects.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: "#/components/schemas/SeedList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /seed/create:
+    post:
+      tags:
+        - Seed
+      summary: Create a seed list file
+      description: >-
+        Creates a seed list file from the provided URLs and writes it to
+        HDFS. Returns the path to the created seed file directory.
+      operationId: createSeedFile
+      requestBody:
+        required: true
+        description: The seed list containing URLs to write.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeedList"
+      responses:
+        "200":
+          description: Path to the created seed file directory.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "seedFiles/seed-1700000000000"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ---------------------------------------------------------------------------
+  # Reader
+  # ---------------------------------------------------------------------------
+  /reader/sequence/read:
+    post:
+      tags:
+        - Reader
+      summary: Read a sequence file
+      description: >-
+        Reads key-value pairs from a Hadoop sequence file. Supports reading
+        all rows, a limited number of rows, a row range, or counting the
+        total number of rows.
+      operationId: seqRead
+      parameters:
+        - $ref: "#/components/parameters/nrows"
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/end"
+        - $ref: "#/components/parameters/count"
+      requestBody:
+        required: true
+        description: Reader configuration specifying the file path.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReaderConfig"
+      responses:
+        "200":
+          description: >-
+            Sequence file data. Returns application/json when reading rows,
+            or text/plain when count=true.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+            text/plain:
+              schema:
+                type: integer
+                description: Number of rows in the sequence file.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /reader/link:
+    get:
+      tags:
+        - Reader
+      summary: Get link reader schema
+      description: >-
+        Returns the schema describing the fields in link reader responses.
+      operationId: getLinkSchema
+      responses:
+        "200":
+          description: Link reader response schema.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LinkSchema"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /reader/link/read:
+    post:
+      tags:
+        - Reader
+      summary: Read link objects
+      description: >-
+        Reads link data (LinkDatum) from the Nutch webgraph. Supports
+        reading all rows, a limited number of rows, a row range, or
+        counting the total number of rows.
+      operationId: linkRead
+      parameters:
+        - $ref: "#/components/parameters/nrows"
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/end"
+        - $ref: "#/components/parameters/count"
+      requestBody:
+        required: true
+        description: Reader configuration specifying the file path.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReaderConfig"
+      responses:
+        "200":
+          description: >-
+            Link data. Returns application/json when reading rows, or
+            text/plain when count=true.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+            text/plain:
+              schema:
+                type: integer
+                description: Number of link entries.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /reader/node:
+    get:
+      tags:
+        - Reader
+      summary: Get node reader schema
+      description: >-
+        Returns the schema describing the fields in node reader responses.
+      operationId: getNodeSchema
+      responses:
+        "200":
+          description: Node reader response schema.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NodeSchema"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /reader/node/read:
+    post:
+      tags:
+        - Reader
+      summary: Read node objects
+      description: >-
+        Reads Node objects from the Nutch webgraph. Supports reading all
+        rows, a limited number of rows, a row range, or counting the total
+        number of rows.
+      operationId: nodeRead
+      parameters:
+        - $ref: "#/components/parameters/nrows"
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/end"
+        - $ref: "#/components/parameters/count"
+      requestBody:
+        required: true
+        description: Reader configuration specifying the file path.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReaderConfig"
+      responses:
+        "200":
+          description: >-
+            Node data. Returns application/json when reading rows, or
+            text/plain when count=true.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+            text/plain:
+              schema:
+                type: integer
+                description: Number of node entries.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ---------------------------------------------------------------------------
+  # Services
+  # ---------------------------------------------------------------------------
+  /services/commoncrawldump/{crawlId}:
+    get:
+      tags:
+        - Services
+      summary: List CommonCrawl dump paths
+      description: >-
+        Lists the dump file paths for a given crawl ID.
+      operationId: listDumpPaths
+      parameters:
+        - name: crawlId
+          in: path
+          required: true
+          description: The crawl ID whose dump paths to list.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Service information containing the list of dump paths.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceInfo"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /services/commoncrawldump:
+    post:
+      tags:
+        - Services
+      summary: Create a CommonCrawl data dump
+      description: >-
+        Executes a CommonCrawl data dump job for the specified crawl and
+        returns the output directory path.
+      operationId: commoncrawlDump
+      requestBody:
+        required: true
+        description: Service configuration specifying crawl ID and arguments.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceConfig"
+      responses:
+        "200":
+          description: The output directory path for the dump.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "myCrawl/dump/commoncrawl-20260213120000"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+# =============================================================================
+# Components
+# =============================================================================
+components:
+
+  # ---------------------------------------------------------------------------
+  # Security Schemes
+  # ---------------------------------------------------------------------------
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: HTTP Basic Authentication.
+
+  # ---------------------------------------------------------------------------
+  # Reusable Parameters
+  # ---------------------------------------------------------------------------
+  parameters:
+    configId:
+      name: configId
+      in: path
+      required: true
+      description: The unique identifier for the configuration.
+      schema:
+        type: string
+    propertyId:
+      name: propertyId
+      in: path
+      required: true
+      description: The name (key) of the configuration property.
+      schema:
+        type: string
+    jobId:
+      name: id
+      in: path
+      required: true
+      description: The unique identifier for the job.
+      schema:
+        type: string
+    nrows:
+      name: nrows
+      in: query
+      required: false
+      description: >-
+        Number of rows to read. If not specified (or -1), all rows are
+        returned.
+      schema:
+        type: integer
+        format: int32
+        default: -1
+    start:
+      name: start
+      in: query
+      required: false
+      description: Starting line number for a range read.
+      schema:
+        type: integer
+        format: int32
+        default: -1
+    end:
+      name: end
+      in: query
+      required: false
+      description: Ending line number for a range read.
+      schema:
+        type: integer
+        format: int32
+    count:
+      name: count
+      in: query
+      required: false
+      description: >-
+        If true, returns the number of lines instead of the data itself.
+        When set, the response content type is text/plain.
+      schema:
+        type: boolean
+        default: false
+
+  # ---------------------------------------------------------------------------
+  # Schemas
+  # ---------------------------------------------------------------------------
+  schemas:
+    # -- Request Models -------------------------------------------------------
+    NutchConfig:
+      type: object
+      description: Configuration for creating a new Nutch configuration.
+      properties:
+        configId:
+          type: string
+          description: The identifier for this configuration.
+        force:
+          type: boolean
+          description: >-
+            If true, overwrites an existing configuration with the same ID.
+          default: false
+        params:
+          type: object
+          additionalProperties:
+            type: string
+          description: Key-value pairs of Nutch configuration properties.
+      example:
+        configId: "my-config"
+        force: false
+        params:
+          http.agent.name: "MyBot"
+          http.robots.agents: "MyBot,*"
+
+    JobConfig:
+      type: object
+      description: Configuration for creating a new crawl job.
+      required:
+        - type
+      properties:
+        crawlId:
+          type: string
+          description: The crawl identifier.
+        type:
+          $ref: "#/components/schemas/JobType"
+        confId:
+          type: string
+          description: >-
+            The configuration ID to use for this job. Defaults to "default"
+            if not specified.
+        jobClassName:
+          type: string
+          description: >-
+            Fully qualified class name when type is CLASS.
+        args:
+          type: object
+          additionalProperties: true
+          description: Additional arguments for the job.
+      example:
+        crawlId: "crawl-01"
+        type: "INJECT"
+        confId: "default"
+        args:
+          seedDir: "seedFiles/seed-1700000000000"
+
+    DbQuery:
+      type: object
+      description: Parameters for a CrawlDB query.
+      required:
+        - crawlId
+        - type
+      properties:
+        confId:
+          type: string
+          description: >-
+            Configuration ID. Falls back to "default" if not provided.
+        type:
+          type: string
+          description: The type of CrawlDB query to execute.
+          enum:
+            - stats
+            - dump
+            - topN
+            - url
+        args:
+          type: object
+          additionalProperties:
+            type: string
+          description: Additional arguments for the query.
+        crawlId:
+          type: string
+          description: The crawl identifier.
+      example:
+        confId: "default"
+        type: "stats"
+        crawlId: "crawl-01"
+        args: {}
+
+    ReaderConfig:
+      type: object
+      description: Configuration specifying a file path for reader operations.
+      required:
+        - path
+      properties:
+        path:
+          type: string
+          description: >-
+            The path to the sequence file, link data, or node data to read.
+      example:
+        path: "crawl-01/crawldb/current/part-00000/data"
+
+    SeedList:
+      type: object
+      description: A named list of seed URLs.
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The seed list identifier.
+          readOnly: true
+        name:
+          type: string
+          description: A human-readable name for this seed list.
+        seedFilePath:
+          type: string
+          description: >-
+            The HDFS path where the seed file is stored. Populated after
+            creation.
+          readOnly: true
+        seedUrls:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeedUrl"
+          description: The collection of seed URLs in this list.
+      example:
+        name: "my-seeds"
+        seedUrls:
+          - url: "https://example.com"
+          - url: "https://nutch.apache.org"
+
+    SeedUrl:
+      type: object
+      description: A single seed URL entry.
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The seed URL identifier.
+          readOnly: true
+        url:
+          type: string
+          description: The seed URL.
+      example:
+        url: "https://example.com"
+
+    ServiceConfig:
+      type: object
+      description: >-
+        Configuration for service operations such as CommonCrawl data dumps.
+      required:
+        - crawlId
+      properties:
+        crawlId:
+          type: string
+          description: The crawl identifier.
+        confId:
+          type: string
+          description: The configuration ID.
+        args:
+          type: object
+          additionalProperties: true
+          description: Additional arguments for the service operation.
+      example:
+        crawlId: "crawl-01"
+        confId: "default"
+        args: {}
+
+    # -- Response Models ------------------------------------------------------
+    NutchServerInfo:
+      type: object
+      description: Status information about the running Nutch server.
+      properties:
+        startDate:
+          type: string
+          format: date-time
+          description: The date and time the server was started.
+        configuration:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+          description: Set of known configuration IDs.
+        jobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/JobInfo"
+          description: All jobs (any state).
+        runningJobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/JobInfo"
+          description: Currently running jobs.
+
+    JobInfo:
+      type: object
+      description: Information about a crawl job.
+      properties:
+        id:
+          type: string
+          description: The unique job identifier.
+        type:
+          $ref: "#/components/schemas/JobType"
+        confId:
+          type: string
+          description: The configuration ID used for this job.
+        args:
+          type: object
+          additionalProperties: true
+          description: Arguments passed to the job.
+        result:
+          type: object
+          additionalProperties: true
+          description: Result data returned after job completion.
+        state:
+          $ref: "#/components/schemas/State"
+        msg:
+          type: string
+          description: A human-readable status or error message.
+        crawlId:
+          type: string
+          description: The crawl identifier associated with this job.
+
+    FetchNodeDbInfo:
+      type: object
+      description: Information about a fetched node in the FetchDB.
+      properties:
+        url:
+          type: string
+          description: The URL of the fetched node.
+        status:
+          type: integer
+          format: int32
+          description: The HTTP status code of the fetch.
+        numOfOutlinks:
+          type: integer
+          format: int32
+          description: The number of outgoing links discovered.
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChildNode"
+          description: The outgoing links from this node.
+
+    ChildNode:
+      type: object
+      description: A child (outlink) of a fetched node.
+      properties:
+        childUrl:
+          type: string
+          description: The URL of the child node.
+        anchorText:
+          type: string
+          description: The anchor text of the link.
+
+    ServiceInfo:
+      type: object
+      description: Information returned by service operations.
+      properties:
+        dumpPaths:
+          type: array
+          items:
+            type: string
+          description: List of file paths for the dump output.
+
+    # -- Schema Objects (Reader) ----------------------------------------------
+    LinkSchema:
+      type: object
+      description: Schema describing the fields in a link reader response.
+      properties:
+        key_url:
+          type: string
+          example: "string"
+        timestamp:
+          type: string
+          example: "int"
+        score:
+          type: string
+          example: "float"
+        anchor:
+          type: string
+          example: "string"
+        linktype:
+          type: string
+          example: "string"
+        url:
+          type: string
+          example: "string"
+
+    NodeSchema:
+      type: object
+      description: Schema describing the fields in a node reader response.
+      properties:
+        key_url:
+          type: string
+          example: "string"
+        num_inlinks:
+          type: string
+          example: "int"
+        num_outlinks:
+          type: string
+          example: "int"
+        inlink_score:
+          type: string
+          example: "float"
+        outlink_score:
+          type: string
+          example: "float"
+        metadata:
+          type: string
+          example: "string"
+
+    # -- Enums ----------------------------------------------------------------
+    JobType:
+      type: string
+      description: The type of Nutch crawl job.
+      enum:
+        - INJECT
+        - GENERATE
+        - FETCH
+        - PARSE
+        - UPDATEDB
+        - INDEX
+        - READDB
+        - CLASS
+        - INVERTLINKS
+        - DEDUP
+
+    State:
+      type: string
+      description: The current state of a job.
+      enum:
+        - IDLE
+        - RUNNING
+        - FINISHED
+        - FAILED
+        - KILLED
+        - STOPPING
+        - KILLING
+        - ANY
+
+  # ---------------------------------------------------------------------------
+  # Reusable Responses
+  # ---------------------------------------------------------------------------
+  responses:
+    BadRequest:
+      description: >-
+        Bad request. The request body is missing, malformed, or contains
+        invalid parameters.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: "Nutch configuration cannot be empty!"
+
+    Unauthorized:
+      description: >-
+        Unauthorized. Basic authentication credentials are missing or
+        invalid.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            example:
+              message: "Authentication required."
+
+    NotFound:
+      description: The requested resource was not found.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            example:
+              message: "Resource not found."
+
+    InternalServerError:
+      description: An unexpected server error occurred.
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: "Internal server error."
