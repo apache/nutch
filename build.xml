@@ -44,6 +44,11 @@
   <property name="spotbugs.home" value="${ivy.dir}/spotbugs-${spotbugs.version}" />
   <property name="spotbugs.jar" value="${spotbugs.home}/lib/spotbugs-ant.jar" />
 
+  <property name="jacoco.home" value="${ivy.dir}/jacoco-${jacoco.version}" />
+  <property name="jacoco.agent.jar" value="${jacoco.home}/lib/jacocoagent.jar" />
+  <property name="jacoco.ant.jar" value="${jacoco.home}/lib/jacocoant.jar" />
+  <property name="coverage.dir" value="${build.dir}/coverage" />
+
   <property name="apache-rat.version" value="0.16" />
   <property name="apache-rat.home" value="${ivy.dir}/apache-rat-${apache-rat.version}" />
   <property name="apache-rat.jar" value="${apache-rat.home}/apache-rat-${apache-rat.version}.jar" />
@@ -490,9 +495,10 @@
     </antcall>
   </target>
 
-  <target name="test-core" depends="compile-core-test, job" description="--> run core JUnit tests">
+  <target name="test-core" depends="compile-core-test, job, jacoco-download" description="--> run core JUnit tests">
     <delete dir="${test.build.data}"/>
     <mkdir dir="${test.build.data}"/>
+    <mkdir dir="${coverage.dir}"/>
     <copy todir="${test.build.data}">
       <fileset dir="src/testresources" includes="**/*"/>
     </copy>
@@ -507,6 +513,7 @@
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
         <fork forkMode="perTestClass">
           <jvmarg value="-Xmx1000m"/>
+          <jvmarg value="-javaagent:${jacoco.agent.jar}=destfile=${coverage.dir}/jacoco-core.exec,append=true"/>
           <sysproperty key="test.build.data" value="${test.build.data}"/>
           <sysproperty key="test.src.dir" value="${test.src.dir}"/>
           <sysproperty key="test.include.slow" value="${test.include.slow}"/>
@@ -523,6 +530,7 @@
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
         <fork forkMode="perTestClass">
           <jvmarg value="-Xmx1000m"/>
+          <jvmarg value="-javaagent:${jacoco.agent.jar}=destfile=${coverage.dir}/jacoco-core.exec,append=true"/>
           <sysproperty key="test.build.data" value="${test.build.data}"/>
           <sysproperty key="test.src.dir" value="${test.src.dir}"/>
           <sysproperty key="test.include.slow" value="${test.include.slow}"/>
@@ -537,7 +545,7 @@
     <fail if="tests.failed">Tests failed!</fail>
   </target>
 
-  <target name="test-plugins" depends="resolve-test, compile, compile-core-test" description="--> run JUnit tests for all plugins">
+  <target name="test-plugins" depends="resolve-test, compile, compile-core-test, jacoco-download" description="--> run JUnit tests for all plugins">
     <ant dir="src/plugin" target="test" inheritAll="false"/>
   </target>
 
@@ -1123,6 +1131,58 @@
         <exclude name="lib/*.jar"/>
       </fileset>
     </spotbugs>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- JaCoCo code coverage                                               -->
+  <!-- ================================================================== -->
+  <target name="jacoco-download" description="--> download JaCoCo">
+    <available file="${jacoco.agent.jar}" property="jacoco.jar.found"/>
+    <antcall target="jacoco-download-unchecked"/>
+  </target>
+
+  <target name="jacoco-download-unchecked" unless="jacoco.jar.found"
+          description="--> downloads the JaCoCo distribution zip.">
+    <get src="https://github.com/jacoco/jacoco/releases/download/v${jacoco.version}/jacoco-${jacoco.version}.zip"
+         dest="${ivy.dir}/jacoco-${jacoco.version}.zip" usetimestamp="false" />
+
+    <mkdir dir="${jacoco.home}"/>
+    <unzip src="${ivy.dir}/jacoco-${jacoco.version}.zip" dest="${jacoco.home}" />
+
+    <delete file="${ivy.dir}/jacoco-${jacoco.version}.zip" />
+  </target>
+
+  <target name="jacoco-report" depends="jacoco-download" description="--> generate JaCoCo XML coverage report">
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+      <classpath>
+        <pathelement location="${jacoco.ant.jar}" />
+      </classpath>
+    </taskdef>
+
+    <jacoco:merge destfile="${coverage.dir}/jacoco-merged.exec" xmlns:jacoco="antlib:org.jacoco.ant">
+      <fileset dir="${coverage.dir}" includes="*.exec"/>
+    </jacoco:merge>
+
+    <jacoco:report xmlns:jacoco="antlib:org.jacoco.ant">
+      <executiondata>
+        <file file="${coverage.dir}/jacoco-merged.exec"/>
+      </executiondata>
+      <structure name="Apache Nutch">
+        <classfiles>
+          <fileset dir="${build.classes}"/>
+          <fileset dir="${build.plugins}">
+            <include name="**/*.jar"/>
+          </fileset>
+        </classfiles>
+        <sourcefiles encoding="${build.encoding}">
+          <fileset dir="${src.dir}"/>
+          <fileset dir="${plugins.dir}">
+            <include name="*/src/java/**/*.java"/>
+          </fileset>
+        </sourcefiles>
+      </structure>
+      <xml destfile="${coverage.dir}/jacoco.xml"/>
+    </jacoco:report>
   </target>
 
   <!-- ================================================================== -->

@@ -44,6 +44,9 @@
   <!-- load nutch defaults last so that they can be overridden above -->
   <property file="${nutch.root}/default.properties" />
 
+  <property name="jacoco.agent.jar" location="${nutch.root}/ivy/jacoco-${jacoco.version}/lib/jacocoagent.jar"/>
+  <property name="coverage.dir" location="${nutch.root}/build/coverage"/>
+
   <ivy:settings id="ivy.instance" file="${nutch.root}/ivy/ivysettings.xml" />
 
   <path id="plugin.deps"/>
@@ -209,6 +212,7 @@
   <!-- ================================================================== -->
   <target name="test" depends="compile-test, deploy" if="test.available">
     <echo message="Testing plugin: ${name}"/>
+    <mkdir dir="${coverage.dir}"/>
     <junitlauncher printSummary="true" haltOnFailure="true" failureProperty="tests.failed">
       <classpath refid="test.classpath"/>
       <testclasses outputDir="${build.test}" unless="testcase">
@@ -216,6 +220,7 @@
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
         <fork forkMode="perTestClass">
           <jvmarg value="-Xmx1000m"/>
+          <jvmarg value="-javaagent:${jacoco.agent.jar}=destfile=${coverage.dir}/jacoco-plugin-${name}.exec,append=true"/>
           <sysproperty key="test.data" value="${build.test}/data"/>
           <sysproperty key="test.input" value="${root}/data"/>
           <sysproperty key="junit.platform.execution.failfast.enabled" value="${test.failfast}"/>
@@ -231,6 +236,7 @@
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
         <fork forkMode="perTestClass">
           <jvmarg value="-Xmx1000m"/>
+          <jvmarg value="-javaagent:${jacoco.agent.jar}=destfile=${coverage.dir}/jacoco-plugin-${name}.exec,append=true"/>
           <sysproperty key="test.data" value="${build.test}/data"/>
           <sysproperty key="test.input" value="${root}/data"/>
           <sysproperty key="junit.platform.execution.failfast.enabled" value="${test.failfast}"/>

@@ -246,3 +246,11 @@ jobs:
             ./build/test/TEST-*.xml
             ./build/**/test/TEST-*.xml
           retention-days: 1
+      - name: Upload Coverage Data
+        uses: actions/upload-artifact@v4
+        if: always() && matrix.os == 'ubuntu-latest'
+        with:
+          name: coverage-data
+          path: ./build/coverage/*.exec
+          retention-days: 1
+          if-no-files-found: ignore
