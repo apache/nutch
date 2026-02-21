@@ -113,6 +113,7 @@ public class FetcherThread extends Thread {
   URLNormalizers normalizersForOutlinks;
 
   private boolean skipTruncated;
+  private boolean deleteFailedParse;
 
   private boolean halted = false;
 
@@ -186,6 +187,7 @@ public class FetcherThread extends Thread {
     this.scfilters = new ScoringFilters(conf);
     this.parseUtil = new ParseUtil(conf);
     this.skipTruncated = conf.getBoolean(ParseSegment.SKIP_TRUNCATED, true);
+    this.deleteFailedParse = conf.getBoolean(ParseSegment.DELETE_FAILED_PARSE, false);
     this.signatureWithoutParsing = conf.getBoolean("fetcher.signature", false);
     this.protocolFactory = new ProtocolFactory(conf);
     this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
@@ -475,6 +477,9 @@ public class FetcherThread extends Thread {
                 if (redirUrl != null) {
                   fit = queueRedirect(redirUrl, fit);
                 }
+              }
+              if (pstatus != null && pstatus.isFailed() && deleteFailedParse) {
+                output(fit.url, fit.datum, null, status, CrawlDatum.STATUS_PARSE_FAILED);
               }
               break;
 

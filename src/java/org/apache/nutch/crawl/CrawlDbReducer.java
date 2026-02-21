@@ -115,7 +115,9 @@ public class CrawlDbReducer extends
         continue;
       }
 
-      if (CrawlDatum.hasFetchStatus(datum)) {
+      // temporarily handle parse_failed as fetched (it was fetched!)
+      if (CrawlDatum.hasFetchStatus(datum)
+          || datum.getStatus() == CrawlDatum.STATUS_PARSE_FAILED) {
         if (!fetchSet) {
           if (multiple) {
             fetch.set(datum);
@@ -130,7 +132,7 @@ public class CrawlDbReducer extends
         }
         continue;
       }
-
+      
       switch (datum.getStatus()) { // collect other info
       case CrawlDatum.STATUS_LINKED:
         CrawlDatum link;
@@ -233,7 +235,7 @@ public class CrawlDbReducer extends
       }
       break;
 
-    case CrawlDatum.STATUS_FETCH_SUCCESS: // succesful fetch
+    case CrawlDatum.STATUS_FETCH_SUCCESS: // successful fetch
     case CrawlDatum.STATUS_FETCH_REDIR_TEMP: // successful fetch, redirected
     case CrawlDatum.STATUS_FETCH_REDIR_PERM:
     case CrawlDatum.STATUS_FETCH_NOTMODIFIED: // successful fetch, notmodified
@@ -320,6 +322,14 @@ public class CrawlDbReducer extends
       }
       break;
 
+    case CrawlDatum.STATUS_PARSE_FAILED: // successful fetch, but parse failed
+      if (oldSet)
+        result.setSignature(old.getSignature()); // use old signature
+      result.setStatus(CrawlDatum.STATUS_DB_PARSE_FAILED);
+      result = schedule.setPageGoneSchedule(key, result, prevFetchTime,
+          prevModifiedTime, fetch.getFetchTime());
+      break;
+      
     case CrawlDatum.STATUS_FETCH_GONE: // permanent failure
       if (oldSet)
         result.setSignature(old.getSignature()); // use old signature

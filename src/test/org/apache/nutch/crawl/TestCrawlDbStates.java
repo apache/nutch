@@ -21,9 +21,11 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.ReducerContextWrapper;
+import org.apache.nutch.util.TimingUtil;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -323,7 +325,150 @@ public class TestCrawlDbStates {
     }
   }
 
-  protected class CrawlTestFetchNotModified extends ContinuousCrawlTestUtil {
+
+  /**
+   * NUTCH-1245: a fetch_gone should always result in a db_gone.
+   * <p>
+   * Even in a long-running continuous crawl, when a gone page is re-fetched
+   * several times over time.
+   * </p>
+   */
+  @Test
+  public void testCrawlDbReducerPageGoneSchedule1() {
+    LOG.info("NUTCH-1245: test long running continuous crawl");
+    ContinuousCrawlTestUtil crawlUtil = new ContinuousCrawlTestUtil(
+        STATUS_FETCH_GONE, STATUS_DB_GONE);
+    try {
+      if (!crawlUtil.run(20)) {
+        fail("fetch_gone did not result in a db_gone (NUTCH-1245)");
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * NUTCH-1245: a fetch_gone should always result in a db_gone.
+   * <p>
+   * As some kind of misconfiguration set db.fetch.interval.default to a value
+   * &gt; (fetchIntervalMax * 1.5).
+   * </p>
+   */
+  @Test
+  public void testCrawlDbReducerPageGoneSchedule2() {
+    LOG.info("NUTCH-1245 (misconfiguration): test with db.fetch.interval.default > (1.5 * db.fetch.interval.max)");
+    Context context = CrawlDBTestUtil.createContext();
+    Configuration conf = context.getConfiguration();
+    int fetchIntervalMax = conf.getInt("db.fetch.interval.max", 0);
+    conf.setInt("db.fetch.interval.default", 3 + (int) (fetchIntervalMax * 1.5));
+    ContinuousCrawlTestUtil crawlUtil = new ContinuousCrawlTestUtil(context,
+        STATUS_FETCH_GONE, STATUS_DB_GONE);
+    try {
+      if (!crawlUtil.run(0)) {
+        fail("fetch_gone did not result in a db_gone (NUTCH-1245)");
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+  
+
+  @Test
+  public void testCrawlDbReducerParseFailed() {
+    LOG.info("NUTCH-1732: allow deleting un-parsable documents");
+    Context context = CrawlDBTestUtil.createContext();
+    Configuration conf = context.getConfiguration();
+    conf.setBoolean(ParseSegment.DELETE_FAILED_PARSE, true);
+    CrawlTestParserFailure crawlUtil = new CrawlTestParserFailure(context,
+        CrawlDatum.STATUS_PARSE_FAILED, CrawlDatum.STATUS_DB_PARSE_FAILED);
+    try {
+      if (!crawlUtil.run(20)) {
+        fail("parse failure did not result in a parse_fail (NUTCH-1732)");
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Test whether signatures are reset for "content-less" states (gone,
+   * redirect, etc.): otherwise, if this state is temporary and the document
+   * appears again with the old content, it may get marked as not_modified in
+   * CrawlDb just after the redirect state. In this case we cannot expect
+   * content in segments. Cf. NUTCH-1422: reset signature for redirects.
+   */
+  // TODO: can only test if solution is done in CrawlDbReducer
+  @Test
+  public void testSignatureReset() {
+    LOG.info("NUTCH-1422 must reset signature for redirects and similar states");
+    Context context = CrawlDBTestUtil.createContext();
+    Configuration conf = context.getConfiguration();
+    for (String sched : schedules) {
+      LOG.info("Testing reset signature with {}", sched);
+      conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
+      ContinuousCrawlTestUtil crawlUtil = new CrawlTestSignatureReset(context);
+      try {
+        if (!crawlUtil.run(20)) {
+          fail("failed: signature not reset");
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  /**
+   * NUTCH-578: a fetch_retry should result in a db_gone if db.fetch.retry.max
+   * is reached. Retry counter has to be reset appropriately.
+   */
+  @Test
+  public void testCrawlDbReducerPageRetrySchedule() {
+    LOG.info("NUTCH-578: test long running continuous crawl with fetch_retry");
+    ContinuousCrawlTestUtil crawlUtil = new ContinuousCrawlTestFetchRetry();
+    // keep going for long, to "provoke" a retry counter overflow
+    try {
+      if (!crawlUtil.run(150)) {
+        fail("fetch_retry did not result in a db_gone if retry counter > maxRetries (NUTCH-578)");
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * NUTCH-1564 AdaptiveFetchSchedule: sync_delta forces immediate re-fetch for
+   * documents not modified
+   * <p>
+   * Problem: documents not modified for a longer time are fetched in every
+   * cycle because of an error in the SYNC_DELTA calculation of
+   * {@link AdaptiveFetchSchedule}. <br>
+   * The next fetch time should always be in the future, never in the past.
+   * </p>
+   */
+  @Test
+  public void testAdaptiveFetchScheduleSyncDelta() {
+    LOG.info("NUTCH-1564 test SYNC_DELTA calculation of AdaptiveFetchSchedule");
+    Context context = CrawlDBTestUtil.createContext();
+    Configuration conf = context.getConfiguration();
+    conf.setLong("db.fetch.interval.default", 172800); // 2 days
+    conf.setLong("db.fetch.schedule.adaptive.min_interval", 86400); // 1 day
+    conf.setLong("db.fetch.schedule.adaptive.max_interval", 604800); // 7 days
+    conf.setLong("db.fetch.interval.max", 604800); // 7 days
+    conf.set("db.fetch.schedule.class",
+        "org.apache.nutch.crawl.AdaptiveFetchSchedule");
+    ContinuousCrawlTestUtil crawlUtil = new CrawlTestFetchScheduleNotModifiedFetchTime(
+        context);
+    crawlUtil.setInterval(FetchSchedule.SECONDS_PER_DAY / 3);
+    try {
+      if (!crawlUtil.run(100)) {
+        fail("failed: sync_delta calculation with AdaptiveFetchSchedule");
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private class CrawlTestFetchNotModified extends ContinuousCrawlTestUtil {
 
     /** time of the current fetch */
     protected long currFetchTime;
@@ -451,7 +596,7 @@ public class TestCrawlDbStates {
     }
   }
 
-  protected class CrawlTestFetchNotModifiedHttp304 extends
+  private class CrawlTestFetchNotModifiedHttp304 extends
       CrawlTestFetchNotModified {
 
     CrawlTestFetchNotModifiedHttp304(Context context) {
@@ -484,79 +629,6 @@ public class TestCrawlDbStates {
       LOG.info("fetched with HTTP {} => {}", httpCode, getStatusName(datum.getStatus()));
       datum.setFetchTime(currentTime);
       return datum;
-    }
-  }
-
-  /**
-   * NUTCH-1245: a fetch_gone should always result in a db_gone.
-   * <p>
-   * Even in a long-running continuous crawl, when a gone page is re-fetched
-   * several times over time.
-   * </p>
-   */
-  @Test
-  public void testCrawlDbReducerPageGoneSchedule1() {
-    LOG.info("NUTCH-1245: test long running continuous crawl");
-    ContinuousCrawlTestUtil crawlUtil = new ContinuousCrawlTestUtil(
-        STATUS_FETCH_GONE, STATUS_DB_GONE);
-    try {
-      if (!crawlUtil.run(20)) {
-        fail("fetch_gone did not result in a db_gone (NUTCH-1245)");
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  /**
-   * NUTCH-1245: a fetch_gone should always result in a db_gone.
-   * <p>
-   * As some kind of misconfiguration set db.fetch.interval.default to a value
-   * &gt; (fetchIntervalMax * 1.5).
-   * </p>
-   */
-  @Test
-  public void testCrawlDbReducerPageGoneSchedule2() {
-    LOG.info("NUTCH-1245 (misconfiguration): test with db.fetch.interval.default > (1.5 * db.fetch.interval.max)");
-    Context context = CrawlDBTestUtil.createContext();
-    Configuration conf = context.getConfiguration();
-    int fetchIntervalMax = conf.getInt("db.fetch.interval.max", 0);
-    conf.setInt("db.fetch.interval.default", 3 + (int) (fetchIntervalMax * 1.5));
-    ContinuousCrawlTestUtil crawlUtil = new ContinuousCrawlTestUtil(context,
-        STATUS_FETCH_GONE, STATUS_DB_GONE);
-    try {
-      if (!crawlUtil.run(0)) {
-        fail("fetch_gone did not result in a db_gone (NUTCH-1245)");
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  /**
-   * Test whether signatures are reset for "content-less" states (gone,
-   * redirect, etc.): otherwise, if this state is temporary and the document
-   * appears again with the old content, it may get marked as not_modified in
-   * CrawlDb just after the redirect state. In this case we cannot expect
-   * content in segments. Cf. NUTCH-1422: reset signature for redirects.
-   */
-  // TODO: can only test if solution is done in CrawlDbReducer
-  @Test
-  public void testSignatureReset() {
-    LOG.info("NUTCH-1422 must reset signature for redirects and similar states");
-    Context context = CrawlDBTestUtil.createContext();
-    Configuration conf = context.getConfiguration();
-    for (String sched : schedules) {
-      LOG.info("Testing reset signature with {}", sched);
-      conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
-      ContinuousCrawlTestUtil crawlUtil = new CrawlTestSignatureReset(context);
-      try {
-        if (!crawlUtil.run(20)) {
-          fail("failed: signature not reset");
-        }
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
     }
   }
 
@@ -605,6 +677,132 @@ public class TestCrawlDbStates {
       return true;
     }
 
+  }
+
+
+  private class ContinuousCrawlTestFetchRetry extends ContinuousCrawlTestUtil {
+
+    private int retryMax = 3;
+    private int totalRetries = 0;
+
+    ContinuousCrawlTestFetchRetry() {
+      super();
+      fetchStatus = STATUS_FETCH_RETRY;
+      retryMax = context.getConfiguration().getInt("db.fetch.retry.max", retryMax);
+    }
+
+    @Override
+    protected CrawlDatum fetch(CrawlDatum datum, long currentTime) {
+      datum.setStatus(fetchStatus);
+      datum.setFetchTime(currentTime);
+      totalRetries++;
+      return datum;
+    }
+
+    @Override
+    protected boolean check(CrawlDatum result) {
+      if (result.getRetriesSinceFetch() > retryMax) {
+        LOG.warn("Retry counter > db.fetch.retry.max: {}", result);
+      } else if (result.getRetriesSinceFetch() == Byte.MAX_VALUE) {
+        LOG.warn("Retry counter max. value reached (overflow imminent): {}", result);
+      } else if (result.getRetriesSinceFetch() < 0) {
+        LOG.error("Retry counter overflow: {}", result);
+        return false;
+      }
+      // use retry counter bound to this class (totalRetries)
+      // instead of result.getRetriesSinceFetch() because the retry counter
+      // in CrawlDatum could be reset (eg. NUTCH-578_v5.patch)
+      if (totalRetries < retryMax) {
+        if (result.getStatus() == STATUS_DB_UNFETCHED) {
+          LOG.info("ok: {}", result);
+          result.getRetriesSinceFetch();
+          return true;
+        }
+      } else {
+        if (result.getStatus() == STATUS_DB_GONE) {
+          LOG.info("ok: {}", result);
+          return true;
+        }
+      }
+      LOG.warn("wrong: {}", result);
+      return false;
+    }
+
+  }
+
+  private class CrawlTestFetchScheduleNotModifiedFetchTime extends
+      CrawlTestFetchNotModified {
+
+    // time of current fetch
+    private long fetchTime;
+
+    private long minInterval;
+    private long maxInterval;
+
+    CrawlTestFetchScheduleNotModifiedFetchTime(Context context) {
+      super(context);
+      Configuration conf = context.getConfiguration();
+      minInterval = conf.getLong("db.fetch.schedule.adaptive.min_interval",
+          86400); // 1 day
+      maxInterval = conf.getLong("db.fetch.schedule.adaptive.max_interval",
+          604800); // 7 days
+      if (conf.getLong("db.fetch.interval.max", 604800) < maxInterval) {
+        maxInterval = conf.getLong("db.fetch.interval.max", 604800);
+      }
+    }
+
+    @Override
+    protected CrawlDatum fetch(CrawlDatum datum, long currentTime) {
+      // remember time of fetching
+      fetchTime = currentTime;
+      return super.fetch(datum, currentTime);
+    }
+
+    @Override
+    protected boolean check(CrawlDatum result) {
+      if (result.getStatus() == STATUS_DB_NOTMODIFIED) {
+        // check only status notmodified here
+        long secondsUntilNextFetch = (result.getFetchTime() - fetchTime) / 1000L;
+        if (secondsUntilNextFetch < -1) {
+          // next fetch time is in the past (more than one second)
+          LOG.error("Next fetch time is in the past: {}", result);
+          return false;
+        }
+        if (secondsUntilNextFetch < 60) {
+          // next fetch time is in less than one minute
+          // (critical: Nutch can hardly be so fast)
+          LOG.error("Less then one minute until next fetch: {}", result);
+        }
+        // Next fetch time should be within min. and max. (tolerance: 60 sec.)
+        if (secondsUntilNextFetch + 60 < minInterval
+            || secondsUntilNextFetch - 60 > maxInterval) {
+          LOG.error(
+              "Interval until next fetch time ({}) is not within min. and max. interval: {}",
+              TimingUtil.elapsedTime(fetchTime, result.getFetchTime()), result);
+          // TODO: is this a failure?
+        }
+      }
+      return true;
+    }
+
+  }
+  
+  private class CrawlTestParserFailure extends ContinuousCrawlTestUtil {
+    
+    public CrawlTestParserFailure(Context context, byte fetchStatus,
+        byte expectedDbStatus) {
+      super(context, fetchStatus, expectedDbStatus);
+    }
+
+    @Override
+    protected List<CrawlDatum> parse(CrawlDatum fetchDatum) {
+      List<CrawlDatum> parseDatums = new ArrayList<CrawlDatum>(0);
+      if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_SUCCESS) {
+        // fail parsing everything
+        parseDatums.add(new CrawlDatum(STATUS_PARSE_FAILED, 0));
+      }
+      return parseDatums;
+    }
   }
 
 }

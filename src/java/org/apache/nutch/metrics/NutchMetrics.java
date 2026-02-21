@@ -185,6 +185,9 @@ public final class NutchMetrics {
   /** Documents deleted as duplicates. */
   public static final String INDEXER_DELETED_DUPLICATES_TOTAL = "deleted_duplicates_total";
 
+  /** Documents deleted because parsing failed. */
+  public static final String INDEXER_DELETED_FAILED_PARSE_TOTAL = "deleted_failed_parse_total";
+
   /** Documents deleted by indexing filter. */
   public static final String INDEXER_DELETED_BY_INDEXING_FILTER_TOTAL = "deleted_by_indexing_filter_total";
 

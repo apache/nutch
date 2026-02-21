@@ -26,6 +26,7 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
@@ -46,6 +47,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /** Test {@link IndexerMapReduce} */
 public class TestIndexerMapReduce {
@@ -84,6 +86,8 @@ public class TestIndexerMapReduce {
   public static ParseText parseText = new ParseText("Test");
   public static ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
       "Test", new Outlink[] {}, htmlMeta);
+  public static ParseData failedParseData = new ParseData(ParseStatus.STATUS_FAILURE,
+      "Test", new Outlink[] {}, htmlMeta);
   public static CrawlDatum crawlDatumDbFetched = new CrawlDatum(
       CrawlDatum.STATUS_DB_FETCHED, 60 * 60 * 24);
   public static CrawlDatum crawlDatumFetchSuccess = new CrawlDatum(
@@ -93,6 +97,37 @@ public class TestIndexerMapReduce {
 
   private Configuration configuration;
 
+  @Test
+  public void testDeleteParseFailure() {
+    configuration = NutchConfiguration.create();
+    configuration.setBoolean(ParseSegment.DELETE_FAILED_PARSE, true);
+    
+    // unrelated issue with "index.jexl.filter", don't use all plugins.  Ref: src/test/nutch-site.xml
+    configuration.set("plugin.includes", "protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|indexer-csv|scoring-opic|urlnormalizer-(pass|regex|basic)");
+
+    for(int i=0; i<5; i++) {
+      boolean failParse = i % 2 == 0;
+      ParseData data = null;
+
+      Content content = new Content(testUrl, testUrl,
+          testHtmlDoc.getBytes(StandardCharsets.UTF_8), htmlContentType, htmlMeta,
+          configuration);
+      
+      if(failParse) {
+        data = failedParseData;
+      } else {
+        data = parseData;
+      }
+
+      NutchDocument doc = runIndexer(crawlDatumDbFetched,
+          crawlDatumFetchSuccess, parseText, data, content);
+      if(failParse) {
+        assertNull(doc, "NutchDocument should not be indexed");
+      } else {
+        assertNotNull(doc, "No NutchDocument indexed");
+      }
+    }
+  }
 
   /**
    * Test indexing of base64-encoded binary content.
