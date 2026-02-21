@@ -189,7 +189,7 @@
   <!-- ================================================================== -->
   <!-- Compile test code                                                  --> 
   <!-- ================================================================== -->
-  <target name="compile-test" depends="compile, deps-test-compile" if="test.available">
+  <target name="compile-test" depends="resolve-test, compile, deps-test-compile" if="test.available">
     <javac 
      encoding="${build.encoding}" 
      srcdir="${src.test}"
@@ -240,7 +240,34 @@
       </testclasses>
     </junitlauncher>
     <fail if="tests.failed">Tests failed!</fail>
-  </target>   
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Run indexer plugin integration tests (Testcontainers)               -->
+  <!-- ================================================================== -->
+  <target name="test-indexer-integration" depends="compile-test, deploy" if="test.available">
+    <echo message="Running indexer integration tests for plugin: ${name}"/>
+    <junitlauncher printSummary="true" haltOnFailure="false" failureProperty="integration.tests.failed">
+      <classpath refid="test.classpath"/>
+      <testclasses outputDir="${build.test}">
+        <listener type="legacy-plain" sendSysOut="true" sendSysErr="true"/>
+        <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
+        <fork forkMode="perTestClass">
+          <jvmarg value="-Xmx2000m"/>
+          <sysproperty key="test.data" value="${build.test}/data"/>
+          <sysproperty key="test.input" value="${root}/data"/>
+          <sysproperty key="testcontainers.reuse.enable" value="true"/>
+          <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
+        </fork>
+        <fileset dir="${build.test}">
+          <include name="**/IT*.class"/>
+          <include name="**/*IT.class"/>
+          <include name="**/*IntegrationTest.class"/>
+        </fileset>
+      </testclasses>
+    </junitlauncher>
+    <fail if="integration.tests.failed">Indexer integration tests failed!</fail>
+  </target>
 
   <!-- target: resolve  ================================================= -->
   <target name="resolve-default" depends="clean-lib" description="resolve and retrieve dependencies with ivy">
