@@ -20,6 +20,16 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [master]
+
+# Java Version Strategy:
+# - BUILD: Requires Java 17+ (JUnit 6 dependency)
+# - RUNTIME: Supports Java 11+ (javac.version=11 produces Java 11 bytecode)
+#
+# The 'build' job verifies bytecode compilation for both Java 11 and 17 targets.
+# The 'runtime-java11' job verifies the built artifacts actually run on Java 11.
+# The 'tests' job runs on JDK 17 (required by JUnit 6) with the default
+# javac.version=11 bytecode target for backward compatibility.
+
 jobs:
   javadoc:
     strategy:
@@ -43,6 +53,7 @@ jobs:
             ${{ runner.os }}-ivy-
       - name: Javadoc
         run: ant clean javadoc -buildfile build.xml
+
   rat:
     strategy:
       matrix:
@@ -73,19 +84,108 @@ jobs:
       - name: Fail if any unknown licenses
         if: ${{ env.UNKNOWN_LICENSES != '0 Unknown Licenses' }}
         run: exit 1
+
+  # Build verification with Java bytecode target matrix
+  # Verifies bytecode compatibility for both Java 11 and Java 17 targets
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        javac-version: ['11', '17']
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    name: build (javac.version=${{ matrix.javac-version }})
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Cache Ivy dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.ivy2/cache
+          key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-ivy-
+      - name: Build with javac.version=${{ matrix.javac-version }}
+        run: ant clean runtime -Djavac.version=${{ matrix.javac-version }} -buildfile build.xml
+      - name: Verify bytecode version
+        run: |
+          # Extract and verify the bytecode version of compiled classes
+          # Java 11 = major version 55, Java 17 = major version 61
+          EXPECTED_VERSION=${{ matrix.javac-version == '11' && '55' || '61' }}
+          echo "Expected major version: $EXPECTED_VERSION (Java ${{ matrix.javac-version }})"
+          
+          # Find a real class file (exclude package-info.class which may have different version)
+          cd build/classes
+          CLASS_FILE=$(find . -name "*.class" ! -name "package-info.class" | head -1)
+          if [ -n "$CLASS_FILE" ]; then
+            echo "Checking: $CLASS_FILE"
+            ACTUAL_VERSION=$(javap -verbose "$CLASS_FILE" 2>/dev/null | grep "major version" | awk '{print $NF}')
+            echo "Actual major version: $ACTUAL_VERSION"
+            if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
+              echo "ERROR: Bytecode version mismatch!"
+              exit 1
+            fi
+            echo "Bytecode version verified successfully"
+          else
+            echo "ERROR: No class files found"
+            exit 1
+          fi
+
+  # Verify runtime compatibility on Java 11
+  # This ensures the built artifacts can actually run on Java 11
+  runtime-java11:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up JDK 17 for building
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Cache Ivy dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.ivy2/cache
+          key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-ivy-
+      - name: Build with Java 11 target
+        run: ant clean runtime -Djavac.version=11 -buildfile build.xml
+      - name: Set up JDK 11 for runtime verification
+        uses: actions/setup-java@v5
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      - name: Verify runtime on Java 11
+        run: |
+          echo "Verifying Nutch can run on Java 11..."
+          java -version
+          cd runtime/local
+          # Actually load Java classes by running showproperties
+          # This invokes org.apache.nutch.tools.ShowProperties and verifies the JAR loads
+          bin/nutch showproperties | head -20
+          echo "Java 11 runtime verification complete"
+
+  # Tests run on JDK 17 (required by JUnit 6) with default javac.version=11
+  # Java 11 runtime compatibility is verified by the runtime-java11 job
   tests:
     strategy:
+      fail-fast: false
       matrix:
-        java: ['17']
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
-          java-version: ${{ matrix.java }}
+          java-version: '17'
           distribution: 'temurin'
       - name: Cache Ivy dependencies
         uses: actions/cache@v4

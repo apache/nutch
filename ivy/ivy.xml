@@ -116,15 +116,17 @@
 			<exclude org="org.gnu.inet" module="libidn" /><!-- LGPL 2.1 -->
 		</dependency>
 
-        <dependency org="org.hamcrest" name="hamcrest" rev="3.0" conf="test->default"/>
-        <!-- Required for <junitlauncher> task -->
-        <dependency org="org.junit.platform" name="junit-platform-launcher" rev="1.14.1" conf="test->default"/>
-        <!-- Required for JUnit 5 (Jupiter) test execution -->
-        <dependency org="org.junit.jupiter" name="junit-jupiter-engine" rev="5.14.1" conf="test->default"/>
-        <dependency org="org.junit.jupiter" name="junit-jupiter-api" rev="5.14.1" conf="test->default"/>
-        <!-- Mockito for mocking in tests -->
-        <dependency org="org.mockito" name="mockito-core" rev="5.18.0" conf="test->default"/>
-        <dependency org="org.mockito" name="mockito-junit-jupiter" rev="5.18.0" conf="test->default"/>
+    <dependency org="org.hamcrest" name="hamcrest" rev="3.0" conf="test->default"/>
+    <!-- JSpecify nullability annotations for improved null safety -->
+    <dependency org="org.jspecify" name="jspecify" rev="1.0.0" conf="*->default"/>
+    <!-- Required for <junitlauncher> task -->
+    <dependency org="org.junit.platform" name="junit-platform-launcher" rev="6.0.3" conf="test->default"/>
+    <!-- Required for JUnit 6 (Jupiter) test execution -->
+    <dependency org="org.junit.jupiter" name="junit-jupiter-engine" rev="6.0.3" conf="test->default"/>
+    <dependency org="org.junit.jupiter" name="junit-jupiter-api" rev="6.0.3" conf="test->default"/>
+    <!-- Mockito for mocking in tests -->
+    <dependency org="org.mockito" name="mockito-core" rev="5.18.0" conf="test->default"/>
+    <dependency org="org.mockito" name="mockito-junit-jupiter" rev="5.18.0" conf="test->default"/>
 
 		<!-- Jetty used to serve test pages for unit tests, but is also provided as dependency of Hadoop -->
 		<dependency org="org.eclipse.jetty" name="jetty-server" rev="12.1.5" conf="test->default">

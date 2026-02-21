@@ -28,14 +28,18 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.CancellationAwareTestUtils;
+import org.apache.nutch.util.CancellationAwareTestUtils.CancellationToken;
 import org.eclipse.jetty.server.Server;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,6 +48,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Basic fetcher test 1. generate seedlist 2. inject 3. generate 3. fetch 4.
  * Verify contents
  * 
+ * <p>This test is cancellation-aware and will exit gracefully if the test
+ * suite is stopped early (e.g., due to fail-fast mode).</p>
  */
 public class TestFetcher {
 
@@ -81,7 +87,10 @@ public class TestFetcher {
   }
 
   @Test
+  @Timeout(value = 5, unit = TimeUnit.MINUTES)
   public void testFetch() throws IOException, ClassNotFoundException, InterruptedException {
+    // Create cancellation token for graceful shutdown support
+    CancellationToken cancellationToken = CancellationAwareTestUtils.createToken();
 
     // generate seedlist
     ArrayList<String> urls = new ArrayList<String>();
@@ -95,14 +104,21 @@ public class TestFetcher {
 
     CrawlDBTestUtil.generateSeedList(fs, urlPath, urls);
 
+    // Check for cancellation before long-running operations
+    cancellationToken.throwIfCancelled();
+
     // inject
     Injector injector = new Injector(conf);
     injector.inject(crawldbPath, urlPath);
+
+    cancellationToken.throwIfCancelled();
 
     // generate
     Generator g = new Generator(conf);
     Path[] generatedSegment = g.generate(crawldbPath, segmentsPath, 1,
         Long.MAX_VALUE, Long.MAX_VALUE, false, false, false, 1, null);
+
+    cancellationToken.throwIfCancelled();
 
     long time = System.currentTimeMillis();
     // fetch
@@ -114,6 +130,11 @@ public class TestFetcher {
     fetcher.fetch(generatedSegment[0], 1);
 
     time = System.currentTimeMillis() - time;
+
+    // Skip verification if cancelled
+    if (cancellationToken.isCancelled()) {
+      return;
+    }
 
     // verify politeness, time taken should be more than (num_of_pages +1)*delay
     int minimumTime = (int) ((urls.size() + 1) * 1000 * conf.getFloat(
@@ -127,18 +148,28 @@ public class TestFetcher {
 
     ArrayList<String> handledurls = new ArrayList<String>();
 
-    READ_CONTENT: do {
-      Text key = new Text();
-      Content value = new Content();
-      if (!reader.next(key, value))
-        break READ_CONTENT;
-      String contentString = new String(value.getContent());
-      if (contentString.indexOf("Nutch fetcher test page") != -1) {
-        handledurls.add(key.toString());
-      }
-    } while (true);
+    try {
+      READ_CONTENT: do {
+        // Check for cancellation periodically during I/O operations
+        if (cancellationToken.isCancelled()) break READ_CONTENT;
+        
+        Text key = new Text();
+        Content value = new Content();
+        if (!reader.next(key, value))
+          break READ_CONTENT;
+        String contentString = new String(value.getContent());
+        if (contentString.indexOf("Nutch fetcher test page") != -1) {
+          handledurls.add(key.toString());
+        }
+      } while (true);
+    } finally {
+      reader.close();
+    }
 
-    reader.close();
+    // Skip remaining verification if cancelled
+    if (cancellationToken.isCancelled()) {
+      return;
+    }
 
     Collections.sort(urls);
     Collections.sort(handledurls);
@@ -157,22 +188,32 @@ public class TestFetcher {
         new Path(generatedSegment[0], ParseData.DIR_NAME), "part-r-00000/data");
     reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(parseData));
 
-    READ_PARSE_DATA: do {
-      Text key = new Text();
-      ParseData value = new ParseData();
-      if (!reader.next(key, value))
-        break READ_PARSE_DATA;
-      // make sure they all contain "nutch.segment.name" and
-      // "nutch.content.digest"
-      // keys in parse metadata
-      Metadata contentMeta = value.getContentMeta();
-      if (contentMeta.get(Nutch.SEGMENT_NAME_KEY) != null
-          && contentMeta.get(Nutch.SIGNATURE_KEY) != null) {
-        handledurls.add(key.toString());
-      }
-    } while (true);
+    try {
+      READ_PARSE_DATA: do {
+        // Check for cancellation periodically
+        if (cancellationToken.isCancelled()) break READ_PARSE_DATA;
+        
+        Text key = new Text();
+        ParseData value = new ParseData();
+        if (!reader.next(key, value))
+          break READ_PARSE_DATA;
+        // make sure they all contain "nutch.segment.name" and
+        // "nutch.content.digest"
+        // keys in parse metadata
+        Metadata contentMeta = value.getContentMeta();
+        if (contentMeta.get(Nutch.SEGMENT_NAME_KEY) != null
+            && contentMeta.get(Nutch.SIGNATURE_KEY) != null) {
+          handledurls.add(key.toString());
+        }
+      } while (true);
+    } finally {
+      reader.close();
+    }
 
-    reader.close();
+    // Skip final assertions if cancelled
+    if (cancellationToken.isCancelled()) {
+      return;
+    }
 
     Collections.sort(handledurls);
 

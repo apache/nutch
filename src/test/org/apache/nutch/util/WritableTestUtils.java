@@ -18,24 +18,31 @@ package org.apache.nutch.util;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.conf.*;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Utility methods for testing Hadoop Writable implementations.
+ * Uses JSpecify annotations for null safety.
+ */
 public class WritableTestUtils {
 
   /** Utility method for testing writables. */
-  public static void testWritable(Writable before) throws Exception {
+  public static void testWritable(@NonNull Writable before) throws Exception {
     testWritable(before, null);
   }
 
   /** Utility method for testing writables. */
-  public static void testWritable(Writable before, Configuration conf)
+  public static void testWritable(@NonNull Writable before, @Nullable Configuration conf)
       throws Exception {
     assertEquals(before, writeRead(before, conf));
   }
 
   /** Utility method for testing writables. */
-  public static Writable writeRead(Writable before, Configuration conf)
+  @NonNull
+  public static Writable writeRead(@NonNull Writable before, @Nullable Configuration conf)
       throws Exception {
 
     DataOutputBuffer dob = new DataOutputBuffer();
