@@ -218,6 +218,7 @@
           <jvmarg value="-Xmx1000m"/>
           <sysproperty key="test.data" value="${build.test}/data"/>
           <sysproperty key="test.input" value="${root}/data"/>
+          <sysproperty key="junit.platform.execution.failfast.enabled" value="${test.failfast}"/>
           <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
         </fork>
         <fileset dir="${build.test}">
@@ -232,6 +233,7 @@
           <jvmarg value="-Xmx1000m"/>
           <sysproperty key="test.data" value="${build.test}/data"/>
           <sysproperty key="test.input" value="${root}/data"/>
+          <sysproperty key="junit.platform.execution.failfast.enabled" value="${test.failfast}"/>
           <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
         </fork>
         <fileset dir="${basedir}">
