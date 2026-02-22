@@ -77,7 +77,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
       - name: SonarCloud Scan (PR)
         if: steps.pr.outputs.is_pr == 'true'
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v6
         with:
           args: >
             -Dsonar.pullrequest.key=${{ steps.pr.outputs.number }}
@@ -88,7 +88,7 @@ jobs:
           SONAR_HOST_URL: https://sonarcloud.io
       - name: SonarCloud Scan (branch)
         if: steps.pr.outputs.is_pr == 'false'
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v6
         with:
           args: >
             -Dsonar.branch.name=${{ github.event.workflow_run.head_branch }}
