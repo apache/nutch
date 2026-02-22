@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.help.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -168,21 +168,21 @@ public class ResolveUrls {
     Option helpOpts = Option.builder("help")
         .argName("help")
         .desc("show this help message")
-        .build();
+        .get();
     options.addOption(helpOpts);
 
     Option urlOpts = Option.builder("urls")
         .argName("urls")
         .hasArg()
         .desc("the urls file to check")
-        .build();
+        .get();
     options.addOption(urlOpts);
 
     Option numThreadOpts = Option.builder("numThreads")
         .argName("numThreads")
         .hasArgs()
         .desc("the number of threads to use")
-        .build();
+        .get();
     options.addOption(numThreadOpts);
 
     CommandLineParser parser = new DefaultParser();

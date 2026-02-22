@@ -36,7 +36,7 @@ public class NutchJob extends Job {
 
   /** Default constructor for subclass or reflection use. */
   public NutchJob() throws IOException {
-    super();
+    super(new Configuration());
   }
 
   /**

@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.help.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.time.StopWatch;
@@ -231,21 +231,21 @@ public class ScoreUpdater extends Configured implements Tool{
     Option helpOpts = Option.builder("help")
         .argName("help")
         .desc("show this help message")
-        .build();
+        .get();
     options.addOption(helpOpts);
 
     Option crawlDbOpts = Option.builder("crawldb")
         .argName("crawldb")
         .hasArg()
         .desc("the crawldb to use")
-        .build();
+        .get();
     options.addOption(crawlDbOpts);
 
     Option webGraphOpts = Option.builder("webgraphdb")
         .argName("webgraphdb")
         .hasArg()
         .desc("the webgraphdb to use")
-        .build();
+        .get();
     options.addOption(webGraphOpts);
 
     CommandLineParser parser = new DefaultParser();

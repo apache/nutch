@@ -21,7 +21,7 @@ import java.io.IOException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.help.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configuration;
@@ -93,21 +93,21 @@ public class NodeReader extends Configured {
     Option helpOpts = Option.builder("help")
         .argName("help")
         .desc("show this help message")
-        .build();
+        .get();
     options.addOption(helpOpts);
 
     Option webGraphOpts = Option.builder("webgraphdb")
         .argName("webgraphdb")
         .hasArg()
         .desc("the webgraphdb to use")
-        .build();
+        .get();
     options.addOption(webGraphOpts);
 
     Option urlOpts = Option.builder("url")
         .argName("url")
         .optionalArg(true)
         .desc("the url to dump")
-        .build();
+        .get();
     options.addOption(urlOpts);
 
     CommandLineParser parser = new DefaultParser();

@@ -18,13 +18,13 @@ package org.apache.nutch.service.impl;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.nutch.service.model.response.JobInfo;
 
 import com.google.common.collect.Lists;
@@ -76,7 +76,7 @@ public class NutchServerPoolExecutor extends ThreadPoolExecutor{
   public JobWorker findWorker(String jobId) {
     synchronized (runningWorkers) {
       for (JobWorker worker : runningWorkers) {
-        if (StringUtils.equals(worker.getInfo().getId(), jobId)) {
+        if (Objects.equals(worker.getInfo().getId(), jobId)) {
           return worker;
         }
       }
@@ -120,7 +120,7 @@ public class NutchServerPoolExecutor extends ThreadPoolExecutor{
 
   public JobInfo getInfo(String jobId) {
     for (JobInfo jobInfo : getAllJobs()) {
-      if (StringUtils.equals(jobId, jobInfo.getId())) {
+      if (Objects.equals(jobId, jobInfo.getId())) {
         return jobInfo;
       }
     }

@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.help.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.time.StopWatch;
@@ -754,17 +754,17 @@ public class WebGraph extends Configured implements Tool {
         .argName("webgraphdb")
         .hasArg()
         .desc("the web graph database to create (if none exists) or use if one does")
-        .build();
+        .get();
     Option segOpt = Option.builder("segment")
         .argName("segment")
         .hasArgs()
         .desc("the segment(s) to use")
-        .build();
+        .get();
     Option segDirOpt = Option.builder("segmentDir")
         .argName("segmentDir")
         .hasArgs()
         .desc("the segment directory to use")
-        .build();
+        .get();
 
     // create the options
     Options options = new Options();

@@ -28,7 +28,7 @@ import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.help.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
@@ -311,29 +311,29 @@ public class FileDumper {
     .argName("outputDir")
     .hasArg()
     .desc("output directory (which will be created) to host the raw data")
-    .build();
+    .get();
     Option segOpt = Option.builder("segment")
     .argName("segment")
     .hasArgs()
     .desc("the segment(s) to use")
-    .build();
+    .get();
     Option mimeOpt = Option.builder("mimetype")
     .argName("mimetype")
     .hasArgs()
     .desc("an optional list of mimetypes to dump, excluding all others. Defaults to all.")
-    .build();
+    .get();
     Option mimeStat = Option.builder("mimeStats")
     .argName("mimeStats")
     .desc("only display mimetype stats for the segment(s) instead of dumping file.")
-    .build();
+    .get();
     Option dirStructureOpt = Option.builder("flatdir")
     .argName("flatdir")
     .desc("optionally specify that the output directory should only contain files.")
-    .build();
+    .get();
     Option reverseURLOutput = Option.builder("reverseUrlDirs")
     .argName("reverseUrlDirs")
     .desc("optionally specify to use reverse URL folders for output structure.")
-    .build();
+    .get();
 
     // create the options
     Options options = new Options();

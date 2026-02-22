@@ -259,7 +259,7 @@ jobs:
           APPROVED_PATTERN="SpellCheckedMetadata\.java|CrawlDBTestUtil\.java|CrawlDbUpdateUtil\.java"
           unapproved=$(echo "$deprecations" | grep -v -E "$APPROVED_PATTERN" || true)
           if [ -n "$unapproved" ]; then
-            echo "❌ Unapproved Java deprecation warnings detected! Failing the build. ="
+            echo "❌ Unapproved Java deprecation warnings detected! Failing the build."
             echo "$unapproved"
             exit 1
           fi
