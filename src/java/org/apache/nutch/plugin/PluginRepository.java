@@ -101,7 +101,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
     try {
       installExtensions(this.fRegisteredPlugins);
     } catch (PluginRuntimeException e) {
-      LOG.error("Could not install extensions. {}", e.toString());
+      LOG.error("Could not install extensions: {}", e.toString());
       throw new RuntimeException(e.getMessage());
     }
 
