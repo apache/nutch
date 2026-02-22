@@ -1169,9 +1169,12 @@
       </executiondata>
       <structure name="Apache Nutch">
         <classfiles>
-          <fileset dir="${build.classes}"/>
-          <fileset dir="${build.plugins}">
-            <include name="**/*.jar"/>
+          <fileset dir="${build.classes}">
+            <include name="**/*.class"/>
+          </fileset>
+          <fileset dir="${build.dir}">
+            <include name="*/classes/**/*.class"/>
+            <exclude name="test/**"/>
           </fileset>
         </classfiles>
         <sourcefiles encoding="${build.encoding}">
