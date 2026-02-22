@@ -46,6 +46,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.hostdb.HostDatum;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
@@ -121,6 +122,7 @@ public class SitemapProcessor extends Configured implements Tool {
     private Counter fromHostnameCounter;
     private Counter filteredFromHostnameCounter;
     private Counter failedFetchesCounter;
+    private ErrorTracker errorTracker;
 
     @Override
     public void setup(Context context) {
@@ -149,6 +151,15 @@ public class SitemapProcessor extends Configured implements Tool {
       }
 
       // Initialize cached counter references
+      initCounters(context);
+      // Initialize error tracker with cached counters
+      errorTracker = new ErrorTracker(NutchMetrics.GROUP_SITEMAP, context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
       filteredRecordsCounter = context.getCounter(
           NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FILTERED_RECORDS_TOTAL);
       seedsCounter = context.getCounter(
@@ -196,6 +207,7 @@ public class SitemapProcessor extends Configured implements Tool {
       } catch (Exception e) {
         LOG.warn("Exception for record {} : {}", key.toString(),
             StringUtils.stringifyException(e));
+        errorTracker.incrementCounters(e);
       }
     }
 
@@ -246,6 +258,7 @@ public class SitemapProcessor extends Configured implements Tool {
         }
       } catch (Exception e) {
         LOG.warn("Exception for record {} : {}", host, StringUtils.stringifyException(e));
+        errorTracker.incrementCounters(e);
       }
     }
 
@@ -371,6 +384,13 @@ public class SitemapProcessor extends Configured implements Tool {
       this.overwriteExisting = conf.getBoolean(SITEMAP_OVERWRITE_EXISTING, false);
 
       // Initialize cached counter references
+      initCounters(context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
       existingEntriesCounter = context.getCounter(
           NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_EXISTING_ENTRIES_TOTAL);
       newEntriesCounter = context.getCounter(

@@ -21,9 +21,11 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.util.StringUtils;
 
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 
 import org.slf4j.Logger;
@@ -43,6 +45,17 @@ public class ResolverThread implements Runnable {
   protected Context context;
   protected int purgeFailedHostsThreshold;
 
+  // Cached counter references for performance
+  private Counter newKnownHostCounter;
+  private Counter rediscoveredHostCounter;
+  private Counter existingKnownHostCounter;
+  private Counter newUnknownHostCounter;
+  private Counter existingUnknownHostCounter;
+  private Counter purgedUnknownHostCounter;
+  private Counter checkedHostsCounter;
+  private Counter errorsCounter;
+  private Counter errorsNetworkCounter;
+
   /**
    * Overloaded constructor.
    * @param host name of the host to lookup
@@ -60,6 +73,33 @@ public class ResolverThread implements Runnable {
     this.datum = datum;
     this.context = context;
     this.purgeFailedHostsThreshold = purgeFailedHostsThreshold;
+    
+    // Initialize cached counters for performance
+    initCounters();
+  }
+
+  /**
+   * Initialize cached counter references to avoid repeated lookups.
+   */
+  private void initCounters() {
+    newKnownHostCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_NEW_KNOWN_HOST_TOTAL);
+    rediscoveredHostCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_REDISCOVERED_HOST_TOTAL);
+    existingKnownHostCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_EXISTING_KNOWN_HOST_TOTAL);
+    newUnknownHostCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_NEW_UNKNOWN_HOST_TOTAL);
+    existingUnknownHostCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_EXISTING_UNKNOWN_HOST_TOTAL);
+    purgedUnknownHostCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_PURGED_UNKNOWN_HOST_TOTAL);
+    checkedHostsCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_CHECKED_HOSTS_TOTAL);
+    errorsCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.ERROR_TOTAL);
+    errorsNetworkCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.ERROR_NETWORK_TOTAL);
   }
 
   /**
@@ -74,19 +114,16 @@ public class ResolverThread implements Runnable {
       InetAddress inetAddr = InetAddress.getByName(host);
 
       if (datum.isEmpty()) {
-        context.getCounter(NutchMetrics.GROUP_HOSTDB,
-            NutchMetrics.HOSTDB_NEW_KNOWN_HOST_TOTAL).increment(1);
+        newKnownHostCounter.increment(1);
         datum.setLastCheck();
         LOG.info("{}: new_known_host {}", host, datum);
       } else if (datum.getDnsFailures() > 0) {
-        context.getCounter(NutchMetrics.GROUP_HOSTDB,
-            NutchMetrics.HOSTDB_REDISCOVERED_HOST_TOTAL).increment(1);
+        rediscoveredHostCounter.increment(1);
         datum.setLastCheck();
         datum.setDnsFailures(0l);
         LOG.info("{}: rediscovered_host {}", host, datum);
       } else {
-        context.getCounter(NutchMetrics.GROUP_HOSTDB,
-            NutchMetrics.HOSTDB_EXISTING_KNOWN_HOST_TOTAL).increment(1);
+        existingKnownHostCounter.increment(1);
         datum.setLastCheck();
         LOG.info("{}: existing_known_host {}", host, datum);
       }
@@ -100,8 +137,7 @@ public class ResolverThread implements Runnable {
           datum.setLastCheck();
           datum.setDnsFailures(1l);
           context.write(hostText, datum);
-          context.getCounter(NutchMetrics.GROUP_HOSTDB,
-              NutchMetrics.HOSTDB_NEW_UNKNOWN_HOST_TOTAL).increment(1);
+          newUnknownHostCounter.increment(1);
           LOG.info("{}: new_unknown_host {}", host, datum);
         } else {
           datum.setLastCheck();
@@ -112,27 +148,34 @@ public class ResolverThread implements Runnable {
             purgeFailedHostsThreshold < datum.getDnsFailures()) {
 
             context.write(hostText, datum);
-            context.getCounter(NutchMetrics.GROUP_HOSTDB,
-                NutchMetrics.HOSTDB_EXISTING_UNKNOWN_HOST_TOTAL).increment(1);
+            existingUnknownHostCounter.increment(1);
             LOG.info("{}: existing_unknown_host {}", host, datum);
           } else {
-            context.getCounter(NutchMetrics.GROUP_HOSTDB,
-                NutchMetrics.HOSTDB_PURGED_UNKNOWN_HOST_TOTAL).increment(1);
+            purgedUnknownHostCounter.increment(1);
             LOG.info("{}: purged_unknown_host {}", host, datum);
           }
         }
 
         // Dynamic counter based on failure count - can't cache
         context.getCounter(NutchMetrics.GROUP_HOSTDB, createFailureCounterLabel(datum)).increment(1);
+        // Common error counters for consistency
+        errorsCounter.increment(1);
+        errorsNetworkCounter.increment(1);
       } catch (Exception ioe) {
         LOG.warn(StringUtils.stringifyException(ioe));
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            NutchMetrics.ERROR_TOTAL).increment(1);
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            ErrorTracker.getCounterName(ioe)).increment(1);
       }
     } catch (Exception e) {
       LOG.warn(StringUtils.stringifyException(e));
+      errorsCounter.increment(1);
+      context.getCounter(NutchMetrics.GROUP_HOSTDB,
+          ErrorTracker.getCounterName(e)).increment(1);
     }
 
-    context.getCounter(NutchMetrics.GROUP_HOSTDB,
-        NutchMetrics.HOSTDB_CHECKED_HOSTS_TOTAL).increment(1);
+    checkedHostsCounter.increment(1);
   }
 
   private String createFailureCounterLabel(HostDatum datum) {

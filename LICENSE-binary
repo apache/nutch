@@ -245,7 +245,6 @@ com.google.inject.extensions:guice-servlet
 com.google.j2objc:j2objc-annotations
 com.healthmarketscience.jackcess:jackcess
 com.healthmarketscience.jackcess:jackcess-encrypt
-com.intellij:annotations
 com.maxmind.db:maxmind-db
 com.maxmind.geoip2:geoip2
 com.nimbusds:nimbus-jose-jwt
@@ -257,7 +256,12 @@ com.rometools:rome-utils
 com.shapesecurity:salvation2
 com.squareup.okhttp3:okhttp
 com.squareup.okhttp3:okhttp-brotli
+com.squareup.okhttp3:okhttp-jvm
+com.squareup.okhttp3:okhttp-zstd
 com.squareup.okio:okio
+com.squareup.okio:okio-jvm
+com.squareup.zstd:zstd-kmp-jvm
+com.squareup.zstd:zstd-kmp-okio-jvm
 com.tdunning:t-digest
 com.typesafe.netty:netty-reactive-streams
 com.typesafe.scala-logging:scala-logging_2.12
@@ -275,13 +279,14 @@ commons-lang:commons-lang
 commons-logging:commons-logging
 commons-net:commons-net
 commons-validator:commons-validator
+de.l3s.boilerpipe:boilerpipe
 de.vandermeer:ascii-utf-themes
 de.vandermeer:asciitable
 de.vandermeer:char-translation
 de.vandermeer:skb-interfaces
 dev.failsafe:failsafe
+info.picocli:picocli
 io.dropwizard.metrics:metrics-core
-io.netty:netty
 io.netty:netty-all
 io.netty:netty-buffer
 io.netty:netty-codec
@@ -378,7 +383,7 @@ org.apache.hadoop:hadoop-yarn-api
 org.apache.hadoop:hadoop-yarn-client
 org.apache.hadoop:hadoop-yarn-common
 org.apache.hadoop.thirdparty:hadoop-shaded-guava
-org.apache.hadoop.thirdparty:hadoop-shaded-protobuf_3_7
+org.apache.hadoop.thirdparty:hadoop-shaded-protobuf_3_25
 org.apache.httpcomponents:httpasyncclient
 org.apache.httpcomponents:httpclient
 org.apache.httpcomponents:httpcore
@@ -398,21 +403,13 @@ org.apache.kafka:kafka-storage
 org.apache.kafka:kafka-storage-api
 org.apache.kafka:kafka-tools-api
 org.apache.kafka:kafka_2.12
-org.apache.kerby:kerb-admin
-org.apache.kerby:kerb-client
-org.apache.kerby:kerb-common
 org.apache.kerby:kerb-core
 org.apache.kerby:kerb-crypto
-org.apache.kerby:kerb-identity
-org.apache.kerby:kerb-server
-org.apache.kerby:kerb-simplekdc
 org.apache.kerby:kerb-util
 org.apache.kerby:kerby-asn1
 org.apache.kerby:kerby-config
 org.apache.kerby:kerby-pkix
 org.apache.kerby:kerby-util
-org.apache.kerby:kerby-xdr
-org.apache.kerby:token-provider
 org.apache.logging.log4j:log4j-api
 org.apache.logging.log4j:log4j-core
 org.apache.logging.log4j:log4j-slf4j2-impl
@@ -435,6 +432,7 @@ org.apache.pdfbox:fontbox
 org.apache.pdfbox:jbig2-imageio
 org.apache.pdfbox:jempbox
 org.apache.pdfbox:pdfbox
+org.apache.pdfbox:pdfbox-io
 org.apache.pdfbox:pdfbox-tools
 org.apache.pdfbox:xmpbox
 org.apache.poi:poi
@@ -443,6 +441,7 @@ org.apache.poi:poi-ooxml-lite
 org.apache.poi:poi-scratchpad
 org.apache.solr:solr-solrj
 org.apache.tika:tika-core
+org.apache.tika:tika-handler-boilerpipe
 org.apache.tika:tika-langdetect-optimaize
 org.apache.tika:tika-parser-apple-module
 org.apache.tika:tika-parser-audiovideo-module
@@ -476,8 +475,6 @@ org.asynchttpclient:async-http-client
 org.asynchttpclient:async-http-client-netty-utils
 org.bitbucket.b_c:jose4j
 org.ccil.cowan.tagsoup:tagsoup
-org.codehaus.jackson:jackson-core-asl
-org.codehaus.jackson:jackson-mapper-asl
 org.codehaus.jettison:jettison
 org.eclipse.jetty:jetty-alpn-client
 org.eclipse.jetty:jetty-alpn-java-client
@@ -515,9 +512,6 @@ org.gagravarr:vorbis-java-core
 org.gagravarr:vorbis-java-tika
 org.jetbrains:annotations
 org.jetbrains.kotlin:kotlin-stdlib
-org.jetbrains.kotlin:kotlin-stdlib-common
-org.jetbrains.kotlin:kotlin-stdlib-jdk7
-org.jetbrains.kotlin:kotlin-stdlib-jdk8
 org.jspecify:jspecify
 org.littleshoot:littleproxy
 org.locationtech.spatial4j:spatial4j
@@ -595,9 +589,7 @@ BSD 2-Clause
 
 com.barchart.udt:barchart-udt-bundle
 com.github.luben:zstd-jni
-com.google.protobuf:protobuf-java
 dk.brics:automaton
-dnsjava:dnsjava
 org.codehaus.woodstox:stax2-api
 org.jline:jline
 
@@ -609,6 +601,7 @@ BSD 3-Clause
 
 com.adobe.xmp:xmpcore
 com.github.virtuald:curvesapi
+dnsjava:dnsjava
 org.fusesource.leveldbjni:leveldbjni-all
 org.ow2.asm:asm
 
@@ -633,7 +626,7 @@ Bouncy Castle Licence
 
 (licenses-binary/LICENSE-bouncy-castle-licence.txt)
 
-org.bouncycastle:bcmail-jdk18on
+org.bouncycastle:bcjmail-jdk18on
 org.bouncycastle:bcpkix-jdk18on
 org.bouncycastle:bcprov-jdk18on
 org.bouncycastle:bcutil-jdk18on
@@ -717,12 +710,16 @@ jakarta.jws:jakarta.jws-api
 jakarta.xml.bind:jakarta.xml.bind-api
 jakarta.xml.soap:jakarta.xml.soap-api
 jakarta.xml.ws:jakarta.xml.ws-api
+org.eclipse.angus:angus-activation
+org.glassfish.jaxb:jaxb-core
 org.glassfish.jaxb:jaxb-runtime
 org.glassfish.jaxb:txw2
 
 
 Eclipse Public License - Version 2.0
 ------------------------------------
+
+(licenses-binary/LICENSE-eclipse-public-license---version-2.0.txt)
 
 org.eclipse.jetty:jetty-http
 org.eclipse.jetty:jetty-io
@@ -733,6 +730,8 @@ org.eclipse.jetty:jetty-util
 
 MIT
 ---
+
+(licenses-binary/LICENSE-mit-license.txt)
 
 net.sourceforge.argparse4j:argparse4j
 org.slf4j:slf4j-api
@@ -781,7 +780,6 @@ Public Domain
 (licenses-binary/LICENSE-public-domain.txt)
 
 aopalliance:aopalliance
-org.tukaani:xz
 
 
 Public Domain, per Creative Commons CC0

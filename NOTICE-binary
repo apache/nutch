@@ -48,7 +48,7 @@ Apache projects
 
 
 # org.apache.avro:avro
-Apache Avro (http://avro.apache.org)
+Apache Avro (https://avro.apache.org)
 
 # org.apache.commons:commons-collections4
 Apache Commons Collections (https://commons.apache.org/proper/commons-collections/)
@@ -60,6 +60,8 @@ Apache Commons Configuration (https://commons.apache.org/proper/commons-configur
 Apache Commons CSV (https://commons.apache.org/proper/commons-csv/)
 # org.apache.commons:commons-exec
 Apache Commons Exec (http://commons.apache.org/proper/commons-exec/)
+# org.apache.commons:commons-exec
+Apache Commons Exec (https://commons.apache.org/proper/commons-exec/)
 # org.apache.commons:commons-jexl3
 Apache Commons JEXL (https://commons.apache.org/proper/commons-jexl/)
 # org.apache.commons:commons-lang3
@@ -68,8 +70,6 @@ Apache Commons Lang (https://commons.apache.org/proper/commons-lang/)
 Apache Commons Lang (http://commons.apache.org/proper/commons-lang/)
 # org.apache.commons:commons-math3
 Apache Commons Math (http://commons.apache.org/proper/commons-math/)
-# org.apache.commons:commons-math3
-Apache Commons Math (http://commons.apache.org/math/)
 # org.apache.commons:commons-text
 Apache Commons Text (https://commons.apache.org/proper/commons-text)
 
@@ -132,8 +132,8 @@ Apache Hadoop YARN Common
 
 # org.apache.hadoop.thirdparty:hadoop-shaded-guava
 Apache Hadoop shaded Guava
-# org.apache.hadoop.thirdparty:hadoop-shaded-protobuf_3_7
-Apache Hadoop shaded Protobuf 3.7
+# org.apache.hadoop.thirdparty:hadoop-shaded-protobuf_3_25
+Apache Hadoop shaded Protobuf
 
 # org.apache.httpcomponents:httpasyncclient
 Apache HttpAsyncClient (http://hc.apache.org/httpcomponents-asyncclient)
@@ -145,6 +145,8 @@ Apache HttpClient (http://hc.apache.org/httpcomponents-client-ga)
 Apache HttpCore (http://hc.apache.org/httpcomponents-core-ga)
 # org.apache.httpcomponents:httpcore-nio
 Apache HttpCore NIO (http://hc.apache.org/httpcomponents-core-ga)
+# org.apache.httpcomponents:httpmime
+Apache HttpClient Mime (http://hc.apache.org/httpcomponents-client-ga)
 # org.apache.httpcomponents:httpmime
 Apache HttpClient Mime (http://hc.apache.org/httpcomponents-client)
 
@@ -178,22 +180,10 @@ Apache Kafka (https://kafka.apache.org)
 # org.apache.kafka:kafka_2.12
 Apache Kafka (https://kafka.apache.org)
 
-# org.apache.kerby:kerb-admin
-Apache Kerby-kerb Admin
-# org.apache.kerby:kerb-client
-Apache Kerby-kerb Client
-# org.apache.kerby:kerb-common
-Apache Kerby-kerb Common
 # org.apache.kerby:kerb-core
 Apache Kerby-kerb core
 # org.apache.kerby:kerb-crypto
 Apache Kerby-kerb Crypto
-# org.apache.kerby:kerb-identity
-Apache Kerby-kerb Identity
-# org.apache.kerby:kerb-server
-Apache Kerby-kerb Server
-# org.apache.kerby:kerb-simplekdc
-Apache Kerb Simple Kdc
 # org.apache.kerby:kerb-util
 Apache Kerby-kerb Util
 # org.apache.kerby:kerby-asn1
@@ -204,10 +194,6 @@ Apache Kerby Config
 Apache Kerby PKIX Project
 # org.apache.kerby:kerby-util
 Apache Kerby Util
-# org.apache.kerby:kerby-xdr
-Apache Kerby XDR Project
-# org.apache.kerby:token-provider
-Apache Token provider
 
 # org.apache.logging.log4j:log4j-api
 Apache Log4j API
@@ -258,6 +244,8 @@ Apache PDFBox JBIG2 ImageIO plugin
 Apache JempBox
 # org.apache.pdfbox:pdfbox
 Apache PDFBox
+# org.apache.pdfbox:pdfbox-io
+Apache PDFBox io
 # org.apache.pdfbox:pdfbox-tools
 Apache PDFBox tools
 # org.apache.pdfbox:xmpbox
@@ -277,6 +265,8 @@ Apache Solr Solrj
 
 # org.apache.tika:tika-core
 Apache Tika core (https://tika.apache.org/)
+# org.apache.tika:tika-handler-boilerpipe
+Apache 
 # org.apache.tika:tika-langdetect-optimaize
 Apache Tika Optimaize langdetect
 # org.apache.tika:tika-parser-apple-module
@@ -391,10 +381,10 @@ Jackson-annotations (http://github.com/FasterXML/jackson)
 Jackson-annotations (https://github.com/FasterXML/jackson)
 - license: The Apache Software License, Version 2.0
 # com.fasterxml.jackson.core:jackson-core
-Jackson-core (https://github.com/FasterXML/jackson)
+Jackson-core (https://github.com/FasterXML/jackson-core)
 - license: The Apache Software License, Version 2.0
 # com.fasterxml.jackson.core:jackson-core
-Jackson-core (https://github.com/FasterXML/jackson-core)
+Jackson-core (https://github.com/FasterXML/jackson)
 - license: The Apache Software License, Version 2.0
 # com.fasterxml.jackson.core:jackson-databind
 jackson-databind (http://github.com/FasterXML/jackson)
@@ -519,10 +509,10 @@ error-prone annotations
 
 # com.google.guava:failureaccess
 Guava InternalFutureFailureAccess and InternalFutures
-- license: The Apache Software License, Version 2.0
+- license: Apache License, Version 2.0
 # com.google.guava:failureaccess
 Guava InternalFutureFailureAccess and InternalFutures
-- license: Apache License, Version 2.0
+- license: The Apache Software License, Version 2.0
 # com.google.guava:guava
 Guava: Google Core Libraries for Java (https://github.com/google/guava)
 - license: Apache License, Version 2.0
@@ -548,14 +538,10 @@ J2ObjC Annotations (https://github.com/google/j2objc/)
 J2ObjC Annotations (https://github.com/google/j2objc/)
 - license: The Apache Software License, Version 2.0
 
-# com.google.protobuf:protobuf-java
-Protocol Buffer Java API (http://code.google.com/p/protobuf)
-- license: New BSD license
-  (licenses-binary/LICENSE-bsd-2-clause.txt)
-
 # com.google.re2j:re2j
 re2j (http://github.com/google/re2j)
 - license: The Go license
+  (licenses-binary/LICENSE-the-go-license.txt)
 
 # com.googlecode.juniversalchardet:juniversalchardet
 juniversalchardet (http://juniversalchardet.googlecode.com/)
@@ -577,10 +563,7 @@ Jackcess Encrypt (http://jackcessencrypt.sf.net)
 # com.ibm.icu:icu4j
 ICU4J (https://icu.unicode.org/)
 - license: Unicode-3.0
-
-# com.intellij:annotations
-IntelliJ IDEA Annotations (http://www.jetbrains.org)
-- license: Apache License 2
+  (licenses-binary/LICENSE-unicode-icu-license.txt)
 
 # com.jcraft:jsch
 JSch (http://www.jcraft.com/jsch/)
@@ -633,14 +616,30 @@ salvation (http://cspvalidator.org)
 - license: Apache License, Version 2.0
 
 # com.squareup.okhttp3:okhttp
-OkHttp (https://square.github.io/okhttp/)
+okhttp (https://square.github.io/okhttp/)
 - license: The Apache Software License, Version 2.0
 # com.squareup.okhttp3:okhttp-brotli
 okhttp-brotli (https://square.github.io/okhttp/)
 - license: The Apache Software License, Version 2.0
+# com.squareup.okhttp3:okhttp-jvm
+okhttp (https://square.github.io/okhttp/)
+- license: The Apache Software License, Version 2.0
+# com.squareup.okhttp3:okhttp-zstd
+okhttp-zstd (https://square.github.io/okhttp/)
+- license: The Apache Software License, Version 2.0
 
 # com.squareup.okio:okio
-Okio (https://github.com/square/okio/)
+okio (https://github.com/square/okio/)
+- license: The Apache Software License, Version 2.0
+# com.squareup.okio:okio-jvm
+okio (https://github.com/square/okio/)
+- license: The Apache Software License, Version 2.0
+
+# com.squareup.zstd:zstd-kmp-jvm
+zstd-kmp (https://github.com/square/okio-zstd/)
+- license: The Apache Software License, Version 2.0
+# com.squareup.zstd:zstd-kmp-okio-jvm
+zstd-kmp-okio (https://github.com/square/okio-zstd/)
 - license: The Apache Software License, Version 2.0
 
 # com.sun.activation:jakarta.activation
@@ -778,6 +777,10 @@ Apache Commons Net (https://commons.apache.org/proper/commons-net/)
 Apache Commons Validator (http://commons.apache.org/proper/commons-validator/)
 - license: Apache License, Version 2.0
 
+# de.l3s.boilerpipe:boilerpipe
+Apache License 2.0 (http://code.google.com/p/boilerpipe/)
+- license: Apache License 2.0
+
 # de.vandermeer:ascii-utf-themes
 ASCII and UTF Themes (https://github.com/vdmeer/ascii-utf-themes)
 - license: Apache 2
@@ -801,17 +804,18 @@ dk.brics.automaton (https://www.brics.dk/automaton)
   (licenses-binary/LICENSE-bsd-2-clause.txt)
 
 # dnsjava:dnsjava
-dnsjava (http://www.dnsjava.org)
-- license: BSD 2-Clause license
-  (licenses-binary/LICENSE-bsd-2-clause.txt)
+dnsjava (https://github.com/dnsjava/dnsjava)
+- license: BSD-3-Clause
+  (licenses-binary/LICENSE-bsd-3-clause.txt)
+
+# info.picocli:picocli
+picocli (https://picocli.info)
+- license: The Apache Software License, version 2.0
 
 # io.dropwizard.metrics:metrics-core
 Metrics Core
 - license: Apache License 2.0
 
-# io.netty:netty
-Netty (http://netty.io/)
-- license: Apache License, Version 2.0
 # io.netty:netty-all
 Netty/All-in-One (https://netty.io/netty-all/)
 - license: Apache License, Version 2.0
@@ -971,6 +975,10 @@ Google S2 geometry library (https://github.com/sgr-io/s2-geometry-library-java)
 Jakarta Activation API jar
 - license: EDL 1.0
   (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# jakarta.activation:jakarta.activation-api
+Jakarta Activation API (https://github.com/jakartaee/jaf-api)
+- license: EDL 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
 
 # jakarta.annotation:jakarta.annotation-api
 Jakarta Annotations API (https://projects.eclipse.org/projects/ee4j.ca)
@@ -1019,7 +1027,7 @@ javax.ws.rs-api (https://github.com/eclipse-ee4j/jaxrs-api)
   (licenses-binary/LICENSE-epl-2.0.txt)
 # javax.ws.rs:jsr311-api
 jsr311-api (https://jsr311.dev.java.net)
-- license: CDDL License
+- license:                  CDDL License             
   (licenses-binary/LICENSE-cddl-license.txt)
 
 # javax.xml.bind:jaxb-api
@@ -1060,6 +1068,7 @@ JOpt Simple (http://jopt-simple.github.io/jopt-simple)
 # net.sourceforge.argparse4j:argparse4j
 argparse4j (http://argparse4j.github.io)
 - license: MIT
+  (licenses-binary/LICENSE-mit-license.txt)
 
 # net.sourceforge.htmlunit:htmlunit
 HtmlUnit (http://htmlunit.sourceforge.net)
@@ -1105,20 +1114,24 @@ Asynchronous Http Client Netty Utils
 jose4j (https://bitbucket.org/b_c/jose4j/)
 - license: The Apache Software License, Version 2.0
 
-# org.bouncycastle:bcmail-jdk18on
-Bouncy Castle S/MIME API (https://www.bouncycastle.org/java.html)
+# org.bouncycastle:bcjmail-jdk18on
+Bouncy Castle JavaMail Jakarta S/MIME APIs (https://www.bouncycastle.org/download/bouncy-castle-java/)
 - license: Bouncy Castle Licence
   (licenses-binary/LICENSE-bouncy-castle-licence.txt)
 # org.bouncycastle:bcpkix-jdk18on
-Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (https://www.bouncycastle.org/java.html)
+Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (https://www.bouncycastle.org/download/bouncy-castle-java/)
 - license: Bouncy Castle Licence
   (licenses-binary/LICENSE-bouncy-castle-licence.txt)
 # org.bouncycastle:bcprov-jdk18on
 Bouncy Castle Provider (https://www.bouncycastle.org/java.html)
 - license: Bouncy Castle Licence
   (licenses-binary/LICENSE-bouncy-castle-licence.txt)
+# org.bouncycastle:bcprov-jdk18on
+Bouncy Castle Provider (https://www.bouncycastle.org/download/bouncy-castle-java/)
+- license: Bouncy Castle Licence
+  (licenses-binary/LICENSE-bouncy-castle-licence.txt)
 # org.bouncycastle:bcutil-jdk18on
-Bouncy Castle ASN.1 Extension and Utility APIs (https://www.bouncycastle.org/java.html)
+Bouncy Castle ASN.1 Extension and Utility APIs (https://www.bouncycastle.org/download/bouncy-castle-java/)
 - license: Bouncy Castle Licence
   (licenses-binary/LICENSE-bouncy-castle-licence.txt)
 
@@ -1140,13 +1153,6 @@ Checker Qual (https://checkerframework.org/)
 - license: The MIT License
   (licenses-binary/LICENSE-mit-license.txt)
 
-# org.codehaus.jackson:jackson-core-asl
-Jackson (http://jackson.codehaus.org)
-- license: The Apache Software License, Version 2.0
-# org.codehaus.jackson:jackson-mapper-asl
-Data Mapper for Jackson (http://jackson.codehaus.org)
-- license: The Apache Software License, Version 2.0
-
 # org.codehaus.jettison:jettison
 Jettison (https://github.com/jettison-json/jettison)
 - license: Apache License, Version 2.0
@@ -1163,7 +1169,12 @@ Stax2 API (http://github.com/FasterXML/stax2-api)
 # org.codelibs:jhighlight
 JHighlight (https://github.com/codelibs/jhighlight)
 - license: CDDL, v1.0
-  (licenses-binary/LICENSE-cddl-v1.0.txt)
+  (licenses-binary/LICENSE-cddl-1.0.txt)
+
+# org.eclipse.angus:angus-activation
+Angus Activation Registries
+- license: EDL 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
 
 # org.eclipse.jetty:jetty-alpn-client
 Jetty :: ALPN :: Client
@@ -1180,18 +1191,22 @@ Jetty :: Http Utility
 # org.eclipse.jetty:jetty-http
 Jetty :: Http Utility
 - license: Eclipse Public License - Version 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
 # org.eclipse.jetty:jetty-io
 Jetty :: IO Utility
 - license: Apache Software License - Version 2.0
 # org.eclipse.jetty:jetty-io
 Jetty :: IO Utility
 - license: Eclipse Public License - Version 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
 # org.eclipse.jetty:jetty-security
 Jetty :: Security
 - license: Eclipse Public License - Version 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
 # org.eclipse.jetty:jetty-server
 Jetty :: Server Core
 - license: Eclipse Public License - Version 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
 # org.eclipse.jetty:jetty-servlet
 Jetty :: Servlet Handling
 - license: Apache Software License - Version 2.0
@@ -1201,6 +1216,7 @@ Jetty :: Utilities
 # org.eclipse.jetty:jetty-util
 Jetty :: Utilities
 - license: Eclipse Public License - Version 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
 # org.eclipse.jetty:jetty-util-ajax
 Jetty :: Utilities :: Ajax(JSON)
 - license: Apache Software License - Version 2.0
@@ -1295,6 +1311,10 @@ Ogg and Vorbis for Java, Core (https://github.com/Gagravarr/VorbisJava)
 Apache Tika plugin for Ogg, Vorbis and FLAC (https://github.com/Gagravarr/VorbisJava)
 - license: The Apache Software License, Version 2.0
 
+# org.glassfish.jaxb:jaxb-core
+JAXB Core (https://eclipse-ee4j.github.io/jaxb-ri/)
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
 # org.glassfish.jaxb:jaxb-runtime
 JAXB Runtime (https://eclipse-ee4j.github.io/jaxb-ri/)
 - license: Eclipse Distribution License - v 1.0
@@ -1327,27 +1347,25 @@ JDOM (http://www.jdom.org)
 - license: Similar to Apache License but with the acknowledgment clause removed
 
 # org.jetbrains:annotations
+JetBrains Java Annotations (https://github.com/JetBrains/java-annotations)
+- license: The Apache Software License, Version 2.0
+# org.jetbrains:annotations
 IntelliJ IDEA Annotations (http://www.jetbrains.org)
 - license: The Apache Software License, Version 2.0
 
 # org.jetbrains.kotlin:kotlin-stdlib
-org.jetbrains.kotlin:kotlin-stdlib (https://kotlinlang.org/)
-- license: The Apache License, Version 2.0
-# org.jetbrains.kotlin:kotlin-stdlib-common
-org.jetbrains.kotlin:kotlin-stdlib-common (https://kotlinlang.org/)
-- license: The Apache License, Version 2.0
-# org.jetbrains.kotlin:kotlin-stdlib-jdk7
-org.jetbrains.kotlin:kotlin-stdlib-jdk7 (https://kotlinlang.org/)
-- license: The Apache License, Version 2.0
-# org.jetbrains.kotlin:kotlin-stdlib-jdk8
-org.jetbrains.kotlin:kotlin-stdlib-jdk8 (https://kotlinlang.org/)
-- license: The Apache License, Version 2.0
+Kotlin Stdlib (https://kotlinlang.org/)
+- license: Apache-2.0
 
 # org.jline:jline
 JLine Bundle
 - license: The BSD License
   (licenses-binary/LICENSE-bsd-2-clause.txt)
 
+# org.jsoup:jsoup
+jsoup Java HTML Parser (https://jsoup.org/)
+- license: The MIT License
+  (licenses-binary/LICENSE-mit-license.txt)
 # org.jsoup:jsoup
 jsoup (http://jsoup.org/)
 - license: The MIT License
@@ -1517,6 +1535,9 @@ org.seleniumhq.selenium:selenium-support (https://selenium.dev/)
 # org.slf4j:jcl-over-slf4j
 JCL 1.2 implemented over SLF4J (http://www.slf4j.org)
 - license: Apache License, Version 2.0
+# org.slf4j:jcl-over-slf4j
+JCL 1.2 implemented over SLF4J (http://www.slf4j.org)
+- license: Apache-2.0
 # org.slf4j:slf4j-api
 SLF4J API Module (http://www.slf4j.org)
 - license: MIT License
@@ -1524,6 +1545,7 @@ SLF4J API Module (http://www.slf4j.org)
 # org.slf4j:slf4j-api
 SLF4J API Module (http://www.slf4j.org)
 - license: MIT
+  (licenses-binary/LICENSE-mit-license.txt)
 
 # org.tallison:jmatio
 JMatIO (https://github.com/tballison/jmatio)
@@ -1532,8 +1554,7 @@ JMatIO (https://github.com/tballison/jmatio)
 
 # org.tukaani:xz
 XZ for Java (https://tukaani.org/xz/java.html)
-- license: Public Domain
-  (licenses-binary/LICENSE-public-domain.txt)
+- license: Zero-Clause BSD (0BSD)
 
 # org.xerial.snappy:snappy-java
 Apache-2.0 (https://github.com/xerial/snappy-java)

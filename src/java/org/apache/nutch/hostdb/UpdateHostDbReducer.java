@@ -154,6 +154,13 @@ public class UpdateHostDbReducer
     }
 
     // Initialize cached counter references
+    initCounters(context);
+  }
+
+  /**
+   * Initialize cached counter references to avoid repeated lookups in hot paths.
+   */
+  private void initCounters(Reducer<Text, NutchWritable, Text, HostDatum>.Context context) {
     urlLimitNotReachedCounter = context.getCounter(
         NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_URL_LIMIT_NOT_REACHED_TOTAL);
     totalHostsCounter = context.getCounter(

@@ -76,8 +76,10 @@ public class TestHtmlParser {
               + encodingTestContent },
       { "HTML5, utf-8, BOM", "utf-8",
           "\ufeff<!DOCTYPE html>\n<html>\n<head>\n" + encodingTestContent },
+      // Note: UTF-16 encoder adds BOM automatically, so don't include explicit BOM
+      // to avoid double BOM (FE FF FE FF) which confuses parsers
       { "HTML5, utf-16, BOM", "utf-16",
-          "\ufeff<!DOCTYPE html>\n<html>\n<head>\n" + encodingTestContent } };
+          "<!DOCTYPE html>\n<html>\n<head>\n" + encodingTestContent } };
 
   private static final String resolveBaseUrlTestContent = //
       "<html>\n<head>\n" + //

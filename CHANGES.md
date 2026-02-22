@@ -1,5 +1,58 @@
 # Nutch Change Log
 
+## Nutch 1.22 Release 12/02/2026 (dd/mm/yyyy)
+Release Report: https://s.apache.org/1ip89
+
+### Sub-task
+
+- [NUTCH-2909](https://issues.apache.org/jira/browse/NUTCH-2909) - Establish a metrics naming convention
+- [NUTCH-2939](https://issues.apache.org/jira/browse/NUTCH-2939) - Create Initial Jenkinsfile for Nutch Gradle Build
+- [NUTCH-2971](https://issues.apache.org/jira/browse/NUTCH-2971) - Unit tests fail with JDK 17
+- [NUTCH-3132](https://issues.apache.org/jira/browse/NUTCH-3132) - Standardize existing Nutch metrics naming and implementation
+- [NUTCH-3134](https://issues.apache.org/jira/browse/NUTCH-3134) - Add latency metrics with percentile support to Fetcher, Parser, and Indexer
+- [NUTCH-3140](https://issues.apache.org/jira/browse/NUTCH-3140) - Create example Observability Dashboards for Nutch Metrics
+- [NUTCH-3141](https://issues.apache.org/jira/browse/NUTCH-3141) - Cache Hadoop Counter References in Hot Paths
+- [NUTCH-3142](https://issues.apache.org/jira/browse/NUTCH-3142) - Add Error Context to Metrics
+- [NUTCH-3150](https://issues.apache.org/jira/browse/NUTCH-3150) - Expand Caching Hadoop Counter References
+
+### Bug
+
+- [NUTCH-1564](https://issues.apache.org/jira/browse/NUTCH-1564) - AdaptiveFetchSchedule: sync\_delta forces immediate refetch for documents not modified
+- [NUTCH-3119](https://issues.apache.org/jira/browse/NUTCH-3119) - Log4j package scanning is deprecated
+- [NUTCH-3124](https://issues.apache.org/jira/browse/NUTCH-3124) - Github workflow not run because of uncertified action "paths-changes-filter"
+- [NUTCH-3143](https://issues.apache.org/jira/browse/NUTCH-3143) - GitHub workflow does not run all unit tests
+- [NUTCH-3144](https://issues.apache.org/jira/browse/NUTCH-3144) - URLUtil unit tests fail after upgrade to crawler-commons 1.6
+- [NUTCH-3152](https://issues.apache.org/jira/browse/NUTCH-3152) - Job counters getGroup to use metrics constants
+
+### New Feature
+
+- [NUTCH-3099](https://issues.apache.org/jira/browse/NUTCH-3099) - Allow wildcard '\*' in http.proxy.exception.list
+
+### Improvement
+
+- [NUTCH-2793](https://issues.apache.org/jira/browse/NUTCH-2793) - CSV indexer does not work in distributed mode
+- [NUTCH-2887](https://issues.apache.org/jira/browse/NUTCH-2887) - Migrate to JUnit 5 Jupiter
+- [NUTCH-3040](https://issues.apache.org/jira/browse/NUTCH-3040) - Upgrade to Hadoop 3.4.2
+- [NUTCH-3110](https://issues.apache.org/jira/browse/NUTCH-3110) - Upgrade to Tika 3.2.3
+- [NUTCH-3120](https://issues.apache.org/jira/browse/NUTCH-3120) - Automatically increase crawl-delay on HTTP 429
+- [NUTCH-3122](https://issues.apache.org/jira/browse/NUTCH-3122) - Make SpellCheckedMetadata case-insensitive for all Metadata names
+- [NUTCH-3128](https://issues.apache.org/jira/browse/NUTCH-3128) - Remove dependency on mrunit
+- [NUTCH-3133](https://issues.apache.org/jira/browse/NUTCH-3133) - Upgrade GitHub workflows to JDK 17
+- [NUTCH-3135](https://issues.apache.org/jira/browse/NUTCH-3135) - Cache downloaded ant-eclipse.jar
+- [NUTCH-3136](https://issues.apache.org/jira/browse/NUTCH-3136) - Upgrade crawler-commons dependency
+- [NUTCH-3137](https://issues.apache.org/jira/browse/NUTCH-3137) - Upgrade Nutch core dependencies
+- [NUTCH-3139](https://issues.apache.org/jira/browse/NUTCH-3139) - protocol-okhttp: add support for zstd content-encoding
+- [NUTCH-3148](https://issues.apache.org/jira/browse/NUTCH-3148) - Cache Ivy dependencies in GitHub CI builds
+
+### Task
+
+- [NUTCH-2970](https://issues.apache.org/jira/browse/NUTCH-2970) - Ensure compatibility with JDK 17
+- [NUTCH-3042](https://issues.apache.org/jira/browse/NUTCH-3042) - Use GitHub cache action to improve CI execution time
+- [NUTCH-3125](https://issues.apache.org/jira/browse/NUTCH-3125) - Replace retired MRUnit dependency with Mockito + JUnit 5
+- [NUTCH-3126](https://issues.apache.org/jira/browse/NUTCH-3126) - Report JUnit test results in GitHub pull request thread
+- [NUTCH-3153](https://issues.apache.org/jira/browse/NUTCH-3153) - Update of license and notice files
+
+
 ## Nutch 1.21 Release 15/07/2025 (dd/mm/yyyy)
 Release Report: https://s.apache.org/bs58y
 
