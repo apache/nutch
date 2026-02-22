@@ -61,7 +61,37 @@ jobs:
       - name: Generate JaCoCo XML report
         run: ant jacoco-report -buildfile build.xml
         continue-on-error: true
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+      - name: Resolve PR number
+        id: pr
+        run: |
+          PR_NUMBER=$(gh api \
+            "repos/${{ github.repository }}/commits/${{ github.event.workflow_run.head_sha }}/pulls" \
+            --jq '.[0].number // empty')
+          echo "number=${PR_NUMBER:-}" >> "$GITHUB_OUTPUT"
+          if [ -n "$PR_NUMBER" ]; then
+            echo "is_pr=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_pr=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: SonarCloud Scan (PR)
+        if: steps.pr.outputs.is_pr == 'true'
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          args: >
+            -Dsonar.pullrequest.key=${{ steps.pr.outputs.number }}
+            -Dsonar.pullrequest.branch=${{ github.event.workflow_run.head_branch }}
+            -Dsonar.pullrequest.base=${{ github.event.workflow_run.event == 'pull_request' && 'master' || 'master' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+      - name: SonarCloud Scan (branch)
+        if: steps.pr.outputs.is_pr == 'false'
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          args: >
+            -Dsonar.branch.name=${{ github.event.workflow_run.head_branch }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
