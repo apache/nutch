@@ -14,33 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.net.protocols;
-
-import java.io.Serializable;
 
 /**
- * Base exception for all protocol handlers
+ * Metrics infrastructure for Apache Nutch.
  * 
- * @deprecated Use {@link org.apache.nutch.protocol.ProtocolException} instead.
+ * <p>This package provides centralized constants and utilities for Hadoop
+ * MapReduce metrics/counters following
+ * <a href="https://prometheus.io/docs/practices/naming/">Prometheus naming
+ * conventions</a>.
+ * 
+ * <p>The main class is {@link org.apache.nutch.metrics.NutchMetrics} which
+ * defines all counter group names and counter names as constants.
+ * 
+ * @since 1.22
  */
-@Deprecated
-@SuppressWarnings("serial")
-public class ProtocolException extends Exception implements Serializable {
+package org.apache.nutch.metrics;
 
-  public ProtocolException() {
-    super();
-  }
-
-  public ProtocolException(String message) {
-    super(message);
-  }
-
-  public ProtocolException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  public ProtocolException(Throwable cause) {
-    super(cause);
-  }
-
-}

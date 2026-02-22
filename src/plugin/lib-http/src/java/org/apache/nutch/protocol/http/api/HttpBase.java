@@ -721,6 +721,12 @@ public abstract class HttpBase implements Protocol {
     return this.robots.getRobotRulesSet(this, url, robotsTxtContent);
   }
 
+  @Override
+  public BaseRobotRules getRobotRules(URL url, CrawlDatum datum,
+      List<Content> robotsTxtContent) {
+    return this.robots.getRobotRulesSet(this, url, robotsTxtContent);
+  }
+
   /**
    * Transforming a String[] into a HashMap for faster searching
    * 

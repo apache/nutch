@@ -30,6 +30,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -40,6 +41,9 @@ import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.crawl.LinkDb;
 import org.apache.nutch.crawl.NutchWritable;
+import org.apache.nutch.metrics.ErrorTracker;
+import org.apache.nutch.metrics.LatencyTracker;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilters;
@@ -214,6 +218,22 @@ public class IndexerMapReduce extends Configured {
     private URLNormalizers urlNormalizers;
     private URLFilters urlFilters;
 
+    // Latency tracker for indexing timing metrics
+    private LatencyTracker indexLatencyTracker;
+
+    // Cached counter references to avoid repeated lookups in hot paths
+    private Counter deletedRobotsNoIndexCounter;
+    private Counter deletedGoneCounter;
+    private Counter deletedRedirectsCounter;
+    private Counter deletedDuplicatesCounter;
+    private Counter skippedNotModifiedCounter;
+    private Counter deletedByIndexingFilterCounter;
+    private Counter skippedByIndexingFilterCounter;
+    private Counter indexedCounter;
+    
+    // Error tracker with cached counters
+    private ErrorTracker errorTracker;
+
     @Override
     public void setup(Reducer<Text, NutchWritable, Text, NutchIndexAction>.Context context) {
       Configuration conf = context.getConfiguration();
@@ -238,6 +258,44 @@ public class IndexerMapReduce extends Configured {
       if (filter) {
         urlFilters = new URLFilters(conf);
       }
+
+      // Initialize latency tracker for indexing timing
+      indexLatencyTracker = new LatencyTracker(
+          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_LATENCY);
+
+      // Initialize cached counter references
+      initCounters(context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Reducer<Text, NutchWritable, Text, NutchIndexAction>.Context context) {
+      deletedRobotsNoIndexCounter = context.getCounter(
+          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_DELETED_ROBOTS_NOINDEX_TOTAL);
+      deletedGoneCounter = context.getCounter(
+          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_DELETED_GONE_TOTAL);
+      deletedRedirectsCounter = context.getCounter(
+          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_DELETED_REDIRECTS_TOTAL);
+      deletedDuplicatesCounter = context.getCounter(
+          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_DELETED_DUPLICATES_TOTAL);
+      skippedNotModifiedCounter = context.getCounter(
+          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_SKIPPED_NOT_MODIFIED_TOTAL);
+      deletedByIndexingFilterCounter = context.getCounter(
+          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_DELETED_BY_INDEXING_FILTER_TOTAL);
+      skippedByIndexingFilterCounter = context.getCounter(
+          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_SKIPPED_BY_INDEXING_FILTER_TOTAL);
+      indexedCounter = context.getCounter(
+          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_INDEXED_TOTAL);
+      // Initialize error tracker with cached counters
+      errorTracker = new ErrorTracker(NutchMetrics.GROUP_INDEXER, context);
+    }
+
+    @Override
+    public void cleanup(Reducer<Text, NutchWritable, Text, NutchIndexAction>.Context context)
+        throws IOException, InterruptedException {
+      // Emit indexing latency metrics
+      indexLatencyTracker.emitCounters(context);
     }
 
     @Override
@@ -283,7 +341,7 @@ public class IndexerMapReduce extends Configured {
                 .indexOf("noindex") != -1) {
               // Delete it!
               context.write(key, DELETE_ACTION);
-              context.getCounter("IndexerStatus", "deleted (robots=noindex)").increment(1);
+              deletedRobotsNoIndexCounter.increment(1);
               return;
             }
           }
@@ -300,7 +358,7 @@ public class IndexerMapReduce extends Configured {
       if (delete && fetchDatum != null) {
         if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_GONE
             || dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_GONE) {
-          context.getCounter("IndexerStatus", "deleted (gone)").increment(1);
+          deletedGoneCounter.increment(1);
           context.write(key, DELETE_ACTION);
           return;
         }
@@ -309,7 +367,7 @@ public class IndexerMapReduce extends Configured {
             || fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_TEMP
             || dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM
             || dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
-          context.getCounter("IndexerStatus", "deleted (redirects)").increment(1);
+          deletedRedirectsCounter.increment(1);
           context.write(key, DELETE_ACTION);
           return;
         }
@@ -321,14 +379,14 @@ public class IndexerMapReduce extends Configured {
 
       // Whether to delete pages marked as duplicates
       if (delete && dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
-        context.getCounter("IndexerStatus", "deleted (duplicates)").increment(1);
+        deletedDuplicatesCounter.increment(1);
         context.write(key, DELETE_ACTION);
         return;
       }
 
       // Whether to skip DB_NOTMODIFIED pages
       if (skip && dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
-        context.getCounter("IndexerStatus", "skipped (not modified)").increment(1);
+        skippedNotModifiedCounter.increment(1);
         return;
       }
 
@@ -336,6 +394,9 @@ public class IndexerMapReduce extends Configured {
           || fetchDatum.getStatus() != CrawlDatum.STATUS_FETCH_SUCCESS) {
         return;
       }
+
+      // Start timing document indexing
+      long indexStart = System.currentTimeMillis();
 
       NutchDocument doc = new NutchDocument();
       doc.add("id", key.toString());
@@ -355,7 +416,7 @@ public class IndexerMapReduce extends Configured {
         boost = scfilters.indexerScore(key, doc, dbDatum, fetchDatum, parse,
             inlinks, boost);
       } catch (final ScoringFilterException e) {
-        context.getCounter("IndexerStatus", "errors (ScoringFilter)").increment(1);
+        errorTracker.incrementCounters(e);
         LOG.warn("Error calculating score {}: {}", key, e);
         return;
       }
@@ -390,7 +451,7 @@ public class IndexerMapReduce extends Configured {
         doc = filters.filter(doc, parse, key, fetchDatum, inlinks);
       } catch (final IndexingException e) {
         LOG.warn("Error indexing {}: ", key, e);
-        context.getCounter("IndexerStatus", "errors (IndexingFilter)").increment(1);
+        errorTracker.incrementCounters(e);
         return;
       }
 
@@ -400,9 +461,9 @@ public class IndexerMapReduce extends Configured {
         if (deleteSkippedByIndexingFilter) {
           NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
           context.write(key, action);
-          context.getCounter("IndexerStatus", "deleted (IndexingFilter)").increment(1);
+          deletedByIndexingFilterCounter.increment(1);
         } else {
-          context.getCounter("IndexerStatus", "skipped (IndexingFilter)").increment(1);
+          skippedByIndexingFilterCounter.increment(1);
         }
         return;
       }
@@ -422,7 +483,10 @@ public class IndexerMapReduce extends Configured {
         doc.add("binaryContent", binary);
       }
 
-      context.getCounter("IndexerStatus", "indexed (add/update)").increment(1);
+      // Record indexing latency
+      indexLatencyTracker.record(System.currentTimeMillis() - indexStart);
+
+      indexedCounter.increment(1);
 
       NutchIndexAction action = new NutchIndexAction(doc, NutchIndexAction.ADD);
       context.write(key, action);

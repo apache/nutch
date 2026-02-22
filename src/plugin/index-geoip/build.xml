@@ -23,5 +23,9 @@
     <copy todir="${build.classes}">
       <fileset dir="${src.dir}" includes="**/*.mmdb" />
     </copy>
+    <!-- Copy sample mmdb files for testing -->
+    <copy todir="${build.classes}">
+      <fileset dir="${root}/sample" includes="**/*.mmdb" erroronmissingdir="false"/>
+    </copy>
   </target>
 </project>

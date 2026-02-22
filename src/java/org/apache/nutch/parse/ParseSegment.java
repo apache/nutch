@@ -37,6 +37,9 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.ErrorTracker;
+import org.apache.nutch.metrics.LatencyTracker;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -80,12 +83,25 @@ public class ParseSegment extends NutchTool implements Tool {
     private Text newKey = new Text();
     private ScoringFilters scfilters;
     private boolean skipTruncated;
+    private LatencyTracker parseLatencyTracker;
+    private ErrorTracker errorTracker;
 
     @Override
     public void setup(Mapper<WritableComparable<?>, Content, Text, ParseImpl>.Context context) {
       Configuration conf = context.getConfiguration();
       scfilters = new ScoringFilters(conf);
       skipTruncated = conf.getBoolean(SKIP_TRUNCATED, true);
+      parseLatencyTracker = new LatencyTracker(
+          NutchMetrics.GROUP_PARSER, NutchMetrics.PARSER_LATENCY);
+      // Initialize error tracker with cached counters
+      errorTracker = new ErrorTracker(NutchMetrics.GROUP_PARSER, context);
+    }
+
+    @Override
+    public void cleanup(Mapper<WritableComparable<?>, Content, Text, ParseImpl>.Context context)
+        throws IOException, InterruptedException {
+      // Emit parse latency metrics
+      parseLatencyTracker.emitCounters(context);
     }
 
     @Override
@@ -121,6 +137,7 @@ public class ParseSegment extends NutchTool implements Tool {
         parseResult = parseUtil.parse(content);
       } catch (Exception e) {
         LOG.warn("Error parsing: {}: {}", key, StringUtils.stringifyException(e));
+        errorTracker.incrementCounters(e);
         return;
       }
 
@@ -129,7 +146,8 @@ public class ParseSegment extends NutchTool implements Tool {
         Parse parse = entry.getValue();
         ParseStatus parseStatus = parse.getData().getStatus();
 
-        context.getCounter("ParserStatus",
+        // Dynamic counter based on parse status
+        context.getCounter(NutchMetrics.GROUP_PARSER,
             ParseStatus.majorCodes[parseStatus.getMajorCode()]).increment(1);
 
         if (!parseStatus.isSuccess()) {
@@ -151,10 +169,13 @@ public class ParseSegment extends NutchTool implements Tool {
           scfilters.passScoreAfterParsing(url, content, parse);
         } catch (ScoringFilterException e) {
           LOG.warn("Error passing score: {}: {}", url, e.getMessage());
+          errorTracker.incrementCounters(ErrorTracker.ErrorType.SCORING);
         }
 
         long end = System.currentTimeMillis();
-        LOG.info("Parsed ({}ms): {}", (end - start), url);
+        long parseTime = end - start;
+        parseLatencyTracker.record(parseTime);
+        LOG.info("Parsed ({}ms): {}", parseTime, url);
 
         context.write(
             url,

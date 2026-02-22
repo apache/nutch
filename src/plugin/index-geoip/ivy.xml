@@ -37,7 +37,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="com.maxmind.geoip2" name="geoip2" rev="3.0.1">
+    <dependency org="com.maxmind.geoip2" name="geoip2" rev="5.0.2">
       <!-- Exlude libs provided in Nutch core -->
       <exclude org="com.fasterxml.jackson.core" name="jackson-annotations" />
       <exclude org="com.fasterxml.jackson.core" name="jackson-databind" />

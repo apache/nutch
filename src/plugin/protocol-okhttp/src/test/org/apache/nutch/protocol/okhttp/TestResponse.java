@@ -110,15 +110,15 @@ public class TestResponse extends AbstractHttpProtocolPluginTest {
     headerTest(301, "Location", value, "location");
     headerTest(301, "location", value, "Location");
     headerTest(301, "LOCATION", value, "Location");
-    // only with SpellCheckedMetadata:
-    // headerTest(301, "Loction", value, "Location");
+    // Typo-tolerant lookup (e.g. "Loction" -> "Location") is not supported
+    // with CaseInsensitiveMetadata.
 
     LOG.info(
-        "Testing non-standard HTTP header \"MyCustomHeader\": only exact matching");
+        "Testing non-standard HTTP header \"MyCustomHeader\": case-insensitive matching");
     headerTest(200, "MyCustomHeader", value, "MyCustomHeader");
     /*
-     * The following case-insensitive or approximate look-ups are not supported
-     * for non-standard headers by SpellCheckedMetadata:
+     * Case-insensitive look-up for non-standard headers is supported by
+     * CaseInsensitiveMetadata; typo-tolerant look-up is not.
      */
     // testHeader(200, "MyCustomHeader", value, "mycustomheader");
     // testHeader(200, "mycustomheader", value, "MyCustomHeader");
@@ -141,7 +141,7 @@ public class TestResponse extends AbstractHttpProtocolPluginTest {
       headerTest(301, "Location", value, "location");
       headerTest(301, "location", value, "Location");
       headerTest(301, "LOCATION", value, "Location");
-      // only with SpellCheckedMetadata:
+      // Typo-tolerant lookup not supported with CaseInsensitiveMetadata
       // headerTest(301, "Loction", value, "Location");
     }
     long elapsed = System.currentTimeMillis() - start;

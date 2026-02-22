@@ -23,7 +23,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.nutch.plugin.PluginRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,25 +34,9 @@ public class NutchJob extends Job {
 
   private static final String JOB_FAILURE_LOG_FORMAT = "%s job did not succeed, job id: %s, job status: %s, reason: %s";
 
-  /**
-   * @deprecated, use instead {@link #getInstance(Configuration)} or
-   * {@link Job#getInstance(Configuration, String)}.
-   * 
-   * @param conf
-   *          configuration for the job
-   * @param jobName
-   *          name of the job
-   * @throws IOException
-   *           see {@link Job#Job(Configuration, String)}
-   */
-  @Deprecated
-  public NutchJob(Configuration conf, String jobName) throws IOException {
-    super(conf, jobName);
-    if (conf != null) {
-      // initialize plugins early to register URL stream handlers to support
-      // custom protocol implementations
-      PluginRepository.get(conf);
-    }
+  /** Default constructor for subclass or reflection use. */
+  public NutchJob() throws IOException {
+    super();
   }
 
   /**

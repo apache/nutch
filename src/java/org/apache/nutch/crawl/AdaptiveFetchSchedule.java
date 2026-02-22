@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
 
 /**
  * This class implements an adaptive re-fetch algorithm. This works as follows:
@@ -219,15 +220,15 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       // The custom intervals should respect the boundaries of the default values.
       if (m < defaultMin) {
         LOG.error(
-            "Min. interval out of bounds on line {} in the config. file: `{}`",
-            lineNo, line);
+            "Min. interval out of bounds ({}) on line {} in the config. file: `{}`",
+            defaultMin, lineNo, line);
         continue;
       }
 
       if (M > defaultMax) {
         LOG.error(
-            "Max. interval out of bounds on line {} in the config. file: `{}`",
-            lineNo, line);
+            "Max. interval out of bounds ({}) on line {} in the config. file: `{}`",
+            defaultMax, lineNo, line);
         continue;
       }
 
@@ -332,17 +333,30 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       case FetchSchedule.STATUS_UNKNOWN:
         break;
       }
-      if (SYNC_DELTA) {
-        // try to synchronize with the time of change
-        long delta = (fetchTime - modifiedTime) / 1000L;
-        if (delta > interval)
-          interval = delta;
-        refTime = fetchTime - Math.round(delta * SYNC_DELTA_RATE * 1000);
-      }
 
       // Ensure the interval does not fall outside of bounds
       float minInterval = (getCustomMinInterval(url) != null) ? getCustomMinInterval(url) : MIN_INTERVAL;
       float maxInterval = (getCustomMaxInterval(url) != null) ? getCustomMaxInterval(url) : MAX_INTERVAL;
+      
+      if (SYNC_DELTA) {
+        // try to synchronize with the time of change
+        long delta = (fetchTime - modifiedTime);
+        if (delta > (interval * 1000))
+          interval = delta / 1000L;
+        // offset: a fraction (sync_delta_rate) of the difference between the last modification time, and the last fetch time.
+        long offset = Math.round(delta * SYNC_DELTA_RATE);
+        long maxIntervalMillis = (long) maxInterval * 1000L;
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("delta (days): {}; offset (days): {}; maxInterval (days): {}", 
+              Duration.ofMillis(delta).toDays(), Duration.ofMillis(offset).toDays(), Duration.ofMillis(maxIntervalMillis).toDays());
+        }
+        // convert the offset to a ratio of max interval: avoid next fetchTime in the past, and mimic fetches within max interval
+        if (delta > 0 && offset > maxIntervalMillis) {
+          offset = offset / delta * maxIntervalMillis; // ex: 9/30*7 = 2.1
+        }
+        refTime = fetchTime - offset;
+      }
+
       if (interval < minInterval) {
         interval = minInterval;
       } else if (interval > maxInterval) {
@@ -389,7 +403,8 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
           (p.getFetchInterval() / SECONDS_PER_DAY), miss);
       if (p.getFetchTime() <= curTime) {
         fetchCnt++;
-        fs.setFetchSchedule(new Text("http://www.example.com"), p, p
+        // Text (url) required by the API, but not relevant here.
+        fs.setFetchSchedule(new Text(), p, p
             .getFetchTime(), p.getModifiedTime(), curTime, lastModified,
             changed ? FetchSchedule.STATUS_MODIFIED
                 : FetchSchedule.STATUS_NOTMODIFIED);

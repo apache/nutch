@@ -232,4 +232,14 @@ public class File implements Protocol {
     return RobotRulesParser.EMPTY_RULES;
   }
 
+  /**
+   * No robots parsing is done for file protocol. So this returns a set of empty
+   * rules which will allow every url.
+   */
+  @Override
+  public BaseRobotRules getRobotRules(URL url, CrawlDatum datum,
+      List<Content> robotsTxtContent) {
+    return RobotRulesParser.EMPTY_RULES;
+  }
+
 }

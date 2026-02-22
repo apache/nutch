@@ -44,6 +44,9 @@
   <!-- load nutch defaults last so that they can be overridden above -->
   <property file="${nutch.root}/default.properties" />
 
+  <property name="jacoco.agent.jar" location="${nutch.root}/ivy/jacoco-${jacoco.version}/lib/jacocoagent.jar"/>
+  <property name="coverage.dir" location="${nutch.root}/build/coverage"/>
+
   <ivy:settings id="ivy.instance" file="${nutch.root}/ivy/ivysettings.xml" />
 
   <path id="plugin.deps"/>
@@ -189,7 +192,7 @@
   <!-- ================================================================== -->
   <!-- Compile test code                                                  --> 
   <!-- ================================================================== -->
-  <target name="compile-test" depends="compile, deps-test-compile" if="test.available">
+  <target name="compile-test" depends="resolve-test, compile, deps-test-compile" if="test.available">
     <javac 
      encoding="${build.encoding}" 
      srcdir="${src.test}"
@@ -209,6 +212,7 @@
   <!-- ================================================================== -->
   <target name="test" depends="compile-test, deploy" if="test.available">
     <echo message="Testing plugin: ${name}"/>
+    <mkdir dir="${coverage.dir}"/>
     <junitlauncher printSummary="true" haltOnFailure="true" failureProperty="tests.failed">
       <classpath refid="test.classpath"/>
       <testclasses outputDir="${build.test}" unless="testcase">
@@ -216,8 +220,10 @@
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
         <fork forkMode="perTestClass">
           <jvmarg value="-Xmx1000m"/>
+          <jvmarg value="-javaagent:${jacoco.agent.jar}=destfile=${coverage.dir}/jacoco-plugin-${name}.exec,append=true"/>
           <sysproperty key="test.data" value="${build.test}/data"/>
           <sysproperty key="test.input" value="${root}/data"/>
+          <sysproperty key="junit.platform.execution.failfast.enabled" value="${test.failfast}"/>
           <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
         </fork>
         <fileset dir="${build.test}">
@@ -230,8 +236,10 @@
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
         <fork forkMode="perTestClass">
           <jvmarg value="-Xmx1000m"/>
+          <jvmarg value="-javaagent:${jacoco.agent.jar}=destfile=${coverage.dir}/jacoco-plugin-${name}.exec,append=true"/>
           <sysproperty key="test.data" value="${build.test}/data"/>
           <sysproperty key="test.input" value="${root}/data"/>
+          <sysproperty key="junit.platform.execution.failfast.enabled" value="${test.failfast}"/>
           <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
         </fork>
         <fileset dir="${basedir}">
@@ -240,7 +248,34 @@
       </testclasses>
     </junitlauncher>
     <fail if="tests.failed">Tests failed!</fail>
-  </target>   
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Run indexer plugin integration tests (Testcontainers)               -->
+  <!-- ================================================================== -->
+  <target name="test-indexer-integration" depends="compile-test, deploy" if="test.available">
+    <echo message="Running indexer integration tests for plugin: ${name}"/>
+    <junitlauncher printSummary="true" haltOnFailure="false" failureProperty="integration.tests.failed">
+      <classpath refid="test.classpath"/>
+      <testclasses outputDir="${build.test}">
+        <listener type="legacy-plain" sendSysOut="true" sendSysErr="true"/>
+        <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
+        <fork forkMode="perTestClass">
+          <jvmarg value="-Xmx2000m"/>
+          <sysproperty key="test.data" value="${build.test}/data"/>
+          <sysproperty key="test.input" value="${root}/data"/>
+          <sysproperty key="testcontainers.reuse.enable" value="true"/>
+          <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
+        </fork>
+        <fileset dir="${build.test}">
+          <include name="**/IT*.class"/>
+          <include name="**/*IT.class"/>
+          <include name="**/*IntegrationTest.class"/>
+        </fileset>
+      </testclasses>
+    </junitlauncher>
+    <fail if="integration.tests.failed">Indexer integration tests failed!</fail>
+  </target>
 
   <!-- target: resolve  ================================================= -->
   <target name="resolve-default" depends="clean-lib" description="resolve and retrieve dependencies with ivy">
@@ -280,6 +315,9 @@
     <delete includeemptydirs="true" dir="${deploy.dir}"/>
   </target>
   <target name="dependencytree" depends="resolve-default" description="Show dependency tree">
+    <ivy:dependencytree />
+  </target>
+  <target name="dependencytests" depends="resolve-test" description="Show unit tests dependency tree">
     <ivy:dependencytree />
   </target>
 </project>

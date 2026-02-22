@@ -17,7 +17,7 @@
 package org.apache.nutch.protocol;
 
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.metadata.SpellCheckedMetadata;
+import org.apache.nutch.metadata.CaseInsensitiveMetadata;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.WritableTestUtils;
@@ -42,7 +42,7 @@ public class TestContent {
 
     String url = "http://www.foo.com/";
 
-    SpellCheckedMetadata metaData = new SpellCheckedMetadata();
+    Metadata metaData = new CaseInsensitiveMetadata();
     metaData.add("Host", "www.foo.com");
     metaData.add("Content-Type", "text/html");
 
@@ -52,7 +52,6 @@ public class TestContent {
     WritableTestUtils.testWritable(r);
     assertEquals("text/html", r.getMetadata().get("Content-Type"));
     assertEquals("text/html", r.getMetadata().get("content-type"));
-    assertEquals("text/html", r.getMetadata().get("CONTENTYPE"));
   }
 
   /** Unit tests for getContentType(String, String, byte[]) method. */

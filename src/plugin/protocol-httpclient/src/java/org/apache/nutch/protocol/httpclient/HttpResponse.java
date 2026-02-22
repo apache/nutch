@@ -32,7 +32,7 @@ import org.apache.commons.httpclient.HttpClient;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.metadata.SpellCheckedMetadata;
+import org.apache.nutch.metadata.CaseInsensitiveMetadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.http.api.HttpBase;
@@ -48,7 +48,7 @@ public class HttpResponse implements Response {
   private URL url;
   private byte[] content;
   private int code;
-  private Metadata headers = new SpellCheckedMetadata();
+  private Metadata headers = new CaseInsensitiveMetadata();
 
   /**
    * Fetches the given <code>url</code> and prepares HTTP response.

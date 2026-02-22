@@ -52,15 +52,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import okhttp3.Authenticator;
+import okhttp3.CompressionInterceptor;
 import okhttp3.Connection;
 import okhttp3.ConnectionPool;
+import okhttp3.Gzip;
 import okhttp3.Handshake;
 import okhttp3.Headers;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.Request;
-import okhttp3.brotli.BrotliInterceptor;
+import okhttp3.brotli.Brotli;
+import okhttp3.zstd.Zstd;
+
 
 public class OkHttp extends HttpBase {
 
@@ -156,13 +160,11 @@ public class OkHttp extends HttpBase {
       String proxyUsername = conf.get("http.proxy.username");
       if (proxyUsername == null) {
         ProxySelector selector = new ProxySelector() {
-          @SuppressWarnings("serial")
           private final List<Proxy> noProxyList = new ArrayList<Proxy>() {
             {
               add(Proxy.NO_PROXY);
             }
           };
-          @SuppressWarnings("serial")
           private final List<Proxy> proxyList = new ArrayList<Proxy>() {
             {
               add(proxy);
@@ -224,8 +226,9 @@ public class OkHttp extends HttpBase {
       builder.addNetworkInterceptor(new HTTPHeadersInterceptor());
     }
 
-    // enable support for Brotli compression (Content-Encoding)
-    builder.addInterceptor(BrotliInterceptor.INSTANCE);
+    // enable support for Zstd, Brotli, Gzip Content-Encoding
+    builder.addInterceptor(new CompressionInterceptor(Zstd.INSTANCE,
+        Brotli.INSTANCE, Gzip.INSTANCE));
 
     // instantiate connection pool(s), cf.
     // https://square.github.io/okhttp/3.x/okhttp/okhttp3/ConnectionPool.html

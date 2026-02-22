@@ -15,31 +15,17 @@
  limitations under the License.
 -->
 
-We are currently using a shim (https://github.com/tballison/hadoop-safe-tika
-because of binary conflicts in commons-io versions between what Hadoop supports and the more
-modern features that Apache Tika and Apache POI were using in commons-io.
+# How to Upgrade Apache Tika in Nutch
 
-For now, all you have to do is update the fat jar dependencies:
+Nutch uses official Apache Tika artifacts for document parsing and language detection.
 
-1. tika-core-shaded in ivy/ivy.xml
-
-2. tika-parsers-standard-package-shaded in src/plugin/parse-tika/ivy.xml
-
-3. The library name version for tika-parsers-standard-package-shaded in src/plugin/parse-tika/plugin.xml
-
-4. Repeat steps 2 and 3 for the language-identifier
-
-5. Build Nutch and run all unit tests:
-
-    $ cd ../../../
-    $ ant clean runtime test
-
-The following directions are what we used to do with thin jars. Hopefully, we'll
-be able to get back to these directions once we have version harmony with Hadoop and Tika/POI.
+## Upgrade Steps
 
 1. Upgrade Tika dependency (tika-core) in ivy/ivy.xml
 
-2. Upgrade Tika dependency in src/plugin/parse-tika/ivy.xml
+2. Upgrade Tika dependency (tika-parsers-standard-package) in src/plugin/parse-tika/ivy.xml
+   Note: The tika-handler-boilerpipe module provides Boilerpipe support for text extraction
+   (tika.extractor=boilerpipe configuration). This was moved from tika-core in TIKA-4138.
 
 3. Upgrade Tika's own dependencies in src/plugin/parse-tika/plugin.xml
 
@@ -49,9 +35,9 @@ be able to get back to these directions once we have version harmony with Hadoop
     $ ls lib | sed 's/^/      <library name="/g' | sed 's/$/"\/>/g'
 
    In the plugin.xml replace all lines between
-      <!-- dependencies of Tika (tika-parsers) -->
+      <!-- dependencies of Tika (tika-parsers-standard-package) -->
    and
-      <!-- end of dependencies of Tika (tika-parsers) -->
+      <!-- end of dependencies of Tika (tika-parsers-standard-package) -->
    with the output of the command above.
 
 4. (Optionally) remove overlapping dependencies between parse-tika and Nutch core dependencies:
@@ -61,7 +47,7 @@ be able to get back to these directions once we have version harmony with Hadoop
        build/plugins/parse-tika/
      (eventually with different versions)
    - duplicated libs can be added to the exclusions of transitive dependencies in
-       build/plugins/parse-tika/ivy.xml
+       src/plugin/parse-tika/ivy.xml
    - but the library versions in ivy/ivy.xml MUST correspond to those required by Tika
 
 5. Remove the locally "installed" dependencies in src/plugin/parse-tika/lib/:
@@ -71,6 +57,11 @@ be able to get back to these directions once we have version harmony with Hadoop
 6. Repeat steps 2-5 for the language-identifier plugin which also depends on Tika modules
 
     $ cd ../language-identifier/
+
+   Update tika-langdetect-optimaize in src/plugin/language-identifier/ivy.xml
+   Then regenerate the library list in plugin.xml:
+    $ ant -f ./build-ivy.xml
+    $ ls lib | sed 's/^/        <library name="/g' | sed 's/$/"\/>/g'
 
 7. Build Nutch and run all unit tests:
 

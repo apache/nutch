@@ -63,16 +63,10 @@ public class ProtocolStatus implements Writable {
   public static final int NOTFETCHING = 20;
   /** Unchanged since the last fetch. */
   public static final int NOTMODIFIED = 21;
-  /**
-   * Request was refused by protocol plugins, because it would block. The
-   * expected number of milliseconds to wait before retry may be provided in
-   * args.
-   */
-  @Deprecated
-  public static final int WOULDBLOCK = 22;
-  /** Thread was blocked http.max.delays times during fetching. */
-  @Deprecated
-  public static final int BLOCKED = 23;
+  // Status code 22: would block (legacy, use literal for compatibility).
+  private static final int WOULDBLOCK_CODE = 22;
+  // Status code 23: blocked (legacy, use literal for compatibility).
+  private static final int BLOCKED_CODE = 23;
 
   // Useful static instances for status codes that don't usually require any
   // additional arguments.
@@ -92,9 +86,9 @@ public class ProtocolStatus implements Writable {
   public static final ProtocolStatus STATUS_NOTMODIFIED = new ProtocolStatus(
       NOTMODIFIED);
   public static final ProtocolStatus STATUS_WOULDBLOCK = new ProtocolStatus(
-      WOULDBLOCK);
+      WOULDBLOCK_CODE);
   public static final ProtocolStatus STATUS_BLOCKED = new ProtocolStatus(
-      BLOCKED);
+      BLOCKED_CODE);
 
   private int code;
   private long lastModified;
@@ -116,8 +110,8 @@ public class ProtocolStatus implements Writable {
     codeToName.put(Integer.valueOf(REDIR_EXCEEDED), "redir_exceeded");
     codeToName.put(Integer.valueOf(NOTFETCHING), "notfetching");
     codeToName.put(Integer.valueOf(NOTMODIFIED), "notmodified");
-    codeToName.put(Integer.valueOf(WOULDBLOCK), "wouldblock");
-    codeToName.put(Integer.valueOf(BLOCKED), "blocked");
+    codeToName.put(Integer.valueOf(WOULDBLOCK_CODE), "wouldblock");
+    codeToName.put(Integer.valueOf(BLOCKED_CODE), "blocked");
   }
 
   public ProtocolStatus() {
@@ -221,7 +215,7 @@ public class ProtocolStatus implements Writable {
 
   public boolean isTransientFailure() {
     return code == ACCESS_DENIED || code == EXCEPTION || code == REDIR_EXCEEDED
-        || code == RETRY || code == TEMP_MOVED || code == WOULDBLOCK
+        || code == RETRY || code == TEMP_MOVED || code == WOULDBLOCK_CODE
         || code == PROTO_NOT_FOUND;
   }
 

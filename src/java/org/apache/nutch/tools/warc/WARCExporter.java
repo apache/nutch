@@ -41,6 +41,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
@@ -57,6 +58,8 @@ import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.tools.WARCUtils;
+import org.apache.nutch.metrics.ErrorTracker;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -111,6 +114,35 @@ public class WARCExporter extends Configured implements Tool {
       // Metadata to JSON
       Gson gson = new Gson();
 
+      // Cached counter references to avoid repeated lookups in hot paths
+      private Counter missingContentCounter;
+      private Counter missingMetadataCounter;
+      private Counter omittedEmptyResponseCounter;
+      private Counter recordsGeneratedCounter;
+      private ErrorTracker errorTracker;
+
+      @Override
+      public void setup(Context context) {
+        // Initialize cached counter references
+        initCounters(context);
+        // Initialize error tracker with cached counters
+        errorTracker = new ErrorTracker(NutchMetrics.GROUP_WARC_EXPORTER, context);
+      }
+
+      /**
+       * Initialize cached counter references to avoid repeated lookups in hot paths.
+       */
+      private void initCounters(Context context) {
+        missingContentCounter = context.getCounter(
+            NutchMetrics.GROUP_WARC_EXPORTER, NutchMetrics.WARC_MISSING_CONTENT_TOTAL);
+        missingMetadataCounter = context.getCounter(
+            NutchMetrics.GROUP_WARC_EXPORTER, NutchMetrics.WARC_MISSING_METADATA_TOTAL);
+        omittedEmptyResponseCounter = context.getCounter(
+            NutchMetrics.GROUP_WARC_EXPORTER, NutchMetrics.WARC_OMITTED_EMPTY_RESPONSE_TOTAL);
+        recordsGeneratedCounter = context.getCounter(
+            NutchMetrics.GROUP_WARC_EXPORTER, NutchMetrics.WARC_RECORDS_GENERATED_TOTAL);
+      }
+
       @Override
       public void reduce(Text key, Iterable<NutchWritable> values,
           Context context) throws IOException, InterruptedException {
@@ -147,13 +179,13 @@ public class WARCExporter extends Configured implements Tool {
         // check that we have everything we need
         if (content == null) {
           LOG.info("Missing content for {}", key);
-          context.getCounter("WARCExporter", "missing content").increment(1);
+          missingContentCounter.increment(1);
           return;
         }
 
         if (cd == null) {
           LOG.info("Missing fetch datum for {}", key);
-          context.getCounter("WARCExporter", "missing metadata").increment(1);
+          missingMetadataCounter.increment(1);
           return;
         }
 
@@ -161,8 +193,7 @@ public class WARCExporter extends Configured implements Tool {
           // Empty responses is everything that was not a regular response
           if (!(cd.getStatus() == CrawlDatum.STATUS_FETCH_SUCCESS
               || cd.getStatus() == CrawlDatum.STATUS_FETCH_NOTMODIFIED)) {
-            context.getCounter("WARCExporter", "omitted empty response")
-                .increment(1);
+            omittedEmptyResponseCounter.increment(1);
             return;
           }
         }
@@ -237,7 +268,7 @@ public class WARCExporter extends Configured implements Tool {
               .append(uri.toASCIIString()).append(CRLF);
         } catch (Exception e) {
           LOG.error("Invalid URI {} ", key);
-          context.getCounter("WARCExporter", "invalid URI").increment(1);
+          errorTracker.incrementCounters(e);
           return;
         }
 
@@ -269,12 +300,12 @@ public class WARCExporter extends Configured implements Tool {
               new ByteArrayInputStream(bos.toByteArray()));
           WARCRecord record = new WARCRecord(in);
           context.write(NullWritable.get(), new WARCWritable(record));
-          context.getCounter("WARCExporter", "records generated").increment(1);
+          recordsGeneratedCounter.increment(1);
         } catch (IOException | IllegalStateException exception) {
           LOG.error(
               "Exception when generating WARC resource record for {} : {}", key,
               exception.getMessage());
-          context.getCounter("WARCExporter", "exception").increment(1);
+          errorTracker.incrementCounters(exception);
         }
 
         // Do we need to emit a metadata record too?
@@ -316,7 +347,7 @@ public class WARCExporter extends Configured implements Tool {
                 .append(uri.toASCIIString()).append(CRLF);
           } catch (Exception e) {
             LOG.error("Invalid URI {} ", key);
-            context.getCounter("WARCExporter", "invalid URI").increment(1);
+            errorTracker.incrementCounters(e);
             return;
           }
 
@@ -332,13 +363,12 @@ public class WARCExporter extends Configured implements Tool {
                 new ByteArrayInputStream(bos.toByteArray()));
             WARCRecord record = new WARCRecord(in);
             context.write(NullWritable.get(), new WARCWritable(record));
-            context.getCounter("WARCExporter", "records generated")
-                .increment(1);
+            recordsGeneratedCounter.increment(1);
           } catch (IOException | IllegalStateException exception) {
             LOG.error(
                 "Exception when generating WARC metadata record for {} : {}",
                 key, exception.getMessage(), exception);
-            context.getCounter("WARCExporter", "exception").increment(1);
+            errorTracker.incrementCounters(exception);
           }
         }
 
@@ -376,7 +406,7 @@ public class WARCExporter extends Configured implements Tool {
                 .append(uri.toASCIIString()).append(CRLF);
           } catch (Exception e) {
             LOG.error("Invalid URI {} ", key);
-            context.getCounter("WARCExporter", "invalid URI").increment(1);
+            errorTracker.incrementCounters(e);
             return;
           }
 
@@ -392,13 +422,12 @@ public class WARCExporter extends Configured implements Tool {
                 new ByteArrayInputStream(bos.toByteArray()));
             WARCRecord record = new WARCRecord(in);
             context.write(NullWritable.get(), new WARCWritable(record));
-            context.getCounter("WARCExporter", "records generated")
-                .increment(1);
+            recordsGeneratedCounter.increment(1);
           } catch (IOException | IllegalStateException exception) {
             LOG.error(
                 "Exception when generating WARC metadata record for {} : {}",
                 key, exception.getMessage(), exception);
-            context.getCounter("WARCExporter", "exception").increment(1);
+            errorTracker.incrementCounters(exception);
           }
         }
       }
