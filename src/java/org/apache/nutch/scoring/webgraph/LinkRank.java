@@ -740,7 +740,7 @@ public class LinkRank extends Configured implements Tool {
 
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")) {
-        HelpFormatter formatter = new HelpFormatter();
+        HelpFormatter formatter = HelpFormatter.builder().get();
         formatter.printHelp("LinkRank", "", options, "", false);
         return -1;
       }

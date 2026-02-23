@@ -177,7 +177,7 @@ public class NutchServer {
     Options options = createOptions();
     CommandLine commandLine = parser.parse(options, args);
     if (commandLine.hasOption(CMD_HELP)) {
-      HelpFormatter formatter = new HelpFormatter();
+      HelpFormatter formatter = HelpFormatter.builder().get();
       formatter.printHelp("NutchServer", "", options, "", true);
       return;
     }

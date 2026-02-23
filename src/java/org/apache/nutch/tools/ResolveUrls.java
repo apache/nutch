@@ -190,7 +190,7 @@ public class ResolveUrls {
       // parse out common line arguments
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("urls")) {
-        HelpFormatter formatter = new HelpFormatter();
+        HelpFormatter formatter = HelpFormatter.builder().get();
         formatter.printHelp("ResolveUrls", "", options, "", false);
         return;
       }

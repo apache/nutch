@@ -204,7 +204,7 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
     options.addOption(helpOpt).addOption(rulesOpt);
 
     CommandLineParser parser = new DefaultParser();
-    HelpFormatter formatter = new HelpFormatter();
+    HelpFormatter formatter = HelpFormatter.builder().get();
     String rulesFile;
 
     try {

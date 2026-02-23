@@ -780,7 +780,7 @@ public class WebGraph extends Configured implements Tool {
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")
           || (!line.hasOption("segment") && !line.hasOption("segmentDir"))) {
-        HelpFormatter formatter = new HelpFormatter();
+        HelpFormatter formatter = HelpFormatter.builder().get();
         formatter.printHelp("WebGraph", "", options, "", true);
         return -1;
       }
