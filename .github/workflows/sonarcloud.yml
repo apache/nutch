@@ -41,7 +41,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-ivy-
       - name: Compile (no tests)
-        run: ant compile compile-plugins -buildfile build.xml
+        run: ant compile compile-plugins resolve-test -buildfile build.xml
       - name: Download coverage data
         uses: dawidd6/action-download-artifact@v11
         with:
