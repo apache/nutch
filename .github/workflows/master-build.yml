@@ -204,8 +204,9 @@ jobs:
             echo "✅ No Java deprecation warnings found."
             exit 0
           fi
-          # Allowlist: deprecated Nutch classes (e.g. SpellCheckedMetadata, future release) and test mocks implementing deprecated Hadoop API
-          APPROVED_PATTERN="SpellCheckedMetadata\.java|CrawlDBTestUtil\.java|CrawlDbUpdateUtil\.java|GeoIPDocumentCreator\.java"
+          # Allowlist: deprecated Nutch classes (e.g. SpellCheckedMetadata, future release), test mocks implementing deprecated Hadoop API,
+          # and classes using commons-cli Option.Builder.build() / HelpFormatter (deprecated in newer commons-cli; we align with Hadoop 3.4.2 / 1.4).
+          APPROVED_PATTERN="SpellCheckedMetadata\.java|CrawlDBTestUtil\.java|CrawlDbUpdateUtil\.java|WebGraph\.java|ScoreUpdater\.java|NodeReader\.java|NodeDumper\.java|LinkRank\.java|LinkDumper\.java|ResolveUrls\.java|NutchServer\.java|CrawlCompletionStats\.java|FileDumper\.java|CommonCrawlDataDumper\.java|MimeTypeIndexingFilter\.java"
           unapproved=$(echo "$deprecations" | grep -v -E "$APPROVED_PATTERN" || true)
           if [ -n "$unapproved" ]; then
             echo "❌ Unapproved Java deprecation warnings detected! Failing the build."

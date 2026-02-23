@@ -55,28 +55,25 @@
 		<dependency org="org.apache.commons" name="commons-jexl3" rev="3.6.0" conf="*->default" />
 		<dependency org="com.tdunning" name="t-digest" rev="3.3" />
 
-		<dependency org="commons-cli" name="commons-cli" rev="1.11.0" conf="*->default" />
+		<!-- Aligned with Hadoop 3.4.2; use Option.builder()...build() and new HelpFormatter(). Review when upgrading Hadoop. -->
+		<dependency org="commons-cli" name="commons-cli" rev="1.4" conf="*->default" force="true" />
 
 		<!-- Hadoop Dependencies -->
 		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.4.2" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
-			<exclude org="commons-cli" name="*" />
 		</dependency>
 		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.4.2" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
-			<exclude org="commons-cli" name="*" />
 		</dependency>
 		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.4.2" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
-			<exclude org="commons-cli" name="*" />
 		</dependency>
 		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.4.2" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
-			<exclude org="commons-cli" name="*" />
 		</dependency>
 		<!-- End of Hadoop Dependencies -->
 

@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.help.HelpFormatter;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.time.StopWatch;
@@ -725,14 +725,14 @@ public class LinkRank extends Configured implements Tool {
     Option helpOpts = Option.builder("help")
         .argName("help")
         .desc("show this help message")
-        .get();
+        .build();
     options.addOption(helpOpts);
 
     Option webgraphOpts = Option.builder("webgraphdb")
         .argName("webgraphdb")
         .hasArg()
         .desc("the web graph db to use")
-        .get();
+        .build();
     options.addOption(webgraphOpts);
 
     CommandLineParser parser = new DefaultParser();
@@ -740,7 +740,7 @@ public class LinkRank extends Configured implements Tool {
 
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")) {
-        HelpFormatter formatter = HelpFormatter.builder().get();
+        HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("LinkRank", "", options, "", false);
         return -1;
       }

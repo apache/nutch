@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.help.HelpFormatter;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -168,21 +168,21 @@ public class ResolveUrls {
     Option helpOpts = Option.builder("help")
         .argName("help")
         .desc("show this help message")
-        .get();
+        .build();
     options.addOption(helpOpts);
 
     Option urlOpts = Option.builder("urls")
         .argName("urls")
         .hasArg()
         .desc("the urls file to check")
-        .get();
+        .build();
     options.addOption(urlOpts);
 
     Option numThreadOpts = Option.builder("numThreads")
         .argName("numThreads")
         .hasArgs()
         .desc("the number of threads to use")
-        .get();
+        .build();
     options.addOption(numThreadOpts);
 
     CommandLineParser parser = new DefaultParser();
@@ -190,7 +190,7 @@ public class ResolveUrls {
       // parse out common line arguments
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("urls")) {
-        HelpFormatter formatter = HelpFormatter.builder().get();
+        HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("ResolveUrls", "", options, "", false);
         return;
       }

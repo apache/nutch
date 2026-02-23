@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.help.HelpFormatter;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.time.StopWatch;
@@ -375,65 +375,65 @@ public class NodeDumper extends Configured implements Tool {
     Option helpOpts = Option.builder("help")
         .argName("help")
         .desc("show this help message")
-        .get();
+        .build();
     options.addOption(helpOpts);
 
     Option webGraphDbOpts = Option.builder("webgraphdb")
         .argName("webgraphdb")
         .hasArg()
         .desc("the web graph database to use")
-        .get();
+        .build();
     options.addOption(webGraphDbOpts);
 
     Option inlinkOpts = Option.builder("inlinks")
         .argName("inlinks")
         .desc("show highest inlinks")
-        .get();
+        .build();
     options.addOption(inlinkOpts);
 
     Option outlinkOpts = Option.builder("outlinks")
         .argName("outlinks")
         .desc("show highest outlinks")
-        .get();
+        .build();
     options.addOption(outlinkOpts);
 
     Option scoreOpts = Option.builder("scores")
         .argName("scores")
         .desc("show highest scores")
-        .get();
+        .build();
     options.addOption(scoreOpts);
 
     Option topNOpts = Option.builder("topn")
         .argName("topn")
         .optionalArg(true)
         .desc("show topN scores")
-        .get();
+        .build();
     options.addOption(topNOpts);
 
     Option outputOpts = Option.builder("output")
         .argName("output")
         .hasArg()
         .desc("the output directory to use")
-        .get();
+        .build();
     options.addOption(outputOpts);
 
     Option effOpts = Option.builder("asEff")
         .argName("asEff")
         .desc("Solr ExternalFileField compatible output format")
-        .get();
+        .build();
     options.addOption(effOpts);
 
     Option groupOpts = Option.builder("group")
         .hasArgs()
         .numberOfArgs(2)
         .desc("group <host|domain> <sum|max>")
-        .get();
+        .build();
     options.addOption(groupOpts);
 
     Option sequenceFileOpts = Option.builder("asSequenceFile")
         .argName("asSequenceFile")
         .desc("whether to output as a sequencefile")
-        .get();
+        .build();
     options.addOption(sequenceFileOpts);
 
     CommandLineParser parser = new DefaultParser();
@@ -441,7 +441,7 @@ public class NodeDumper extends Configured implements Tool {
 
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")) {
-        HelpFormatter formatter = HelpFormatter.builder().get();
+        HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("NodeDumper", "", options, "", false);
         return -1;
       }

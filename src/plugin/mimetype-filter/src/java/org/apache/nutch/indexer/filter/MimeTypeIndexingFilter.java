@@ -22,7 +22,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.UnrecognizedOptionException;
-import org.apache.commons.cli.help.HelpFormatter;
+import org.apache.commons.cli.HelpFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,15 +196,15 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
    */
   public static void main(String[] args) throws IOException, IndexingException {
     Option helpOpt = new Option("h", "help", false, "Show this help message.");
-    Option rulesOpt = Option.builder().option("rules").hasArg().argName("file")
+    Option rulesOpt = Option.builder("rules").hasArg().argName("file")
         .desc("Rules file to be used in the tests relative to the conf directory.")
-        .required().get();
+        .required().build();
 
     Options options = new Options();
     options.addOption(helpOpt).addOption(rulesOpt);
 
     CommandLineParser parser = new DefaultParser();
-    HelpFormatter formatter = HelpFormatter.builder().get();
+    HelpFormatter formatter = new HelpFormatter();
     String rulesFile;
 
     try {

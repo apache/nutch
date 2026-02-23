@@ -21,7 +21,7 @@ import java.io.IOException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.help.HelpFormatter;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configuration;
@@ -93,21 +93,21 @@ public class NodeReader extends Configured {
     Option helpOpts = Option.builder("help")
         .argName("help")
         .desc("show this help message")
-        .get();
+        .build();
     options.addOption(helpOpts);
 
     Option webGraphOpts = Option.builder("webgraphdb")
         .argName("webgraphdb")
         .hasArg()
         .desc("the webgraphdb to use")
-        .get();
+        .build();
     options.addOption(webGraphOpts);
 
     Option urlOpts = Option.builder("url")
         .argName("url")
         .optionalArg(true)
         .desc("the url to dump")
-        .get();
+        .build();
     options.addOption(urlOpts);
 
     CommandLineParser parser = new DefaultParser();
@@ -117,7 +117,7 @@ public class NodeReader extends Configured {
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")
           || !line.hasOption("url")) {
-        HelpFormatter formatter = HelpFormatter.builder().get();
+        HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("WebGraphReader", "", options, "", false);
         return;
       }

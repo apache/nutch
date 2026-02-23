@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.help.HelpFormatter;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.time.StopWatch;
@@ -754,17 +754,17 @@ public class WebGraph extends Configured implements Tool {
         .argName("webgraphdb")
         .hasArg()
         .desc("the web graph database to create (if none exists) or use if one does")
-        .get();
+        .build();
     Option segOpt = Option.builder("segment")
         .argName("segment")
         .hasArgs()
         .desc("the segment(s) to use")
-        .get();
+        .build();
     Option segDirOpt = Option.builder("segmentDir")
         .argName("segmentDir")
         .hasArgs()
         .desc("the segment directory to use")
-        .get();
+        .build();
 
     // create the options
     Options options = new Options();
@@ -780,7 +780,7 @@ public class WebGraph extends Configured implements Tool {
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")
           || (!line.hasOption("segment") && !line.hasOption("segmentDir"))) {
-        HelpFormatter formatter = HelpFormatter.builder().get();
+        HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("WebGraph", "", options, "", true);
         return -1;
       }

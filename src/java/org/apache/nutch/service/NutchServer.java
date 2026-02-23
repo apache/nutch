@@ -28,7 +28,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.help.HelpFormatter;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -177,7 +177,7 @@ public class NutchServer {
     Options options = createOptions();
     CommandLine commandLine = parser.parse(options, args);
     if (commandLine.hasOption(CMD_HELP)) {
-      HelpFormatter formatter = HelpFormatter.builder().get();
+      HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp("NutchServer", "", options, "", true);
       return;
     }
@@ -198,21 +198,21 @@ public class NutchServer {
 
     Option helpOpt = Option.builder(CMD_HELP)
         .desc("Show this help")
-        .get();
+        .build();
     options.addOption(helpOpt);
 
     Option portOpt = Option.builder(CMD_PORT)
         .argName("port")
         .optionalArg(true)
         .desc("The port to run the Nutch Server. Default port 8081")
-        .get();
+        .build();
     options.addOption(portOpt);
 
     Option hostOpt = Option.builder(CMD_HOST)
         .argName("host")
         .optionalArg(true)
         .desc("The host to bind the Nutch Server to. Default is localhost.")
-        .get();
+        .build();
     options.addOption(hostOpt);
 
     return options;

@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.help.HelpFormatter;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -576,7 +576,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
         .argName("outputDir")
         .hasArg()
         .desc("output directory (which will be created) to host the CBOR data.")
-        .get();
+        .build();
     // WARC format
     Option warcOpt = new Option("warc", "export to a WARC file");
 
@@ -584,61 +584,61 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
         .argName("segment")
         .hasArgs()
         .desc("the segment or directory containing segments to use")
-        .get();
+        .build();
     // create mimetype and gzip options
     Option mimeOpt = Option.builder("mimetype")
         .required(false)
         .argName("mimetype")
         .hasArgs()
         .desc("an optional list of mimetypes to dump, excluding all others. Defaults to all.")
-        .get();
+        .build();
     Option gzipOpt = Option.builder("gzip")
         .argName("gzip")
         .hasArg(false)
         .desc("an optional flag indicating whether to additionally gzip the data.")
-        .get();
+        .build();
     Option keyPrefixOpt = Option.builder("keyPrefix")
         .argName("keyPrefix")
         .hasArg(true)
         .desc("an optional prefix for key in the output format.")
-        .get();
+        .build();
     Option simpleDateFormatOpt = Option.builder("SimpleDateFormat")
         .argName("SimpleDateFormat")
         .hasArg(false)
         .desc("an optional format for timestamp in GMT epoch milliseconds.")
-        .get();
+        .build();
     Option epochFilenameOpt = Option.builder("epochFilename")
         .argName("epochFilename")
         .hasArg(false)
         .desc("an optional format for output filename.")
-        .get();
+        .build();
     Option jsonArrayOpt = Option.builder("jsonArray")
         .argName("jsonArray")
         .hasArg(false)
         .desc("an optional format for JSON output.")
-        .get();
+        .build();
     Option reverseKeyOpt = Option.builder("reverseKey")
         .argName("reverseKey")
         .hasArg(false)
         .desc("an optional format for key value in JSON output.")
-        .get();
+        .build();
     Option extensionOpt = Option.builder("extension")
         .argName("extension")
         .hasArg(true)
         .desc("an optional file extension for output documents.")
-        .get();
+        .build();
     Option sizeOpt = Option.builder("warcSize")
         .argName("warcSize")
         .hasArg(true)
         .type(Number.class)
         .desc("an optional file size in bytes for the WARC file(s)")
-        .get();
+        .build();
     Option linkDbOpt = Option.builder("linkdb")
         .argName("linkdb")
         .hasArg(true)
         .desc("an optional linkdb parameter to include inlinks in dump files")
         .required(false)
-        .get();
+        .build();
 
     // create the options
     Options options = new Options();
@@ -665,7 +665,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("outputDir") || (!line
           .hasOption("segment"))) {
-        HelpFormatter formatter = HelpFormatter.builder().get();
+        HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp(CommonCrawlDataDumper.class.getName(), "", options, "", true);
         return 0;
       }

@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.help.HelpFormatter;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -72,24 +72,24 @@ public class CrawlCompletionStats extends Configured implements Tool {
         .required()
         .desc("Comma separated list of crawldb directories (e.g., \"./crawl1/crawldb,./crawl2/crawldb\")")
         .hasArgs()
-        .get();
+        .build();
     Option outDir = Option.builder("outputDir")
         .argName("outputDir")
         .required()
         .desc("Output directory where results should be dumped")
         .hasArgs()
-        .get();
+        .build();
     Option modeOpt = Option.builder("mode")
         .argName("mode")
         .required()
         .desc("Set statistics gathering mode (by 'host' or by 'domain')")
         .hasArgs()
-        .get();
+        .build();
     Option numReducers = Option.builder("numReducers")
         .argName("numReducers")
         .desc("Optional number of reduce jobs to use. Defaults to 1")
         .hasArgs()
-        .get();
+        .build();
 
     Options options = new Options();
     options.addOption(helpOpt);
@@ -104,13 +104,13 @@ public class CrawlCompletionStats extends Configured implements Tool {
     try {
       cli = parser.parse(options, args);
     } catch (MissingOptionException e) {
-      HelpFormatter formatter = HelpFormatter.builder().get();
+      HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp("CrawlCompletionStats", "", options, "", true);
       return 1;
     }
 
     if (cli.hasOption("help")) {
-      HelpFormatter formatter = HelpFormatter.builder().get();
+      HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp("CrawlCompletionStats", "", options, "", true);
       return 1;
     }

@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.help.HelpFormatter;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.time.StopWatch;
@@ -231,21 +231,21 @@ public class ScoreUpdater extends Configured implements Tool{
     Option helpOpts = Option.builder("help")
         .argName("help")
         .desc("show this help message")
-        .get();
+        .build();
     options.addOption(helpOpts);
 
     Option crawlDbOpts = Option.builder("crawldb")
         .argName("crawldb")
         .hasArg()
         .desc("the crawldb to use")
-        .get();
+        .build();
     options.addOption(crawlDbOpts);
 
     Option webGraphOpts = Option.builder("webgraphdb")
         .argName("webgraphdb")
         .hasArg()
         .desc("the webgraphdb to use")
-        .get();
+        .build();
     options.addOption(webGraphOpts);
 
     CommandLineParser parser = new DefaultParser();
@@ -254,7 +254,7 @@ public class ScoreUpdater extends Configured implements Tool{
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")
           || !line.hasOption("crawldb")) {
-        HelpFormatter formatter = HelpFormatter.builder().get();
+        HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("ScoreUpdater", "", options, "", false);
         return -1;
       }
