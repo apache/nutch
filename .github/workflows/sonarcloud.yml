@@ -41,7 +41,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-ivy-
       - name: Compile (no tests)
-        run: ant compile compile-plugins -buildfile build.xml
+        run: ant compile compile-plugins resolve-test -buildfile build.xml
       - name: Download coverage data
         uses: dawidd6/action-download-artifact@v11
         with:
@@ -57,6 +57,11 @@ jobs:
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
           path: ./build/test/
+        continue-on-error: true
+      - name: Flatten test reports
+        run: |
+          mkdir -p ./build/test-reports
+          find ./build/test -name 'TEST-*.xml' -exec cp {} ./build/test-reports/ \;
         continue-on-error: true
       - name: Generate JaCoCo XML report
         run: ant jacoco-report -buildfile build.xml

@@ -20,6 +20,8 @@ on:
     types: [completed]
 permissions:
   checks: write
+  contents: read
+  issues: write
   pull-requests: write
 jobs:
   checks:
@@ -54,7 +56,7 @@ jobs:
         with:
           report_paths: |-
             ./test/TEST-*.xml
-            ./**/test/TEST-*.xml
+            ./*/**/test/TEST-*.xml
           check_name: |-
             JUnit Test Report
             JUnit Test Report Plugins
