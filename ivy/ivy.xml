@@ -61,22 +61,18 @@
 		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.4.2" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
-			<exclude org="commons-cli" name="commons-cli" />
 		</dependency>
 		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.4.2" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
-			<exclude org="commons-cli" name="commons-cli" />
 		</dependency>
 		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.4.2" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
-			<exclude org="commons-cli" name="commons-cli" />
 		</dependency>
 		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.4.2" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
-			<exclude org="commons-cli" name="commons-cli" />
 		</dependency>
 		<!-- End of Hadoop Dependencies -->
 

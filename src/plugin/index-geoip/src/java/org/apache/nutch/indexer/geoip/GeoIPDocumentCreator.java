@@ -238,14 +238,8 @@ public class GeoIPDocumentCreator {
     addIfNotNull(doc, "staticIpScore", traits.staticIpScore());
     addIfNotNull(doc, "userCount", traits.userCount());
     addIfNotNull(doc, "userType", traits.userType());
-    addIfNotNull(doc, "isAnonymous", traits.isAnonymous());
-    addIfNotNull(doc, "isAnonymousVpn", traits.isAnonymousVpn());
     addIfNotNull(doc, "isAnycast", traits.isAnycast());
-    addIfNotNull(doc, "isHostingProvider", traits.isHostingProvider());
     addIfNotNull(doc, "isLegitimateProxy", traits.isLegitimateProxy());
-    addIfNotNull(doc, "isPublicProxy", traits.isPublicProxy());
-    addIfNotNull(doc, "isResidentialProxy", traits.isResidentialProxy());
-    addIfNotNull(doc, "isTorExitNode", traits.isTorExitNode());
     return doc;
   }
 
@@ -315,14 +309,8 @@ public class GeoIPDocumentCreator {
       if (traits.network() != null) {
         addIfNotNull(doc, COUNTRY_NETWORK_ADDRESS, traits.network().toString());
       }
-      addIfNotDuplicate(doc, "isAnonymous", traits.isAnonymous());
-      addIfNotDuplicate(doc, "isAnonymousVpn", traits.isAnonymousVpn());
       addIfNotDuplicate(doc, "isAnycast", traits.isAnycast());
-      addIfNotDuplicate(doc, "isHostingProvider", traits.isHostingProvider());
       addIfNotDuplicate(doc, "isLegitimateProxy", traits.isLegitimateProxy());
-      addIfNotDuplicate(doc, "isPublicProxy", traits.isPublicProxy());
-      addIfNotDuplicate(doc, "isResidentialProxy", traits.isResidentialProxy());
-      addIfNotDuplicate(doc, "isTorExitNode", traits.isTorExitNode());
     } else {
       LOG.debug("'{}' IP address not found in Country DB.", serverIp);
     }
