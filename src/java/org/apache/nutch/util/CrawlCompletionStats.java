@@ -104,14 +104,14 @@ public class CrawlCompletionStats extends Configured implements Tool {
     try {
       cli = parser.parse(options, args);
     } catch (MissingOptionException e) {
-      HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("CrawlCompletionStats", options, true);
+      HelpFormatter formatter = HelpFormatter.builder().get();
+      formatter.printHelp("CrawlCompletionStats", "", options, "", true);
       return 1;
     }
 
     if (cli.hasOption("help")) {
-      HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("CrawlCompletionStats", options, true);
+      HelpFormatter formatter = HelpFormatter.builder().get();
+      formatter.printHelp("CrawlCompletionStats", "", options, "", true);
       return 1;
     }
 

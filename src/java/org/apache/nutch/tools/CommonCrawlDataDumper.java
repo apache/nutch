@@ -665,9 +665,8 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("outputDir") || (!line
           .hasOption("segment"))) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter
-            .printHelp(CommonCrawlDataDumper.class.getName(), options, true);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp(CommonCrawlDataDumper.class.getName(), "", options, "", true);
         return 0;
       }
 

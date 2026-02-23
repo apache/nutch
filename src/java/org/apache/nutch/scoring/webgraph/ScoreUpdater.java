@@ -254,8 +254,8 @@ public class ScoreUpdater extends Configured implements Tool{
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")
           || !line.hasOption("crawldb")) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("ScoreUpdater", options);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp("ScoreUpdater", "", options, "", false);
         return -1;
       }
 

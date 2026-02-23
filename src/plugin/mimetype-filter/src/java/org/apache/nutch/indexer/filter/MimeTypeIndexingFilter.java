@@ -16,7 +16,13 @@
  */
 package org.apache.nutch.indexer.filter;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.UnrecognizedOptionException;
+import org.apache.commons.cli.help.HelpFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,30 +198,28 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
     Option helpOpt = new Option("h", "help", false, "Show this help message.");
     Option rulesOpt = Option.builder().option("rules").hasArg().argName("file")
         .desc("Rules file to be used in the tests relative to the conf directory.")
-        .required().build();
+        .required().get();
 
     Options options = new Options();
     options.addOption(helpOpt).addOption(rulesOpt);
 
     CommandLineParser parser = new DefaultParser();
-    HelpFormatter formatter = new HelpFormatter();
+    HelpFormatter formatter = HelpFormatter.builder().get();
     String rulesFile;
 
     try {
       CommandLine line = parser.parse(options, args);
 
       if (line.hasOption("help") || !line.hasOption("rules")) {
-        formatter
-            .printHelp("org.apache.nutch.indexer.filter.MimeTypeIndexingFilter",
-                options, true);
+        formatter.printHelp("org.apache.nutch.indexer.filter.MimeTypeIndexingFilter",
+            "", options, "", true);
         return;
       }
 
       rulesFile = line.getOptionValue("rules");
     } catch (UnrecognizedOptionException e) {
-      formatter
-          .printHelp("org.apache.nutch.indexer.filter.MimeTypeIndexingFilter",
-              options, true);
+      formatter.printHelp("org.apache.nutch.indexer.filter.MimeTypeIndexingFilter",
+          "", options, "", true);
       return;
     } catch (Exception e) {
       LOG.error(StringUtils.stringifyException(e));

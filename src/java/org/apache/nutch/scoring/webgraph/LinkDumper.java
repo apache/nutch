@@ -434,8 +434,8 @@ public class LinkDumper extends Configured implements Tool {
 
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("LinkDumper", options);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp("LinkDumper", "", options, "", false);
         return -1;
       }
 

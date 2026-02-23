@@ -35,6 +35,7 @@ public class NutchJob extends Job {
   private static final String JOB_FAILURE_LOG_FORMAT = "%s job did not succeed, job id: %s, job status: %s, reason: %s";
 
   /** Default constructor for subclass or reflection use. */
+  @SuppressWarnings("deprecation")
   public NutchJob() throws IOException {
     super(new Configuration());
   }

@@ -350,8 +350,8 @@ public class FileDumper {
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("outputDir")
           || (!line.hasOption("segment"))) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("FileDumper", options, true);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp("FileDumper", "", options, "", true);
         return;
       }
 

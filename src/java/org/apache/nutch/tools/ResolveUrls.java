@@ -162,7 +162,7 @@ public class ResolveUrls {
    * @param args the input arguments for this tool. Running 
    * with 'help' will print parameter options.
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws java.io.IOException {
 
     Options options = new Options();
     Option helpOpts = Option.builder("help")
@@ -190,8 +190,8 @@ public class ResolveUrls {
       // parse out common line arguments
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("urls")) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("ResolveUrls", options);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp("ResolveUrls", "", options, "", false);
         return;
       }
 

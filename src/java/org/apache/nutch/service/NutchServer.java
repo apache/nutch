@@ -172,13 +172,13 @@ public class NutchServer {
     return started;
   }
 
-  public static void main(String[] args) throws ParseException {
+  public static void main(String[] args) throws ParseException, java.io.IOException {
     CommandLineParser parser = new DefaultParser();
     Options options = createOptions();
     CommandLine commandLine = parser.parse(options, args);
     if (commandLine.hasOption(CMD_HELP)) {
-      HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("NutchServer", options, true);
+      HelpFormatter formatter = HelpFormatter.builder().get();
+      formatter.printHelp("NutchServer", "", options, "", true);
       return;
     }
 

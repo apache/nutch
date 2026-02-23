@@ -117,8 +117,8 @@ public class NodeReader extends Configured {
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")
           || !line.hasOption("url")) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("WebGraphReader", options);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp("WebGraphReader", "", options, "", false);
         return;
       }
 
