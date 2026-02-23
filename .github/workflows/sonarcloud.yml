@@ -58,6 +58,11 @@ jobs:
           run_id: ${{ github.event.workflow_run.id }}
           path: ./build/test/
         continue-on-error: true
+      - name: Flatten test reports
+        run: |
+          mkdir -p ./build/test-reports
+          find ./build/test -name 'TEST-*.xml' -exec cp {} ./build/test-reports/ \;
+        continue-on-error: true
       - name: Generate JaCoCo XML report
         run: ant jacoco-report -buildfile build.xml
         continue-on-error: true
