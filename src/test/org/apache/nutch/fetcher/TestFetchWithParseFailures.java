@@ -64,7 +64,7 @@ public class TestFetchWithParseFailures {
   private static List<String> files;
   private static java.nio.file.Path baseFolderPath;
   
-  private static ExecutorService executor = Executors.newFixedThreadPool(1);
+  private static ExecutorService executor = Executors.newCachedThreadPool();
   
   
   @BeforeEach
@@ -81,8 +81,8 @@ public class TestFetchWithParseFailures {
     //conf.setLong("db.fetch.interval.default", 1);
     //conf.setLong("db.fetch.interval.max", 1);
     //conf.setLong("fetcher.timelimit.mins", 2);
-    //conf.setInt("fetcher.threads.fetch", 1);
     //conf.setInt("fetcher.threads.start.delay", 1);
+    conf.setInt("fetcher.threads.fetch", 1);
     conf.setBoolean("fetcher.parse", true);
     conf.setBoolean("fetcher.store.content", true);
     conf.setBoolean(Nutch.DELETE_FAILED_PARSE, true);
@@ -100,6 +100,7 @@ public class TestFetchWithParseFailures {
 
   @AfterEach
   public void tearDown() throws Exception {
+    executor.shutdown();
     server.stop();
     for (int i = 0; i < 5; i++) {
       if (!server.isStopped()) {
@@ -113,7 +114,7 @@ public class TestFetchWithParseFailures {
   
 
   @Test
-  @Disabled("This test does not fully run 99 times out of 100, but still fails at line 246, instead of printing log message or failing on intermediate assertions.")
+  //@Disabled("This test does not fully run 99 times out of 100, but still fails at line 246, instead of printing log message or failing on intermediate assertions.")
   public void testFetchWithParseFailure() throws Exception {
     AtomicInteger fetchCount= new AtomicInteger(0);
     AbstractFetchSchedule schedule = new AbstractFetchSchedule(conf) {};
@@ -137,7 +138,6 @@ public class TestFetchWithParseFailures {
     // fetch once
     LOG.info("1ST FETCH");
     Fetcher fetcher1 = new Fetcher(conf);
-    
     Map<String, Object> result1 = executor.submit(new Callable<Map<String, Object>>(){
 
       @Override
