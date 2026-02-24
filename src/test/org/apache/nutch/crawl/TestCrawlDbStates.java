@@ -21,7 +21,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.util.StringUtils;
-import org.apache.nutch.parse.ParseSegment;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.ReducerContextWrapper;
@@ -378,9 +378,8 @@ public class TestCrawlDbStates {
     LOG.info("NUTCH-1732: allow deleting un-parsable documents");
     Context context = CrawlDBTestUtil.createContext();
     Configuration conf = context.getConfiguration();
-    conf.setBoolean(ParseSegment.DELETE_FAILED_PARSE, true);
-    CrawlTestParserFailure crawlUtil = new CrawlTestParserFailure(context,
-        CrawlDatum.STATUS_PARSE_FAILED, CrawlDatum.STATUS_DB_PARSE_FAILED);
+    conf.setBoolean(Nutch.DELETE_FAILED_PARSE, true);
+    CrawlTestParserFailure crawlUtil = new CrawlTestParserFailure(context);
     try {
       if (!crawlUtil.run(20)) {
         fail("parse failure did not result in a parse_fail (NUTCH-1732)");
@@ -788,20 +787,56 @@ public class TestCrawlDbStates {
   }
   
   private class CrawlTestParserFailure extends ContinuousCrawlTestUtil {
+
+    int counter = 0;
+    boolean failing = false;
+
+    public CrawlTestParserFailure(Context context) {
+      super(context);
+    }
     
-    public CrawlTestParserFailure(Context context, byte fetchStatus,
-        byte expectedDbStatus) {
-      super(context, fetchStatus, expectedDbStatus);
+    @Override
+    protected CrawlDatum fetch(CrawlDatum datum, long currentTime) {
+      counter++;
+      if(counter % 2 == 0) {
+        failing = true;
+        // STATUS_PARSE_FAILED is normally set in FetcherThread.run from a fetch success
+        // This test is for CrawlDbReducer, after fetch
+        datum.setStatus(STATUS_PARSE_FAILED);
+        LOG.info("expect parse failed");
+      } else {
+        failing = false;
+        datum.setStatus(STATUS_FETCH_SUCCESS);
+        LOG.info("expect fetch success");  
+      }
+      datum.setFetchTime(currentTime);
+      return datum;
     }
 
     @Override
     protected List<CrawlDatum> parse(CrawlDatum fetchDatum) {
       List<CrawlDatum> parseDatums = new ArrayList<CrawlDatum>(0);
-      if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_SUCCESS) {
-        // fail parsing everything
+      if (failing){
+        LOG.info("set parse failed");
         parseDatums.add(new CrawlDatum(STATUS_PARSE_FAILED, 0));
+      } else {
+        LOG.info("set signature");
+        CrawlDatum signed = new CrawlDatum(STATUS_SIGNATURE, 0);
+        signed.setSignature(getSignature());
+        parseDatums.add(signed);
       }
       return parseDatums;
+    }
+
+    @Override
+    protected boolean check(CrawlDatum result) {
+     if (failing) {
+       LOG.info("check parse failed");
+       return result.getStatus() == STATUS_DB_PARSE_FAILED;
+     } else {
+       LOG.info("check fetched");
+       return result.getStatus() == STATUS_DB_FETCHED || result.getStatus() == STATUS_DB_NOTMODIFIED;
+     }
     }
   }
 

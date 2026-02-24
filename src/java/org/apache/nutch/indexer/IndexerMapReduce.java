@@ -206,6 +206,7 @@ public class IndexerMapReduce extends Configured {
     private boolean delete = false;
     private boolean deleteRobotsNoIndex = false;
     private boolean deleteSkippedByIndexingFilter = false;
+    private boolean deleteFailedParse = false;
     private boolean base64 = false;
     private IndexingFilters filters;
     private ScoringFilters scfilters;
@@ -245,6 +246,7 @@ public class IndexerMapReduce extends Configured {
           false);
       deleteSkippedByIndexingFilter = conf.getBoolean(INDEXER_DELETE_SKIPPED,
           false);
+      deleteFailedParse = conf.getBoolean(Nutch.DELETE_FAILED_PARSE, false);
       skip = conf.getBoolean(INDEXER_SKIP_NOTMODIFIED, false);
       base64 = conf.getBoolean(INDEXER_BINARY_AS_BASE64, false);
 
@@ -358,7 +360,7 @@ public class IndexerMapReduce extends Configured {
       }
 
       // Whether to delete pages where parsing failed
-      if (delete && fetchDatum != null) {
+      if (deleteFailedParse && fetchDatum != null) {
         if (fetchDatum.getStatus() == CrawlDatum.STATUS_PARSE_FAILED
             || dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_PARSE_FAILED) {
           deletedFailedParseCounter.increment(1);

@@ -1504,6 +1504,14 @@
 </property>
 
 <property>
+  <name>indexer.delete</name>
+  <value>false</value>
+  <description>Whether the indexer will delete documents that are gone. Gone pages include redirects and duplicates.
+  See also: 'link.delete.gone'.
+  </description>
+</property>
+
+<property>
   <name>indexer.indexwriters.file</name>
   <value>index-writers.xml</value>
   <description>The configuration file for index writers.</description>
@@ -1795,7 +1803,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 </property>
 
 <property>
-  <name>parser.delete.failed</name>
+  <name>parser.delete.failed.parse</name>
   <value>false</value>
   <description>Boolean value for whether we should delete a page from the index when parsing the page fails. 
   By default this property is deactivated, because it will delete an existing page from the index, where a 

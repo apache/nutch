@@ -26,7 +26,6 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
@@ -84,14 +83,19 @@ public class TestIndexerMapReduce {
     htmlMeta.add(Nutch.SIGNATURE_KEY, "123");
   }
   public static ParseText parseText = new ParseText("Test");
+  public static ParseText failedParseText = new ParseText("Failed Parse");
   public static ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
       "Test", new Outlink[] {}, htmlMeta);
   public static ParseData failedParseData = new ParseData(ParseStatus.STATUS_FAILURE,
-      "Test", new Outlink[] {}, htmlMeta);
+      "Failed Parse", new Outlink[] {}, htmlMeta);
   public static CrawlDatum crawlDatumDbFetched = new CrawlDatum(
       CrawlDatum.STATUS_DB_FETCHED, 60 * 60 * 24);
   public static CrawlDatum crawlDatumFetchSuccess = new CrawlDatum(
       CrawlDatum.STATUS_FETCH_SUCCESS, 60 * 60 * 24);
+  public static CrawlDatum crawlDatumDbParseFailed = new CrawlDatum(
+      CrawlDatum.STATUS_DB_PARSE_FAILED, 60 * 60 * 24);
+  public static CrawlDatum crawlDatumParseFailed = new CrawlDatum(
+      CrawlDatum.STATUS_PARSE_FAILED, 60 * 60 * 24);
 
   private IndexerMapReduce.IndexerReducer reducer = new IndexerMapReduce.IndexerReducer();
 
@@ -100,14 +104,21 @@ public class TestIndexerMapReduce {
   @Test
   public void testDeleteParseFailure() {
     configuration = NutchConfiguration.create();
-    configuration.setBoolean(ParseSegment.DELETE_FAILED_PARSE, true);
+    configuration.setBoolean(Nutch.DELETE_FAILED_PARSE, true);
     
     // unrelated issue with "index.jexl.filter", don't use all plugins.  Ref: src/test/nutch-site.xml
     configuration.set("plugin.includes", "protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|indexer-csv|scoring-opic|urlnormalizer-(pass|regex|basic)");
 
+    int docToDelete = 0;
+    int docsToIndex = 0;
+    int deletedDocs = 0;
+    int indexedDocs = 0;
     for(int i=0; i<5; i++) {
       boolean failParse = i % 2 == 0;
       ParseData data = null;
+      ParseText text = null;
+      CrawlDatum dbStatus = null;
+      CrawlDatum status = null;
 
       Content content = new Content(testUrl, testUrl,
           testHtmlDoc.getBytes(StandardCharsets.UTF_8), htmlContentType, htmlMeta,
@@ -115,17 +126,28 @@ public class TestIndexerMapReduce {
       
       if(failParse) {
         data = failedParseData;
+        text = failedParseText;
+        dbStatus = crawlDatumDbParseFailed;
+        status = crawlDatumParseFailed;
+        docToDelete++;
       } else {
         data = parseData;
+        text = parseText;
+        dbStatus = crawlDatumDbFetched;
+        status = crawlDatumFetchSuccess;
+        docsToIndex++;
       }
 
-      NutchDocument doc = runIndexer(crawlDatumDbFetched,
-          crawlDatumFetchSuccess, parseText, data, content);
+      NutchDocument doc = runIndexer(dbStatus, status, text, data, content);
       if(failParse) {
+        deletedDocs++;
         assertNull(doc, "NutchDocument should not be indexed");
       } else {
+        indexedDocs++;
         assertNotNull(doc, "No NutchDocument indexed");
       }
+      assertEquals(docToDelete, deletedDocs);
+      assertEquals(docsToIndex, indexedDocs);
     }
   }
 

@@ -115,9 +115,7 @@ public class CrawlDbReducer extends
         continue;
       }
 
-      // temporarily handle parse_failed as fetched (it was fetched!)
-      if (CrawlDatum.hasFetchStatus(datum)
-          || datum.getStatus() == CrawlDatum.STATUS_PARSE_FAILED) {
+      if (CrawlDatum.hasFetchStatus(datum)) {
         if (!fetchSet) {
           if (multiple) {
             fetch.set(datum);

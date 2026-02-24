@@ -187,7 +187,7 @@ public class FetcherThread extends Thread {
     this.scfilters = new ScoringFilters(conf);
     this.parseUtil = new ParseUtil(conf);
     this.skipTruncated = conf.getBoolean(ParseSegment.SKIP_TRUNCATED, true);
-    this.deleteFailedParse = conf.getBoolean(ParseSegment.DELETE_FAILED_PARSE, false);
+    this.deleteFailedParse = conf.getBoolean(Nutch.DELETE_FAILED_PARSE, false);
     this.signatureWithoutParsing = conf.getBoolean("fetcher.signature", false);
     this.protocolFactory = new ProtocolFactory(conf);
     this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
@@ -228,7 +228,7 @@ public class FetcherThread extends Thread {
           .getInt("http.robots.503.defer.visits.retries", 3);
     }
 
-    if((activatePublisher=conf.getBoolean("fetcher.publisher", false)))
+    if ((activatePublisher = conf.getBoolean("fetcher.publisher", false)))
       this.publisher = new FetcherThreadPublisher(conf);
     
     queueMode = conf.get("fetcher.queue.mode",
@@ -466,7 +466,7 @@ public class FetcherThread extends Thread {
             case ProtocolStatus.SUCCESS: // got a page
               pstatus = output(fit.url, fit.datum, content, status,
                   CrawlDatum.STATUS_FETCH_SUCCESS, fit.outlinkDepth);
-              updateStatus(content.getContent().length);
+              updateStatus(content.getContent() != null ? content.getContent().length : 0);
               if (pstatus != null && pstatus.isSuccess()
                   && pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
                 String newUrl = pstatus.getMessage();
@@ -478,6 +478,8 @@ public class FetcherThread extends Thread {
                   fit = queueRedirect(redirUrl, fit);
                 }
               }
+
+              // Got a ParseStatus, but isFailed, so call output() again to set set CrawlDatum.STATUS_PARSE_FAILED
               if (pstatus != null && pstatus.isFailed() && deleteFailedParse) {
                 output(fit.url, fit.datum, null, status, CrawlDatum.STATUS_PARSE_FAILED);
               }
@@ -757,6 +759,11 @@ public class FetcherThread extends Thread {
           byte[] signature = SignatureFactory.getSignature(conf)
               .calculate(content, new ParseStatus().getEmptyParse(conf));
           datum.setSignature(signature);
+        }
+
+        if (parseResult == null && parsing && deleteFailedParse) {
+          datum.setStatus(CrawlDatum.STATUS_PARSE_FAILED);
+          status = CrawlDatum.STATUS_PARSE_FAILED;
         }
       }
 

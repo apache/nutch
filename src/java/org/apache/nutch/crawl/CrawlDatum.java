@@ -150,16 +150,14 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   private long modifiedTime;
   private org.apache.hadoop.io.MapWritable metaData;
 
+  /** Validate DB Status (ref.: CrawlDbReducer, IndexerReducer) */
   public static boolean hasDbStatus(CrawlDatum datum) {
-    if (datum.status <= STATUS_DB_MAX)
-      return true;
-    return false;
+    return (datum.status <= STATUS_DB_MAX) || CrawlDatum.STATUS_DB_PARSE_FAILED == datum.getStatus();
   }
-
+  /** Validate Fetch Status (ref.: CrawlDbReducer, IndexerReducer, SegmentMergerReducer) */
   public static boolean hasFetchStatus(CrawlDatum datum) {
-    if (datum.status > STATUS_DB_MAX && datum.status <= STATUS_FETCH_MAX)
-      return true;
-    return false;
+    return (datum.status > STATUS_DB_MAX && datum.status <= STATUS_FETCH_MAX)
+      || CrawlDatum.STATUS_PARSE_FAILED == datum.getStatus();
   }
 
   public CrawlDatum() {
