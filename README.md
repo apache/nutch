@@ -2,7 +2,7 @@ Apache Nutch README
 ===================
 
 [![master pull request ci](https://github.com/apache/nutch/actions/workflows/master-build.yml/badge.svg)](https://github.com/apache/nutch/actions/workflows/master-build.yml)
-[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=apache_nutch)](https://sonarcloud.io/summary/new_code?id=apache_nutch)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=apache_nutch&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=apache_nutch)
 [![Smoke Tests](https://ci-builds.apache.org/job/Nutch/job/Nutch-Smoke-Test-Single-Node-Hadoop-Cluster/badge/icon?style=plastic&subject=Smoke%20Tests)](https://ci-builds.apache.org/job/Nutch/job/Nutch-Smoke-Test-Single-Node-Hadoop-Cluster/)
 
 <img src="https://nutch.apache.org/assets/img/nutch_logo_tm.png" align="right" width="300" />
