@@ -65,6 +65,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.hash.MurmurHash;
 import org.apache.nutch.crawl.Generator2.SelectorReducer.DomainLimits;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
@@ -375,12 +376,18 @@ public class Generator2 extends Configured implements Tool {
         // URLFilters
         try {
           if (filters.filter(urlString) == null) {
-            context.getCounter("Generator", "URL_FILTERS_REJECTED").increment(1);
+            context
+                .getCounter(NutchMetrics.GROUP_GENERATOR,
+                    NutchMetrics.GENERATOR_URL_FILTERS_REJECTED_TOTAL)
+                .increment(1);
             return;
           }
         } catch (URLFilterException e) {
           LOG.warn("Couldn't filter url {}: {}", key, e.getMessage());
-          context.getCounter("Generator", "URL_FILTER_EXCEPTION").increment(1);
+          context
+              .getCounter(NutchMetrics.GROUP_GENERATOR,
+                  NutchMetrics.GENERATOR_URL_FILTER_EXCEPTION_TOTAL)
+              .increment(1);
         }
       }
 
@@ -388,7 +395,8 @@ public class Generator2 extends Configured implements Tool {
       if (!schedule.shouldFetch(key, value, curTime)) {
         LOG.debug("-shouldFetch rejected '{}', fetchTime={}, curTime={}", key,
             value.getFetchTime(), curTime);
-        context.getCounter("Schedule rejected by status",
+        context.getCounter(
+            NutchMetrics.GROUP_GENERATOR_SCHEDULE_REJECTED_BY_STATUS,
             CrawlDatum.getStatusName(value.getStatus())).increment(1);
         return;
       }
@@ -413,8 +421,10 @@ public class Generator2 extends Configured implements Tool {
 
       // consider only entries with a score superior to the threshold
       if (!Float.isNaN(scoreThreshold) && sort < scoreThreshold) {
-        context.getCounter("Score below threshold by status",
-            CrawlDatum.getStatusName(value.getStatus())).increment(1);
+        context
+            .getCounter(NutchMetrics.GROUP_GENERATOR_SCORE_REJECTED_BY_STATUS,
+                CrawlDatum.getStatusName(value.getStatus()))
+            .increment(1);
         return;
       }
 
@@ -440,7 +450,8 @@ public class Generator2 extends Configured implements Tool {
       } catch (Exception e) {
         LOG.warn("Malformed URL: '{}', skipping ({})", urlString,
             e.getMessage());
-        context.getCounter("Generator", "MALFORMED_URL").increment(1);
+        context.getCounter(NutchMetrics.GROUP_GENERATOR,
+            NutchMetrics.GENERATOR_MALFORMED_URL_TOTAL).increment(1);
         return;
       }
 
@@ -738,7 +749,8 @@ public class Generator2 extends Configured implements Tool {
           LOG.info(
               "Host or domain {} has more than {} URLs for all {} segments. Additional URLs won't be included in the fetchlist.",
               key.getDomain(), maxCountTotal, maxNumSegments);
-          context.getCounter("Generator", "SKIPPED_DOMAINS_OVERFLOW")
+          context.getCounter(NutchMetrics.GROUP_GENERATOR,
+              NutchMetrics.GENERATOR_DOMAINS_AFFECTED_PER_DOMAIN_OVERFLOW_TOTAL)
               .increment(1);
           maxUrlsOverflow = true;
           break;
@@ -784,11 +796,14 @@ public class Generator2 extends Configured implements Tool {
               LOG.info(
                   "Host {}{} (domain: {}) has more than {} URLs for all {} segments. Additional URLs won't be included in the fetchlist.",
                   host, domain, domain, maxCountPerHostTotal, maxNumSegments);
-              context.getCounter("Generator", "SKIPPED_HOSTS_NUM_URLS_OVERFLOW")
-                .increment(1);
+              context.getCounter(NutchMetrics.GROUP_GENERATOR,
+                  NutchMetrics.GENERATOR_HOSTS_AFFECTED_PER_HOST_OVERFLOW_TOTAL)
+                  .increment(1);
             }
-            context.getCounter("Generator", "SKIPPED_URLS_HOST_OVERFLOW")
-              .increment(1);
+            context
+                .getCounter(NutchMetrics.GROUP_GENERATOR,
+                    NutchMetrics.GENERATOR_URLS_SKIPPED_PER_HOST_OVERFLOW_TOTAL)
+                .increment(1);
             maxUrlsPerHostOverflowCount++;
             counts[0]++;
             continue;
@@ -819,17 +834,19 @@ public class Generator2 extends Configured implements Tool {
           }
         }
 
-        context.getCounter("Selected by status",
+        context.getCounter(NutchMetrics.GROUP_GENERATOR_SELECTED_BY_STATUS,
             CrawlDatum.getStatusName(entry.datum.getStatus())).increment(1);
 
         context.write(key.getScore(), entry);
       }
 
       if (maxHostsOverflowCount > 0) {
-        context.getCounter("Generator", "SKIPPED_DOMAINS_NUM_HOSTS_OVERFLOW")
+        context.getCounter(NutchMetrics.GROUP_GENERATOR,
+            NutchMetrics.GENERATOR_DOMAINS_AFFECTED_PER_MAX_NUM_HOSTS_OVERFLOW_TOTAL)
             .increment(1);
-        context.getCounter("Generator", "SKIPPED_URLS_NUM_HOSTS_OVERFLOW")
-          .increment(maxHostsOverflowCount);
+        context.getCounter(NutchMetrics.GROUP_GENERATOR,
+            NutchMetrics.GENERATOR_URLS_SKIPPED_PER_MAX_NUM_HOSTS_OVERFLOW_TOTAL)
+            .increment(maxHostsOverflowCount);
         LOG.info(
             "Domain {} has more than {} hosts, skipped {} URLs from remaining hosts",
             key.getDomain(), maxHosts, maxHostsOverflowCount);
@@ -1022,7 +1039,8 @@ public class Generator2 extends Configured implements Tool {
         if (count < maxPerSegment) {
           mos.write("sequenceFiles", entry.url, entry, fileName);
         } else {
-          context.getCounter("Generator", "SKIPPED_RECORDS_SEGMENT_OVERFLOW")
+          context.getCounter(NutchMetrics.GROUP_GENERATOR,
+              NutchMetrics.GENERATOR_URLS_SKIPPED_PER_SEGMENT_OVERFLOW_TOTAL)
               .increment(1);
           if (count == maxPerSegment) {
             LOG.info(

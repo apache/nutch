@@ -53,6 +53,7 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
@@ -343,10 +344,8 @@ public class SitemapInjector extends Injector {
           BaseRobotRules rules = protocol.getRobotRules(turl, null, null);
           if (!rules.isAllowed(url)) {
             LOG.info("Fetch of sitemap forbidden by robots.txt: {}", url);
-            context
-                .getCounter("SitemapInjector",
-                    "failed to fetch sitemap content, robots.txt disallow")
-                .increment(1);
+            context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                NutchMetrics.SITEMAP_ROBOTSTXT_DISALLOW_TOTAL).increment(1);
             return null;
           }
         }
@@ -444,15 +443,16 @@ public class SitemapInjector extends Injector {
         try {
           sitemap = parseSitemap(content, url);
         } catch (Exception e) {
-          context.getCounter("SitemapInjector", "sitemaps failed to parse")
-              .increment(1);
+          context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+              NutchMetrics.SITEMAP_FAILED_TO_PARSE_TOTAL).increment(1);
           LOG.warn("failed to parse sitemap {}: {}", url,
               StringUtils.stringifyException(e));
           return;
         }
         LOG.info("parsed sitemap {} ({})", url, sitemap.getType());
         context
-            .getCounter("SitemapInjector", "sitemap type: " + sitemap.getType())
+            .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                NutchMetrics.SITEMAP_TYPE_PREFIX + sitemap.getType())
             .increment(1);
 
         if (checkCrossSubmits) {
@@ -519,14 +519,16 @@ public class SitemapInjector extends Injector {
           return;
         }
 
-        context.getCounter("SitemapInjector", "sitemaps processed")
-            .increment(1);
+        context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+            NutchMetrics.SITEMAP_PROCESSED_TOTAL).increment(1);
         injectURLs((SiteMap) sitemap);
         if (totalUrls >= maxUrls) {
-          LOG.warn("URL limit reached, skipped remaining urls of {}",
+          LOG.warn(
+              "Sitemap index URL limit reached, skipped remaining urls of {}",
               sitemap.getUrl());
           context
-              .getCounter("SitemapInjector", "sitemap index: URL limit reached")
+              .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                  NutchMetrics.SITEMAP_INDEX_AFFECTED_BY_URL_LIMIT_TOTAL)
               .increment(1);
         }
         sitemap.setProcessed(true);
@@ -543,8 +545,10 @@ public class SitemapInjector extends Injector {
           LOG.warn(
               "Depth limit reached recursively processing sitemap index {}",
               sitemapIndex.getUrl());
-          context.getCounter("SitemapInjector",
-              "sitemap index: depth limit reached").increment(1);
+          context
+              .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                  NutchMetrics.SITEMAP_INDEX_AFFECTED_BY_DEPTH_LIMIT_TOTAL)
+              .increment(1);
           return;
         }
 
@@ -557,10 +561,8 @@ public class SitemapInjector extends Injector {
           double publishScore = 0.3;
           if (s.getLastModified() != null) {
             double elapsedMonthsSincePublished = (System.currentTimeMillis()
-                - s.getLastModified().getTime())
-                / (1000.0 * 60 * 60 * 24 * 30);
-            publishScore = (1.0
-                / Math.log(1.0 + elapsedMonthsSincePublished));
+                - s.getLastModified().getTime()) / (1000.0 * 60 * 60 * 24 * 30);
+            publishScore = (1.0 / Math.log(1.0 + elapsedMonthsSincePublished));
           }
           double score = (1.0 / subSitemaps) + publishScore + Math.random();
           sitemaps.add(new ScoredSitemap(score, s));
@@ -574,18 +576,18 @@ public class SitemapInjector extends Injector {
             LOG.warn(
                 "Max. processing time reached, skipped remaining sitemaps of sitemap index {}",
                 sitemapIndex.getUrl());
-            context.getCounter("SitemapInjector",
-                "sitemap index: time limit reached").increment(1);
+            context
+                .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                    NutchMetrics.SITEMAP_INDEX_AFFECTED_BY_TIME_LIMIT_TOTAL)
+                .increment(1);
             return;
           }
-          if ((totalUrls == 0)
-              && (elapsed > (maxSitemapProcessingTime / 2))) {
+          if ((totalUrls == 0) && (elapsed > (maxSitemapProcessingTime / 2))) {
             LOG.warn(
                 "Half of processing time elapsed and no URLs injected, skipped remaining sitemaps of sitemap index {}",
                 sitemapIndex.getUrl());
-            context
-                .getCounter("SitemapInjector",
-                    "sitemap index: no URLs after 50% of time limit")
+            context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                NutchMetrics.SITEMAP_INDEX_NO_URLS_AFTER_50_PERCENT_OF_TIME_LIMIT_TOTAL)
                 .increment(1);
             return;
           }
@@ -594,29 +596,34 @@ public class SitemapInjector extends Injector {
             LOG.warn(
                 "Too many failures, skipped remaining sitemaps of sitemap index {}",
                 sitemapIndex.getUrl());
-            context.getCounter("SitemapInjector",
-                "sitemap index: too many failures").increment(1);
+            context
+                .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                    NutchMetrics.SITEMAP_INDEX_TOO_MANY_FAILURES_TOTAL)
+                .increment(1);
             return;
           }
 
           AbstractSiteMap nextSitemap = sitemaps.poll().sitemap;
-          context.getCounter("SitemapInjector", "sitemap index: processed sitemaps")
+          context
+              .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                  NutchMetrics.SITEMAP_INDEX_PROCESSED_SITEMAPS_TOTAL)
               .increment(1);
 
           String url = nextSitemap.getUrl().toString();
           if (processedSitemaps.contains(url)) {
             LOG.warn("skipped duplicated or recursive sitemap URL {}", url);
-            context.getCounter("SitemapInjector",
-                "skipped duplicated or recursive sitemap URLs").increment(1);
+            context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                NutchMetrics.SITEMAP_SKIPPED_DUPLICATE_OR_RECURSIVE_URL_TOTAL)
+                .increment(1);
             nextSitemap.setProcessed(true);
             continue;
           }
           if (processedSitemaps.size() > maxRecursiveSitemaps) {
-            LOG.warn(
-                "{} sitemaps processed for {}, skipped remaining sitemaps",
+            LOG.warn("{} sitemaps processed for {}, skipped remaining sitemaps",
                 processedSitemaps.size(), sitemapIndex.getUrl());
             context
-                .getCounter("SitemapInjector", "sitemap index limit reached")
+                .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                    NutchMetrics.SITEMAP_INDEX_MAX_SITEMAPS_LIMIT_TOTAL)
                 .increment(1);
             return;
           }
@@ -624,8 +631,10 @@ public class SitemapInjector extends Injector {
             LOG.warn(
                 "URL limit reached, skipped remaining sitemaps of sitemap index {}",
                 sitemapIndex.getUrl());
-            context.getCounter("SitemapInjector",
-                "sitemap index: URL limit reached").increment(1);
+            context
+                .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                    NutchMetrics.SITEMAP_INDEX_AFFECTED_BY_URL_LIMIT_TOTAL)
+                .increment(1);
             return;
           }
 
@@ -634,21 +643,20 @@ public class SitemapInjector extends Injector {
           Content content = getContent(url);
           if (content == null) {
             nextSitemap.setProcessed(true);
-            context.getCounter("SitemapInjector", "sitemaps failed to fetch")
-                .increment(1);
+            context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                NutchMetrics.SITEMAP_FAILED_TO_FETCH_TOTAL).increment(1);
             failedSubSitemaps++;
             continue;
           }
 
           try {
-            AbstractSiteMap parsedSitemap = parseSitemap(content,
-                nextSitemap);
+            AbstractSiteMap parsedSitemap = parseSitemap(content, nextSitemap);
             processSitemap(parsedSitemap, processedSitemaps, depth);
           } catch (Exception e) {
             LOG.warn("failed to parse sitemap {}: {}", nextSitemap.getUrl(),
                 StringUtils.stringifyException(e));
-            context.getCounter("SitemapInjector", "sitemaps failed to parse")
-                .increment(1);
+            context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                NutchMetrics.SITEMAP_FAILED_TO_PARSE_TOTAL).increment(1);
             failedSubSitemaps++;
           }
           nextSitemap.setProcessed(true);
@@ -661,8 +669,8 @@ public class SitemapInjector extends Injector {
           LOG.warn(
               "Not fetching sitemap with overlong URL: {} ... (truncated, length = {} characters)",
               url.substring(0, maxUrlLength), url.length());
-          context.getCounter("SitemapInjector", "sitemap overlong URL")
-              .increment(1);
+          context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+              NutchMetrics.SITEMAP_SKIPPED_OVERLONG_URL_TOTAL).increment(1);
           return null;
         }
         String origUrl = url;
@@ -670,7 +678,8 @@ public class SitemapInjector extends Injector {
         if (url == null) {
           LOG.warn("Sitemap rejected by URL filters: {}", origUrl);
           context
-              .getCounter("SitemapInjector", "sitemap rejected by URL filters")
+              .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                  NutchMetrics.SITEMAP_REJECTED_BY_URL_FILTERS_TOTAL)
               .increment(1);
           return null;
         }
@@ -683,8 +692,10 @@ public class SitemapInjector extends Injector {
         if (failuresPerHost.containsKey(hostName)
             && failuresPerHost.get(hostName) > maxFailuresPerHost) {
           LOG.info("Skipped, too many failures per host: {}", url);
-          context.getCounter("SitemapInjector",
-              "skipped, too many failures per host").increment(1);
+          context
+              .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                  NutchMetrics.SITEMAP_SKIPPED_TOO_MANY_FAILURES_PER_HOST_TOTAL)
+              .increment(1);
           return null;
         }
         Protocol protocol = null;
@@ -693,8 +704,8 @@ public class SitemapInjector extends Injector {
         } catch (ProtocolNotFound e) {
           LOG.error("Protocol not found: {}", url);
           context
-              .getCounter("SitemapInjector",
-                  "failed to fetch sitemap content, protocol not found")
+              .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                  NutchMetrics.SITEMAP_PROTOCOL_NOT_SUPPORTED_TOTAL)
               .increment(1);
           return null;
         }
@@ -715,14 +726,16 @@ public class SitemapInjector extends Injector {
           } catch (Exception e) {
             if (e instanceof TimeoutException) {
               LOG.error("fetch of sitemap {} timed out", url);
-              context.getCounter("SitemapInjector",
-                  "failed to fetch sitemap content, timeout").increment(1);
+              context
+                  .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                      NutchMetrics.SITEMAP_FAILED_TO_FETCH_TIMEOUT_TOTAL)
+                  .increment(1);
             } else {
               LOG.error("fetch of sitemap {} failed with: {}", url,
                   StringUtils.stringifyException(e));
               context
-                  .getCounter("SitemapInjector",
-                      "failed to fetch sitemap content, exception")
+                  .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                      NutchMetrics.SITEMAP_FAILED_TO_FETCH_EXCEPTION_TOTAL)
                   .increment(1);
             }
             task.cancel(true);
@@ -737,17 +750,16 @@ public class SitemapInjector extends Injector {
           }
 
           if (protocolOutput.getStatus().isRedirect()) {
-            context.getCounter("SitemapInjector", "sitemap redirect")
-                .increment(1);
+            context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                NutchMetrics.SITEMAP_REDIRECT_TOTAL).increment(1);
             String redirUrl = protocolOutput.getStatus().getArgs()[0];
             url = filterNormalize(redirUrl);
             if (url == null) {
               LOG.info(
                   "Redirect target of sitemap {} rejected by URL filters: {}",
                   origUrl, redirUrl);
-              context
-                  .getCounter("SitemapInjector",
-                      "sitemap (redirect target) rejected by URL filters")
+              context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                  NutchMetrics.SITEMAP_REDIRECT_TARGET_REJECTED_BY_URL_FILTERS_TOTAL)
                   .increment(1);
               return null;
             }
@@ -766,8 +778,10 @@ public class SitemapInjector extends Injector {
             redirects++;
             if (redirects >= maxRedirect) {
               LOG.warn("sitemap redirect limit exceeded: {}", origUrl);
-              context.getCounter("SitemapInjector",
-                  "sitemap redirect limit exceeded").increment(1);
+              context
+                  .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                      NutchMetrics.SITEMAP_REDIRECT_LIMIT_EXCEEDED_TOTAL)
+                  .increment(1);
               // return to avoid that exceeded redirects are counted twice
               // (also as non-success fetch status)
               return null;
@@ -779,9 +793,8 @@ public class SitemapInjector extends Injector {
         if (!protocolOutput.getStatus().isSuccess()) {
           LOG.error("fetch of sitemap {} failed with status code {}", url,
               protocolOutput.getStatus().getCode());
-          context
-              .getCounter("SitemapInjector",
-                  "failed to fetch sitemap content, HTTP status != 200")
+          context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+              NutchMetrics.SITEMAP_FAILED_TO_FETCH_CONTENT_HTTP_STATUS_CODE_NOT_200_TOTAL)
               .increment(1);
           incrementFailuresPerHost(hostName);
           return null;
@@ -791,10 +804,8 @@ public class SitemapInjector extends Injector {
         if (content == null) {
           LOG.error("No content for {}, status: {}", url,
               protocolOutput.getStatus().getMessage());
-          context
-              .getCounter("SitemapInjector",
-                  "failed to fetch sitemap content, empty content")
-              .increment(1);
+          context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+              NutchMetrics.SITEMAP_EMPTY_CONTENT_TOTAL).increment(1);
           incrementFailuresPerHost(hostName);
           return null;
         }
@@ -826,7 +837,8 @@ public class SitemapInjector extends Injector {
         Collection<SiteMapURL> sitemapURLs = sitemap.getSiteMapUrls();
         if (sitemapURLs.size() == 0) {
           LOG.info("No URLs in sitemap {}", sitemap.getUrl());
-          context.getCounter("SitemapInjector", "empty sitemap").increment(1);
+          context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+              NutchMetrics.SITEMAP_EMPTY_TOTAL).increment(1);
           return;
         }
         LOG.info("Found {} URLs in {}", sitemapURLs.size(), sitemap.getUrl());
@@ -852,8 +864,8 @@ public class SitemapInjector extends Injector {
         for (SiteMapURL siteMapURL : sitemapURLs) {
 
           if (totalUrls >= maxUrls) {
-            context.getCounter("SitemapInjector", "sitemap URL limit reached")
-                .increment(1);
+            context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                NutchMetrics.SITEMAP_URL_LIMIT_REACHED_TOTAL).increment(1);
             LOG.info("URL limit ({}) reached for {}", maxUrls,
                 sitemap.getUrl());
             break;
@@ -861,7 +873,8 @@ public class SitemapInjector extends Injector {
 
           if (random != null) {
             if (randomSelect > random.nextFloat()) {
-              context.getCounter("SitemapInjector", "random skip").increment(1);
+              context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                  NutchMetrics.SITEMAP_RANDOM_SKIP_TOTAL).increment(1);
               continue;
             }
           }
@@ -889,8 +902,8 @@ public class SitemapInjector extends Injector {
               && !injectedHosts.contains(host)) {
             hostLimitRejected++;
             context
-                .getCounter("SitemapInjector",
-                    "urls from sitemaps rejected, host limit reached")
+                .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                    NutchMetrics.SITEMAP_URLS_SKIPPED_HOST_LIMIT_REACHED_TOTAL)
                 .increment(1);
             continue;
           }
@@ -905,8 +918,8 @@ public class SitemapInjector extends Injector {
             }
             if (crossSubmit == null || !crossSubmits.contains(crossSubmit)) {
               crossSubmitsRejected++;
-              context.getCounter("SitemapInjector",
-                  "urls from sitemaps rejected, target not allowed by cross-submits")
+              context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                  NutchMetrics.SITEMAP_URLS_SKIPPED_NOT_ALLOWED_BY_CROSS_SUBMITS_TOTAL)
                   .increment(1);
               continue;
             }
@@ -918,8 +931,10 @@ public class SitemapInjector extends Injector {
             url = null;
           }
           if (url == null) {
-            context.getCounter("SitemapInjector",
-                "urls from sitemaps rejected by URL filters").increment(1);
+            context
+                .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                    NutchMetrics.SITEMAP_URLS_FROM_REJECTED_BY_URL_FILTERS)
+                .increment(1);
           } else {
             // URL passed normalizers and filters
             totalUrls++;
@@ -939,8 +954,8 @@ public class SitemapInjector extends Injector {
                   url, e.getMessage());
             }
 
-            context.getCounter("SitemapInjector", "urls from sitemaps injected")
-                .increment(1);
+            context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                NutchMetrics.SITEMAP_URLS_INJECTED).increment(1);
             context.write(value, datum);
             injectedHosts.add(host);
           }
@@ -1089,7 +1104,7 @@ public class SitemapInjector extends Injector {
       }
 
       for (Counter counter : sitemapJob.getCounters()
-          .getGroup("SitemapInjector")) {
+          .getGroup(NutchMetrics.GROUP_SITEMAP_INJECTOR)) {
         LOG.info(String.format("SitemapInjector: %8d  %s", counter.getValue(),
             counter.getName()));
       }
@@ -1171,7 +1186,8 @@ public class SitemapInjector extends Injector {
         "Usage: SitemapInjector [-D...] <crawldb> <url_dir> [-threads <n>] [-overwrite|-update] [-noFilter] [-noNormalize] [-filterNormalizeAll]\n");
     System.err.println("\nFor sitemap URLs listed in seed input files:");
     System.err.println("\t- fetch and parse the sitemap (step 1)");
-    System.err.println("\t- inject URLs from sitemaps into the CrawlDb (step 2)");
+    System.err
+        .println("\t- inject URLs from sitemaps into the CrawlDb (step 2)");
     System.err.println(
         "\t- using fetch intervals and scores from sitemaps if applicable");
     System.err.println("Options and properties of SitemapInjector");
@@ -1206,25 +1222,25 @@ public class SitemapInjector extends Injector {
         continue;
       }
       switch (args[i]) {
-        case "-threads":
-          i++;
-          if (i == args.length) {
-            usage("Argument -threads requires parameter");
-            return -1;
-          }
-          threads = Integer.parseInt(args[i]);
-          break;
-        case "-keepTemp":
-          keepTemp = true;
-          break;
-        case "-step1":
-          runStepOneOnly = true;
-          break;
-        case "-step2":
-          runStepTwoOnly = true;
-          break;
-        default:
-          superArguments.add(args[i]);
+      case "-threads":
+        i++;
+        if (i == args.length) {
+          usage("Argument -threads requires parameter");
+          return -1;
+        }
+        threads = Integer.parseInt(args[i]);
+        break;
+      case "-keepTemp":
+        keepTemp = true;
+        break;
+      case "-step1":
+        runStepOneOnly = true;
+        break;
+      case "-step2":
+        runStepTwoOnly = true;
+        break;
+      default:
+        superArguments.add(args[i]);
       }
     }
     if (runStepOneOnly && runStepTwoOnly) {

@@ -16,6 +16,10 @@
  */
 package org.apache.nutch.metrics;
 
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.FetchSchedule;
+
 /**
  * Centralized constants for Hadoop metrics counter groups and names.
  * 
@@ -139,6 +143,42 @@ public final class NutchMetrics {
   public static final String FETCHER_OUTLINKS_FOLLOWING_TOTAL = "outlinks_following_total";
 
   // =========================================================================
+  // Fetcher Common Crawl extensions
+  // =========================================================================
+
+  /** HTTP protocol version group with dynamic counters. */
+  public static final String FETCHER_HTTP_PROTOCOL_VERSION_GROUP = "http_protocol_version";
+
+  public static final String FETCHER_HTTP_PROTOCOL_UNKNOWN = "unknown";
+
+  /** SSL/TLS protocol version group with dynamic counters. */
+  public static final String FETCHER_TLS_PROTOCOL_VERSION_GROUP = "tls_protocol_version";
+
+  /** IP address version group with two counters: ipv4 and ipv6. */
+  public static final String FETCHER_IP_ADDRESS_VERSION_GROUP = "ip_address_version";
+
+  /** Number of fetches over IPv4. */
+  public static final String FETCHER_IPV4_TOTAL = "ipv4";
+
+  /** Number of fetches over IPv6. */
+  public static final String FETCHER_IPV6_TOTAL = "ipv6";
+
+  /** Archiving of robots.txt captures. */
+  public static final String FETCHER_ROBOTSTXT_ARCHIVING_GROUP = "robotstxt_archiving";
+
+  /** Robots.txt not archived: URL rejected by URL filters. */
+  public static final String FETCHER_ROBOTSTXT_ARCHIVING_FILTERED_TOTAL = "filtered";
+
+  /** Robots.txt not archived: MIME type rejected. */
+  public static final String FETCHER_ROBOTSTXT_ARCHIVING_FILTERED_MIME_TOTAL = "filtered_mime";
+
+  /**
+   * Robots.txt not archived: URL path not <code>/robots.txt</code> and
+   * disallowed by robots.txt.
+   */
+  public static final String FETCHER_ROBOTSTXT_ARCHIVING_ROBOTS_DENIED_TOTAL = "robots_denied";
+
+  // =========================================================================
   // Generator Counters
   // =========================================================================
 
@@ -174,6 +214,37 @@ public final class NutchMetrics {
 
   /** Hosts affected by per-host overflow. */
   public static final String GENERATOR_HOSTS_AFFECTED_PER_HOST_OVERFLOW_TOTAL = "hosts_affected_per_host_overflow_total";
+
+  // =========================================================================
+  // Generator2-specific Counters
+  // =========================================================================
+
+  /** Domains affected by per-domain overflow. All remaining URLs of this domain have been skipped, but were not counted. */
+  public static final String GENERATOR_DOMAINS_AFFECTED_PER_DOMAIN_OVERFLOW_TOTAL = "domains_affected_per_domain_overflow_total";
+
+  /** Domains affected by max. number of hosts per domain overflow. URLs from further hosts below this domain have been skipped. */
+  public static final String GENERATOR_DOMAINS_AFFECTED_PER_MAX_NUM_HOSTS_OVERFLOW_TOTAL = "domains_affected_num_hosts_overflow_total";
+
+  /** URLs skipped due to the max. number of hosts per domain overflow. */
+  public static final String GENERATOR_URLS_SKIPPED_PER_MAX_NUM_HOSTS_OVERFLOW_TOTAL = "urls_skipped_per_max_num_host_overflow_total";
+
+  /** URLs skipped due to per-segment overflow. */
+  public static final String GENERATOR_URLS_SKIPPED_PER_SEGMENT_OVERFLOW_TOTAL = "urls_skipped_per_segment_overflow_total";
+
+  /**
+   * Counter group for items by status, rejected by the fetch schedule. See
+   * {@link FetchSchedule#shouldFetch(Text, CrawlDatum, long)}.
+   */
+  public static final String GROUP_GENERATOR_SCHEDULE_REJECTED_BY_STATUS = "schedule_rejected_by_status";
+
+  /**
+   * Counter group for items by status, rejected because the generator score is
+   * lower than the minimum score defined per <code>generate.min.score</code>.
+   */
+  public static final String GROUP_GENERATOR_SCORE_REJECTED_BY_STATUS = "score_rejected_by_status";
+
+  /** Counter group for items by status, selected for fetch. */
+  public static final String GROUP_GENERATOR_SELECTED_BY_STATUS = "selected_by_status";
 
   // =========================================================================
   // Indexer Counters
@@ -292,6 +363,22 @@ public final class NutchMetrics {
   public static final String DEDUP_DOCUMENTS_MARKED_DUPLICATE_TOTAL = "documents_marked_duplicate_total";
 
   // =========================================================================
+  // Redirect Deduplication Counters
+  // =========================================================================
+
+  /** Redirects kept as non-duplicates. */
+  public static final String DEDUP_REDIRECTS_NOT_DUPLICATES_TOTAL = "redirects_marked_not_duplicate_total";
+
+  /** Redirects in CrawlDb. */
+  public static final String DEDUP_REDIRECTS_IN_CRAWLDB_TOTAL = "redirects_in_crawldb_total";
+
+  /** Self-referential redirects in CrawlDb. */
+  public static final String DEDUP_REDIRECTS_SELF_REFERENTIAL_TOTAL = "redirects_self_referential_total";
+
+  /** Self-referential redirects kept as non-duplicates. */
+  public static final String DEDUP_REDIRECTS_SELF_REFERENTIAL_NOT_DUPLICATES_TOTAL = "redirects_self_referential_marked_not_duplicate_total";
+
+  // =========================================================================
   // Cleaning Job Counters
   // =========================================================================
 
@@ -334,6 +421,106 @@ public final class NutchMetrics {
   public static final String SITEMAP_NEW_ENTRIES_TOTAL = "new_sitemap_entries_total";
 
   // =========================================================================
+  // SitemapInjector Counters
+  // =========================================================================
+
+  /** SitemapInjector counter group. */
+  public static final String GROUP_SITEMAP_INJECTOR = "sitemap_injector";
+
+  /** Failed to fetch sitemap content, disallowed per robots.txt. */
+  public static final String SITEMAP_ROBOTSTXT_DISALLOW_TOTAL = "sitemap_robotstxt_disallow";
+
+  /** Sitemap failed to parse. */
+  public static final String SITEMAP_FAILED_TO_PARSE_TOTAL = "sitemaps_failed_to_parse";
+
+  /** Prefix for sitemap type counter. */
+  public static final String SITEMAP_TYPE_PREFIX = "sitemap_type_";
+
+  /** Sitemaps processed total. */
+  public static final String SITEMAP_PROCESSED_TOTAL = "sitemaps_processed";
+
+  /** Sitemap index: affected by URL limit. */
+  public static final String SITEMAP_INDEX_AFFECTED_BY_URL_LIMIT_TOTAL = "sitemap_index_url_limit";
+
+  /** Sitemap index: affected by depth limit. */
+  public static final String SITEMAP_INDEX_AFFECTED_BY_DEPTH_LIMIT_TOTAL = "sitemap_index_depth_limit";
+
+  /** Sitemap index: affected by time limit. */
+  public static final String SITEMAP_INDEX_AFFECTED_BY_TIME_LIMIT_TOTAL = "sitemap_index_time_limit";
+
+  /** Sitemap index: skipped because no URLs found after 50% of time limit. */
+  public static final String SITEMAP_INDEX_NO_URLS_AFTER_50_PERCENT_OF_TIME_LIMIT_TOTAL = "sitemap_index_no_urls_after_50_percent_of_time_limit";
+
+  /** Sitemap index: skipped because of too many fetch failures. */
+  public static final String SITEMAP_INDEX_TOO_MANY_FAILURES_TOTAL = "sitemap_index_too_many_failures";
+
+  /** Sitemap index: processed sitemaps. */
+  public static final String SITEMAP_INDEX_PROCESSED_SITEMAPS_TOTAL = "sitemap_index_processed_sitemaps";
+
+  /** Skipped duplicated or recursive sitemap URLs. */
+  public static final String SITEMAP_SKIPPED_DUPLICATE_OR_RECURSIVE_URL_TOTAL = "sitemap_skipped_duplicate_or_recursive_sitemap_url";
+
+  /** Sitemap index: affected by max. number of sitemaps in index. */
+  public static final String SITEMAP_INDEX_MAX_SITEMAPS_LIMIT_TOTAL = "sitemap_index_max_sitemaps_limit";
+
+  /** Sitemap failed to fetch. */
+  public static final String SITEMAP_FAILED_TO_FETCH_TOTAL = "sitemap_failed_to_fetch";
+
+  /** Sitemap skipped because of overlong URL. */
+  public static final String SITEMAP_SKIPPED_OVERLONG_URL_TOTAL = "sitemap_skipped_overlong_url";
+
+  /** Sitemap rejected by URL filters */
+  public static final String SITEMAP_REJECTED_BY_URL_FILTERS_TOTAL = "sitemap_rejected_by_url_filters";
+
+  /** Sitemap skipped, too many failures per host. */
+  public static final String SITEMAP_SKIPPED_TOO_MANY_FAILURES_PER_HOST_TOTAL = "sitemap_skipped_too_many_failures_per_host";
+
+  /** Could not fetch sitemap content, protocol not supported. */
+  public static final String SITEMAP_PROTOCOL_NOT_SUPPORTED_TOTAL = "sitemap_protocol_not_supported";
+
+  /** Failed to fetch sitemap content because of timeout. */
+  public static final String SITEMAP_FAILED_TO_FETCH_TIMEOUT_TOTAL = "sitemap_failed_to_fetch_timeout";
+
+  /** Failed to fetch sitemap content because of exception. */
+  public static final String SITEMAP_FAILED_TO_FETCH_EXCEPTION_TOTAL = "sitemap_failed_to_fetch_exception";
+
+  /** Sitemap redirect. */
+  public static final String SITEMAP_REDIRECT_TOTAL = "sitemap_redirect";
+
+  /** Sitemap redirect target rejected by URL filters */
+  public static final String SITEMAP_REDIRECT_TARGET_REJECTED_BY_URL_FILTERS_TOTAL = "sitemap_redirect_target_rejected_by_url_filters";
+
+  /** Sitemap redirect limit exceeded (max. number of redirects followed). */
+  public static final String SITEMAP_REDIRECT_LIMIT_EXCEEDED_TOTAL = "sitemap_redirect_limit_exceeded";
+
+  /** Failed to fetch sitemap content, HTTP status != 200. */
+  public static final String SITEMAP_FAILED_TO_FETCH_CONTENT_HTTP_STATUS_CODE_NOT_200_TOTAL = "sitemap_failed_to_fetch_http_status_code_not_200";
+
+  /** Failed to fetch sitemap content, empty content. */
+  public static final String SITEMAP_EMPTY_CONTENT_TOTAL = "sitemap_empty_content";
+
+  /** Empty sitemap. */
+  public static final String SITEMAP_EMPTY_TOTAL = "sitemap_empty";
+
+  /** Sitemap URL limit reached. */
+  public static final String SITEMAP_URL_LIMIT_REACHED_TOTAL = "sitemap_url_limit_reached";
+
+  /** URLs randomly skipped. */
+  public static final String SITEMAP_RANDOM_SKIP_TOTAL = "urls_random_skip";
+
+  /** URLs from sitemaps rejected, host limit reached. */
+  public static final String SITEMAP_URLS_SKIPPED_HOST_LIMIT_REACHED_TOTAL = "urls_skipped_host_limit_reached";
+
+  /** URLs from sitemaps rejected, target not allowed by cross-submit. */
+  public static final String SITEMAP_URLS_SKIPPED_NOT_ALLOWED_BY_CROSS_SUBMITS_TOTAL = "urls_skipped_not_allowed_by_cross_submits";
+
+  /** URLs from sitemaps rejected by URL filters. */
+  public static final String SITEMAP_URLS_FROM_REJECTED_BY_URL_FILTERS = "urls_from_sitemaps_rejected_by_url_filters";
+
+  /** URLs from sitemaps injected. */
+  public static final String SITEMAP_URLS_INJECTED = "urls_from_sitemaps_injected";
+
+  // =========================================================================
   // WARC Exporter Counters
   // =========================================================================
 
@@ -367,5 +554,64 @@ public final class NutchMetrics {
 
   /** Empty results in domain statistics. */
   public static final String DOMAIN_STATS_EMPTY_RESULT_TOTAL = "empty_result_total";
+
+  // =========================================================================
+  // UrlCleaner
+  // =========================================================================
+
+  public static final String GROUP_URLCLEANER = "urlcleaner";
+
+  public static final String URLCLEANER_REJECTED_TOTAL = "urls_rejected";
+
+  public static final String URLCLEANER_REJECTED_INVALID_DOMAIN_TOTAL = "urls_rejected_invalid_domain";
+
+  public static final String URLCLEANER_ACCEPTED_UNCHANGED_TOTAL = "urls_accepted_unchanged";
+
+  public static final String URLCLEANER_ACCEPTED_NORMALIZED_TOTAL = "urls_accepted_normalized";
+
+  // =========================================================================
+  // UrlSampler and UrlSamplerHost
+  // =========================================================================
+
+  public static final String GROUP_URLSAMPLER = "urlsampler";
+
+  public static final String GROUP_URLSAMPLER_HOST = "urlsamplerhost";
+
+  public static final String URLSAMPLER_MALFORMED_URL_TOTAL = "malformed_url";
+
+  public static final String URLSAMPLER_SKIPPED_MAX_URLS_TOTAL = "skipped_max_urls";
+
+  public static final String URLSAMPLER_SKIPPED_MAX_URLS_PER_HOST_TOTAL = "skipped_max_urls_per_host";
+
+  public static final String URLSAMPLER_SKIPPED_MAX_HOSTS_TOTAL = "skipped_max_hosts";
+
+  public static final String URLSAMPLER_HOSTS = "hosts";
+
+  public static final String URLSAMPLER_URLS = "urls";
+
+  public static final String URLSAMPLER_HOSTS_WITH_LIMIT = "hosts_with_limit";
+
+  public static final String URLSAMPLER_URLS_HOST_WITH_LIMIT = "urls_host_with_limit";
+
+  public static final String URLSAMPLER_HOSTS_WITHOUT_LIMIT = "hosts_without_limit";
+
+  public static final String URLSAMPLER_URLS_HOST_WITHOUT_LIMIT = "urls_host_without_limit";
+
+  public static final String URLSAMPLER_URLS_SAMPLED = "urls_sampled";
+
+  public static final String URLSAMPLER_HOSTS_SAMPLED = "hosts_sampled";
+
+  public static final String URLSAMPLER_HOSTS_WITH_LIMIT_SAMPLED = "hosts_with_limit_sampled";
+
+  public static final String URLSAMPLER_URLS_HOST_WITH_LIMIT_SAMPLED = "urls_host_with_limit_sampled";
+
+  public static final String URLSAMPLER_HOSTS_WITHOUT_LIMIT_SAMPLED = "hosts_without_limit_sampled";
+
+  public static final String URLSAMPLER_URLS_HOST_WITHOUT_LIMIT_SAMPLED = "urls_host_without_limit_sampled";
+
+  public static final String URLSAMPLER_SKIPPED_MAX_URLS_PER_HOST = "skipped_max_urls_per_host";
+
+  public static final String URLSAMPLER_SKIPPED_RANDOM = "skipped_random";
+
 }
 

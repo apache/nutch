@@ -48,6 +48,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.Generator2;
 import org.apache.nutch.crawl.Generator2.DomainScorePair;
 import org.apache.nutch.crawl.URLPartitioner;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.util.NutchConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,7 +151,8 @@ public class UrlSampler extends Configured implements Tool {
         domain = URLPartitioner.getDomainName(u.getHost());
       } catch (Exception e) {
         LOG.warn("Malformed URL: '{}', skipping ({})", url, e.getMessage());
-        context.getCounter("UrlSampler", "MALFORMED_URL").increment(1);
+        context.getCounter(NutchMetrics.GROUP_URLSAMPLER,
+            NutchMetrics.URLSAMPLER_MALFORMED_URL_TOTAL).increment(1);
         return;
       }
 
@@ -242,7 +244,8 @@ public class UrlSampler extends Configured implements Tool {
                 domain);
           }
         } catch (MalformedURLException e) {
-          context.getCounter("UrlSampler", "MALFORMED_URL").increment(1);
+          context.getCounter(NutchMetrics.GROUP_URLSAMPLER,
+              NutchMetrics.URLSAMPLER_MALFORMED_URL_TOTAL).increment(1);
           continue;
         }
         nUrls++;
@@ -271,12 +274,14 @@ public class UrlSampler extends Configured implements Tool {
       }
       if (nUrls == 0)
         return;
-      context.getCounter("UrlSampler", "SKIPPED_MAX_URLS")
-          .increment(skippedMaxUrls);
-      context.getCounter("UrlSampler", "SKIPPED_MAX_URLS_PER_HOST")
+      context.getCounter(NutchMetrics.GROUP_URLSAMPLER,
+          NutchMetrics.URLSAMPLER_SKIPPED_MAX_URLS_TOTAL).increment(skippedMaxUrls);
+      context
+          .getCounter(NutchMetrics.GROUP_URLSAMPLER,
+              NutchMetrics.URLSAMPLER_SKIPPED_MAX_URLS_PER_HOST_TOTAL)
           .increment(skippedMaxUrlsPerHost);
-      context.getCounter("UrlSampler", "SKIPPED_MAX_HOSTS")
-          .increment(skippedMaxHosts);
+      context.getCounter(NutchMetrics.GROUP_URLSAMPLER,
+          NutchMetrics.URLSAMPLER_SKIPPED_MAX_HOSTS_TOTAL).increment(skippedMaxHosts);
       LOG.info(
           "Sampled for domain {} : {} hosts, {} URLs ({} skipped: {} max. URLs, {} max. per host, {} max. hosts), sum of scores = {}",
           domain, hosts.size(), nUrlsSampled, (nUrls - nUrlsSampled),
@@ -336,8 +341,8 @@ public class UrlSampler extends Configured implements Tool {
   }
 
   public void usage() {
-    System.err
-        .println("Usage: UrlSampler [-D...] <domain_limits> <input_dir>... <output_dir>\n");
+    System.err.println(
+        "Usage: UrlSampler [-D...] <domain_limits> <input_dir>... <output_dir>\n");
   }
 
   @Override

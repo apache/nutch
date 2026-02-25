@@ -44,6 +44,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.Generator2;
 import org.apache.nutch.crawl.Generator2.DomainScorePair;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.util.NutchConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,8 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * 
  * </li>
- * <li>host name (leading <code>www.</code> may be stripped), limits and default score
+ * <li>host name (leading <code>www.</code> may be stripped), limits and default
+ * score
  * 
  * <pre>
  * &lt;host_name&gt; \t &lt;rank&gt; \t &lt;max_urls&gt; \t &lt;default_score&gt;
@@ -180,7 +182,8 @@ public class UrlSamplerHost extends Configured implements Tool {
         }
       } catch (Exception e) {
         LOG.warn("Malformed URL: '{}', skipping ({})", url, e.getMessage());
-        context.getCounter("UrlSampler", "MALFORMED_URL").increment(1);
+        context.getCounter(NutchMetrics.GROUP_URLSAMPLER,
+            NutchMetrics.URLSAMPLER_MALFORMED_URL_TOTAL).increment(1);
         return;
       }
 
@@ -270,40 +273,59 @@ public class UrlSamplerHost extends Configured implements Tool {
         context.write(text, meta);
       }
       // hosts == reduce input groups
-      context.getCounter("UrlSamplerHost", "HOSTS").increment(1);
+      context.getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+          NutchMetrics.URLSAMPLER_HOSTS).increment(1);
       // URLs == map output records, reduce input records
-      context.getCounter("UrlSamplerHost", "URLS").increment(nUrls);
+      context.getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+          NutchMetrics.URLSAMPLER_URLS).increment(nUrls);
       if (nUrls > 0) {
         if (maxUrls > -1) {
-          context.getCounter("UrlSamplerHost", "HOSTS_WITH_LIMIT").increment(1);
-          context.getCounter("UrlSamplerHost", "URLS_HOST_WITH_LIMIT")
+          context.getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+              NutchMetrics.URLSAMPLER_HOSTS_WITH_LIMIT).increment(1);
+          context
+              .getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+                  NutchMetrics.URLSAMPLER_URLS_HOST_WITH_LIMIT)
               .increment(nUrls);
         } else {
-          context.getCounter("UrlSamplerHost", "HOSTS_WITHOUT_LIMIT")
-              .increment(1);
-          context.getCounter("UrlSamplerHost", "URLS_HOST_WITHOUT_LIMIT")
+          context.getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+              NutchMetrics.URLSAMPLER_HOSTS_WITHOUT_LIMIT).increment(1);
+          context
+              .getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+                  NutchMetrics.URLSAMPLER_URLS_HOST_WITHOUT_LIMIT)
               .increment(nUrls);
         }
         if (nUrlsSampled > 0) {
-          context.getCounter("UrlSamplerHost", "URLS_SAMPLED")
-              .increment(nUrlsSampled);
-          context.getCounter("UrlSamplerHost", "HOSTS_SAMPLED").increment(1);
+          context.getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+              NutchMetrics.URLSAMPLER_URLS_SAMPLED).increment(nUrlsSampled);
+          context.getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+              NutchMetrics.URLSAMPLER_HOSTS_SAMPLED).increment(1);
           if (maxUrls > -1) {
-            context.getCounter("UrlSamplerHost", "HOSTS_WITH_LIMIT_SAMPLED")
-                .increment(1);
-            context.getCounter("UrlSamplerHost", "URLS_HOST_WITH_LIMIT_SAMPLED")
-                .increment(nUrlsSampled);
-          } else {
-            context.getCounter("UrlSamplerHost", "HOSTS_WITHOUT_LIMIT_SAMPLED")
+            context
+                .getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+                    NutchMetrics.URLSAMPLER_HOSTS_WITH_LIMIT_SAMPLED)
                 .increment(1);
             context
-                .getCounter("UrlSamplerHost", "URLS_HOST_WITHOUT_LIMIT_SAMPLED")
+                .getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+                    NutchMetrics.URLSAMPLER_URLS_HOST_WITH_LIMIT_SAMPLED)
+                .increment(nUrlsSampled);
+          } else {
+            context
+                .getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+                    NutchMetrics.URLSAMPLER_HOSTS_WITHOUT_LIMIT_SAMPLED)
+                .increment(1);
+            context
+                .getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+                    NutchMetrics.URLSAMPLER_URLS_HOST_WITHOUT_LIMIT_SAMPLED)
                 .increment(nUrlsSampled);
           }
         }
-        context.getCounter("UrlSamplerHost", "SKIPPED_MAX_URLS_PER_HOST")
+        context
+            .getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+                NutchMetrics.URLSAMPLER_SKIPPED_MAX_URLS_PER_HOST)
             .increment(skippedMaxUrlsPerHost);
-        context.getCounter("UrlSamplerHost", "SKIPPED_RANDOM")
+        context
+            .getCounter(NutchMetrics.GROUP_URLSAMPLER_HOST,
+                NutchMetrics.URLSAMPLER_SKIPPED_RANDOM)
             .increment(skippedRandom);
         LOG.info(
             "Sampled for host {} : {} URLs ({} skipped: {} max. per host, {} random), sum of scores = {}",
@@ -365,8 +387,8 @@ public class UrlSamplerHost extends Configured implements Tool {
   }
 
   public void usage() {
-    System.err
-      .println("Usage: UrlSamplerHost [-D...] <host_limits> <input_dir>... <output_dir>\n");
+    System.err.println(
+        "Usage: UrlSamplerHost [-D...] <host_limits> <input_dir>... <output_dir>\n");
     System.err.println(
         "\nThe host_limits file defines the maximum number of URLs to sample per host.");
     System.err.println("\nProperties:");
@@ -374,11 +396,12 @@ public class UrlSamplerHost extends Configured implements Tool {
         "\t-Durlsample.host.strip.www=(true|false)\tstrip leading www. from host names");
     System.err.println(
         "\t\t\t(depending on whether the limits file uses stripped host names)");
-    System.err.println("Properties to configure defaults, if host is not in the limits file:");
+    System.err.println(
+        "Properties to configure defaults, if host is not in the limits file:");
     System.err.println(
         "\t-Durlsample.urls.per.host\tmax. number of URLs to sample per host");
-    System.err.println(
-        "\t\t\t-1 : sample randomly with low probability (default)");
+    System.err
+        .println("\t\t\t-1 : sample randomly with low probability (default)");
     System.err.println(
         "\t-Durlsample.default.score\tdefault score for sampled URLs (default: 0.001)");
   }

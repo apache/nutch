@@ -185,6 +185,11 @@ public class FetcherThread extends Thread {
   private Counter aboveExceptionThresholdCounter;
   private Counter outlinksDetectedCounter;
   private Counter outlinksFollowingCounter;
+  private Counter robotsTxtArchivingFilteredCounter;
+  private Counter ipv4Counter;
+  private Counter ipv6Counter;
+  private Counter robotsTxtArchivingFilteredMimeCounter;
+  private Counter robotsTxtArchivingRobotsDeniedCounter;
 
   public FetcherThread(Configuration conf, AtomicInteger activeThreads, FetchItemQueues fetchQueues, 
       QueueFeeder feeder, AtomicInteger spinWaiting, AtomicLong lastRequestStart, FetcherRun.Context context,
@@ -322,6 +327,21 @@ public class FetcherThread extends Thread {
         NutchMetrics.GROUP_FETCHER_OUTLINKS, NutchMetrics.FETCHER_OUTLINKS_DETECTED_TOTAL);
     outlinksFollowingCounter = context.getCounter(
         NutchMetrics.GROUP_FETCHER_OUTLINKS, NutchMetrics.FETCHER_OUTLINKS_FOLLOWING_TOTAL);
+    ipv4Counter = context.getCounter(
+        NutchMetrics.FETCHER_IP_ADDRESS_VERSION_GROUP,
+        NutchMetrics.FETCHER_IPV4_TOTAL);
+    ipv6Counter = context.getCounter(
+        NutchMetrics.FETCHER_IP_ADDRESS_VERSION_GROUP,
+        NutchMetrics.FETCHER_IPV6_TOTAL);
+    robotsTxtArchivingFilteredCounter = context.getCounter(
+        NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_GROUP,
+        NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_FILTERED_TOTAL);
+    robotsTxtArchivingFilteredMimeCounter = context.getCounter(
+        NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_GROUP,
+        NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_FILTERED_MIME_TOTAL);
+    robotsTxtArchivingRobotsDeniedCounter = context.getCounter(
+        NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_GROUP,
+        NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_ROBOTS_DENIED_TOTAL);
   }
 
   @Override
@@ -732,21 +752,24 @@ public class FetcherThread extends Thread {
     if (versionStr != null) {
       String[] versions = versionStr.split(",");
       if (versions.length >= 1) {
-        context.getCounter("HttpProtocolVersion", versions[0]).increment(1);
+        context.getCounter(NutchMetrics.FETCHER_HTTP_PROTOCOL_VERSION_GROUP,
+            versions[0]).increment(1);
       } else {
-        context.getCounter("HttpProtocolVersion", "unknown").increment(1);
+        context.getCounter(NutchMetrics.FETCHER_HTTP_PROTOCOL_VERSION_GROUP,
+            NutchMetrics.FETCHER_HTTP_PROTOCOL_UNKNOWN).increment(1);
       }
       for (int i = 1; i < versions.length; i++) {
-        context.getCounter("TlsProtocolVersion", versions[i]).increment(1);
+        context.getCounter(NutchMetrics.FETCHER_TLS_PROTOCOL_VERSION_GROUP,
+            versions[i]).increment(1);
       }
     }
     String ipaddress = contentMetadata.get(Response.IP_ADDRESS);
     if (ipaddress == null) {
       // IP address is not recorded
     } else if (ipaddress.indexOf(':') != -1) {
-      context.getCounter("IPaddressVersion", "IPv6").increment(1);
+      ipv6Counter.increment(1);
     } else {
-      context.getCounter("IPaddressVersion", "IPv4").increment(1);
+      ipv4Counter.increment(1);
     }
   }
 
@@ -1051,7 +1074,7 @@ public class FetcherThread extends Thread {
           if (robotsTxtArchivingFilterUrlAlways
               || !u.getFile().equals("/robots.txt")) {
             LOG.info("Archiving of robots.txt {} skipped by URL filters", url);
-            context.getCounter("RobotsTxtArchiving", "filtered").increment(1);
+            robotsTxtArchivingFilteredCounter.increment(1);
             return false;
           }
 
@@ -1075,8 +1098,7 @@ public class FetcherThread extends Thread {
           if (!robotsTxtArchivingAcceptedMimeTypes.contains(contentType)) {
             LOG.info("Archiving of robots.txt {} ({}) skipped by MIME filter",
                 url, contentType);
-            context.getCounter("RobotsTxtArchiving", "filtered_mime")
-                .increment(1);
+            robotsTxtArchivingFilteredMimeCounter.increment(1);
             return false;
           }
         }
@@ -1096,8 +1118,7 @@ public class FetcherThread extends Thread {
             LOG.info(
                 "Archiving of redirected robots.txt {} ({}) not allowed by robots.txt",
                 url, robotsTxt.getContentType());
-            context.getCounter("RobotsTxtArchiving", "robots_denied")
-                .increment(1);
+            robotsTxtArchivingRobotsDeniedCounter.increment(1);
             return false;
           }
         }

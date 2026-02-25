@@ -40,6 +40,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
@@ -134,18 +135,21 @@ public class UrlCleaner extends Configured implements Tool {
       try {
         url = urlNormalizers.normalize(url, scope);
       } catch (MalformedURLException e) {
-        context.getCounter("urlcleaner", "urls_rejected").increment(1);
-        return;        
+        context.getCounter(NutchMetrics.GROUP_URLCLEANER,
+            NutchMetrics.URLCLEANER_REJECTED_TOTAL).increment(1);
+        return;
       }
       try {
         url = filters.filter(url);
       } catch (URLFilterException e) {
-        context.getCounter("urlcleaner", "urls_rejected").increment(1);
+        context.getCounter(NutchMetrics.GROUP_URLCLEANER,
+            NutchMetrics.URLCLEANER_REJECTED_TOTAL).increment(1);
         return;
       }
 
       if (url == null) {
-        context.getCounter("urlcleaner", "urls_rejected").increment(1);
+        context.getCounter(NutchMetrics.GROUP_URLCLEANER,
+            NutchMetrics.URLCLEANER_REJECTED_TOTAL).increment(1);
         return;
       }
 
@@ -157,21 +161,26 @@ public class UrlCleaner extends Configured implements Tool {
           if (needDomain) {
             domain = EffectiveTldFinder.getAssignedDomain(host, true, true);
             if (checkDomain && domain == null) {
-              context.getCounter("urlcleaner", "urls_rejected_invalid_domain")
+              context
+                  .getCounter(NutchMetrics.GROUP_URLCLEANER,
+                      NutchMetrics.URLCLEANER_REJECTED_INVALID_DOMAIN_TOTAL)
                   .increment(1);
               return;
             }
           }
         } catch (MalformedURLException e) {
-          context.getCounter("urlcleaner", "urls_rejected").increment(1);
+          context.getCounter(NutchMetrics.GROUP_URLCLEANER,
+              NutchMetrics.URLCLEANER_REJECTED_TOTAL).increment(1);
           return;
         }
       }
 
       if (url.equals(urlOrig)) {
-        context.getCounter("urlcleaner", "urls_accepted_unchanged").increment(1);
+        context.getCounter(NutchMetrics.GROUP_URLCLEANER,
+            NutchMetrics.URLCLEANER_ACCEPTED_UNCHANGED_TOTAL).increment(1);
       } else {
-        context.getCounter("urlcleaner", "urls_accepted_normalized").increment(1);
+        context.getCounter(NutchMetrics.GROUP_URLCLEANER,
+            NutchMetrics.URLCLEANER_ACCEPTED_NORMALIZED_TOTAL).increment(1);
         key.set(url);
       }
 
