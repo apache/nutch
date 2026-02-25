@@ -29,9 +29,9 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
@@ -53,5 +53,12 @@ jobs:
       - name: Install recent public suffix list
         run: |
           curl https://publicsuffix.org/list/public_suffix_list.dat -o conf/effective_tld_names.dat
+      - name: Cache Ivy dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.ivy2/cache
+          key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-ivy-
       - name: Test
         run: ant clean test -buildfile build.xml
