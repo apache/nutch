@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Random;
@@ -452,7 +453,8 @@ public class SitemapInjector extends Injector {
         LOG.info("parsed sitemap {} ({})", url, sitemap.getType());
         context
             .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
-                NutchMetrics.SITEMAP_TYPE_PREFIX + sitemap.getType())
+                NutchMetrics.SITEMAP_TYPE_PREFIX
+                    + sitemap.getType().toString().toLowerCase(Locale.ROOT))
             .increment(1);
 
         if (checkCrossSubmits) {
