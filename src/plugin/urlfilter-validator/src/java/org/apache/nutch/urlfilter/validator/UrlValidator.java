@@ -59,8 +59,6 @@ public class UrlValidator implements URLFilter {
 
   private static final String ALPHA_CHARS = "a-zA-Z";
 
-  private static final String ALPHA_NUMERIC_CHARS = ALPHA_CHARS + "\\d";
-
   private static final String SPECIAL_CHARS = ";/@&=,.?:+$";
 
   private static final String VALID_CHARS = "[^\\s" + SPECIAL_CHARS + "]";
