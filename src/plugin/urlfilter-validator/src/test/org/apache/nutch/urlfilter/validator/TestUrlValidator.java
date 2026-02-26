@@ -18,6 +18,7 @@ package org.apache.nutch.urlfilter.validator;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -72,5 +73,23 @@ public class TestUrlValidator {
     assertNotNull(url_validator.filter("ftp://alfa.bravo.pi/mike/check/plan.pdf"),
         "Valid url: ftp://alfa.bravo.pi/foo/bar/plan.pdf");
 
+  }
+
+  /** Tests authority parsing (ReDoS-safe, no regex backtracking). */
+  @Test
+  public void testParseAuthority() {
+    assertArrayEquals(new String[] { "", null }, UrlValidator.parseAuthority(null));
+    assertArrayEquals(new String[] { "", null }, UrlValidator.parseAuthority(""));
+
+    assertArrayEquals(new String[] { "example.com", null },
+        UrlValidator.parseAuthority("example.com"));
+    assertArrayEquals(new String[] { "example.com", ":80" },
+        UrlValidator.parseAuthority("example.com:80"));
+    assertArrayEquals(new String[] { "192.168.1.1", ":8080" },
+        UrlValidator.parseAuthority("192.168.1.1:8080"));
+
+    // Port part non-numeric: entire string is host
+    assertArrayEquals(new String[] { "host:port", null },
+        UrlValidator.parseAuthority("host:port"));
   }
 }

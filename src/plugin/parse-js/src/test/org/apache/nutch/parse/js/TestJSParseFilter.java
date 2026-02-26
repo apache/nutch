@@ -17,11 +17,13 @@
 package org.apache.nutch.parse.js;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -86,6 +88,41 @@ public class TestJSParseFilter {
     parse = new ParseUtil(conf).parse(content).get(content.getUrl());
     LOG.info(parse.getData().toString());
     return parse.getData().getOutlinks();
+  }
+
+  /** Tests quoted string extraction (ReDoS-safe, no regex backtracking). */
+  @Test
+  public void testExtractQuotedStrings() {
+    List<String> empty = JSParseFilter.extractQuotedStrings("no quotes here");
+    assertTrue(empty.isEmpty());
+
+    List<String> one = JSParseFilter.extractQuotedStrings("var x = \"http://example.com/\"");
+    assertEquals(1, one.size());
+    assertEquals("http://example.com/", one.get(0));
+
+    List<String> two = JSParseFilter.extractQuotedStrings("a=\"foo\" b='bar'");
+    assertEquals(2, two.size());
+    assertEquals("foo", two.get(0));
+    assertEquals("bar", two.get(1));
+
+    List<String> escaped = JSParseFilter.extractQuotedStrings("\"say \\\"hi\\\"\"");
+    assertEquals(1, escaped.size());
+    assertEquals("say \"hi\"", escaped.get(0));
+  }
+
+  /** Tests URI shape check (ReDoS-safe). */
+  @Test
+  public void testLooksLikeUri() {
+    assertFalse(JSParseFilter.looksLikeUri(null));
+    assertFalse(JSParseFilter.looksLikeUri(""));
+    assertFalse(JSParseFilter.looksLikeUri("  "));
+    assertFalse(JSParseFilter.looksLikeUri("no-dot-or-slash"));
+    assertFalse(JSParseFilter.looksLikeUri("has space in it.com"));
+
+    assertTrue(JSParseFilter.looksLikeUri("http://example.com/"));
+    assertTrue(JSParseFilter.looksLikeUri("example.com/path"));
+    assertTrue(JSParseFilter.looksLikeUri("/relative/path"));
+    assertTrue(JSParseFilter.looksLikeUri("  https://foo.bar  "));
   }
 
   @Test

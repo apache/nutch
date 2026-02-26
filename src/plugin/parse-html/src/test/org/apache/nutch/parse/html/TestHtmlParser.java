@@ -143,4 +143,30 @@ public class TestHtmlParser {
         outlinks[0].getToUrl());
   }
 
+  /** Tests charset extraction from meta tags (ReDoS-safe parsing). */
+  @Test
+  public void testExtractCharsetFromMeta() {
+    assertNull(HtmlParser.extractCharsetFromMeta(""));
+    assertNull(HtmlParser.extractCharsetFromMeta("<html><head></head></html>"));
+
+    assertEquals("utf-8", HtmlParser.extractCharsetFromMeta(
+        "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"));
+    assertEquals("utf-8", HtmlParser.extractCharsetFromMeta(
+        "<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />"));
+    assertEquals("ISO-8859-1", HtmlParser.extractCharsetFromMeta(
+        "<meta http-equiv=Content-Type content=\"text/html; charset=ISO-8859-1\">"));
+
+    assertEquals("utf-8", HtmlParser.extractCharsetFromMeta(
+        "<meta charset=\"utf-8\">"));
+    assertEquals("utf-8", HtmlParser.extractCharsetFromMeta(
+        "<meta charset='utf-8'>"));
+    assertEquals("utf-8", HtmlParser.extractCharsetFromMeta(
+        "<meta charset=utf-8>"));
+
+    // First content-type meta wins when both appear
+    String both = "<meta http-equiv=\"Content-Type\" content=\"charset=windows-1252\">"
+        + "<meta charset=\"utf-8\">";
+    assertEquals("windows-1252", HtmlParser.extractCharsetFromMeta(both));
+  }
+
 }
