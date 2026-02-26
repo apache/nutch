@@ -179,6 +179,46 @@ public final class NutchMetrics {
   public static final String FETCHER_ROBOTSTXT_ARCHIVING_ROBOTS_DENIED_TOTAL = "robots_denied";
 
   // =========================================================================
+  // Common Crawl's WarcWriter
+  // =========================================================================
+
+  /** Counter group for Common Crawl's WARC writer. */
+  public static final String GROUP_WARC_WRITER = "warc_writer";
+
+  /** Skipped records because no content (and protocol status) is available. */
+  public static final String WARC_WRITER_SKIPPED_NO_CONTENT_TOTAL = "skipped_no_content";
+
+  /** Fixed records: invalid URI normalized. */
+  public static final String WARC_WRITER_URI_NORMALIZED_TOTAL = "fixed_uri";
+
+  /** Skipped records because URL is not a valid URI (no WARC-Target-URI). */
+  public static final String WARC_WRITER_SKIPPED_INVALID_URI_TOTAL = "skipped_invalid_uri";
+
+  /** Skipped records by content type / MIME type. */
+  public static final String WARC_WRITER_SKIPPED_BY_CONTENT_TYPE_TOTAL = "skipped_by_content_type";
+
+  /** Skipped duplicate records. */
+  public static final String WARC_WRITER_SKIPPED_DUPLICATE_TOTAL = "skipped_duplicate";
+
+  /** Skipped records: no protocol status. */
+  public static final String WARC_WRITER_SKIPPED_NO_PROTOCOL_STATUS_TOTAL = "skipped_no_protocol_status";
+
+  /** Skipped records: unknown protocol status. */
+  public static final String WARC_WRITER_SKIPPED_UNKNOWN_PROTOCOL_STATUS_TOTAL = "skipped_unknown_protocol_status";
+
+  /** Prefix for error status of language identification (LID), returned by CLD2 Java bindings. */
+  public static final String WARC_WRITER_LID_ERROR_PREFIX = "lid_error: ";
+
+  /** Language identification (LID): no result. */
+  public static final String WARC_WRITER_LID_NO_RESULT_TOTAL = "lid_no_result";
+
+  /** Language identification (LID): result is reliable. */
+  public static final String WARC_WRITER_LID_RESULT_RELIABLE_TOTAL = "lid_reliable";
+
+  /** Language identification (LID): result is not reliable. */
+  public static final String WARC_WRITER_LID_RESULT_NOT_RELIABLE_TOTAL = "lid_not_reliable";
+
+  // =========================================================================
   // Generator Counters
   // =========================================================================
 
