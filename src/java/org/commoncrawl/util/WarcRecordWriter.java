@@ -117,6 +117,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   private URLNormalizers urlNormalizers;
   private URLNormalizers urlNormalizersRedirect;
 
+  private SimpleDateFormat isoDate;
+
   public WarcRecordWriter(Configuration conf, Path outputPath, int partition,
       TaskAttemptContext context) throws IOException {
 
@@ -127,6 +129,9 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     SimpleDateFormat fileDate = new SimpleDateFormat("yyyyMMddHHmmss",
         Locale.ROOT);
     fileDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+    isoDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT);
+    isoDate.setTimeZone(TimeZone.getTimeZone("UTC"));
 
     String prefix = conf.get("warc.export.prefix", "NUTCH-CRAWL");
 
@@ -848,8 +853,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     }
 
     LOG.info("WARC {} record {} ({}, status: {}, size: {})",
-        (notModified ? "revisit" : "response"), targetUri, date , httpStatusCode,
-        value.content.getContent().length);
+        (notModified ? "revisit" : "response"), targetUri, isoDate.format(date),
+        httpStatusCode, value.content.getContent().length);
 
     URI requestId = null;
     if (verbatimRequestHeaders != null) {
