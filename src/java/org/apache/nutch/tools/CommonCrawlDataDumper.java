@@ -221,7 +221,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
    * Constructor
    */
   public CommonCrawlDataDumper() {
-    this.errorTracker = new ErrorTracker(NutchMetrics.ERROR_OTHER_TOTAL);
+    this.errorTracker = new ErrorTracker(NutchMetrics.GROUP_COMMONCRAWL_DUMPER);
   }
 
   /**
