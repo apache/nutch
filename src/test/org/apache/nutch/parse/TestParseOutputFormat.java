@@ -22,16 +22,16 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /** Unit tests for ParseOutputFormat. */
-public class TestParseOutputFormat {
+class TestParseOutputFormat {
 
   @Test
-  public void testGetParseMetaToCrawlDBKeysEmpty() {
+  void testGetParseMetaToCrawlDBKeysEmpty() {
     assertArrayEquals(new String[0], ParseOutputFormat.getParseMetaToCrawlDBKeys(""));
     assertArrayEquals(new String[0], ParseOutputFormat.getParseMetaToCrawlDBKeys(null));
   }
 
   @Test
-  public void testGetParseMetaToCrawlDBKeysSingle() {
+  void testGetParseMetaToCrawlDBKeysSingle() {
     assertArrayEquals(new String[] { "lang" },
         ParseOutputFormat.getParseMetaToCrawlDBKeys("lang"));
     assertArrayEquals(new String[] { "lang" },
@@ -39,7 +39,7 @@ public class TestParseOutputFormat {
   }
 
   @Test
-  public void testGetParseMetaToCrawlDBKeysCommaSeparated() {
+  void testGetParseMetaToCrawlDBKeysCommaSeparated() {
     assertArrayEquals(new String[] { "a", "b" },
         ParseOutputFormat.getParseMetaToCrawlDBKeys("a,b"));
     assertArrayEquals(new String[] { "a", "b", "c" },
@@ -47,7 +47,7 @@ public class TestParseOutputFormat {
   }
 
   @Test
-  public void testGetParseMetaToCrawlDBKeysTrimSpacesAroundCommas() {
+  void testGetParseMetaToCrawlDBKeysTrimSpacesAroundCommas() {
     assertArrayEquals(new String[] { "a", "b" },
         ParseOutputFormat.getParseMetaToCrawlDBKeys(" a , b "));
     assertArrayEquals(new String[] { "lang", "Content-Type" },
@@ -55,7 +55,7 @@ public class TestParseOutputFormat {
   }
 
   @Test
-  public void testGetParseMetaToCrawlDBKeysEmptySegmentsFiltered() {
+  void testGetParseMetaToCrawlDBKeysEmptySegmentsFiltered() {
     assertArrayEquals(new String[] { "a", "b" },
         ParseOutputFormat.getParseMetaToCrawlDBKeys("a,,b"));
     assertArrayEquals(new String[] { "a" },
@@ -65,7 +65,7 @@ public class TestParseOutputFormat {
   }
 
   @Test
-  public void testGetParseMetaToCrawlDBKeysNeverNull() {
+  void testGetParseMetaToCrawlDBKeysNeverNull() {
     assertNotNull(ParseOutputFormat.getParseMetaToCrawlDBKeys(null));
     assertNotNull(ParseOutputFormat.getParseMetaToCrawlDBKeys(""));
   }

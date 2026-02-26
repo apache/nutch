@@ -67,9 +67,6 @@ public class UrlValidator implements URLFilter {
 
   private static final String SCHEME_CHARS = ALPHA_CHARS;
 
-  // Drop numeric, and "+-." for now
-  private static final String AUTHORITY_CHARS = ALPHA_NUMERIC_CHARS + "\\-\\.";
-
   private static final String ATOM = VALID_CHARS + '+';
 
   /**
@@ -196,11 +193,7 @@ public class UrlValidator implements URLFilter {
       return false;
     }
 
-    if (!isValidQuery(query)) {
-      return false;
-    }
-
-    return true;
+    return isValidQuery(query);
   }
 
   /**

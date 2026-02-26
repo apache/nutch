@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestHtmlParser {
+class TestHtmlParser {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
@@ -105,7 +105,7 @@ public class TestHtmlParser {
   }
 
   @Test
-  public void testEncodingDetection() {
+  void testEncodingDetection() {
     for (String[] testPage : encodingTestPages) {
       String name = testPage[0];
       Charset charset = Charset.forName(testPage[1]);
@@ -131,7 +131,7 @@ public class TestHtmlParser {
   }
 
   @Test
-  public void testResolveBaseUrl() {
+  void testResolveBaseUrl() {
     byte[] contentBytes = resolveBaseUrlTestContent
         .getBytes(StandardCharsets.UTF_8);
     // parse using http://example.com/ as "fetch" URL
@@ -145,7 +145,7 @@ public class TestHtmlParser {
 
   /** Tests charset extraction from meta tags (ReDoS-safe parsing). */
   @Test
-  public void testExtractCharsetFromMeta() {
+  void testExtractCharsetFromMeta() {
     assertNull(HtmlParser.extractCharsetFromMeta(""));
     assertNull(HtmlParser.extractCharsetFromMeta("<html><head></head></html>"));
 

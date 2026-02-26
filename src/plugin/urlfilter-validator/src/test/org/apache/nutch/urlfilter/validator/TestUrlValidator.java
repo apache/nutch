@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * 
  */
 
-public class TestUrlValidator {
+class TestUrlValidator {
 
   /**
    * Test method for
@@ -39,7 +39,7 @@ public class TestUrlValidator {
    * .
    */
   @Test
-  public void testFilter() {
+  void testFilter() {
     UrlValidator url_validator = new UrlValidator();
     assertNotNull(url_validator);
 
@@ -77,7 +77,7 @@ public class TestUrlValidator {
 
   /** Tests authority parsing (ReDoS-safe, no regex backtracking). */
   @Test
-  public void testParseAuthority() {
+  void testParseAuthority() {
     assertArrayEquals(new String[] { "", null }, UrlValidator.parseAuthority(null));
     assertArrayEquals(new String[] { "", null }, UrlValidator.parseAuthority(""));
 

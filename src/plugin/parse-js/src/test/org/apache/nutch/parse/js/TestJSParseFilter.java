@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * temporarily disabled)</li>
  * </ol>
  */
-public class TestJSParseFilter {
+class TestJSParseFilter {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
@@ -69,7 +69,7 @@ public class TestJSParseFilter {
   private Configuration conf;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     conf = NutchConfiguration.create();
     conf.set("file.content.limit", "-1");
     conf.set("plugin.includes", "protocol-file|parse-(html|js)");
@@ -92,7 +92,7 @@ public class TestJSParseFilter {
 
   /** Tests quoted string extraction (ReDoS-safe, no regex backtracking). */
   @Test
-  public void testExtractQuotedStrings() {
+  void testExtractQuotedStrings() {
     List<String> empty = JSParseFilter.extractQuotedStrings("no quotes here");
     assertTrue(empty.isEmpty());
 
@@ -112,7 +112,7 @@ public class TestJSParseFilter {
 
   /** Tests URI shape check (ReDoS-safe). */
   @Test
-  public void testLooksLikeUri() {
+  void testLooksLikeUri() {
     assertFalse(JSParseFilter.looksLikeUri(null));
     assertFalse(JSParseFilter.looksLikeUri(""));
     assertFalse(JSParseFilter.looksLikeUri("  "));
@@ -126,7 +126,7 @@ public class TestJSParseFilter {
   }
 
   @Test
-  public void testJavaScriptOutlinkExtraction()
+  void testJavaScriptOutlinkExtraction()
       throws ProtocolException, ParseException, IOException {
     String[] filenames = new File(sampleDir).list();
     for (int i = 0; i < filenames.length; i++) {
