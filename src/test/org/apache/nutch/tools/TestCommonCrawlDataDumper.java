@@ -17,14 +17,19 @@
 package org.apache.nutch.tools;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.Collection;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * 
@@ -104,6 +109,22 @@ public class TestCommonCrawlDataDumper {
           "Missed file " + expectedFileName + " in dump");
     }
 
+  }
+
+  @Test
+  public void testDumpWithNoSegmentDirectoriesRecordsOtherError() throws Exception {
+    File emptySegmentDir = Files.createTempDirectory("empty-segments").toFile();
+    File outputDir = Files.createTempDirectory("dump-output").toFile();
+
+    ErrorTracker mockErrorTracker = mock(ErrorTracker.class);
+    CommonCrawlDataDumper dumper = new CommonCrawlDataDumper();
+    Field errorTrackerField = CommonCrawlDataDumper.class.getDeclaredField("errorTracker");
+    errorTrackerField.setAccessible(true);
+    errorTrackerField.set(dumper, mockErrorTracker);
+
+    dumper.dump(outputDir, emptySegmentDir, null, false, null, false, "", false);
+
+    verify(mockErrorTracker, times(1)).recordError(ErrorTracker.ErrorType.OTHER);
   }
 
   private boolean hasFile(String fileName, Collection<File> files) {
