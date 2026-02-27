@@ -17,11 +17,13 @@
 package org.apache.nutch.parse.js;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -51,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * temporarily disabled)</li>
  * </ol>
  */
-public class TestJSParseFilter {
+class TestJSParseFilter {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
@@ -67,7 +69,7 @@ public class TestJSParseFilter {
   private Configuration conf;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     conf = NutchConfiguration.create();
     conf.set("file.content.limit", "-1");
     conf.set("plugin.includes", "protocol-file|parse-(html|js)");
@@ -88,8 +90,43 @@ public class TestJSParseFilter {
     return parse.getData().getOutlinks();
   }
 
+  /** Tests quoted string extraction (ReDoS-safe, no regex backtracking). */
   @Test
-  public void testJavaScriptOutlinkExtraction()
+  void testExtractQuotedStrings() {
+    List<String> empty = JSParseFilter.extractQuotedStrings("no quotes here");
+    assertTrue(empty.isEmpty());
+
+    List<String> one = JSParseFilter.extractQuotedStrings("var x = \"http://example.com/\"");
+    assertEquals(1, one.size());
+    assertEquals("http://example.com/", one.get(0));
+
+    List<String> two = JSParseFilter.extractQuotedStrings("a=\"foo\" b='bar'");
+    assertEquals(2, two.size());
+    assertEquals("foo", two.get(0));
+    assertEquals("bar", two.get(1));
+
+    List<String> escaped = JSParseFilter.extractQuotedStrings("\"say \\\"hi\\\"\"");
+    assertEquals(1, escaped.size());
+    assertEquals("say \"hi\"", escaped.get(0));
+  }
+
+  /** Tests URI shape check (ReDoS-safe). */
+  @Test
+  void testLooksLikeUri() {
+    assertFalse(JSParseFilter.looksLikeUri(null));
+    assertFalse(JSParseFilter.looksLikeUri(""));
+    assertFalse(JSParseFilter.looksLikeUri("  "));
+    assertFalse(JSParseFilter.looksLikeUri("no-dot-or-slash"));
+    assertFalse(JSParseFilter.looksLikeUri("has space in it.com"));
+
+    assertTrue(JSParseFilter.looksLikeUri("http://example.com/"));
+    assertTrue(JSParseFilter.looksLikeUri("example.com/path"));
+    assertTrue(JSParseFilter.looksLikeUri("/relative/path"));
+    assertTrue(JSParseFilter.looksLikeUri("  https://foo.bar  "));
+  }
+
+  @Test
+  void testJavaScriptOutlinkExtraction()
       throws ProtocolException, ParseException, IOException {
     String[] filenames = new File(sampleDir).list();
     for (int i = 0; i < filenames.length; i++) {

@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestHtmlParser {
+class TestHtmlParser {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
@@ -105,7 +105,7 @@ public class TestHtmlParser {
   }
 
   @Test
-  public void testEncodingDetection() {
+  void testEncodingDetection() {
     for (String[] testPage : encodingTestPages) {
       String name = testPage[0];
       Charset charset = Charset.forName(testPage[1]);
@@ -131,7 +131,7 @@ public class TestHtmlParser {
   }
 
   @Test
-  public void testResolveBaseUrl() {
+  void testResolveBaseUrl() {
     byte[] contentBytes = resolveBaseUrlTestContent
         .getBytes(StandardCharsets.UTF_8);
     // parse using http://example.com/ as "fetch" URL
@@ -141,6 +141,32 @@ public class TestHtmlParser {
     assertEquals(1, outlinks.length);
     assertEquals("http://www.example.com/index.html",
         outlinks[0].getToUrl());
+  }
+
+  /** Tests charset extraction from meta tags (ReDoS-safe parsing). */
+  @Test
+  void testExtractCharsetFromMeta() {
+    assertNull(HtmlParser.extractCharsetFromMeta(""));
+    assertNull(HtmlParser.extractCharsetFromMeta("<html><head></head></html>"));
+
+    assertEquals("utf-8", HtmlParser.extractCharsetFromMeta(
+        "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"));
+    assertEquals("utf-8", HtmlParser.extractCharsetFromMeta(
+        "<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />"));
+    assertEquals("ISO-8859-1", HtmlParser.extractCharsetFromMeta(
+        "<meta http-equiv=Content-Type content=\"text/html; charset=ISO-8859-1\">"));
+
+    assertEquals("utf-8", HtmlParser.extractCharsetFromMeta(
+        "<meta charset=\"utf-8\">"));
+    assertEquals("utf-8", HtmlParser.extractCharsetFromMeta(
+        "<meta charset='utf-8'>"));
+    assertEquals("utf-8", HtmlParser.extractCharsetFromMeta(
+        "<meta charset=utf-8>"));
+
+    // First content-type meta wins when both appear
+    String both = "<meta http-equiv=\"Content-Type\" content=\"charset=windows-1252\">"
+        + "<meta charset=\"utf-8\">";
+    assertEquals("windows-1252", HtmlParser.extractCharsetFromMeta(both));
   }
 
 }
