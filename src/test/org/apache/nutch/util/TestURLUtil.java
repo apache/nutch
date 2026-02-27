@@ -146,7 +146,9 @@ public class TestURLUtil {
     url = new URL("http://www.example.2000.hu");
     assertEquals("2000.hu", URLUtil.getDomainSuffix(url));
 
-    // test non-ascii
+    // test non-ASCII
+    url = new URL("https://www.taiuru.māori.nz/");
+    assertEquals("xn--mori-qsa.nz", URLUtil.getDomainSuffix(url));
     url = new URL("http://www.example.flå.no");
     assertEquals("xn--fl-zia.no", URLUtil.getDomainSuffix(url));
     url = new URL("http://www.example.栃木.jp");

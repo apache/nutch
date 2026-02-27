@@ -31,6 +31,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -45,6 +46,8 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.hostdb.HostDatum;
+import org.apache.nutch.metrics.ErrorTracker;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.protocol.Content;
@@ -113,6 +116,14 @@ public class SitemapProcessor extends Configured implements Tool {
     private CrawlDatum datum = new CrawlDatum();
     private SiteMapParser parser = null;
 
+    // Cached counter references to avoid repeated lookups in hot paths
+    private Counter filteredRecordsCounter;
+    private Counter seedsCounter;
+    private Counter fromHostnameCounter;
+    private Counter filteredFromHostnameCounter;
+    private Counter failedFetchesCounter;
+    private ErrorTracker errorTracker;
+
     @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
@@ -138,6 +149,27 @@ public class SitemapProcessor extends Configured implements Tool {
       if (normalize) {
         normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_DEFAULT);
       }
+
+      // Initialize cached counter references
+      initCounters(context);
+      // Initialize error tracker with cached counters
+      errorTracker = new ErrorTracker(NutchMetrics.GROUP_SITEMAP, context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
+      filteredRecordsCounter = context.getCounter(
+          NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FILTERED_RECORDS_TOTAL);
+      seedsCounter = context.getCounter(
+          NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_SEEDS_TOTAL);
+      fromHostnameCounter = context.getCounter(
+          NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FROM_HOSTNAME_TOTAL);
+      filteredFromHostnameCounter = context.getCounter(
+          NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FILTERED_FROM_HOSTNAME_TOTAL);
+      failedFetchesCounter = context.getCounter(
+          NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FAILED_FETCHES_TOTAL);
     }
 
     @Override
@@ -161,11 +193,11 @@ public class SitemapProcessor extends Configured implements Tool {
                 url.startsWith("file:/")) {
             // For entry from sitemap urls file, fetch the sitemap, extract urls and emit those
             if((url = filterNormalize(url)) == null) {
-              context.getCounter("Sitemap", "filtered_records").increment(1);
+              filteredRecordsCounter.increment(1);
               return;
             }
 
-            context.getCounter("Sitemap", "sitemap_seeds").increment(1);
+            seedsCounter.increment(1);
             generateSitemapUrlDatum(protocolFactory.getProtocol(url), url, context); 
           } else {
             LOG.info("generateSitemapsFromHostname: {}", key.toString());
@@ -175,6 +207,7 @@ public class SitemapProcessor extends Configured implements Tool {
       } catch (Exception e) {
         LOG.warn("Exception for record {} : {}", key.toString(),
             StringUtils.stringifyException(e));
+        errorTracker.incrementCounters(e);
       }
     }
 
@@ -203,7 +236,7 @@ public class SitemapProcessor extends Configured implements Tool {
             (url = filterNormalize("https://" + host + "/")) == null &&
             (url = filterNormalize("ftp://" + host + "/")) == null &&
             (url = filterNormalize("file:/" + host + "/")) == null) {
-          context.getCounter("Sitemap", "filtered_records").increment(1);
+          filteredRecordsCounter.increment(1);
           return;
         }
         // We may wish to use the robots.txt content as the third parameter for .getRobotRules
@@ -214,11 +247,10 @@ public class SitemapProcessor extends Configured implements Tool {
           sitemaps.add(url + "sitemap.xml");
         }
         for (String sitemap : sitemaps) {
-          context.getCounter("Sitemap", "sitemaps_from_hostname").increment(1);
+          fromHostnameCounter.increment(1);
           sitemap = filterNormalize(sitemap);
           if (sitemap == null) {
-            context.getCounter("Sitemap", "filtered_sitemaps_from_hostname")
-                .increment(1);
+            filteredFromHostnameCounter.increment(1);
           } else {
             generateSitemapUrlDatum(protocolFactory.getProtocol(sitemap),
                 sitemap, context);
@@ -226,6 +258,7 @@ public class SitemapProcessor extends Configured implements Tool {
         }
       } catch (Exception e) {
         LOG.warn("Exception for record {} : {}", host, StringUtils.stringifyException(e));
+        errorTracker.incrementCounters(e);
       }
     }
 
@@ -254,7 +287,7 @@ public class SitemapProcessor extends Configured implements Tool {
       if(status.getCode() != ProtocolStatus.SUCCESS) {
         // If there were any problems fetching the sitemap, log the error and let it go. Not sure how often
         // sitemaps are redirected. In future we might have to handle redirects.
-        context.getCounter("Sitemap", "failed_fetches").increment(1);
+        failedFetchesCounter.increment(1);
         LOG.error("Error while fetching the sitemap. Status code: {} for {}", status.getCode(), url);
         return;
       }
@@ -341,10 +374,27 @@ public class SitemapProcessor extends Configured implements Tool {
 
     private boolean overwriteExisting = false; // DO NOT ENABLE!!
 
+    // Cached counter references to avoid repeated lookups in hot paths
+    private Counter existingEntriesCounter;
+    private Counter newEntriesCounter;
+
     @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
       this.overwriteExisting = conf.getBoolean(SITEMAP_OVERWRITE_EXISTING, false);
+
+      // Initialize cached counter references
+      initCounters(context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
+      existingEntriesCounter = context.getCounter(
+          NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_EXISTING_ENTRIES_TOTAL);
+      newEntriesCounter = context.getCounter(
+          NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_NEW_ENTRIES_TOTAL);
     }
 
     @Override
@@ -373,12 +423,12 @@ public class SitemapProcessor extends Configured implements Tool {
           originalDatum.setModifiedTime(sitemapDatum.getModifiedTime());
         }
 
-        context.getCounter("Sitemap", "existing_sitemap_entries").increment(1);
+        existingEntriesCounter.increment(1);
         context.write(key, originalDatum);
       }
       else if(sitemapDatum != null) {
         // For the newly discovered links via sitemap, set the status as unfetched and emit
-        context.getCounter("Sitemap", "new_sitemap_entries").increment(1);
+        newEntriesCounter.increment(1);
         sitemapDatum.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
         context.write(key, sitemapDatum);
       }
@@ -457,11 +507,11 @@ public class SitemapProcessor extends Configured implements Tool {
       FSUtils.replace(fs, current, tempCrawlDb, true);
       LockUtil.removeLockFile(fs, lock);
 
-      long filteredRecords = job.getCounters().findCounter("Sitemap", "filtered_records").getValue();
-      long fromHostname = job.getCounters().findCounter("Sitemap", "sitemaps_from_hostname").getValue();
-      long fromSeeds = job.getCounters().findCounter("Sitemap", "sitemap_seeds").getValue();
-      long failedFetches = job.getCounters().findCounter("Sitemap", "failed_fetches").getValue();
-      long newSitemapEntries = job.getCounters().findCounter("Sitemap", "new_sitemap_entries").getValue();
+      long filteredRecords = job.getCounters().findCounter(NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FILTERED_RECORDS_TOTAL).getValue();
+      long fromHostname = job.getCounters().findCounter(NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FROM_HOSTNAME_TOTAL).getValue();
+      long fromSeeds = job.getCounters().findCounter(NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_SEEDS_TOTAL).getValue();
+      long failedFetches = job.getCounters().findCounter(NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FAILED_FETCHES_TOTAL).getValue();
+      long newSitemapEntries = job.getCounters().findCounter(NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_NEW_ENTRIES_TOTAL).getValue();
 
       LOG.info("SitemapProcessor: Total records rejected by filters: {}", filteredRecords);
       LOG.info("SitemapProcessor: Total sitemaps from host name: {}", fromHostname);

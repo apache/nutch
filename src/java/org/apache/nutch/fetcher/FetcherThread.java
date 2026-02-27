@@ -34,12 +34,16 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.fetcher.Fetcher.FetcherRun;
 import org.apache.nutch.fetcher.FetcherThreadEvent.PublishEventType;
+import org.apache.nutch.metrics.ErrorTracker;
+import org.apache.nutch.metrics.LatencyTracker;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLExemptionFilters;
@@ -172,6 +176,29 @@ public class FetcherThread extends Thread {
 
   private ProtocolLogUtil logUtil = new ProtocolLogUtil();
 
+  // Cached counters for performance (avoid repeated lookups in hot paths)
+  private Counter robotsDeniedCounter;
+  private Counter robotsDeniedMaxCrawlDelayCounter;
+  private Counter robotsDeferVisitsDroppedCounter;
+  private Counter redirectCountExceededCounter;
+  private Counter redirectDeduplicatedCounter;
+  private Counter redirectNotCreatedCounter;
+  private Counter hitByTimeLimitCounter;
+  private Counter aboveExceptionThresholdCounter;
+  private Counter outlinksDetectedCounter;
+  private Counter outlinksFollowingCounter;
+  private Counter robotsTxtArchivingFilteredCounter;
+  private Counter ipv4Counter;
+  private Counter ipv6Counter;
+  private Counter robotsTxtArchivingFilteredMimeCounter;
+  private Counter robotsTxtArchivingRobotsDeniedCounter;
+
+  // Latency tracker for fetch timing metrics
+  private LatencyTracker fetchLatencyTracker;
+
+  // Error tracker for categorized error metrics
+  private ErrorTracker errorTracker;
+
   public FetcherThread(Configuration conf, AtomicInteger activeThreads, FetchItemQueues fetchQueues, 
       QueueFeeder feeder, AtomicInteger spinWaiting, AtomicLong lastRequestStart, FetcherRun.Context context,
       AtomicInteger errors, String segmentName, boolean parsing, boolean storingContent, 
@@ -279,6 +306,59 @@ public class FetcherThread extends Thread {
             getName(), Thread.currentThread().getId());
       }
     }
+
+    // Initialize cached counters for performance
+    initCounters();
+  }
+
+  /**
+   * Initialize cached counter references to avoid repeated lookups in hot paths.
+   */
+  private void initCounters() {
+    robotsDeniedCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_ROBOTS_DENIED_TOTAL);
+    robotsDeniedMaxCrawlDelayCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_ROBOTS_DENIED_MAXCRAWLDELAY_TOTAL);
+    robotsDeferVisitsDroppedCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_ROBOTS_DEFER_VISITS_DROPPED_TOTAL);
+    redirectCountExceededCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_REDIRECT_COUNT_EXCEEDED_TOTAL);
+    redirectDeduplicatedCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_REDIRECT_DEDUPLICATED_TOTAL);
+    redirectNotCreatedCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_REDIRECT_NOT_CREATED_TOTAL);
+    hitByTimeLimitCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_HIT_BY_TIMELIMIT_TOTAL);
+    aboveExceptionThresholdCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_ABOVE_EXCEPTION_THRESHOLD_TOTAL);
+    outlinksDetectedCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER_OUTLINKS, NutchMetrics.FETCHER_OUTLINKS_DETECTED_TOTAL);
+    outlinksFollowingCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER_OUTLINKS, NutchMetrics.FETCHER_OUTLINKS_FOLLOWING_TOTAL);
+
+    // Common Crawl specific counters
+    ipv4Counter = context.getCounter(
+        NutchMetrics.FETCHER_IP_ADDRESS_VERSION_GROUP,
+        NutchMetrics.FETCHER_IPV4_TOTAL);
+    ipv6Counter = context.getCounter(
+        NutchMetrics.FETCHER_IP_ADDRESS_VERSION_GROUP,
+        NutchMetrics.FETCHER_IPV6_TOTAL);
+    robotsTxtArchivingFilteredCounter = context.getCounter(
+        NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_GROUP,
+        NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_FILTERED_TOTAL);
+    robotsTxtArchivingFilteredMimeCounter = context.getCounter(
+        NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_GROUP,
+        NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_FILTERED_MIME_TOTAL);
+    robotsTxtArchivingRobotsDeniedCounter = context.getCounter(
+        NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_GROUP,
+        NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_ROBOTS_DENIED_TOTAL);
+    
+    // Initialize latency tracker for fetch timing
+    fetchLatencyTracker = new LatencyTracker(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_LATENCY);
+    
+    // Initialize error tracker for categorized error metrics
+    errorTracker = new ErrorTracker(NutchMetrics.GROUP_FETCHER);
   }
 
   @Override
@@ -353,7 +433,7 @@ public class FetcherThread extends Thread {
             LOG.debug("redirectCount={}", redirectCount);
             redirecting = false;
             Protocol protocol = this.protocolFactory.getProtocol(fit.u);
-            BaseRobotRules rules = protocol.getRobotRules(fit.url, fit.datum,
+            BaseRobotRules rules = protocol.getRobotRules(fit.u, fit.datum,
                 robotsTxtContent);
             if (robotsTxtContent != null) {
               outputRobotsTxt(robotsTxtContent);
@@ -372,20 +452,18 @@ public class FetcherThread extends Thread {
                   fit.getQueueID(), this.robotsDeferVisitsRetries + 1,
                   this.robotsDeferVisitsDelay);
               if (killedURLs != 0) {
-                context
-                    .getCounter("FetcherStatus", "robots_defer_visits_dropped")
-                    .increment(killedURLs);
+                robotsDeferVisitsDroppedCounter.increment(killedURLs);
               }
               continue;
             }
-            if (!rules.isAllowed(fit.url.toString())) {
+            if (!rules.isAllowed(fit.u)) {
               // unblock
               fetchQueues.finishFetchItem(fit, true);
               LOG.info("Denied by robots.txt: {}", fit.url);
               output(fit.url, fit.datum, null,
                   ProtocolStatus.STATUS_ROBOTS_DENIED,
                   CrawlDatum.STATUS_FETCH_GONE);
-              context.getCounter("FetcherStatus", "robots_denied").increment(1);
+              robotsDeniedCounter.increment(1);
               continue;
             }
             if (rules.getCrawlDelay() > 0) {
@@ -397,8 +475,7 @@ public class FetcherThread extends Thread {
                 output(fit.url, fit.datum, null,
                     ProtocolStatus.STATUS_ROBOTS_DENIED,
                     CrawlDatum.STATUS_FETCH_GONE);
-                context.getCounter("FetcherStatus",
-                    "robots_denied_maxcrawldelay").increment(1);
+                robotsDeniedMaxCrawlDelayCounter.increment(1);
                 continue;
               } else {
                 FetchItemQueue fiq = fetchQueues.getFetchItemQueue(fit.queueID);
@@ -415,8 +492,11 @@ public class FetcherThread extends Thread {
                     fit.queueID, fiq.crawlDelay, fit.url);
               }
             }
+            // Track fetch latency
+            long fetchStart = System.currentTimeMillis();
             ProtocolOutput output = protocol.getProtocolOutput(fit.url,
                 fit.datum);
+            fetchLatencyTracker.record(System.currentTimeMillis() - fetchStart);
             ProtocolStatus status = output.getStatus();
             Content content = output.getContent();
             ParseStatus pstatus = null;
@@ -436,7 +516,8 @@ public class FetcherThread extends Thread {
               endEvent.addEventData("status", status.getName());
               publisher.publish(endEvent, conf);
             }
-            context.getCounter("FetcherStatus", status.getName()).increment(1);
+            // Dynamic counter for protocol status - can't cache as status varies
+            context.getCounter(NutchMetrics.GROUP_FETCHER, status.getName()).increment(1);
 
             if (storingProtocolVersions && content != null) {
               countProtocolVersions(content.getMetadata());
@@ -489,8 +570,7 @@ public class FetcherThread extends Thread {
               int killedURLs = fetchQueues
                   .checkExceptionThreshold(fit.getQueueID());
               if (killedURLs != 0)
-                context.getCounter("FetcherStatus",
-                    "AboveExceptionThresholdInQueue").increment(killedURLs);
+                aboveExceptionThresholdCounter.increment(killedURLs);
               /* FALLTHROUGH */
 
             case ProtocolStatus.RETRY: // retry
@@ -520,8 +600,7 @@ public class FetcherThread extends Thread {
 
             if (redirecting && redirectCount > maxRedirect) {
               fetchQueues.finishFetchItem(fit);
-              context.getCounter("FetcherStatus", "redirect_count_exceeded")
-                  .increment(1);
+              redirectCountExceededCounter.increment(1);
               LOG.info("{} {} - redirect count exceeded {} ({})", getName(),
                   Thread.currentThread().getId(), fit.url,
                   maxRedirectExceededSkip ? "skipped" : "linked");
@@ -540,15 +619,7 @@ public class FetcherThread extends Thread {
         } catch (Throwable t) { // unexpected exception
           // unblock
           fetchQueues.finishFetchItem(fit);
-          String message;
-          if (LOG.isDebugEnabled()) {
-            message = StringUtils.stringifyException(t);
-          } else if (logUtil.logShort(t)) {
-            message = t.getClass().getName();
-          } else {
-            message = StringUtils.stringifyException(t);
-          }
-          logError(fit.url, message);
+          logError(fit.url, t);
           output(fit.url, fit.datum, null, ProtocolStatus.STATUS_FAILED,
               CrawlDatum.STATUS_FETCH_RETRY);
         }
@@ -560,6 +631,10 @@ public class FetcherThread extends Thread {
       if (fit != null) {
         fetchQueues.finishFetchItem(fit);
       }
+      // Emit fetch latency metrics
+      fetchLatencyTracker.emitCounters(context);
+      // Emit error metrics
+      errorTracker.emitCounters(context);
       activeThreads.decrementAndGet(); // count threads
       LOG.info("{} {} -finishing thread {}, activeThreads={}", getName(),
           Thread.currentThread().getId(), getName(), activeThreads);
@@ -655,13 +730,13 @@ public class FetcherThread extends Thread {
       throws ScoringFilterException {
     if (fetchQueues.redirectIsQueuedRecently(redirUrl)) {
       redirecting = false;
-      context.getCounter("FetcherStatus", "redirect_deduplicated").increment(1);
+      redirectDeduplicatedCounter.increment(1);
       LOG.debug(" - ignoring redirect from {} to {} as duplicate", fit.url,
           redirUrl);
       return null;
     } else if (fetchQueues.timelimitExceeded()) {
       redirecting = false;
-      context.getCounter("FetcherStatus", "hitByTimeLimit").increment(1);
+      hitByTimeLimitCounter.increment(1);
       LOG.debug(" - ignoring redirect from {} to {} - timelimit reached",
           fit.url, redirUrl);
       return null;
@@ -674,15 +749,24 @@ public class FetcherThread extends Thread {
     } else {
       // stop redirecting
       redirecting = false;
-      context.getCounter("FetcherStatus", "FetchItem.notCreated.redirect").increment(1);
+      redirectNotCreatedCounter.increment(1);
     }
     return fit;
+  }
+
+  private void logError(Text url, Throwable t) {
+    String message = t.getClass().getName() + ": " + t.getMessage();
+    LOG.info("{} {} fetch of {} failed with: {}", getName(),
+        Thread.currentThread().getId(), url, message);
+    errors.incrementAndGet();
+    errorTracker.recordError(t);
   }
 
   private void logError(Text url, String message) {
     LOG.info("{} {} fetch of {} failed with: {}", getName(),
         Thread.currentThread().getId(), url, message);
     errors.incrementAndGet();
+    errorTracker.recordError(ErrorTracker.ErrorType.OTHER);
   }
 
   private void countProtocolVersions(Metadata contentMetadata) {
@@ -693,21 +777,24 @@ public class FetcherThread extends Thread {
     if (versionStr != null) {
       String[] versions = versionStr.split(",");
       if (versions.length >= 1) {
-        context.getCounter("HttpProtocolVersion", versions[0]).increment(1);
+        context.getCounter(NutchMetrics.FETCHER_HTTP_PROTOCOL_VERSION_GROUP,
+            versions[0]).increment(1);
       } else {
-        context.getCounter("HttpProtocolVersion", "unknown").increment(1);
+        context.getCounter(NutchMetrics.FETCHER_HTTP_PROTOCOL_VERSION_GROUP,
+            NutchMetrics.FETCHER_HTTP_PROTOCOL_UNKNOWN).increment(1);
       }
       for (int i = 1; i < versions.length; i++) {
-        context.getCounter("TlsProtocolVersion", versions[i]).increment(1);
+        context.getCounter(NutchMetrics.FETCHER_TLS_PROTOCOL_VERSION_GROUP,
+            versions[i]).increment(1);
       }
     }
     String ipaddress = contentMetadata.get(Response.IP_ADDRESS);
     if (ipaddress == null) {
       // IP address is not recorded
     } else if (ipaddress.indexOf(':') != -1) {
-      context.getCounter("IPaddressVersion", "IPv6").increment(1);
+      ipv6Counter.increment(1);
     } else {
-      context.getCounter("IPaddressVersion", "IPv4").increment(1);
+      ipv4Counter.increment(1);
     }
   }
 
@@ -885,8 +972,7 @@ public class FetcherThread extends Thread {
             FetchItemQueue queue = fetchQueues.getFetchItemQueue(ft.queueID);
             queue.alreadyFetched.add(url.toString().hashCode());
 
-            context.getCounter("FetcherOutlinks", "outlinks_detected").increment(
-                outlinks.size());
+            outlinksDetectedCounter.increment(outlinks.size());
 
             // Counter to limit num outlinks to follow per page
             int outlinkCounter = 0;
@@ -918,7 +1004,7 @@ public class FetcherThread extends Thread {
                   new CrawlDatum(CrawlDatum.STATUS_LINKED, interval),
                   queueMode, outlinkDepth + 1);
               
-              context.getCounter("FetcherOutlinks", "outlinks_following").increment(1);    
+              outlinksFollowingCounter.increment(1);
               
               fetchQueues.addFetchItem(fit);
 
@@ -944,7 +1030,8 @@ public class FetcherThread extends Thread {
     if (parseResult != null && !parseResult.isEmpty()) {
       Parse p = parseResult.get(content.getUrl());
       if (p != null) {
-        context.getCounter("ParserStatus", ParseStatus.majorCodes[p
+        // Dynamic counter for parse status - can't cache as status varies
+        context.getCounter(NutchMetrics.GROUP_PARSER, ParseStatus.majorCodes[p
             .getData().getStatus().getMajorCode()]).increment(1);
         return p.getData().getStatus();
       }
@@ -1012,7 +1099,7 @@ public class FetcherThread extends Thread {
           if (robotsTxtArchivingFilterUrlAlways
               || !u.getFile().equals("/robots.txt")) {
             LOG.info("Archiving of robots.txt {} skipped by URL filters", url);
-            context.getCounter("RobotsTxtArchiving", "filtered").increment(1);
+            robotsTxtArchivingFilteredCounter.increment(1);
             return false;
           }
 
@@ -1036,8 +1123,7 @@ public class FetcherThread extends Thread {
           if (!robotsTxtArchivingAcceptedMimeTypes.contains(contentType)) {
             LOG.info("Archiving of robots.txt {} ({}) skipped by MIME filter",
                 url, contentType);
-            context.getCounter("RobotsTxtArchiving", "filtered_mime")
-                .increment(1);
+            robotsTxtArchivingFilteredMimeCounter.increment(1);
             return false;
           }
         }
@@ -1057,8 +1143,7 @@ public class FetcherThread extends Thread {
             LOG.info(
                 "Archiving of redirected robots.txt {} ({}) not allowed by robots.txt",
                 url, robotsTxt.getContentType());
-            context.getCounter("RobotsTxtArchiving", "robots_denied")
-                .increment(1);
+            robotsTxtArchivingRobotsDeniedCounter.increment(1);
             return false;
           }
         }

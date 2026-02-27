@@ -52,6 +52,7 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
@@ -76,7 +77,6 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   protected static final Pattern PROBLEMATIC_HEADERS = Pattern
       .compile("(?i)(?:Content-(?:Encoding|Length)|Transfer-Encoding)");
   protected static final String X_HIDE_HEADER = "X-Crawler-";
-  public static final String WARC_WRITER_COUNTER_GROUP = "WARC-Writer";
 
   protected static final Pattern STATUS_LINE_PATTERN = Pattern
       .compile("^HTTP/1\\.[01] [0-9]{3}(?: .*)?$");
@@ -117,6 +117,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   private URLNormalizers urlNormalizers;
   private URLNormalizers urlNormalizersRedirect;
 
+  private SimpleDateFormat isoDate;
+
   public WarcRecordWriter(Configuration conf, Path outputPath, int partition,
       TaskAttemptContext context) throws IOException {
 
@@ -127,6 +129,9 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     SimpleDateFormat fileDate = new SimpleDateFormat("yyyyMMddHHmmss",
         Locale.ROOT);
     fileDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+    isoDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT);
+    isoDate.setTimeZone(TimeZone.getTimeZone("UTC"));
 
     String prefix = conf.get("warc.export.prefix", "NUTCH-CRAWL");
 
@@ -527,18 +532,22 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       throws IOException {
 
     if (value.content == null) {
-      String reason = "";
+      ProtocolStatus pstatus = null;
       if (value.datum != null) {
-        ProtocolStatus pstatus = (ProtocolStatus) value.datum.getMetaData()
+        pstatus = (ProtocolStatus) value.datum.getMetaData()
             .get(Nutch.WRITABLE_PROTO_STATUS_KEY);
-        if (pstatus != null) {
-          reason = ": " + pstatus.getName() + " - " + pstatus.getMessage();
-        }
       }
-      LOG.warn("Cannot write WARC record, no content for {}{}", value.url,
-          reason);
-      context.getCounter(WARC_WRITER_COUNTER_GROUP,
-          "skipped records (no content)").increment(1);
+      if (pstatus != null) {
+        LOG.warn(
+            "Cannot write WARC record, no content for {}, protocol status: {} - {}",
+            value.url, pstatus.getName(), pstatus.getMessage());
+      } else {
+        LOG.warn(
+            "Cannot write WARC record, no content and protocol status for {}",
+            value.url);
+      }
+      context.getCounter(NutchMetrics.GROUP_WARC_WRITER,
+          NutchMetrics.WARC_WRITER_SKIPPED_NO_CONTENT_TOTAL).increment(1);
       return;
     }
 
@@ -560,10 +569,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
           try {
             targetUri = new URI(urlNorm);
             LOG.info("Normalized URL to valid URI: {} -> {}", url, urlNorm);
-            context
-                .getCounter(WARC_WRITER_COUNTER_GROUP,
-                    "fixed records (invalid URI successfully normalized)")
-                .increment(1);
+            context.getCounter(NutchMetrics.GROUP_WARC_WRITER,
+                NutchMetrics.WARC_WRITER_URI_NORMALIZED_TOTAL).increment(1);
           } catch (URISyntaxException ee) {
             // ignore, log exception observed on original URL
           }
@@ -571,8 +578,10 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       }
       if (targetUri == null) {
         LOG.error("Cannot write WARC record, invalid URI: {}", url);
-        context.getCounter(WARC_WRITER_COUNTER_GROUP,
-            "skipped records (invalid URI)").increment(1);
+        context
+            .getCounter(NutchMetrics.GROUP_WARC_WRITER,
+                NutchMetrics.WARC_WRITER_SKIPPED_INVALID_URI_TOTAL)
+            .increment(1);
         return;
       }
     }
@@ -594,8 +603,10 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
               (truncated != null ? truncated : "-"),
               value.content.getContentType(), value.content.getContent().length,
               value.url);
-          context.getCounter(WARC_WRITER_COUNTER_GROUP,
-              "skipped records (by content)").increment(1);
+          context
+              .getCounter(NutchMetrics.GROUP_WARC_WRITER,
+                  NutchMetrics.WARC_WRITER_SKIPPED_BY_CONTENT_TYPE_TOTAL)
+              .increment(1);
           return;
         }
       }
@@ -637,8 +648,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
         } catch (Throwable t) {
           LOG.error(t.getMessage());
         }
-        context.getCounter(WARC_WRITER_COUNTER_GROUP,
-            "skipped records (duplicate)").increment(1);
+        context.getCounter(NutchMetrics.GROUP_WARC_WRITER,
+            NutchMetrics.WARC_WRITER_SKIPPED_DUPLICATE_TOTAL).increment(1);
         return;
       }
       precedingURL = url;
@@ -668,8 +679,10 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       if (pstatus == null) {
         LOG.warn("Cannot write WARC record, no protocol status for {}",
             value.url);
-        context.getCounter(WARC_WRITER_COUNTER_GROUP,
-            "skipped records (no protocol status)").increment(1);
+        context
+            .getCounter(NutchMetrics.GROUP_WARC_WRITER,
+                NutchMetrics.WARC_WRITER_SKIPPED_NO_PROTOCOL_STATUS_TOTAL)
+            .increment(1);
         return;
       }
       switch (pstatus.getCode()) {
@@ -698,8 +711,9 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
         if (value.content.getMetadata()
             .get(Response.RESPONSE_HEADERS) == null) {
           LOG.warn("Unknown or ambiguous protocol status: {}", pstatus);
-          context.getCounter(WARC_WRITER_COUNTER_GROUP,
-              "skipped records (unknown protocol status)").increment(1);
+          context.getCounter(NutchMetrics.GROUP_WARC_WRITER,
+              NutchMetrics.WARC_WRITER_SKIPPED_UNKNOWN_PROTOCOL_STATUS_TOTAL)
+              .increment(1);
           return;
         }
       }
@@ -839,8 +853,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     }
 
     LOG.info("WARC {} record {} ({}, status: {}, size: {})",
-        (notModified ? "revisit" : "response"), targetUri, date, httpStatusCode,
-        value.content.getContent().length);
+        (notModified ? "revisit" : "response"), targetUri, isoDate.format(date),
+        httpStatusCode, value.content.getContent().length);
 
     URI requestId = null;
     if (verbatimRequestHeaders != null) {
@@ -860,17 +874,22 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       // detect language only for successfully fetched primary documents
       ldres = langDetect.detectLanguage(targetUri, value.content);
       if (ldres.errorReason != null) {
-        context.getCounter(WARC_WRITER_COUNTER_GROUP,
-            "language detection: " + ldres.errorStatus.name).increment(1);
+        context.getCounter(NutchMetrics.GROUP_WARC_WRITER,
+            NutchMetrics.WARC_WRITER_LID_ERROR_PREFIX + ldres.errorStatus.name)
+            .increment(1);
       } else if (ldres.languages == null) {
-        context.getCounter(WARC_WRITER_COUNTER_GROUP,
-            "language detection: no result").increment(1);
+        context.getCounter(NutchMetrics.GROUP_WARC_WRITER,
+            NutchMetrics.WARC_WRITER_LID_NO_RESULT_TOTAL).increment(1);
       } else if (ldres.languages.isReliable()) {
-        context.getCounter(WARC_WRITER_COUNTER_GROUP,
-            "language detection: reliable").increment(1);
+        context
+            .getCounter(NutchMetrics.GROUP_WARC_WRITER,
+                NutchMetrics.WARC_WRITER_LID_RESULT_RELIABLE_TOTAL)
+            .increment(1);
       } else {
-        context.getCounter(WARC_WRITER_COUNTER_GROUP,
-            "language detection: not reliable").increment(1);
+        context
+            .getCounter(NutchMetrics.GROUP_WARC_WRITER,
+                NutchMetrics.WARC_WRITER_LID_RESULT_NOT_RELIABLE_TOTAL)
+            .increment(1);
       }
       if (generateCdx) {
         if (ldres.charset != null) {

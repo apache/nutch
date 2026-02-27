@@ -36,6 +36,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -154,12 +155,14 @@ public class DedupRedirectsJob extends DeduplicationJob {
           // <redirTarget, crawlDatum>
           value.getMetaData().put(urlKey, key);
           Text redirKey = new Text(redirTarget);
-          context.getCounter("DeduplicationJobStatus", "Redirects in CrawlDb")
-              .increment(1);
+          context.getCounter(NutchMetrics.GROUP_DEDUP,
+              NutchMetrics.DEDUP_REDIRECTS_IN_CRAWLDB_TOTAL).increment(1);
           if (redirKey.equals(key)) {
             // exclude self-referential redirects
-            context.getCounter("DeduplicationJobStatus",
-                "Self-referential redirects in CrawlDb").increment(1);
+            context
+                .getCounter(NutchMetrics.GROUP_DEDUP,
+                    NutchMetrics.DEDUP_REDIRECTS_SELF_REFERENTIAL_TOTAL)
+                .increment(1);
           } else {
             context.write(redirKey, value);
           }
@@ -219,16 +222,15 @@ public class DedupRedirectsJob extends DeduplicationJob {
           // duplicate!
           unsetDuplicateStatus(existingDoc);
           context.write(origURL, existingDoc);
-          context.getCounter("DeduplicationJobStatus",
-              "Redirects kept as non-duplicates").increment(1);
+          context.getCounter(NutchMetrics.GROUP_DEDUP,
+              NutchMetrics.DEDUP_REDIRECTS_NOT_DUPLICATES_TOTAL).increment(1);
         } else {
           // (c) it is a self-referential redirect
           String targetURL = getTargetURL(existingDoc);
           if (key.toString().equals(targetURL)) {
             context.write(key, existingDoc);
-            context
-                .getCounter("DeduplicationJobStatus",
-                    "Self-referential redirects kept as non-duplicates")
+            context.getCounter(NutchMetrics.GROUP_DEDUP,
+                NutchMetrics.DEDUP_REDIRECTS_SELF_REFERENTIAL_NOT_DUPLICATES_TOTAL)
                 .increment(1);
           }
           // else: ignore redirects emitted under original URL because they are
@@ -306,9 +308,10 @@ public class DedupRedirectsJob extends DeduplicationJob {
         fs.delete(tempDir, true);
         throw new RuntimeException(message);
       }
-      CounterGroup g = job.getCounters().getGroup("DeduplicationJobStatus");
+      CounterGroup g = job.getCounters().getGroup(NutchMetrics.GROUP_DEDUP);
       if (g != null) {
-        Counter counter = g.findCounter("Documents marked as duplicate");
+        Counter counter = g
+            .findCounter(NutchMetrics.DEDUP_DOCUMENTS_MARKED_DUPLICATE_TOTAL);
         numDuplicates = counter.getValue();
         LOG.info("Deduplication: {} documents marked as duplicates",
             numDuplicates);

@@ -24,12 +24,15 @@ import java.net.URL;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.ErrorTracker;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.protocol.ProtocolStatus;
@@ -60,6 +63,10 @@ public class UpdateHostDbMapper
   protected URLFilters filters = null;
   protected URLNormalizers normalizers = null;
 
+  // Cached counter references to avoid repeated lookups in hot paths
+  protected Counter filteredRecordsCounter;
+  protected ErrorTracker errorTracker;
+
   @Override
   public void setup(Mapper<Text, Writable, Text, NutchWritable>.Context context) {
     Configuration conf = context.getConfiguration();
@@ -71,6 +78,19 @@ public class UpdateHostDbMapper
       filters = new URLFilters(conf);
     if (normalize)
       normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_DEFAULT);
+
+    // Initialize cached counter references
+    initCounters(context);
+    // Initialize error tracker with cached counters
+    errorTracker = new ErrorTracker(NutchMetrics.GROUP_HOSTDB, context);
+  }
+
+  /**
+   * Initialize cached counter references to avoid repeated lookups in hot paths.
+   */
+  private void initCounters(Context context) {
+    filteredRecordsCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_FILTERED_RECORDS_TOTAL);
   }
 
   /**
@@ -136,7 +156,7 @@ public class UpdateHostDbMapper
       try {
         url = new URL(keyStr);
       } catch (MalformedURLException e) {
-        context.getCounter("UpdateHostDb", "malformed_url").increment(1);
+        errorTracker.incrementCounters(e);
         return;
       }
       String hostName = URLUtil.getHost(url);
@@ -146,7 +166,7 @@ public class UpdateHostDbMapper
 
       // Filtered out?
       if (buffer == null) {
-        context.getCounter("UpdateHostDb", "filtered_records").increment(1);
+        filteredRecordsCounter.increment(1);
         LOG.debug("UpdateHostDb: {} crawldatum has been filtered", hostName);
         return;
       }
@@ -219,7 +239,7 @@ public class UpdateHostDbMapper
 
       // Filtered out?
       if (buffer == null) {
-        context.getCounter("UpdateHostDb", "filtered_records").increment(1);
+        filteredRecordsCounter.increment(1);
         LOG.debug("UpdateHostDb: {} hostdatum has been filtered", keyStr);
         return;
       }
@@ -243,7 +263,7 @@ public class UpdateHostDbMapper
 
       // Filtered out?
       if (buffer == null) {
-        context.getCounter("UpdateHostDb", "filtered_records").increment(1);
+        filteredRecordsCounter.increment(1);
         LOG.debug("UpdateHostDb: {} score has been filtered", keyStr);
         return;
       }

@@ -24,7 +24,7 @@ jobs:
   javadoc:
     strategy:
       matrix:
-        java: ['11']
+        java: ['17']
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -34,12 +34,19 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
+      - name: Cache Ivy dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.ivy2/cache
+          key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-ivy-
       - name: Javadoc
         run: ant clean javadoc -buildfile build.xml
   rat:
     strategy:
       matrix:
-        java: ['11']
+        java: ['17']
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -49,6 +56,13 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
+      - name: Cache Ivy dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.ivy2/cache
+          key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-ivy-
       - name: Run Apache Rat
         run: ant clean run-rat -buildfile build.xml
       - name: Cache unknown licenses
@@ -62,10 +76,10 @@ jobs:
   tests:
     strategy:
       matrix:
-        java: ['11']
+        java: ['17']
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
       - name: Set up JDK ${{ matrix.java }}
@@ -73,6 +87,13 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
+      - name: Cache Ivy dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.ivy2/cache
+          key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-ivy-
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
         id: filter
         with:
@@ -99,13 +120,23 @@ jobs:
       - name: test plugins
         if: ${{ steps.filter.outputs.plugins == 'true' && steps.filter.outputs.core == 'false' && steps.filter.outputs.buildconf == 'false' }}
         run: ant clean test-plugins -buildfile build.xml
+      - name: Check for test results
+        id: check_tests
+        if: always() && matrix.os == 'ubuntu-latest'
+        run: |
+          shopt -s globstar nullglob
+          files=(./build/test/TEST-*.xml ./build/**/test/TEST-*.xml)
+          if [ ${#files[@]} -gt 0 ]; then
+            echo "has_results=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_results=false" >> $GITHUB_OUTPUT
+          fi
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && matrix.os == 'ubuntu-latest' && steps.check_tests.outputs.has_results == 'true'
         with:
-          name: junit-test-results
+          name: junit-test-results-${{ matrix.os }}
           path: |
             ./build/test/TEST-*.xml
             ./build/**/test/TEST-*.xml
           retention-days: 1
-          overwrite: true

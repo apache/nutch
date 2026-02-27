@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.segment.SegmentChecker;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -155,10 +156,14 @@ public class IndexingJob extends NutchTool implements Tool {
         throw e;
       }
       LOG.info("Indexer: number of documents indexed, deleted, or skipped:");
-      for (Counter counter : job.getCounters().getGroup("IndexerStatus")) {
-        LOG.info("Indexer: {}  {}",
-            String.format(Locale.ROOT, "%6d", counter.getValue()),
-            counter.getName());
+      for (Counter counter : job.getCounters()
+          .getGroup(NutchMetrics.GROUP_INDEXER)) {
+        long counterValue = counter.getValue();
+        if (counterValue > 0) {
+          LOG.info("Indexer: {}  {}",
+              String.format(Locale.ROOT, "%6d", counterValue),
+              counter.getName());
+        }
       }
       stopWatch.stop();
       LOG.info("Indexer: finished, elapsed: {} ms", stopWatch.getTime(

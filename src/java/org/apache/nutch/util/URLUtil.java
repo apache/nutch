@@ -103,7 +103,7 @@ public class URLUtil {
    * <a href= "https://publicsuffix.org/list/public_suffix_list.dat"
    * >https://publicsuffix.org/list/public_suffix_list.dat</a> and are compared
    * using <a href=
-   * "https://crawler-commons.github.io/crawler-commons/1.4/crawlercommons/domains/EffectiveTldFinder.html">
+   * "https://crawler-commons.github.io/crawler-commons/1.6/crawlercommons/domains/EffectiveTldFinder.html">
    * crawler-commons' EffectiveTldFinder</a>. Only ICANN domain suffixes are
    * used. Because EffectiveTldFinder loads the public suffix list as file
    * "effective_tld_names.dat" from the Java classpath, it's possible to use the

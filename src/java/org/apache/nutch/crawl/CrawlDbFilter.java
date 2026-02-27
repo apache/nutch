@@ -22,8 +22,10 @@ import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 
@@ -49,6 +51,11 @@ public class CrawlDbFilter extends
 
   private String scope;
 
+  // Cached counter references for performance
+  private Counter goneRecordsRemovedCounter;
+  private Counter orphanRecordsRemovedCounter;
+  private Counter urlsFilteredCounter;
+
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
@@ -67,6 +74,21 @@ public class CrawlDbFilter extends
       scope = conf.get(URL_NORMALIZING_SCOPE, URLNormalizers.SCOPE_CRAWLDB);
       normalizers = new URLNormalizers(conf, scope);
     }
+    
+    // Initialize cached counter references
+    initCounters(context);
+  }
+
+  /**
+   * Initialize cached counter references to avoid repeated lookups in hot paths.
+   */
+  private void initCounters(Context context) {
+    goneRecordsRemovedCounter = context.getCounter(
+        NutchMetrics.GROUP_CRAWLDB_FILTER, NutchMetrics.CRAWLDB_GONE_RECORDS_REMOVED_TOTAL);
+    orphanRecordsRemovedCounter = context.getCounter(
+        NutchMetrics.GROUP_CRAWLDB_FILTER, NutchMetrics.CRAWLDB_ORPHAN_RECORDS_REMOVED_TOTAL);
+    urlsFilteredCounter = context.getCounter(
+        NutchMetrics.GROUP_CRAWLDB_FILTER, NutchMetrics.CRAWLDB_URLS_FILTERED_TOTAL);
   }
 
   private Text newKey = new Text();
@@ -80,15 +102,13 @@ public class CrawlDbFilter extends
     // https://issues.apache.org/jira/browse/NUTCH-1101 check status first,
     // cheaper than normalizing or filtering
     if (url404Purging && CrawlDatum.STATUS_DB_GONE == value.getStatus()) {
-      context.getCounter("CrawlDB filter",
-        "Gone records removed").increment(1);
+      goneRecordsRemovedCounter.increment(1);
       return;
     }
     // Whether to remove orphaned pages
     // https://issues.apache.org/jira/browse/NUTCH-1932
     if (purgeOrphans && CrawlDatum.STATUS_DB_ORPHAN == value.getStatus()) {
-      context.getCounter("CrawlDB filter",
-        "Orphan records removed").increment(1);
+      orphanRecordsRemovedCounter.increment(1);
       return;
     }
     if (url != null && urlNormalizers) {
@@ -108,7 +128,7 @@ public class CrawlDbFilter extends
       }
     }
     if (url == null) {
-      context.getCounter("CrawlDB filter", "URLs filtered").increment(1);
+      urlsFilteredCounter.increment(1);
     } else {
       // URL has passed filters
       newKey.set(url); // collect it

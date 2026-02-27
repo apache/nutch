@@ -45,6 +45,7 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
@@ -127,11 +128,25 @@ public class DeduplicationJob extends NutchTool implements Tool {
 
     protected String[] compareOrder;
     
+    // Cached counter reference for performance
+    private Counter documentsMarkedDuplicateCounter;
+    
     @Override
     public void setup(
         Reducer<K, CrawlDatum, Text, CrawlDatum>.Context context) {
       Configuration conf = context.getConfiguration();
       compareOrder = conf.get(DEDUPLICATION_COMPARE_ORDER).split(",");
+      
+      // Initialize cached counter reference
+      initCounters(context);
+    }
+
+    /**
+     * Initialize cached counter references to avoid repeated lookups in hot paths.
+     */
+    private void initCounters(Context context) {
+      documentsMarkedDuplicateCounter = context.getCounter(
+          NutchMetrics.GROUP_DEDUP, NutchMetrics.DEDUP_DOCUMENTS_MARKED_DUPLICATE_TOTAL);
     }
 
     protected void writeOutAsDuplicate(CrawlDatum datum,
@@ -139,8 +154,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
         throws IOException, InterruptedException {
       datum.setStatus(CrawlDatum.STATUS_DB_DUPLICATE);
       Text key = (Text) datum.getMetaData().remove(urlKey);
-      context.getCounter("DeduplicationJobStatus",
-          "Documents marked as duplicate").increment(1);
+      documentsMarkedDuplicateCounter.increment(1);
       context.write(key, datum);
     }
 
@@ -334,12 +348,10 @@ public class DeduplicationJob extends NutchTool implements Tool {
         fs.delete(tempDir, true);
         throw new RuntimeException(message);
       }
-      CounterGroup g = job.getCounters().getGroup("DeduplicationJobStatus");
-      if (g != null) {
-        Counter counter = g.findCounter("Documents marked as duplicate");
-        long dups = counter.getValue();
-        LOG.info("Deduplication: {} documents marked as duplicates", dups);
-      }
+      long dups = job.getCounters()
+          .findCounter(NutchMetrics.GROUP_DEDUP, NutchMetrics.DEDUP_DOCUMENTS_MARKED_DUPLICATE_TOTAL)
+          .getValue();
+      LOG.info("Deduplication: {} documents marked as duplicates", dups);
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("DeduplicationJob:", e);
       fs.delete(tempDir, true);
