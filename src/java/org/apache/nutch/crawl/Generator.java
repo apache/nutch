@@ -798,50 +798,6 @@ public class Generator extends NutchTool implements Tool {
   }
 
   /**
-   * This is an old signature used for compatibility - does not specify whether
-   * or not to normalise and set the number of segments to 1
-   * 
-   * @param dbDir
-   *          Crawl database directory
-   * @param segments
-   *          Segments directory
-   * @param numLists
-   *          Number of fetch lists (partitions) per segment or number of
-   *          fetcher map tasks. (One fetch list partition is fetched in one
-   *          fetcher map task.)
-   * @param topN
-   *          Number of top URLs to be selected
-   * @param curTime
-   *          Current time in milliseconds
-   * @param filter
-   *          whether to apply filtering operation
-   * @param force
-   *          if true, and the target lockfile exists, consider it valid. If
-   *          false and the target file exists, throw an IOException.
-   * @deprecated since 1.19 use
-   *             {@link #generate(Path, Path, int, long, long, boolean, boolean, boolean, int, String, String)}
-   *             or
-   *             {@link #generate(Path, Path, int, long, long, boolean, boolean, boolean, int, String)}
-   *             in the instance that no hostdb is available
-   * @throws IOException
-   *           if an I/O exception occurs.
-   * @see LockUtil#createLockFile(Configuration, Path, boolean)
-   * @throws InterruptedException
-   *           if a thread is waiting, sleeping, or otherwise occupied, and the
-   *           thread is interrupted, either before or during the activity.
-   * @throws ClassNotFoundException
-   *           if runtime class(es) are not available
-   * @return Path to generated segment or null if no entries were selected
-   **/
-  @Deprecated
-  public Path[] generate(Path dbDir, Path segments, int numLists, long topN,
-      long curTime, boolean filter, boolean force)
-      throws IOException, InterruptedException, ClassNotFoundException {
-    return generate(dbDir, segments, numLists, topN, curTime, filter, true,
-        force, 1, null);
-  }
-
-  /**
    * This signature should be used in the instance that no hostdb is available.
    * Generate fetchlists in one or more segments. Whether to filter URLs or not
    * is read from the &quot;generate.filter&quot; property set for the job from

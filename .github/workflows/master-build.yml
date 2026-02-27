@@ -22,13 +22,9 @@ on:
     branches: [master]
 
 # Java Version Strategy:
-# - BUILD: Requires Java 17+ (JUnit 6 dependency)
-# - RUNTIME: Supports Java 11+ (javac.version=11 produces Java 11 bytecode)
-#
-# The 'build' job verifies bytecode compilation for both Java 11 and 17 targets.
-# The 'runtime-java11' job verifies the built artifacts actually run on Java 11.
-# The 'tests' job runs on JDK 17 (required by JUnit 6) with the default
-# javac.version=11 bytecode target for backward compatibility.
+# - BUILD and RUNTIME: Java 17 only
+# - The 'build' job compiles with javac.version=17.
+# - The 'tests' job runs on JDK 17.
 
 jobs:
   javadoc:
@@ -85,16 +81,9 @@ jobs:
         if: ${{ env.UNKNOWN_LICENSES != '0 Unknown Licenses' }}
         run: exit 1
 
-  # Build verification with Java bytecode target matrix
-  # Verifies bytecode compatibility for both Java 11 and Java 17 targets
+  # Build verification (Java 17 only)
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        javac-version: ['11', '17']
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    name: build (javac.version=${{ matrix.javac-version }})
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - name: Set up JDK 17
@@ -109,16 +98,13 @@ jobs:
           key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
           restore-keys: |
             ${{ runner.os }}-ivy-
-      - name: Build with javac.version=${{ matrix.javac-version }}
-        run: ant clean runtime -Djavac.version=${{ matrix.javac-version }} -buildfile build.xml
+      - name: Build with Java 17
+        run: ant clean runtime -Djavac.version=17 -buildfile build.xml
       - name: Verify bytecode version
         run: |
-          # Extract and verify the bytecode version of compiled classes
-          # Java 11 = major version 55, Java 17 = major version 61
-          EXPECTED_VERSION=${{ matrix.javac-version == '11' && '55' || '61' }}
-          echo "Expected major version: $EXPECTED_VERSION (Java ${{ matrix.javac-version }})"
-          
-          # Find a real class file (exclude package-info.class which may have different version)
+          # Java 17 = major version 61
+          EXPECTED_VERSION=61
+          echo "Expected major version: $EXPECTED_VERSION (Java 17)"
           cd build/classes
           CLASS_FILE=$(find . -name "*.class" ! -name "package-info.class" | head -1)
           if [ -n "$CLASS_FILE" ]; then
@@ -135,44 +121,7 @@ jobs:
             exit 1
           fi
 
-  # Verify runtime compatibility on Java 11
-  # This ensures the built artifacts can actually run on Java 11
-  runtime-java11:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - name: Set up JDK 17 for building
-        uses: actions/setup-java@v5
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Cache Ivy dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.ivy2/cache
-          key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-ivy-
-      - name: Build with Java 11 target
-        run: ant clean runtime -Djavac.version=11 -buildfile build.xml
-      - name: Set up JDK 11 for runtime verification
-        uses: actions/setup-java@v5
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-      - name: Verify runtime on Java 11
-        run: |
-          echo "Verifying Nutch can run on Java 11..."
-          java -version
-          cd runtime/local
-          # Actually load Java classes by running showproperties
-          # This invokes org.apache.nutch.tools.ShowProperties and verifies the JAR loads
-          bin/nutch showproperties | head -20
-          echo "Java 11 runtime verification complete"
-
-  # Tests run on JDK 17 (required by JUnit 6) with default javac.version=11
-  # Java 11 runtime compatibility is verified by the runtime-java11 job
+  # Tests run on JDK 17
   tests:
     strategy:
       fail-fast: false
@@ -212,16 +161,19 @@ jobs:
               - '.github/workflows/*'
       # run if the build configuration or both 'core' and 'plugins' files were changed
       - name: test all
+        id: build_all
         if: ${{ steps.filter.outputs.buildconf == 'true' || ( steps.filter.outputs.core  == 'true' && steps.filter.outputs.plugins  == 'true' ) }}
-        run: ant clean test -buildfile build.xml
+        run: ant clean test -buildfile build.xml | tee build.log
       # run only if 'core' files were changed
       - name: test core
+        id: build_core
         if: ${{ steps.filter.outputs.core == 'true' && steps.filter.outputs.plugins == 'false' && steps.filter.outputs.buildconf == 'false' }}
-        run: ant clean test-core -buildfile build.xml
+        run: ant clean test-core -buildfile build.xml | tee build.log
       # run only if 'plugins' files were changed
       - name: test plugins
+        id: build_plugins
         if: ${{ steps.filter.outputs.plugins == 'true' && steps.filter.outputs.core == 'false' && steps.filter.outputs.buildconf == 'false' }}
-        run: ant clean test-plugins -buildfile build.xml
+        run: ant clean test-plugins -buildfile build.xml | tee build.log
       # run indexer integration tests when indexer plugin files change (Docker required, ubuntu-latest only)
       - name: test indexer integration
         if: ${{ steps.filter.outputs.indexer_plugins == 'true' && matrix.os == 'ubuntu-latest' }}
@@ -237,6 +189,32 @@ jobs:
           else
             echo "has_results=false" >> $GITHUB_OUTPUT
           fi
+      # check for deprecation warnings in build output
+      # Scenario 1: Approved deprecations are allowlisted and do not fail the build.
+      # Scenario 2: Any other deprecation in the Nutch codebase fails the build.
+      - name: Check for deprecation warnings
+        if: always()
+        run: |
+          if [ ! -f build.log ]; then
+            echo "⚠️ build.log not found, skipping deprecation check."
+            exit 0
+          fi
+          deprecations=$(grep -iE "warning: \[deprecation\]" build.log || true)
+          if [ -z "$deprecations" ]; then
+            echo "✅ No Java deprecation warnings found."
+            exit 0
+          fi
+          # Allowlist: deprecated Nutch classes (e.g. SpellCheckedMetadata, future release), test mocks implementing deprecated Hadoop API,
+          # and classes using commons-cli Option.Builder.build() / HelpFormatter (deprecated in newer commons-cli; we align with Hadoop 3.4.2 / 1.4).
+          APPROVED_PATTERN="SpellCheckedMetadata\.java|CrawlDBTestUtil\.java|CrawlDbUpdateUtil\.java|WebGraph\.java|ScoreUpdater\.java|NodeReader\.java|NodeDumper\.java|LinkRank\.java|LinkDumper\.java|ResolveUrls\.java|NutchServer\.java|CrawlCompletionStats\.java|FileDumper\.java|CommonCrawlDataDumper\.java|MimeTypeIndexingFilter\.java"
+          unapproved=$(echo "$deprecations" | grep -v -E "$APPROVED_PATTERN" || true)
+          if [ -n "$unapproved" ]; then
+            echo "❌ Unapproved Java deprecation warnings detected! Failing the build."
+            echo "$unapproved"
+            exit 1
+          fi
+          echo "✅ Deprecation warnings only in approved deprecated code."
+          exit 0
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         if: always() && matrix.os == 'ubuntu-latest' && steps.check_tests.outputs.has_results == 'true'
@@ -246,6 +224,7 @@ jobs:
             ./build/test/TEST-*.xml
             ./build/**/test/TEST-*.xml
           retention-days: 1
+          overwrite: true
       - name: Upload Coverage Data
         uses: actions/upload-artifact@v4
         if: always() && matrix.os == 'ubuntu-latest'

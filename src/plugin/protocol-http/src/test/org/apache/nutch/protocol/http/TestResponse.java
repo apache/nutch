@@ -116,8 +116,8 @@ public class TestResponse extends AbstractHttpProtocolPluginTest {
         "Testing non-standard HTTP header \"MyCustomHeader\": only exact matching");
     headerTest(200, "MyCustomHeader", value, "MyCustomHeader");
     /*
-     * The following case-insensitive or approximate look-ups are not supported
-     * for non-standard headers by SpellCheckedMetadata:
+     * Case-insensitive look-up for non-standard headers is supported by
+     * CaseInsensitiveMetadata; typo-tolerant look-up is not.
      */
     // testHeader(200, "MyCustomHeader", value, "mycustomheader");
     // testHeader(200, "mycustomheader", value, "MyCustomHeader");

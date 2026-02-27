@@ -208,27 +208,6 @@ public abstract class RobotRulesParser implements Tool {
    *          Contents of the robots file in a byte array
    * @param contentType
    *          The content type of the robots file
-   * @param robotName
-   *          A string containing all the robots agent names used by parser for
-   *          matching
-   * @return BaseRobotRules object
-   */
-  @Deprecated
-  public BaseRobotRules parseRules(String url, byte[] content,
-      String contentType, String robotName) {
-    return robotParser.parseContent(url, content, contentType, robotName);
-  }
-
-  /**
-   * Parses the robots content using the {@link SimpleRobotRulesParser} from
-   * crawler-commons
-   * 
-   * @param url
-   *          The robots.txt URL
-   * @param content
-   *          Contents of the robots file in a byte array
-   * @param contentType
-   *          The content type of the robots file
    * @param robotNames
    *          A collection containing all the robots agent names used by parser
    *          for matching

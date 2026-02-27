@@ -88,9 +88,4 @@ public class Plugin {
   private void setDescriptor(PluginDescriptor descriptor) {
     fDescriptor = descriptor;
   }
-
-  @Override
-  protected void finalize() throws Throwable {
-    shutDown();
-  }
 }

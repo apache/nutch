@@ -27,8 +27,13 @@ import org.apache.commons.lang3.StringUtils;
  * A decorator to Metadata that adds spellchecking capabilities to property
  * names. Currently used spelling vocabulary contains just the HTTP headers from
  * {@link HttpHeaders} class. Other names are case insensitive.
- * 
+ *
+ * @deprecated Spell-checking HTTP header names is no longer recommended. Use
+ *             {@link CaseInsensitiveMetadata} instead for case-insensitive
+ *             header handling (see NUTCH-3002). This class may be removed in a
+ *             future release.
  */
+@Deprecated
 public class SpellCheckedMetadata extends CaseInsensitiveMetadata {
 
   /**
@@ -101,7 +106,7 @@ public class SpellCheckedMetadata extends CaseInsensitiveMetadata {
    * <li>CoNtEntType gives Content-Type</li>
    * <li>ConTnTtYpe gives Content-Type</li>
    * </ul>
-   * If no matching with a well-known metadata name is found, then the original
+   * If no well-known metadata name match is found, then the original
    * name is returned.
    * 
    * @param name

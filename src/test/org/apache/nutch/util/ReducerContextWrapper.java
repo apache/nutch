@@ -266,12 +266,14 @@ public class ReducerContextWrapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
       }
 
       @Override
+      @SuppressWarnings("deprecation")
       public Path[] getLocalCacheArchives() throws IOException {
         // Auto-generated  
         return null;
       }
 
       @Override
+      @SuppressWarnings("deprecation")
       public Path[] getLocalCacheFiles() throws IOException {
         // Auto-generated  
         return null;
@@ -372,6 +374,7 @@ public class ReducerContextWrapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
       }
 
       @Override
+      @SuppressWarnings("deprecation")
       public boolean getSymlink() {
         // Auto-generated  
         return false;

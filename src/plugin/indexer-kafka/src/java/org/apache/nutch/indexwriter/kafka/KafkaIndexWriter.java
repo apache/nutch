@@ -65,11 +65,6 @@ public class KafkaIndexWriter implements IndexWriter {
   private JsonNode json = null;
 
   private List<ProducerRecord<String, JsonNode>> inputDocs = null;
-
-  @Override
-  public void open(Configuration job, String name) throws IOException {
-    //Implementation not required
-  }
   
   @Override
   public void open(IndexWriterParams params) throws IOException {

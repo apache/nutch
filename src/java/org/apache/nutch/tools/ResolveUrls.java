@@ -29,10 +29,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,33 +162,36 @@ public class ResolveUrls {
    * @param args the input arguments for this tool. Running 
    * with 'help' will print parameter options.
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws java.io.IOException {
 
     Options options = new Options();
-    OptionBuilder.withArgName("help");
-    OptionBuilder.withDescription("show this help message");
-    Option helpOpts = OptionBuilder.create("help");
+    Option helpOpts = Option.builder("help")
+        .argName("help")
+        .desc("show this help message")
+        .build();
     options.addOption(helpOpts);
 
-    OptionBuilder.withArgName("urls");
-    OptionBuilder.hasArg();
-    OptionBuilder.withDescription("the urls file to check");
-    Option urlOpts = OptionBuilder.create("urls");
+    Option urlOpts = Option.builder("urls")
+        .argName("urls")
+        .hasArg()
+        .desc("the urls file to check")
+        .build();
     options.addOption(urlOpts);
 
-    OptionBuilder.withArgName("numThreads");
-    OptionBuilder.hasArgs();
-    OptionBuilder.withDescription("the number of threads to use");
-    Option numThreadOpts = OptionBuilder.create("numThreads");
+    Option numThreadOpts = Option.builder("numThreads")
+        .argName("numThreads")
+        .hasArgs()
+        .desc("the number of threads to use")
+        .build();
     options.addOption(numThreadOpts);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     try {
       // parse out common line arguments
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("urls")) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("ResolveUrls", options);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp("ResolveUrls", "", options, "", false);
         return;
       }
 

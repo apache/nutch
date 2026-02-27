@@ -42,7 +42,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.metadata.SpellCheckedMetadata;
+import org.apache.nutch.metadata.CaseInsensitiveMetadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
@@ -62,7 +62,7 @@ public class HttpResponse implements Response {
   private String base;
   private byte[] content;
   private int code;
-  private Metadata headers = new SpellCheckedMetadata();
+  private Metadata headers = new CaseInsensitiveMetadata();
   private InteractiveSeleniumHandler[] handlers;
   // used for storing the http headers verbatim
   private StringBuffer httpHeaders;

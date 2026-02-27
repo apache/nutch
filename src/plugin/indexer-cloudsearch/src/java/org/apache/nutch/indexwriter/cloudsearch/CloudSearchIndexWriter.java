@@ -88,14 +88,7 @@ public class CloudSearchIndexWriter implements IndexWriter {
   private String regionName;
 
   @Override
-  public void open(Configuration conf, String name) throws IOException {
-    //Implementation not required
-  }
-
-  @Override
   public void open(IndexWriterParams parameters) throws IOException {
-    //    LOG.debug("CloudSearchIndexWriter.open() name={} ", name);
-
     endpoint = parameters.get(CloudSearchConstants.ENDPOINT);
     dumpBatchFilesToTemp = parameters
         .getBoolean(CloudSearchConstants.BATCH_DUMP, false);
@@ -114,8 +107,7 @@ public class CloudSearchIndexWriter implements IndexWriter {
     buffer = new StringBuffer(MAX_SIZE_BATCH_BYTES).append('[');
 
     if (dumpBatchFilesToTemp) {
-      // only dumping to local file
-      // no more config required
+      // only dumping to local file no more config required
       return;
     }
 

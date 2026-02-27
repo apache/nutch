@@ -31,10 +31,12 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * JUnit based tests of class
  * {@link org.apache.nutch.metadata.SpellCheckedMetadata}.
- * 
+ * Kept for backward compatibility until SpellCheckedMetadata is removed.
+ *
  * @author Chris Mattmann
  * @author J&eacute;r&ocirc;me Charron
  */
+@SuppressWarnings("deprecation")
 public class TestSpellCheckedMetadata {
 
   private static final int NUM_ITERATIONS = 10000;

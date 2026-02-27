@@ -44,6 +44,7 @@ import com.maxmind.geoip2.record.Location;
 import com.maxmind.geoip2.record.Postal;
 import com.maxmind.geoip2.record.RepresentedCountry;
 import com.maxmind.geoip2.record.Subdivision;
+import com.maxmind.geoip2.record.Anonymizer;
 import com.maxmind.geoip2.record.Traits;
 
 /**
@@ -114,8 +115,8 @@ public class GeoIPDocumentCreator {
     Optional<AnonymousIpResponse> opt = reader.tryAnonymousIp(InetAddress.getByName(serverIp));
     if (opt.isPresent()) {
       AnonymousIpResponse response = opt.get();
-      addIfNotDuplicate(doc, "ip", response.getIpAddress());
-      addIfNotNull(doc, ANONYMOUS_NETWORK_ADDRESS, response.getNetwork().toString());
+      addIfNotDuplicate(doc, "ip", response.ipAddress());
+      addIfNotNull(doc, ANONYMOUS_NETWORK_ADDRESS, response.network().toString());
       addIfNotNull(doc, "isAnonymous", response.isAnonymous());
       addIfNotNull(doc, "isAnonymousVpn", response.isAnonymousVpn());
       addIfNotNull(doc, "isHostingProxy", response.isHostingProvider());
@@ -143,10 +144,10 @@ public class GeoIPDocumentCreator {
     Optional<AsnResponse> opt = reader.tryAsn(InetAddress.getByName(serverIp));
     if (opt.isPresent()) {
       AsnResponse response = opt.get();
-      addIfNotDuplicate(doc, "ip", response.getIpAddress());
-      addIfNotNull(doc, ASN_NETWORK_ADDRESS, response.getNetwork().toString());
-      addIfNotNull(doc, "autonomousSystemNumber", response.getAutonomousSystemNumber());
-      addIfNotNull(doc, "autonomousSystemOrganization", response.getAutonomousSystemOrganization());
+      addIfNotDuplicate(doc, "ip", response.ipAddress());
+      addIfNotNull(doc, ASN_NETWORK_ADDRESS, response.network().toString());
+      addIfNotNull(doc, "autonomousSystemNumber", response.autonomousSystemNumber());
+      addIfNotNull(doc, "autonomousSystemOrganization", response.autonomousSystemOrganization());
     } else {
       LOG.debug("'{}' IP address not found in ASN DB.", serverIp);
     }
@@ -176,75 +177,69 @@ public class GeoIPDocumentCreator {
   }
 
   private static NutchDocument processCityDocument(NutchDocument doc, CityResponse response) {
-    City city = response.getCity();
-    addIfNotNull(doc, "cityName", city.getName());
-    addIfNotNull(doc, "cityConfidence", city.getConfidence());
-    addIfNotNull(doc, "cityGeoNameId", city.getGeoNameId());
+    City city = response.city();
+    addIfNotNull(doc, "cityName", city.name());
+    addIfNotNull(doc, "cityConfidence", city.confidence());
+    addIfNotNull(doc, "cityGeoNameId", city.geonameId());
 
-    Continent continent = response.getContinent();
-    addIfNotNull(doc, "continentCode", continent.getCode());
-    addIfNotNull(doc, "continentGeoNameId", continent.getGeoNameId());
-    addIfNotNull(doc, "continentName", continent.getName());
+    Continent continent = response.continent();
+    addIfNotNull(doc, "continentCode", continent.code());
+    addIfNotNull(doc, "continentGeoNameId", continent.geonameId());
+    addIfNotNull(doc, "continentName", continent.name());
 
-    Country country = response.getRegisteredCountry();
-    addIfNotNull(doc, "countryIsoCode", country.getIsoCode());
-    addIfNotNull(doc, "countryName", country.getName());
-    addIfNotNull(doc, "countryConfidence", country.getConfidence());
-    addIfNotNull(doc, "countryGeoNameId", country.getGeoNameId());
+    Country country = response.registeredCountry();
+    addIfNotNull(doc, "countryIsoCode", country.isoCode());
+    addIfNotNull(doc, "countryName", country.name());
+    addIfNotNull(doc, "countryConfidence", country.confidence());
+    addIfNotNull(doc, "countryGeoNameId", country.geonameId());
     addIfNotNull(doc, "countryInEuropeanUnion", country.isInEuropeanUnion());
 
-    Location location = response.getLocation();
-    if (location.getLatitude() != null && location.getLongitude() != null) {
-      addIfNotNull(doc, "latLon", location.getLatitude() + "," + location.getLongitude());
+    Location location = response.location();
+    if (location.latitude() != null && location.longitude() != null) {
+      addIfNotNull(doc, "latLon", location.latitude() + "," + location.longitude());
     }
-    addIfNotNull(doc, "accuracyRadius", location.getAccuracyRadius());
-    addIfNotNull(doc, "timeZone", location.getTimeZone());
-    addIfNotNull(doc, "populationDensity", location.getPopulationDensity());
+    addIfNotNull(doc, "accuracyRadius", location.accuracyRadius());
+    addIfNotNull(doc, "timeZone", location.timeZone());
+    addIfNotNull(doc, "populationDensity", location.populationDensity());
 
-    Postal postal = response.getPostal();
-    addIfNotNull(doc, "postalCode", postal.getCode());
-    addIfNotNull(doc, "postalConfidence", postal.getConfidence());
+    Postal postal = response.postal();
+    addIfNotNull(doc, "postalCode", postal.code());
+    addIfNotNull(doc, "postalConfidence", postal.confidence());
 
-    RepresentedCountry rCountry = response.getRepresentedCountry();
-    addIfNotNull(doc, "countryType", rCountry.getType());
+    RepresentedCountry rCountry = response.representedCountry();
+    addIfNotNull(doc, "countryType", rCountry.type());
 
-    Subdivision mostSubdivision = response.getMostSpecificSubdivision();
-    addIfNotNull(doc, "mostSpecificSubDivName", mostSubdivision.getName());
-    addIfNotNull(doc, "mostSpecificSubDivIsoCode", mostSubdivision.getIsoCode());
-    addIfNotNull(doc, "mostSpecificSubDivConfidence", mostSubdivision.getConfidence());
-    addIfNotNull(doc, "mostSpecificSubDivGeoNameId", mostSubdivision.getGeoNameId());
+    Subdivision mostSubdivision = response.mostSpecificSubdivision();
+    addIfNotNull(doc, "mostSpecificSubDivName", mostSubdivision.name());
+    addIfNotNull(doc, "mostSpecificSubDivIsoCode", mostSubdivision.isoCode());
+    addIfNotNull(doc, "mostSpecificSubDivConfidence", mostSubdivision.confidence());
+    addIfNotNull(doc, "mostSpecificSubDivGeoNameId", mostSubdivision.geonameId());
 
-    Subdivision leastSubdivision = response.getLeastSpecificSubdivision();
-    addIfNotNull(doc, "leastSpecificSubDivName", leastSubdivision.getName());
-    addIfNotNull(doc, "leastSpecificSubDivIsoCode", leastSubdivision.getIsoCode());
-    addIfNotNull(doc, "leastSpecificSubDivConfidence", leastSubdivision.getConfidence());
-    addIfNotNull(doc, "leastSpecificSubDivGeoNameId", leastSubdivision.getGeoNameId());
+    Subdivision leastSubdivision = response.leastSpecificSubdivision();
+    addIfNotNull(doc, "leastSpecificSubDivName", leastSubdivision.name());
+    addIfNotNull(doc, "leastSpecificSubDivIsoCode", leastSubdivision.isoCode());
+    addIfNotNull(doc, "leastSpecificSubDivConfidence", leastSubdivision.confidence());
+    addIfNotNull(doc, "leastSpecificSubDivGeoNameId", leastSubdivision.geonameId());
 
-    Traits traits = response.getTraits();
-    addIfNotNull(doc, "autonomousSystemNumber", traits.getAutonomousSystemNumber());
-    addIfNotNull(doc, "autonomousSystemOrganization", traits.getAutonomousSystemOrganization());
-    if (traits.getConnectionType() != null) {
-      addIfNotNull(doc, "connectionType", traits.getConnectionType().toString());
+    Traits traits = response.traits();
+    addIfNotNull(doc, "autonomousSystemNumber", traits.autonomousSystemNumber());
+    addIfNotNull(doc, "autonomousSystemOrganization", traits.autonomousSystemOrganization());
+    if (traits.connectionType() != null) {
+      addIfNotNull(doc, "connectionType", traits.connectionType().toString());
     }
-    addIfNotNull(doc, "domain", traits.getDomain());
-    addIfNotNull(doc, "isp", traits.getIsp());
-    addIfNotNull(doc, "mobileCountryCode", traits.getMobileCountryCode());
-    addIfNotNull(doc, "mobileNetworkCode", traits.getMobileNetworkCode());
-    if (traits.getNetwork() != null) {
-      addIfNotNull(doc, CITY_NETWORK_ADDRESS, traits.getNetwork().toString());
+    addIfNotNull(doc, "domain", traits.domain());
+    addIfNotNull(doc, "isp", traits.isp());
+    addIfNotNull(doc, "mobileCountryCode", traits.mobileCountryCode());
+    addIfNotNull(doc, "mobileNetworkCode", traits.mobileNetworkCode());
+    if (traits.network() != null) {
+      addIfNotNull(doc, CITY_NETWORK_ADDRESS, traits.network().toString());
     }
-    addIfNotNull(doc, "organization", traits.getOrganization());
-    addIfNotNull(doc, "staticIpScore", traits.getStaticIpScore());
-    addIfNotNull(doc, "userCount", traits.getUserCount());
-    addIfNotNull(doc, "userType", traits.getUserType());
-    addIfNotNull(doc, "isAnonymous", traits.isAnonymous());
-    addIfNotNull(doc, "isAnonymousVpn", traits.isAnonymousVpn());
+    addIfNotNull(doc, "organization", traits.organization());
+    addIfNotNull(doc, "staticIpScore", traits.staticIpScore());
+    addIfNotNull(doc, "userCount", traits.userCount());
+    addIfNotNull(doc, "userType", traits.userType());
     addIfNotNull(doc, "isAnycast", traits.isAnycast());
-    addIfNotNull(doc, "isHostingProvider", traits.isHostingProvider());
     addIfNotNull(doc, "isLegitimateProxy", traits.isLegitimateProxy());
-    addIfNotNull(doc, "isPublicProxy", traits.isPublicProxy());
-    addIfNotNull(doc, "isResidentialProxy", traits.isResidentialProxy());
-    addIfNotNull(doc, "isTorExitNode", traits.isTorExitNode());
     return doc;
   }
 
@@ -264,12 +259,12 @@ public class GeoIPDocumentCreator {
         .getByName(serverIp));
     if (opt.isPresent()) {
       ConnectionTypeResponse response = opt.get();
-      addIfNotDuplicate(doc, "ip", response.getIpAddress());
-      if (response.getConnectionType() != null) {
-        addIfNotNull(doc, "connectionType", response.getConnectionType().toString());
+      addIfNotDuplicate(doc, "ip", response.ipAddress());
+      if (response.connectionType() != null) {
+        addIfNotNull(doc, "connectionType", response.connectionType().toString());
       }
-      if (response.getNetwork() != null) {
-        addIfNotNull(doc, CONNECTION_NETWORK_ADDRESS, response.getNetwork().toString());
+      if (response.network() != null) {
+        addIfNotNull(doc, CONNECTION_NETWORK_ADDRESS, response.network().toString());
       }
     } else {
       LOG.debug("'{}' IP address not found in Connection DB.", serverIp);
@@ -295,33 +290,27 @@ public class GeoIPDocumentCreator {
       CountryResponse response = opt.get();
       addIfNotDuplicate(doc, "ip", serverIp);
 
-      Continent continent = response.getContinent();
-      addIfNotDuplicate(doc, "continentCode", continent.getCode());
-      addIfNotDuplicate(doc, "continentGeoNameId", continent.getGeoNameId());
-      addIfNotDuplicate(doc, "continentName", continent.getName());
+      Continent continent = response.continent();
+      addIfNotDuplicate(doc, "continentCode", continent.code());
+      addIfNotDuplicate(doc, "continentGeoNameId", continent.geonameId());
+      addIfNotDuplicate(doc, "continentName", continent.name());
 
-      Country country = response.getRegisteredCountry();
-      addIfNotDuplicate(doc, "countryIsoCode", country.getIsoCode());
-      addIfNotDuplicate(doc, "countryName", country.getName());
-      addIfNotDuplicate(doc, "countryConfidence", country.getConfidence());
-      addIfNotDuplicate(doc, "countryGeoNameId", country.getGeoNameId());
+      Country country = response.registeredCountry();
+      addIfNotDuplicate(doc, "countryIsoCode", country.isoCode());
+      addIfNotDuplicate(doc, "countryName", country.name());
+      addIfNotDuplicate(doc, "countryConfidence", country.confidence());
+      addIfNotDuplicate(doc, "countryGeoNameId", country.geonameId());
       addIfNotDuplicate(doc, "countryInEuropeanUnion", country.isInEuropeanUnion());
 
-      RepresentedCountry rCountry = response.getRepresentedCountry();
-      addIfNotDuplicate(doc, "countryType", rCountry.getType());
+      RepresentedCountry rCountry = response.representedCountry();
+      addIfNotDuplicate(doc, "countryType", rCountry.type());
 
-      Traits traits = response.getTraits();
-      if (traits.getNetwork() != null) {
-        addIfNotNull(doc, COUNTRY_NETWORK_ADDRESS, traits.getNetwork().toString());
+      Traits traits = response.traits();
+      if (traits.network() != null) {
+        addIfNotNull(doc, COUNTRY_NETWORK_ADDRESS, traits.network().toString());
       }
-      addIfNotDuplicate(doc, "isAnonymous", traits.isAnonymous());
-      addIfNotDuplicate(doc, "isAnonymousVpn", traits.isAnonymousVpn());
       addIfNotDuplicate(doc, "isAnycast", traits.isAnycast());
-      addIfNotDuplicate(doc, "isHostingProvider", traits.isHostingProvider());
       addIfNotDuplicate(doc, "isLegitimateProxy", traits.isLegitimateProxy());
-      addIfNotDuplicate(doc, "isPublicProxy", traits.isPublicProxy());
-      addIfNotDuplicate(doc, "isResidentialProxy", traits.isResidentialProxy());
-      addIfNotDuplicate(doc, "isTorExitNode", traits.isTorExitNode());
     } else {
       LOG.debug("'{}' IP address not found in Country DB.", serverIp);
     }
@@ -343,9 +332,9 @@ public class GeoIPDocumentCreator {
     Optional<DomainResponse> opt = reader.tryDomain(InetAddress.getByName(serverIp));
     if (opt.isPresent()) {
       DomainResponse response = opt.get();
-      addIfNotDuplicate(doc, "ip", response.getIpAddress());
-      addIfNotNull(doc, "domain", response.getDomain());
-      addIfNotNull(doc, DOMAIN_NETWORK_ADDRESS, response.getNetwork().toString());
+      addIfNotDuplicate(doc, "ip", response.ipAddress());
+      addIfNotNull(doc, "domain", response.domain());
+      addIfNotNull(doc, DOMAIN_NETWORK_ADDRESS, response.network().toString());
     } else {
       LOG.debug("'{}' IP address not found in Domain DB.", serverIp);
     }
@@ -369,75 +358,76 @@ public class GeoIPDocumentCreator {
   }
 
   private static NutchDocument processInsightsDocument(NutchDocument doc, InsightsResponse response) {
-    City city = response.getCity();
-    addIfNotNull(doc, "cityName", city.getName());
-    addIfNotNull(doc, "cityConfidence", city.getConfidence());
-    addIfNotNull(doc, "cityGeoNameId", city.getGeoNameId());
+    City city = response.city();
+    addIfNotNull(doc, "cityName", city.name());
+    addIfNotNull(doc, "cityConfidence", city.confidence());
+    addIfNotNull(doc, "cityGeoNameId", city.geonameId());
 
-    Continent continent = response.getContinent();
-    addIfNotNull(doc, "continentCode", continent.getCode());
-    addIfNotNull(doc, "continentGeoNameId", continent.getGeoNameId());
-    addIfNotNull(doc, "continentName", continent.getName());
+    Continent continent = response.continent();
+    addIfNotNull(doc, "continentCode", continent.code());
+    addIfNotNull(doc, "continentGeoNameId", continent.geonameId());
+    addIfNotNull(doc, "continentName", continent.name());
 
-    Country country = response.getRegisteredCountry();
-    addIfNotNull(doc, "countryIsoCode", country.getIsoCode());
-    addIfNotNull(doc, "countryName", country.getName());
-    addIfNotNull(doc, "countryConfidence", country.getConfidence());
-    addIfNotNull(doc, "countryGeoNameId", country.getGeoNameId());
+    Country country = response.registeredCountry();
+    addIfNotNull(doc, "countryIsoCode", country.isoCode());
+    addIfNotNull(doc, "countryName", country.name());
+    addIfNotNull(doc, "countryConfidence", country.confidence());
+    addIfNotNull(doc, "countryGeoNameId", country.geonameId());
     addIfNotNull(doc, "countryInEuropeanUnion", country.isInEuropeanUnion());
 
-    Location location = response.getLocation();
-    if (location.getLatitude() != null && location.getLongitude() != null) {
-      addIfNotNull(doc, "latLon", location.getLatitude() + "," + location.getLongitude());
+    Location location = response.location();
+    if (location.latitude() != null && location.longitude() != null) {
+      addIfNotNull(doc, "latLon", location.latitude() + "," + location.longitude());
     }
-    addIfNotNull(doc, "accuracyRadius", location.getAccuracyRadius());
-    addIfNotNull(doc, "timeZone", location.getTimeZone());
-    addIfNotNull(doc, "populationDensity", location.getPopulationDensity());
+    addIfNotNull(doc, "accuracyRadius", location.accuracyRadius());
+    addIfNotNull(doc, "timeZone", location.timeZone());
+    addIfNotNull(doc, "populationDensity", location.populationDensity());
 
-    Postal postal = response.getPostal();
-    addIfNotNull(doc, "postalCode", postal.getCode());
-    addIfNotNull(doc, "postalConfidence", postal.getConfidence());
+    Postal postal = response.postal();
+    addIfNotNull(doc, "postalCode", postal.code());
+    addIfNotNull(doc, "postalConfidence", postal.confidence());
 
-    RepresentedCountry rCountry = response.getRepresentedCountry();
-    addIfNotNull(doc, "countryType", rCountry.getType());
+    RepresentedCountry rCountry = response.representedCountry();
+    addIfNotNull(doc, "countryType", rCountry.type());
 
-    Subdivision mostSubdivision = response.getMostSpecificSubdivision();
-    addIfNotNull(doc, "mostSpecificSubDivName", mostSubdivision.getName());
-    addIfNotNull(doc, "mostSpecificSubDivIsoCode", mostSubdivision.getIsoCode());
-    addIfNotNull(doc, "mostSpecificSubDivConfidence", mostSubdivision.getConfidence());
-    addIfNotNull(doc, "mostSpecificSubDivGeoNameId", mostSubdivision.getGeoNameId());
+    Subdivision mostSubdivision = response.mostSpecificSubdivision();
+    addIfNotNull(doc, "mostSpecificSubDivName", mostSubdivision.name());
+    addIfNotNull(doc, "mostSpecificSubDivIsoCode", mostSubdivision.isoCode());
+    addIfNotNull(doc, "mostSpecificSubDivConfidence", mostSubdivision.confidence());
+    addIfNotNull(doc, "mostSpecificSubDivGeoNameId", mostSubdivision.geonameId());
 
-    Subdivision leastSubdivision = response.getLeastSpecificSubdivision();
-    addIfNotNull(doc, "leastSpecificSubDivName", leastSubdivision.getName());
-    addIfNotNull(doc, "leastSpecificSubDivIsoCode", leastSubdivision.getIsoCode());
-    addIfNotNull(doc, "leastSpecificSubDivConfidence", leastSubdivision.getConfidence());
-    addIfNotNull(doc, "leastSpecificSubDivGeoNameId", leastSubdivision.getGeoNameId());
+    Subdivision leastSubdivision = response.leastSpecificSubdivision();
+    addIfNotNull(doc, "leastSpecificSubDivName", leastSubdivision.name());
+    addIfNotNull(doc, "leastSpecificSubDivIsoCode", leastSubdivision.isoCode());
+    addIfNotNull(doc, "leastSpecificSubDivConfidence", leastSubdivision.confidence());
+    addIfNotNull(doc, "leastSpecificSubDivGeoNameId", leastSubdivision.geonameId());
 
-    Traits traits = response.getTraits();
-    addIfNotNull(doc, "autonomousSystemNumber", traits.getAutonomousSystemNumber());
-    addIfNotNull(doc, "autonomousSystemOrganization", traits.getAutonomousSystemOrganization());
-    if (traits.getConnectionType() != null) {
-      addIfNotNull(doc, "connectionType", traits.getConnectionType().toString());
+    Traits traits = response.traits();
+    addIfNotNull(doc, "autonomousSystemNumber", traits.autonomousSystemNumber());
+    addIfNotNull(doc, "autonomousSystemOrganization", traits.autonomousSystemOrganization());
+    if (traits.connectionType() != null) {
+      addIfNotNull(doc, "connectionType", traits.connectionType().toString());
     }
-    addIfNotNull(doc, "domain", traits.getDomain());
-    addIfNotNull(doc, "isp", traits.getIsp());
-    addIfNotNull(doc, "mobileCountryCode", traits.getMobileCountryCode());
-    addIfNotNull(doc, "mobileNetworkCode", traits.getMobileNetworkCode());
-    if (traits.getNetwork() != null) {
-      addIfNotNull(doc, INSIGHTS_NETWORK_ADDRESS, traits.getNetwork().toString());
+    addIfNotNull(doc, "domain", traits.domain());
+    addIfNotNull(doc, "isp", traits.isp());
+    addIfNotNull(doc, "mobileCountryCode", traits.mobileCountryCode());
+    addIfNotNull(doc, "mobileNetworkCode", traits.mobileNetworkCode());
+    if (traits.network() != null) {
+      addIfNotNull(doc, INSIGHTS_NETWORK_ADDRESS, traits.network().toString());
     }
-    addIfNotNull(doc, "organization", traits.getOrganization());
-    addIfNotNull(doc, "staticIpScore", traits.getStaticIpScore());
-    addIfNotNull(doc, "userCount", traits.getUserCount());
-    addIfNotNull(doc, "userType", traits.getUserType());
-    addIfNotNull(doc, "isAnonymous", traits.isAnonymous());
-    addIfNotNull(doc, "isAnonymousVpn", traits.isAnonymousVpn());
+    addIfNotNull(doc, "organization", traits.organization());
+    addIfNotNull(doc, "staticIpScore", traits.staticIpScore());
+    addIfNotNull(doc, "userCount", traits.userCount());
+    addIfNotNull(doc, "userType", traits.userType());
     addIfNotNull(doc, "isAnycast", traits.isAnycast());
-    addIfNotNull(doc, "isHostingProvider", traits.isHostingProvider());
     addIfNotNull(doc, "isLegitimateProxy", traits.isLegitimateProxy());
-    addIfNotNull(doc, "isPublicProxy", traits.isPublicProxy());
-    addIfNotNull(doc, "isResidentialProxy", traits.isResidentialProxy());
-    addIfNotNull(doc, "isTorExitNode", traits.isTorExitNode());
+    Anonymizer anonymizer = response.anonymizer();
+    addIfNotNull(doc, "isAnonymous", anonymizer.isAnonymous());
+    addIfNotNull(doc, "isAnonymousVpn", anonymizer.isAnonymousVpn());
+    addIfNotNull(doc, "isHostingProvider", anonymizer.isHostingProvider());
+    addIfNotNull(doc, "isPublicProxy", anonymizer.isPublicProxy());
+    addIfNotNull(doc, "isResidentialProxy", anonymizer.isResidentialProxy());
+    addIfNotNull(doc, "isTorExitNode", anonymizer.isTorExitNode());
     return doc;
   }
 
@@ -456,11 +446,11 @@ public class GeoIPDocumentCreator {
     Optional<IspResponse> opt = reader.tryIsp(InetAddress.getByName(serverIp));
     if (opt.isPresent()) {
       IspResponse response = opt.get();
-      addIfNotDuplicate(doc, "ip", response.getIpAddress());
-      addIfNotNull(doc, "autonSystemNum", response.getAutonomousSystemNumber());
-      addIfNotNull(doc, "autonSystemOrg", response.getAutonomousSystemOrganization());
-      addIfNotNull(doc, "isp", response.getIsp());
-      addIfNotNull(doc, "org", response.getOrganization());
+      addIfNotDuplicate(doc, "ip", response.ipAddress());
+      addIfNotNull(doc, "autonSystemNum", response.autonomousSystemNumber());
+      addIfNotNull(doc, "autonSystemOrg", response.autonomousSystemOrganization());
+      addIfNotNull(doc, "isp", response.isp());
+      addIfNotNull(doc, "org", response.organization());
     } else {
       LOG.debug("'{}' IP address not found in ISP DB.", serverIp);
     }
