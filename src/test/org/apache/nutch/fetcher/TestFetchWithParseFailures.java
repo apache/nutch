@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +23,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -35,7 +40,9 @@ import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.junit.jupiter.api.AfterEach;
@@ -56,8 +63,6 @@ public class TestFetchWithParseFailures {
   
   private static final String BASE_FOLDER = "build/test/data/fetch-parse-failure";
   private static final String TEST_FILE = "test.html";
-  private static final String BKP_FILE = "test.html.bkp";
-  private static String badContent;
   
   private Configuration conf;
   private FileSystem fs;
@@ -70,23 +75,19 @@ public class TestFetchWithParseFailures {
   private static java.nio.file.Path baseFolderPath;
   
   private static ExecutorService executor = Executors.newCachedThreadPool();
+  private static final AtomicInteger FETCH_COUNT = new AtomicInteger(0);
   
   
   @BeforeEach
   public void setUp() throws Exception {
     baseFolderPath = java.nio.file.Paths.get(BASE_FOLDER);
-    java.nio.file.Files.copy(baseFolderPath.resolve(TEST_FILE), baseFolderPath.getParent().resolve(BKP_FILE));
     
     files = java.nio.file.Files.list(baseFolderPath).map(p -> p.getFileName().toString()).filter(n -> !n.equals("robots.txt")).collect(Collectors.toList());
     Collections.sort(files);
     LOG.info("TEST FILES : " + files);
     
-    byte[] randomBytes = new byte[256];
-    new Random(123).nextBytes(randomBytes);
-    badContent = new String(randomBytes);
-    
     conf = CrawlDBTestUtil.createContext().getConfiguration();
-    conf.set("plugin.includes", "protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|indexer-csv|scoring-opic|urlnormalizer-(pass|regex|basic)");
+    conf.set("plugin.includes", "protocol-http|urlfilter-regex|parse-html|index-(basic|anchor)|indexer-csv|scoring-opic|urlnormalizer-(pass|regex|basic)");
     conf.setInt("fetcher.threads.fetch", 1);
     conf.setBoolean("fetcher.parse", true);
     conf.setBoolean("fetcher.store.content", true);
@@ -99,7 +100,7 @@ public class TestFetchWithParseFailures {
     urlPath = new Path(TEST_DIR, "urls");
     server = CrawlDBTestUtil.getServer(
         conf.getInt("content.server.port", 1234),
-        BASE_FOLDER);
+        BASE_FOLDER, new ParseFailureResourceHandler());
     server.start();
   }
 
@@ -113,8 +114,6 @@ public class TestFetchWithParseFailures {
       }
     }
     fs.delete(TEST_DIR, true);
-    java.nio.file.Files.copy(baseFolderPath.getParent().resolve(BKP_FILE), baseFolderPath.resolve(TEST_FILE), StandardCopyOption.REPLACE_EXISTING);
-    java.nio.file.Files.delete(baseFolderPath.getParent().resolve(BKP_FILE));
   }
   
 
@@ -122,7 +121,6 @@ public class TestFetchWithParseFailures {
   // Ref: full hadoop.log in logs/hadoop.log
   @Disabled("The default HTML Parser (Neko) is a lot more tolerant than expected.  Even random bytes in an HTML file do not produce a parsing error.")
   public void testFetchWithParseFailure() throws Exception {
-    AtomicInteger fetchCount= new AtomicInteger(0);
     AbstractFetchSchedule schedule = new AbstractFetchSchedule(conf) {};
     
     // generate seedlist
@@ -153,13 +151,13 @@ public class TestFetchWithParseFailures {
         } catch (Throwable t) {
           LOG.error("ERROR!", t);
         } finally {
-          fetchCount.incrementAndGet();
+          FETCH_COUNT.incrementAndGet();
         }
         return null;
       }}).get();
     Assertions.assertFalse(result1.isEmpty());
     Assertions.assertEquals("0", result1.get(Nutch.VAL_RESULT));
-    Assertions.assertEquals(1, fetchCount.get());
+    Assertions.assertEquals(1, FETCH_COUNT.get());
     
     CrawlDb crawlDb = new CrawlDb(conf);
     crawlDb.update(crawldbPath, generatedSegment1, true, true, true, true);
@@ -182,26 +180,11 @@ public class TestFetchWithParseFailures {
     }
     assertEquals(urls.size(), fetchedUrls.size());
     LOG.info("1ST FETCHED URLS: {}", fetchedUrls);
-
-    LOG.info("CHANGE FILE CONTENT: {}", baseFolderPath.resolve(TEST_FILE));
-    // change content to un-parseable
-    try(BufferedWriter writer = 
-        java.nio.file.Files.newBufferedWriter(baseFolderPath.resolve(TEST_FILE), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)){
-      writer.write(badContent);
-      writer.flush();
-    }
-//    try(InputStream input = java.nio.file.Files.newInputStream(baseFolderPath.resolve(TEST_FILE), StandardOpenOption.READ)){
-//      String content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
-//      LOG.info("TEST CONTENT IN FILE: {}", content); // makes the log file unreadable
-//    }
-    // refresh the server
-    server.stop();
-    server.start();
-//    // Validate what is actually served:
+    
+//    // Validate what is now served:
 //    String urlString = "http://127.0.0.1:55000/test.html";
 //    Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
-//    Content content = protocol.getProtocolOutput(new Text(urlString),
-//        new CrawlDatum()).getContent();
+//    Content content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
 //    String contentStr = new String(content.getContent());
 //    LOG.info("TEST CONTENT FROM SERVER: {}", contentStr); // makes the log file unreadable
     
@@ -234,13 +217,13 @@ public class TestFetchWithParseFailures {
         } catch (Throwable t) {
           LOG.error("ERROR!", t);
         } finally {
-          fetchCount.incrementAndGet();
+          FETCH_COUNT.incrementAndGet();
         }
         return null;
       }}).get();
     Assertions.assertFalse(result2.isEmpty());
     Assertions.assertEquals("0", result2.get(Nutch.VAL_RESULT));
-    Assertions.assertEquals(2, fetchCount.get());
+    Assertions.assertEquals(2, FETCH_COUNT.get());
 
     // verify parsed data
     LOG.info("2ND VERIFY CONTENT");
@@ -265,6 +248,30 @@ public class TestFetchWithParseFailures {
         Assertions.assertEquals(entry.getValue(), ""+CrawlDatum.STATUS_PARSE_FAILED);
       } else {
         Assertions.assertEquals(entry.getValue(), ""+CrawlDatum.STATUS_FETCH_SUCCESS);
+      }
+    }
+  }
+  
+  public static class ParseFailureResourceHandler extends ResourceHandler {
+    
+    public ParseFailureResourceHandler() {
+      super();
+    }
+    
+    @Override
+    public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) 
+        throws IOException, ServletException {
+      if(FETCH_COUNT.get() == 1 && target.endsWith(TEST_FILE)) {
+        LOG.info("FEEDING RANDOM BYTES INTO THE RESPONSE");
+        response.setContentType("text/html");
+        response.setContentLength(100); // wrong length on purpose
+
+        byte[] randomBytes = new byte[1024];
+        new Random(123).nextBytes(randomBytes);
+        response.getOutputStream().write(randomBytes);
+        
+      } else {
+        super.handle(target, baseRequest, request, response);
       }
     }
   }
