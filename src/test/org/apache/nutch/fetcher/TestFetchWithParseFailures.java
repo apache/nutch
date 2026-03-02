@@ -2,8 +2,11 @@ package org.apache.nutch.fetcher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -11,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,8 +33,11 @@ import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.crawl.Injector;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.Protocol;
+import org.apache.nutch.protocol.ProtocolFactory;
 import org.eclipse.jetty.server.Server;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.CrawlDb;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,9 +57,7 @@ public class TestFetchWithParseFailures {
   private static final String BASE_FOLDER = "build/test/data/fetch-parse-failure";
   private static final String TEST_FILE = "test.html";
   private static final String BKP_FILE = "test.html.bkp";
-  private static final String HTML_BAD = "<html><body>This should not parse as <html...!";
-  // unused good html, to check if 2 fetches are done: lines ~180-181
-  private static final String HTML_GOOD = "<html><body>This should parse as html...!</body><html>";
+  private static String badContent;
   
   private Configuration conf;
   private FileSystem fs;
@@ -76,12 +81,12 @@ public class TestFetchWithParseFailures {
     Collections.sort(files);
     LOG.info("TEST FILES : " + files);
     
+    byte[] randomBytes = new byte[256];
+    new Random(123).nextBytes(randomBytes);
+    badContent = new String(randomBytes);
+    
     conf = CrawlDBTestUtil.createContext().getConfiguration();
     conf.set("plugin.includes", "protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|indexer-csv|scoring-opic|urlnormalizer-(pass|regex|basic)");
-    //conf.setLong("db.fetch.interval.default", 1);
-    //conf.setLong("db.fetch.interval.max", 1);
-    //conf.setLong("fetcher.timelimit.mins", 2);
-    //conf.setInt("fetcher.threads.start.delay", 1);
     conf.setInt("fetcher.threads.fetch", 1);
     conf.setBoolean("fetcher.parse", true);
     conf.setBoolean("fetcher.store.content", true);
@@ -114,7 +119,8 @@ public class TestFetchWithParseFailures {
   
 
   @Test
-  //@Disabled("This test does not fully run 99 times out of 100, but still fails at line 246, instead of printing log message or failing on intermediate assertions.")
+  // Ref: full hadoop.log in logs/hadoop.log
+  @Disabled("The default HTML Parser (Neko) is a lot more tolerant than expected.  Even random bytes in an HTML file do not produce a parsing error.")
   public void testFetchWithParseFailure() throws Exception {
     AtomicInteger fetchCount= new AtomicInteger(0);
     AbstractFetchSchedule schedule = new AbstractFetchSchedule(conf) {};
@@ -155,6 +161,9 @@ public class TestFetchWithParseFailures {
     Assertions.assertEquals("0", result1.get(Nutch.VAL_RESULT));
     Assertions.assertEquals(1, fetchCount.get());
     
+    CrawlDb crawlDb = new CrawlDb(conf);
+    crawlDb.update(crawldbPath, generatedSegment1, true, true, true, true);
+    
     // verify content
     LOG.info("1ST VERIFY CONTENT");
     Map<String, String> fetchedUrls = new HashMap<>();
@@ -173,14 +182,28 @@ public class TestFetchWithParseFailures {
     }
     assertEquals(urls.size(), fetchedUrls.size());
     LOG.info("1ST FETCHED URLS: {}", fetchedUrls);
-    
+
+    LOG.info("CHANGE FILE CONTENT: {}", baseFolderPath.resolve(TEST_FILE));
     // change content to un-parseable
     try(BufferedWriter writer = 
         java.nio.file.Files.newBufferedWriter(baseFolderPath.resolve(TEST_FILE), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)){
-      writer.write(HTML_BAD);
-      //writer.write(HTML_GOOD);
+      writer.write(badContent);
       writer.flush();
     }
+//    try(InputStream input = java.nio.file.Files.newInputStream(baseFolderPath.resolve(TEST_FILE), StandardOpenOption.READ)){
+//      String content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+//      LOG.info("TEST CONTENT IN FILE: {}", content); // makes the log file unreadable
+//    }
+    // refresh the server
+    server.stop();
+    server.start();
+//    // Validate what is actually served:
+//    String urlString = "http://127.0.0.1:55000/test.html";
+//    Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
+//    Content content = protocol.getProtocolOutput(new Text(urlString),
+//        new CrawlDatum()).getContent();
+//    String contentStr = new String(content.getContent());
+//    LOG.info("TEST CONTENT FROM SERVER: {}", contentStr); // makes the log file unreadable
     
     // force re-fetch and wait a bit
     urls.forEach(i -> 
@@ -195,6 +218,7 @@ public class TestFetchWithParseFailures {
         Long.MAX_VALUE, Long.MAX_VALUE, false, false, true, 1, null);
     Assertions.assertNotNull(generatedSegment2);
 
+    crawlDb.update(crawldbPath, generatedSegment2, true, true, true, true);
 
     Map<String, Object> args2 = Map.of("segment", generatedSegment2[0]);
     // next fetch should generate parse failure
@@ -208,7 +232,6 @@ public class TestFetchWithParseFailures {
         try {
           return fetcher2.run(args2, "2");
         } catch (Throwable t) {
-          System.out.println("ERROR! " + t.getMessage() + " StackTrace: " + t.getStackTrace());
           LOG.error("ERROR!", t);
         } finally {
           fetchCount.incrementAndGet();
@@ -218,10 +241,6 @@ public class TestFetchWithParseFailures {
     Assertions.assertFalse(result2.isEmpty());
     Assertions.assertEquals("0", result2.get(Nutch.VAL_RESULT));
     Assertions.assertEquals(2, fetchCount.get());
-    
-    /* Even if execution comes to this point, it does not print the next 2 System.out messages, 
-     * but it continues, and fails the validation below.
-     * Log for the 2nd fetch ends with the QueueFeeder queuing status" */
 
     // verify parsed data
     LOG.info("2ND VERIFY CONTENT");
