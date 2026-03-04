@@ -2,14 +2,8 @@ package org.apache.nutch.fetcher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,7 +13,6 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -38,8 +31,6 @@ import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.crawl.Injector;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.Protocol;
-import org.apache.nutch.protocol.ProtocolFactory;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -89,6 +80,9 @@ public class TestFetchWithParseFailures {
     conf = CrawlDBTestUtil.createContext().getConfiguration();
     conf.set("plugin.includes", "protocol-http|urlfilter-regex|parse-html|index-(basic|anchor)|indexer-csv|scoring-opic|urlnormalizer-(pass|regex|basic)");
     conf.setInt("fetcher.threads.fetch", 1);
+    conf.setInt("http.content.limit", 1024);
+    // Default parser.html.impl is 'neko', other option is 'tagsoup'. Both are too tolerant for this test.
+    conf.set("parser.html.impl", "tagsoup");
     conf.setBoolean("fetcher.parse", true);
     conf.setBoolean("fetcher.store.content", true);
     conf.setBoolean(Nutch.DELETE_FAILED_PARSE, true);
@@ -264,9 +258,9 @@ public class TestFetchWithParseFailures {
       if(FETCH_COUNT.get() == 1 && target.endsWith(TEST_FILE)) {
         LOG.info("FEEDING RANDOM BYTES INTO THE RESPONSE");
         response.setContentType("text/html");
-        response.setContentLength(100); // wrong length on purpose
+        response.setContentLength(2048);
 
-        byte[] randomBytes = new byte[1024];
+        byte[] randomBytes = new byte[2048];
         new Random(123).nextBytes(randomBytes);
         response.getOutputStream().write(randomBytes);
         
