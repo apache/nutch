@@ -114,11 +114,4 @@ public interface Nutch {
   public static final String FETCH_EVENT_FETCHTIME = "fetchTime";
   /** Content-lanueage key in the Pub/Sub event metadata for the content-language of the parsed page*/
   public static final String FETCH_EVENT_CONTENTLANG = "content-language";
-
-
-  /**
-   * Configuration property to delete documents that failed to be parsed. Used
-   * in Fetcher and Indexer.
-   */
-  public static final String DELETE_FAILED_PARSE = "parser.delete.failed.parse";
 }

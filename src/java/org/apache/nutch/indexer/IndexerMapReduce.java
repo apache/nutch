@@ -51,6 +51,7 @@ import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -246,7 +247,7 @@ public class IndexerMapReduce extends Configured {
           false);
       deleteSkippedByIndexingFilter = conf.getBoolean(INDEXER_DELETE_SKIPPED,
           false);
-      deleteFailedParse = conf.getBoolean(Nutch.DELETE_FAILED_PARSE, false);
+      deleteFailedParse = conf.getBoolean(ParseSegment.DELETE_FAILED_PARSE, false);
       skip = conf.getBoolean(INDEXER_SKIP_NOTMODIFIED, false);
       base64 = conf.getBoolean(INDEXER_BINARY_AS_BASE64, false);
 

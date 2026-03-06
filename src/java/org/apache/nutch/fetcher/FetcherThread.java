@@ -187,7 +187,7 @@ public class FetcherThread extends Thread {
     this.scfilters = new ScoringFilters(conf);
     this.parseUtil = new ParseUtil(conf);
     this.skipTruncated = conf.getBoolean(ParseSegment.SKIP_TRUNCATED, true);
-    this.deleteFailedParse = conf.getBoolean(Nutch.DELETE_FAILED_PARSE, false);
+    this.deleteFailedParse = conf.getBoolean(ParseSegment.DELETE_FAILED_PARSE, false);
     this.signatureWithoutParsing = conf.getBoolean("fetcher.signature", false);
     this.protocolFactory = new ProtocolFactory(conf);
     this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
@@ -478,11 +478,6 @@ public class FetcherThread extends Thread {
                   fit = queueRedirect(redirUrl, fit);
                 }
               }
-
-              // Got a ParseStatus, but isFailed, so call output() again to set set CrawlDatum.STATUS_PARSE_FAILED
-              if (pstatus != null && pstatus.isFailed() && deleteFailedParse) {
-                output(fit.url, fit.datum, null, status, CrawlDatum.STATUS_PARSE_FAILED);
-              }
               break;
 
             case ProtocolStatus.MOVED: // redirect
@@ -771,8 +766,7 @@ public class FetcherThread extends Thread {
        * Store status code in content So we can read this value during parsing
        * (as a separate job) and decide to parse or not.
        */
-      content.getMetadata().add(Nutch.FETCH_STATUS_KEY,
-          Integer.toString(status));
+      content.getMetadata().add(Nutch.FETCH_STATUS_KEY, Integer.toString(status));
     }
 
     try {
@@ -790,6 +784,10 @@ public class FetcherThread extends Thread {
             LOG.warn("{} {} Error parsing: {}: {}", getName(),
                 Thread.currentThread().getId(), key, parseStatus);
             parse = parseStatus.getEmptyParse(conf);
+            if (deleteFailedParse && content != null) {
+              // forward the failure status in the content
+              content.getMetadata().add(Nutch.FETCH_STATUS_KEY, Integer.toString(CrawlDatum.STATUS_PARSE_FAILED));
+            }
           }
 
           // Calculate page signature. For non-parsing fetchers this will

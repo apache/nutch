@@ -30,6 +30,7 @@ import org.apache.nutch.crawl.CrawlDBTestUtil;
 import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.crawl.Injector;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.protocol.Content;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -39,7 +40,6 @@ import org.apache.nutch.crawl.CrawlDb;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,14 +78,14 @@ public class TestFetchWithParseFailures {
     LOG.info("TEST FILES : " + files);
     
     conf = CrawlDBTestUtil.createContext().getConfiguration();
+    // Do not include 'parse-tika', because it would parse anything
     conf.set("plugin.includes", "protocol-http|urlfilter-regex|parse-html|index-(basic|anchor)|indexer-csv|scoring-opic|urlnormalizer-(pass|regex|basic)");
     conf.setInt("fetcher.threads.fetch", 1);
-    conf.setInt("http.content.limit", 1024);
-    // Default parser.html.impl is 'neko', other option is 'tagsoup'. Both are too tolerant for this test.
-    conf.set("parser.html.impl", "tagsoup");
+    // force an exception from ParserFactory.getParsers(...): ParserNotFound
+    conf.setBoolean("mime.type.magic", false);
     conf.setBoolean("fetcher.parse", true);
     conf.setBoolean("fetcher.store.content", true);
-    conf.setBoolean(Nutch.DELETE_FAILED_PARSE, true);
+    conf.setBoolean(ParseSegment.DELETE_FAILED_PARSE, true);
     
     fs = FileSystem.get(conf);
     fs.delete(TEST_DIR, true);
@@ -112,8 +112,6 @@ public class TestFetchWithParseFailures {
   
 
   @Test
-  // Ref: full hadoop.log in logs/hadoop.log
-  @Disabled("The default HTML Parser (Neko) is a lot more tolerant than expected.  Even random bytes in an HTML file do not produce a parsing error.")
   public void testFetchWithParseFailure() throws Exception {
     AbstractFetchSchedule schedule = new AbstractFetchSchedule(conf) {};
     
@@ -174,13 +172,7 @@ public class TestFetchWithParseFailures {
     }
     assertEquals(urls.size(), fetchedUrls.size());
     LOG.info("1ST FETCHED URLS: {}", fetchedUrls);
-    
-//    // Validate what is now served:
-//    String urlString = "http://127.0.0.1:55000/test.html";
-//    Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
-//    Content content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
-//    String contentStr = new String(content.getContent());
-//    LOG.info("TEST CONTENT FROM SERVER: {}", contentStr); // makes the log file unreadable
+    fetchedUrls.entrySet().forEach(i -> Assertions.assertEquals(i.getValue(), "" + CrawlDatum.STATUS_FETCH_SUCCESS));
     
     // force re-fetch and wait a bit
     urls.forEach(i -> 
@@ -239,9 +231,9 @@ public class TestFetchWithParseFailures {
     
     for (Map.Entry<String, String> entry : fetchedUrls.entrySet()) {
       if(entry.getKey().endsWith(TEST_FILE)) {
-        Assertions.assertEquals(entry.getValue(), ""+CrawlDatum.STATUS_PARSE_FAILED);
+        Assertions.assertEquals(entry.getValue(), "" + CrawlDatum.STATUS_PARSE_FAILED);
       } else {
-        Assertions.assertEquals(entry.getValue(), ""+CrawlDatum.STATUS_FETCH_SUCCESS);
+        Assertions.assertEquals(entry.getValue(), "" + CrawlDatum.STATUS_FETCH_SUCCESS);
       }
     }
   }
@@ -256,11 +248,11 @@ public class TestFetchWithParseFailures {
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) 
         throws IOException, ServletException {
       if(FETCH_COUNT.get() == 1 && target.endsWith(TEST_FILE)) {
-        LOG.info("FEEDING RANDOM BYTES INTO THE RESPONSE");
-        response.setContentType("text/html");
-        response.setContentLength(2048);
-
-        byte[] randomBytes = new byte[2048];
+        LOG.info("Set mime type 'application/unknown' and random bytes content");
+        // force an exception from ParserFactory.getParsers(...): ParserNotFound
+        response.setContentType("application/unknown");
+        response.setContentLength(1024);
+        byte[] randomBytes = new byte[1024];
         new Random(123).nextBytes(randomBytes);
         response.getOutputStream().write(randomBytes);
         

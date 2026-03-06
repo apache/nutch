@@ -26,6 +26,7 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
@@ -104,7 +105,7 @@ public class TestIndexerMapReduce {
   @Test
   public void testDeleteParseFailure() {
     configuration = NutchConfiguration.create();
-    configuration.setBoolean(Nutch.DELETE_FAILED_PARSE, true);
+    configuration.setBoolean(ParseSegment.DELETE_FAILED_PARSE, true);
     
     // unrelated issue with "index.jexl.filter", don't use all plugins.  Ref: src/test/nutch-site.xml
     configuration.set("plugin.includes", "protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|indexer-csv|scoring-opic|urlnormalizer-(pass|regex|basic)");

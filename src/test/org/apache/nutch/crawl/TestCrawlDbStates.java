@@ -21,7 +21,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.util.StringUtils;
-import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.ReducerContextWrapper;
@@ -378,7 +378,7 @@ public class TestCrawlDbStates {
     LOG.info("NUTCH-1732: allow deleting un-parsable documents");
     Context context = CrawlDBTestUtil.createContext();
     Configuration conf = context.getConfiguration();
-    conf.setBoolean(Nutch.DELETE_FAILED_PARSE, true);
+    conf.setBoolean(ParseSegment.DELETE_FAILED_PARSE, true);
     CrawlTestParserFailure crawlUtil = new CrawlTestParserFailure(context);
     try {
       if (!crawlUtil.run(20)) {

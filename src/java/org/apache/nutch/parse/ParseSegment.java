@@ -68,6 +68,12 @@ public class ParseSegment extends NutchTool implements Tool {
 
   public static final String SKIP_TRUNCATED = "parser.skip.truncated";
 
+  /**
+   * Configuration property to delete documents that failed to be parsed. Also used
+   * in Fetcher and Indexer.
+   */
+  public static final String DELETE_FAILED_PARSE = "parser.delete.failed.parse";
+
   public ParseSegment() {
     this(null);
   }
@@ -83,6 +89,7 @@ public class ParseSegment extends NutchTool implements Tool {
     private Text newKey = new Text();
     private ScoringFilters scfilters;
     private boolean skipTruncated;
+    private boolean deleteFailedParse;
     private LatencyTracker parseLatencyTracker;
     private ErrorTracker errorTracker;
 
@@ -91,6 +98,7 @@ public class ParseSegment extends NutchTool implements Tool {
       Configuration conf = context.getConfiguration();
       scfilters = new ScoringFilters(conf);
       skipTruncated = conf.getBoolean(SKIP_TRUNCATED, true);
+      deleteFailedParse = conf.getBoolean(DELETE_FAILED_PARSE, false);
       parseLatencyTracker = new LatencyTracker(
           NutchMetrics.GROUP_PARSER, NutchMetrics.PARSER_LATENCY);
       // Initialize error tracker with cached counters
@@ -119,6 +127,9 @@ public class ParseSegment extends NutchTool implements Tool {
         // no fetch status, skip document
         LOG.debug("Skipping {} as content has no fetch status", key);
         return;
+      } else if(deleteFailedParse && Integer.parseInt(fetchStatus) == CrawlDatum.STATUS_PARSE_FAILED) {
+        LOG.debug("Skipping {} as un-parseable content will be deleted", key);
+        return;        
       } else if (Integer.parseInt(fetchStatus) != CrawlDatum.STATUS_FETCH_SUCCESS) {
         // content not fetched successfully, skip document
         LOG.debug("Skipping {} as content is not fetched successfully", key);
@@ -126,6 +137,7 @@ public class ParseSegment extends NutchTool implements Tool {
       }
 
       if (skipTruncated && isTruncated(content)) {
+        LOG.debug("Skipping {} as content is truncated", key);
         return;
       }
 
