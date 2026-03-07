@@ -34,10 +34,12 @@ import org.apache.hadoop.mapreduce.TaskInputOutputContext;
  * based on exception type. It uses a bounded set of error categories to stay within
  * Hadoop's counter limits (~120 counters).
  * 
- * <p>Usage:
+ * <p><b>Usage in mapper/reducer or task threads:</b>
  * <pre>
  * // In mapper/reducer setup or thread initialization
  * errorTracker = new ErrorTracker(NutchMetrics.GROUP_FETCHER);
+ * // or with context for cached counters:
+ * errorTracker = new ErrorTracker(NutchMetrics.GROUP_FETCHER, context);
  * 
  * // When catching exceptions
  * try {
@@ -49,11 +51,20 @@ import org.apache.hadoop.mapreduce.TaskInputOutputContext;
  * // Or with manual categorization
  * errorTracker.recordError(ErrorTracker.ErrorType.NETWORK);
  * 
- * // In cleanup - emit all error counters
+ * // In cleanup - emit all error counters to the job
  * errorTracker.emitCounters(context);
  * </pre>
  * 
- * <p>Emits the following counters:
+ * <p><b>Usage in driver/client code (no task context):</b>
+ * When used in a job driver or other code that does not run inside a mapper/reducer,
+ * create an ErrorTracker with the single-argument constructor (counter group only).
+ * Call {@link #recordError(Throwable)} or {@link #recordError(ErrorTracker.ErrorType)}
+ * for consistent error categorization. Do <em>not</em> call {@link #emitCounters(TaskInputOutputContext)};
+ * Hadoop counters can only be written from within a task, so counts remain in-memory only.
+ * This allows the same categorization and logging pattern (e.g. with LOG.error) as in
+ * tasks, without emitting to job counters.
+ * 
+ * <p>Emits the following counters (when used inside a task and emitCounters is called):
  * <ul>
  *   <li>errors_total - total number of errors across all categories</li>
  *   <li>errors_network_total - network-related errors</li>
@@ -104,9 +115,15 @@ public class ErrorTracker {
   /**
    * Creates a new ErrorTracker for the specified counter group.
    * 
-   * <p>This constructor creates an ErrorTracker without cached counters.
-   * Call {@link #initCounters(TaskInputOutputContext)} in setup() to cache
-   * counter references for better performance.
+   * <p>Use in mapper/reducer setup or thread initialization: call
+   * {@link #initCounters(TaskInputOutputContext)} in setup() to cache counter
+   * references, then {@link #emitCounters(TaskInputOutputContext)} in cleanup to
+   * emit counts to the job.
+   * 
+   * <p>Use in driver/client code (no task context): do not call initCounters or
+   * emitCounters. Only {@link #recordError(Throwable)} and
+   * {@link #recordError(ErrorTracker.ErrorType)} are used; counts stay in-memory
+   * for consistent categorization and logging (e.g. with LOG.error).
    * 
    * @param group the Hadoop counter group name (e.g., NutchMetrics.GROUP_FETCHER)
    */

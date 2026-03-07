@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.segment.SegmentChecker;
 import org.apache.hadoop.conf.Configuration;
@@ -37,6 +38,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.util.StringUtils;
@@ -143,6 +145,8 @@ public class IndexingJob extends NutchTool implements Tool {
         + RANDOM.nextInt());
 
     FileOutputFormat.setOutputPath(job, tmp);
+    // Driver-level error tracking: categorization + LOG.error only (no job counters; see ErrorTracker Javadoc).
+    ErrorTracker errorTracker = new ErrorTracker(NutchMetrics.GROUP_INDEXER);
     try {
       try{
         boolean success = job.waitForCompletion(true);
@@ -154,6 +158,22 @@ public class IndexingJob extends NutchTool implements Tool {
       } catch (IOException | InterruptedException | ClassNotFoundException e) {
         LOG.error(StringUtils.stringifyException(e));
         throw e;
+      }
+      Path latencyDir = new Path(tmp, "_latency");
+      FileSystem fs = tmp.getFileSystem(conf);
+      if (fs.exists(latencyDir)) {
+        try {
+          Job mergeJob = IndexerMapReduce.createLatencyMergeJob(conf, latencyDir);
+          FileOutputFormat.setOutputPath(mergeJob, new Path(tmp, "_latency_merge_out"));
+          boolean mergeSuccess = mergeJob.waitForCompletion(true);
+          if (!mergeSuccess) {
+            LOG.error("Indexer Latency Merge job failed");
+            errorTracker.recordError(ErrorTracker.ErrorType.OTHER);
+          }
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+          LOG.error("Indexer Latency Merge job failed: {}", e.getMessage());
+          errorTracker.recordError(e);
+        }
       }
       LOG.info("Indexer: number of documents indexed, deleted, or skipped:");
       for (Counter counter : job.getCounters()
