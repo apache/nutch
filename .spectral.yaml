@@ -1,0 +1,29 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Custom Spectral ruleset for the Apache Nutch REST API.
+# Extends the IBM Cloud Validation Ruleset and disables rules that conflict
+# with the existing Nutch Java wire format (camelCase properties, UPPER_CASE
+# enums, camelCase parameters, bare-array responses, map-typed responses,
+# and consecutive path parameter segments).
+
+extends: "@ibm-cloud/openapi-ruleset"
+rules:
+  ibm-property-casing-convention: off
+  ibm-enum-casing-convention: off
+  ibm-parameter-casing-convention: off
+  ibm-no-array-responses: off
+  ibm-accept-and-return-models: off
+  ibm-no-consecutive-path-parameter-segments: off
