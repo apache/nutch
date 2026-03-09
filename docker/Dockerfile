@@ -18,8 +18,8 @@
 
 # BUILD_MODE can be either
 #  0 == Nutch master branch source install with 'crawl' and 'nutch' scripts on PATH
-#  1 == Same as mode 0 with addition of Nutch REST Server
-#  2 == Same as mode 1 with addition of Nutch WebApp
+#  1 == (DEPRECATED) Same as mode 0 with addition of Nutch REST Server
+#  2 == (DEPRECATED) Same as mode 1 with addition of Nutch WebApp
 ARG BUILD_MODE=0
 
 FROM alpine:3.19 AS base
@@ -67,6 +67,7 @@ RUN echo "Nutch master branch source install with 'crawl' and 'nutch' scripts on
 
 FROM base AS branch-version-1
 
+RUN echo "WARNING: BUILD_MODE=1 (server) is deprecated and will be removed in a future version of Nutch. The Nutch REST server is superseded by the OpenAPI specification (openapi.yaml)."
 RUN echo "Nutch master branch source install with 'crawl' and 'nutch' scripts on PATH and Nutch REST Server on $SERVER_HOST:$SERVER_PORT"
 ARG SERVER_PORT=8081
 ARG SERVER_HOST=0.0.0.0
@@ -86,6 +87,7 @@ ENTRYPOINT [ "supervisord", "--nodaemon", "--configuration", "/etc/supervisord.c
 
 FROM base AS branch-version-2
 
+RUN echo "WARNING: BUILD_MODE=2 (server + webapp) is deprecated and will be removed in a future version of Nutch. The Nutch REST server and webapp are superseded by the OpenAPI specification (openapi.yaml)."
 RUN echo "Nutch master branch source install with 'crawl' and 'nutch' scripts on PATH, Nutch REST Server on $SERVER_HOST:$SERVER_PORT and WebApp on this container port $WEBAPP_PORT"
 ARG SERVER_PORT=8081
 ARG SERVER_HOST=0.0.0.0

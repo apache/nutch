@@ -33,6 +33,12 @@ import org.apache.nutch.service.model.request.NutchConfig;
 import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+/**
+ * @deprecated This class and the Nutch REST service will be removed in a
+ *             future version of Nutch. Use the OpenAPI specification
+ *             (openapi.yaml) as the authoritative API contract instead.
+ */
+@Deprecated
 @Path("/config")
 public class ConfigResource extends AbstractResource{
 

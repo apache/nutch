@@ -90,15 +90,20 @@
 			<exclude module="hadoop-client" />
 		</dependency>
 
+		<!-- Deprecated: The following dependencies are used exclusively by the Nutch REST
+		     service (org.apache.nutch.service) and will be removed along with
+		     the service in a future version of Nutch. -->
 		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.6.9" conf="*->default" />
 		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.6.9" conf="*->default" />
 		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.6.9" conf="*->default" />
 		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.6.9" conf="*->default" />
 		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.6.9" conf="test->default" />
+		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.18.5" conf="*->default" />
+		<!-- Deprecated: End service deprecations -->
+
 		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.18.5" conf="*->default" />
 		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.18.5" conf="*->default" />
 		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.18.5" conf="*->default" />
-		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.18.5" conf="*->default" />
 
 		<!-- WARC artifacts needed -->
 		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="3.0.2" conf="*->default">

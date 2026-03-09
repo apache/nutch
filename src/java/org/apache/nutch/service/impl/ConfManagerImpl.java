@@ -33,6 +33,12 @@ import org.apache.nutch.util.NutchConfiguration;
 
 import com.google.common.collect.Maps;
 
+/**
+ * @deprecated This class and the Nutch REST service will be removed in a
+ *             future version of Nutch. Use the OpenAPI specification
+ *             (openapi.yaml) as the authoritative API contract instead.
+ */
+@Deprecated
 public class ConfManagerImpl implements ConfManager {
 
 

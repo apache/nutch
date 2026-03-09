@@ -30,6 +30,12 @@ import org.apache.nutch.service.model.response.JobInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 
+/**
+ * @deprecated This class and the Nutch REST service will be removed in a
+ *             future version of Nutch. Use the OpenAPI specification
+ *             (openapi.yaml) as the authoritative API contract instead.
+ */
+@Deprecated
 public class NutchServerPoolExecutor extends ThreadPoolExecutor{
 
   private Queue<JobWorker> workersHistory;

@@ -119,8 +119,8 @@ if [ $# = 0 ]; then
   echo "  commoncrawldump   exports crawled data from segments into common crawl data format encoded as CBOR"
   echo "  warc              exports crawled data from segments at the WARC format"
   echo ""
-  echo " (Nutch Server)"
-  echo "  startserver       runs the Nutch Server on localhost:8081"
+  echo " (Nutch Server - DEPRECATED)"
+  echo "  startserver       (deprecated) runs the Nutch Server on localhost:8081"
   echo ""
   echo " (or)"
   echo "  CLASSNAME         run the main of the class named CLASSNAME"
@@ -317,6 +317,8 @@ elif [ "$COMMAND" = "junit" ] ; then
   fi
   CLASS=org.junit.runner.JUnitCore
 elif [ "$COMMAND" = "startserver" ] ; then
+  echo "WARNING: The 'startserver' command is deprecated and will be removed in a future version of Nutch." >&2
+  echo "The Nutch REST server is superseded by the OpenAPI specification (openapi.yaml)." >&2
   CLASS=org.apache.nutch.service.NutchServer
 elif [ "$COMMAND" = "warc" ] ; then
   CLASS=org.apache.nutch.tools.warc.WARCExporter
