@@ -17,6 +17,7 @@
 package org.apache.nutch.segment;
 
 import java.text.DecimalFormat;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -28,16 +29,23 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.nutch.parse.ParseText;
+import org.apache.nutch.util.CancellationAwareTestUtils;
+import org.apache.nutch.util.CancellationAwareTestUtils.CancellationToken;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+/**
+ * Tests for SegmentMerger functionality.
+ * This test is cancellation-aware for graceful shutdown during fail-fast mode.
+ */
 public class TestSegmentMerger {
   Configuration conf;
   FileSystem fs;
@@ -106,9 +114,19 @@ public class TestSegmentMerger {
   }
 
   @Test
+  @Timeout(value = 10, unit = TimeUnit.MINUTES)
   public void testLargeMerge() throws Exception {
+    // Create cancellation token for graceful shutdown support
+    CancellationToken cancellationToken = CancellationAwareTestUtils.createToken();
+
     SegmentMerger merger = new SegmentMerger(conf);
     merger.merge(out, new Path[] { seg1, seg2 }, false, false, -1);
+
+    // Check for cancellation before verification
+    if (cancellationToken.isCancelled()) {
+      return;
+    }
+
     // verify output
     FileStatus[] stats = fs.listStatus(out);
     // there should be just one path
@@ -119,20 +137,37 @@ public class TestSegmentMerger {
     MapFile.Reader[] readers = MapFileOutputFormat.getReaders(new Path(
         outSeg, ParseText.DIR_NAME), conf);
     int cnt1 = 0, cnt2 = 0;
-    for (MapFile.Reader r : readers) {
-      while (r.next(k, v)) {
-        String ks = k.toString();
-        String vs = v.getText();
-        if (ks.startsWith("seg1-")) {
-          cnt1++;
-          assertTrue(vs.startsWith("seg1 "));
-        } else if (ks.startsWith("seg2-")) {
-          cnt2++;
-          assertTrue(vs.startsWith("seg2 "));
+    try {
+      for (MapFile.Reader r : readers) {
+        while (r.next(k, v)) {
+          // Check for cancellation periodically during I/O
+          if (cancellationToken.isCancelled()) {
+            return;
+          }
+          
+          String ks = k.toString();
+          String vs = v.getText();
+          if (ks.startsWith("seg1-")) {
+            cnt1++;
+            assertTrue(vs.startsWith("seg1 "));
+          } else if (ks.startsWith("seg2-")) {
+            cnt2++;
+            assertTrue(vs.startsWith("seg2 "));
+          }
         }
       }
-      r.close();
+    } finally {
+      // Ensure readers are closed even on cancellation
+      for (MapFile.Reader r : readers) {
+        r.close();
+      }
     }
+
+    // Skip final assertions if cancelled
+    if (cancellationToken.isCancelled()) {
+      return;
+    }
+
     assertEquals(countSeg1, cnt1);
     assertEquals(countSeg2, cnt2);
   }

@@ -67,6 +67,8 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.crawl.LinkDbReader;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.ErrorTracker;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.DumpFileUtil;
 import org.apache.nutch.util.NutchConfiguration;
@@ -188,6 +190,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
   private GzipCompressorOutputStream gzipOutput = null;
   private TarArchiveOutputStream tarOutput = null;
   private ArrayList<String> fileList = null;
+  private ErrorTracker errorTracker;
 
   /**
    * Main method for invoking this tool
@@ -210,6 +213,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
    * @param config A populated {@link CommonCrawlConfig}
    */
   public CommonCrawlDataDumper(CommonCrawlConfig config) {
+    this();
     this.config = config;
   }
 
@@ -217,6 +221,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
    * Constructor
    */
   public CommonCrawlDataDumper() {
+    this.errorTracker = new ErrorTracker(NutchMetrics.GROUP_COMMONCRAWL_DUMPER);
   }
 
   /**
@@ -274,7 +279,8 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
     if (parts == null || parts.size() == 0) {
       LOG.error( "No segment directories found in {} ",
           segmentRootDir.getAbsolutePath());
-      System.exit(1);
+      this.errorTracker.recordError(ErrorTracker.ErrorType.OTHER);
+      return;
     }
     LOG.info("Found {} segment parts", parts.size());
     if (gzip && !warc) {

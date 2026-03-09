@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -53,6 +55,10 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
+/**
+ * Test utility for creating and manipulating CrawlDb instances.
+ * Uses JSpecify annotations for null safety.
+ */
 public class CrawlDBTestUtil {
 
   private static final Logger LOG = LoggerFactory
@@ -62,6 +68,8 @@ public class CrawlDBTestUtil {
   /**
    * Creates synthetic crawldb
    * 
+   * @param conf
+   *          configuration to use
    * @param fs
    *          filesystem where db will be created
    * @param crawldb
@@ -70,8 +78,8 @@ public class CrawlDBTestUtil {
    *          urls to be inserted, objects are of type URLCrawlDatum
    * @throws Exception
    */
-  public static void createCrawlDb(Configuration conf, FileSystem fs,
-      Path crawldb, List<URLCrawlDatum> init) throws Exception {
+  public static void createCrawlDb(@NonNull Configuration conf, @NonNull FileSystem fs,
+      @NonNull Path crawldb, @NonNull List<URLCrawlDatum> init) throws Exception {
     LOG.trace("* creating crawldb: {}", crawldb);
     Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
     Option wKeyOpt = MapFile.Writer.keyClass(Text.class);
@@ -366,8 +374,9 @@ public class CrawlDBTestUtil {
    * override the default one and it is currently not possible to use
    * dynamically set values.
    * 
-   * @return
+   * @return a new Reducer Context with test configuration
    */
+  @NonNull
   public static Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context createContext() {
     DummyContext context = new DummyContext();
     Configuration conf = context.getConfiguration();
@@ -376,13 +385,16 @@ public class CrawlDBTestUtil {
     return (Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context) context;
   }
 
+  /** Container for URL and CrawlDatum pairs used in test data. */
   public static class URLCrawlDatum {
 
+    @NonNull
     public Text url;
 
+    @NonNull
     public CrawlDatum datum;
 
-    public URLCrawlDatum(Text url, CrawlDatum datum) {
+    public URLCrawlDatum(@NonNull Text url, @NonNull CrawlDatum datum) {
       this.url = url;
       this.datum = datum;
     }
@@ -391,20 +403,27 @@ public class CrawlDBTestUtil {
   /**
    * Generate seedlist
    * 
+   * @param fs filesystem to use
+   * @param urlPath path where seed file will be created
+   * @param urls list of URLs to write
    * @throws IOException
    */
-  public static void generateSeedList(FileSystem fs, Path urlPath,
-      List<String> urls) throws IOException {
+  public static void generateSeedList(@NonNull FileSystem fs, @NonNull Path urlPath,
+      @NonNull List<String> urls) throws IOException {
     generateSeedList(fs, urlPath, urls, new ArrayList<String>());
   }
 
   /**
-   * Generate seedlist
+   * Generate seedlist with optional metadata
    * 
+   * @param fs filesystem to use
+   * @param urlPath path where seed file will be created
+   * @param urls list of URLs to write
+   * @param metadata optional metadata for each URL
    * @throws IOException
    */
-  public static void generateSeedList(FileSystem fs, Path urlPath,
-      List<String> urls, List<String> metadata) throws IOException {
+  public static void generateSeedList(@NonNull FileSystem fs, @NonNull Path urlPath,
+      @NonNull List<String> urls, @NonNull List<String> metadata) throws IOException {
     FSDataOutputStream out;
     Path file = new Path(urlPath, "urls.txt");
     fs.mkdirs(urlPath);
@@ -439,9 +458,11 @@ public class CrawlDBTestUtil {
    *          port to listen to
    * @param staticContent
    *          folder where static content lives
+   * @return configured Jetty server instance
    * @throws UnknownHostException
    */
-  public static Server getServer(int port, String staticContent)
+  @NonNull
+  public static Server getServer(int port, @NonNull String staticContent)
       throws UnknownHostException {
     Server webServer = new Server();
 

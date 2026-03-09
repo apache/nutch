@@ -120,7 +120,7 @@
      <ant dir="index-anchor" target="test"/>
      <ant dir="index-arbitrary" target="test"/>
      <ant dir="index-basic" target="test"/>
-     <!--ant dir="index-geoip" target="test"/-->
+     <ant dir="index-geoip" target="test"/>
      <ant dir="index-jexl-filter" target="test"/>
      <ant dir="index-links" target="test"/>
      <ant dir="index-more" target="test"/>
@@ -170,6 +170,17 @@
   <!-- ====================================================== -->
   <target name="test-single">
     <ant dir="${plugin}" target="test"/>
+  </target>
+
+  <!-- ======================================================  -->
+  <!-- Indexer plugin integration tests (Testcontainers)       -->
+  <!-- Run sequentially to avoid container resource contention -->
+  <!-- ======================================================  -->
+  <target name="test-indexer-integration">
+    <ant dir="indexer-elastic" target="test-indexer-integration"/>
+    <ant dir="indexer-kafka" target="test-indexer-integration"/>
+    <ant dir="indexer-rabbit" target="test-indexer-integration"/>
+    <ant dir="indexer-solr" target="test-indexer-integration"/>
   </target>
 
   <!-- ====================================================== -->
