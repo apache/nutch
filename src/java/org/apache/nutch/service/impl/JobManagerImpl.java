@@ -27,6 +27,12 @@ import org.apache.nutch.service.model.response.JobInfo;
 import org.apache.nutch.service.model.response.JobInfo.State;
 import org.apache.nutch.util.NutchTool;
 
+/**
+ * @deprecated This class and the Nutch REST service will be removed in a
+ *             future version of Nutch. Use the OpenAPI specification
+ *             (openapi.yaml) as the authoritative API contract instead.
+ */
+@Deprecated
 public class JobManagerImpl implements JobManager {
 
   private JobFactory jobFactory;

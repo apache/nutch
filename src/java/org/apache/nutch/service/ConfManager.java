@@ -22,6 +22,12 @@ import java.util.Set;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.service.model.request.NutchConfig;
 
+/**
+ * @deprecated This interface and the Nutch REST service will be removed in a
+ *             future version of Nutch. Use the OpenAPI specification
+ *             (openapi.yaml) as the authoritative API contract instead.
+ */
+@Deprecated
 public interface ConfManager {
 
   public Configuration get(String confId);

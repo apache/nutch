@@ -24,6 +24,12 @@ import org.apache.commons.collections4.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+/**
+ * @deprecated This class and the Nutch REST service will be removed in a
+ *             future version of Nutch. Use the OpenAPI specification
+ *             (openapi.yaml) as the authoritative API contract instead.
+ */
+@Deprecated
 public class SeedList implements Serializable {
 
   private Long id;

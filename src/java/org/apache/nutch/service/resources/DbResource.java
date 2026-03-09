@@ -38,6 +38,12 @@ import org.apache.nutch.fetcher.FetchNodeDb;
 import org.apache.nutch.service.model.request.DbQuery;
 import org.apache.nutch.service.model.response.FetchNodeDbInfo;
 
+/**
+ * @deprecated This class and the Nutch REST service will be removed in a
+ *             future version of Nutch. Use the OpenAPI specification
+ *             (openapi.yaml) as the authoritative API contract instead.
+ */
+@Deprecated
 @Path(value = "/db")
 public class DbResource extends AbstractResource {
 

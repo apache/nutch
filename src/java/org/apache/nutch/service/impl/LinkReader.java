@@ -33,6 +33,12 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.scoring.webgraph.LinkDatum;
 import org.apache.nutch.service.NutchReader;
 
+/**
+ * @deprecated This class and the Nutch REST service will be removed in a
+ *             future version of Nutch. Use the OpenAPI specification
+ *             (openapi.yaml) as the authoritative API contract instead.
+ */
+@Deprecated
 public class LinkReader implements NutchReader {
 
   @Override

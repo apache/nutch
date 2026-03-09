@@ -57,6 +57,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Queues;
 
+/**
+ * @deprecated This class and the Nutch REST service will be removed in a
+ *             future version of Nutch. Use the OpenAPI specification
+ *             (openapi.yaml) as the authoritative API contract instead.
+ */
+@Deprecated
 public class NutchServer {
 
   private static final Logger LOG = LoggerFactory

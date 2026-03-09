@@ -22,6 +22,12 @@ import java.util.Map;
 import org.apache.nutch.service.SeedManager;
 import org.apache.nutch.service.model.request.SeedList;
 
+/**
+ * @deprecated This class and the Nutch REST service will be removed in a
+ *             future version of Nutch. Use the OpenAPI specification
+ *             (openapi.yaml) as the authoritative API contract instead.
+ */
+@Deprecated
 public class SeedManagerImpl implements SeedManager {
 
   private static Map<String, SeedList> seeds;

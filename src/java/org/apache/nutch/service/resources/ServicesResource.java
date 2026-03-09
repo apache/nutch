@@ -38,7 +38,12 @@ import org.apache.nutch.tools.CommonCrawlDataDumper;
 /**
  * The services resource defines an endpoint to enable the user to carry out
  * Nutch jobs like dump, commoncrawldump, etc.
+ *
+ * @deprecated This class and the Nutch REST service will be removed in a
+ *             future version of Nutch. Use the OpenAPI specification
+ *             (openapi.yaml) as the authoritative API contract instead.
  */
+@Deprecated
 @Path("/services")
 public class ServicesResource {
 
