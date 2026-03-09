@@ -53,8 +53,9 @@ public class IndexerOutputFormat extends OutputFormat<Text, NutchIndexAction> {
       @Override
       public void close(TaskAttemptContext context) throws IOException {
 
-        boolean noCommit =
-            conf.getBoolean(IndexerMapReduce.INDEXER_NO_COMMIT, false);
+        // do the commits once and for all the reducers in one go
+      boolean noCommit =
+        conf.getBoolean(IndexerMapReduce.INDEXER_NO_COMMIT, false);
 
         if (!noCommit) {
           writers.commit();
