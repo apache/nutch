@@ -18,8 +18,16 @@ package org.apache.nutch.indexer;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.nutch.metrics.LatencyTestUtil;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Metadata;
@@ -40,12 +48,14 @@ import java.lang.invoke.MethodHandles;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Test {@link IndexerMapReduce} */
 public class TestIndexerMapReduce {
@@ -187,6 +197,47 @@ public class TestIndexerMapReduce {
       LOG.error(StringUtils.stringifyException(e));
     }
     return doc;
+  }
+
+  /**
+   * IndexerLatencyMergeReducer merges BytesWritable TDigests and sets job-level
+   * percentile counters. Uses real Context and Counters (no mocks).
+   */
+  @Test
+  void testIndexerLatencyMergeReducerSetsCounters() throws IOException, InterruptedException {
+    Configuration conf = NutchConfiguration.create();
+    Map<IntWritable, BytesWritable> out = new HashMap<>();
+    IndexerMapReduce.IndexerLatencyMergeReducer reducer = new IndexerMapReduce.IndexerLatencyMergeReducer();
+    ReducerContextWrapper<IntWritable, BytesWritable, IntWritable, BytesWritable> wrapper =
+        new ReducerContextWrapper<>(reducer, conf, out);
+
+    byte[] digestBytes = LatencyTestUtil.createDigestBytes(50, 150, 250);
+    List<BytesWritable> values = Collections.singletonList(new BytesWritable(digestBytes));
+
+    reducer.reduce(new IntWritable(1), values, wrapper.getContext());
+
+    LatencyTestUtil.assertPercentilesInRange(wrapper.getCounters(),
+        NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_LATENCY, 50, 250);
+  }
+
+  /**
+   * createLatencyMergeJob returns a Job with correct input path, mapper/reducer,
+   * numReduceTasks(1), and output config.
+   */
+  @Test
+  void testCreateLatencyMergeJobConfig() throws IOException, ClassNotFoundException {
+    Configuration conf = NutchConfiguration.create();
+    Path latencyDir = new Path("/tmp/latency");
+    Job job = IndexerMapReduce.createLatencyMergeJob(conf, latencyDir);
+
+    assertNotNull(job.getConfiguration().get(FileInputFormat.INPUT_DIR));
+    assertTrue(job.getConfiguration().get(FileInputFormat.INPUT_DIR).contains("latency"));
+    assertEquals(SequenceFileInputFormat.class, job.getInputFormatClass());
+    assertEquals(IndexerMapReduce.IndexerLatencyMergeMapper.class, job.getMapperClass());
+    assertEquals(IndexerMapReduce.IndexerLatencyMergeReducer.class, job.getReducerClass());
+    assertEquals(1, job.getNumReduceTasks());
+    assertEquals(IntWritable.class, job.getOutputKeyClass());
+    assertEquals(BytesWritable.class, job.getOutputValueClass());
   }
 
 }

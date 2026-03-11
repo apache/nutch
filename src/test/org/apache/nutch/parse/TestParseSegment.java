@@ -16,14 +16,30 @@
  */
 package org.apache.nutch.parse;
 
-import java.nio.charset.StandardCharsets;
-
-import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.Content;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metrics.LatencyTestUtil;
+import org.apache.nutch.metrics.NutchMetrics;
+import org.apache.nutch.net.protocols.Response;
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.ReducerContextWrapper;
+import org.junit.jupiter.api.Test;
 
 public class TestParseSegment {
   private static byte[] BYTES = "the quick brown fox".getBytes(StandardCharsets.UTF_8);
@@ -76,5 +92,46 @@ public class TestParseSegment {
     content.setMetadata(metadata);
     content.setContent(BYTES);
     assertFalse(ParseSegment.isTruncated(content));
+  }
+
+  /**
+   * ParseSegmentReducer latency branch: when key is LATENCY_KEY, merges
+   * BytesWritable TDigests and sets job-level parser latency counters.
+   */
+  @Test
+  void testParseSegmentReducerLatencyKeySetsCounters() throws IOException, InterruptedException {
+    Configuration conf = NutchConfiguration.create();
+    Map<Text, ParseImpl> out = new HashMap<>();
+    ParseSegment.ParseSegmentReducer reducer = new ParseSegment.ParseSegmentReducer();
+    ReducerContextWrapper<Text, Writable, Text, ParseImpl> wrapper =
+        new ReducerContextWrapper<>(reducer, conf, out);
+
+    byte[] digestBytes = LatencyTestUtil.createDigestBytes(100, 200);
+    List<Writable> values = new ArrayList<>();
+    values.add(new BytesWritable(digestBytes));
+
+    reducer.reduce(new Text(NutchMetrics.LATENCY_KEY), values, wrapper.getContext());
+
+    LatencyTestUtil.assertPercentilesInRange(wrapper.getCounters(),
+        NutchMetrics.GROUP_PARSER, NutchMetrics.PARSER_LATENCY, 100, 200);
+    assertEquals(0, out.size());
+  }
+
+  /**
+   * ParseSegmentPartitioner sends LATENCY_KEY to partition 0 so one reducer
+   * merges all TDigests.
+   */
+  @Test
+  void testParseSegmentPartitionerSendsLatencyKeyToPartitionZero() {
+    ParseSegment.ParseSegmentPartitioner partitioner = new ParseSegment.ParseSegmentPartitioner();
+    int numPartitions = 4;
+    assertEquals(0, partitioner.getPartition(new Text(NutchMetrics.LATENCY_KEY), new BytesWritable(), numPartitions));
+  }
+
+  @Test
+  void testParseSegmentPartitionerWithSinglePartition() {
+    ParseSegment.ParseSegmentPartitioner partitioner = new ParseSegment.ParseSegmentPartitioner();
+    assertEquals(0, partitioner.getPartition(new Text(NutchMetrics.LATENCY_KEY), new BytesWritable(), 1));
+    assertEquals(0, partitioner.getPartition(new Text("http://example.com/"), new BytesWritable(), 1));
   }
 }

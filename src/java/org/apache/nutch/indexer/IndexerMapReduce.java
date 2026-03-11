@@ -21,21 +21,28 @@ import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.Inlinks;
@@ -55,6 +62,8 @@ import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
+
+import com.tdunning.math.stats.MergingDigest;
 
 /**
  * <p>
@@ -294,8 +303,21 @@ public class IndexerMapReduce extends Configured {
     @Override
     public void cleanup(Reducer<Text, NutchWritable, Text, NutchIndexAction>.Context context)
         throws IOException, InterruptedException {
-      // Emit indexing latency metrics
-      indexLatencyTracker.emitCounters(context);
+      indexLatencyTracker.emitCountAndSumOnly(context);
+      byte[] digestBytes = indexLatencyTracker.toBytes();
+      if (digestBytes.length > 0) {
+        Path outPath = FileOutputFormat.getOutputPath(context);
+        Path latencyDir = new Path(outPath, "_latency");
+        Path latencyFile = new Path(latencyDir, context.getTaskAttemptID().toString() + ".seq");
+        FileSystem fs = latencyFile.getFileSystem(context.getConfiguration());
+        fs.mkdirs(latencyDir);
+        try (SequenceFile.Writer writer = SequenceFile.createWriter(context.getConfiguration(),
+            SequenceFile.Writer.file(latencyFile),
+            SequenceFile.Writer.keyClass(NullWritable.class),
+            SequenceFile.Writer.valueClass(BytesWritable.class))) {
+          writer.append(NullWritable.get(), new BytesWritable(digestBytes));
+        }
+      }
     }
 
     @Override
@@ -556,5 +578,68 @@ public class IndexerMapReduce extends Configured {
     job.setOutputKeyClass(Text.class);
     job.setMapOutputValueClass(NutchWritable.class);
     job.setOutputValueClass(NutchWritable.class);
+  }
+
+  /** Mapper for Indexer Latency Merge job: passes through (1, bytes). */
+  public static class IndexerLatencyMergeMapper
+      extends Mapper<NullWritable, BytesWritable, IntWritable, BytesWritable> {
+    private static final IntWritable ONE = new IntWritable(1);
+
+    @Override
+    public void map(NullWritable key, BytesWritable value, Context context)
+        throws IOException, InterruptedException {
+      context.write(ONE, value);
+    }
+  }
+
+  /** Reducer for Indexer Latency Merge job: merges TDigests and sets job counters. */
+  public static class IndexerLatencyMergeReducer
+      extends Reducer<IntWritable, BytesWritable, IntWritable, BytesWritable> {
+
+    @Override
+    public void reduce(IntWritable key, Iterable<BytesWritable> values, Context context)
+        throws IOException, InterruptedException {
+      MergingDigest merged = null;
+      for (BytesWritable bw : values) {
+        byte[] bytes = bw.copyBytes();
+        if (bytes != null && bytes.length > 0) {
+          MergingDigest d = LatencyTracker.fromBytes(bytes);
+          if (d != null) {
+            if (merged == null) {
+              merged = d;
+            } else {
+              merged.add(d);
+            }
+          }
+        }
+      }
+      if (merged != null) {
+        context.getCounter(NutchMetrics.GROUP_INDEXER,
+            NutchMetrics.INDEXER_LATENCY + LatencyTracker.SUFFIX_P50_MS).setValue((long) merged.quantile(0.50));
+        context.getCounter(NutchMetrics.GROUP_INDEXER,
+            NutchMetrics.INDEXER_LATENCY + LatencyTracker.SUFFIX_P95_MS).setValue((long) merged.quantile(0.95));
+        context.getCounter(NutchMetrics.GROUP_INDEXER,
+            NutchMetrics.INDEXER_LATENCY + LatencyTracker.SUFFIX_P99_MS).setValue((long) merged.quantile(0.99));
+      }
+    }
+  }
+
+  /**
+   * Runs a small job that merges TDigest side files from the indexer and sets
+   * job-level percentile counters. Call after the main index job succeeds.
+   */
+  public static Job createLatencyMergeJob(Configuration conf, Path latencyDir)
+      throws IOException {
+    Job job = Job.getInstance(conf, "Nutch Indexer Latency Merge");
+    job.setJarByClass(IndexerMapReduce.class);
+    FileInputFormat.addInputPath(job, latencyDir);
+    job.setInputFormatClass(SequenceFileInputFormat.class);
+    job.setMapperClass(IndexerLatencyMergeMapper.class);
+    job.setReducerClass(IndexerLatencyMergeReducer.class);
+    job.setNumReduceTasks(1);
+    job.setOutputFormatClass(NullOutputFormat.class);
+    job.setOutputKeyClass(IntWritable.class);
+    job.setOutputValueClass(BytesWritable.class);
+    return job;
   }
 }

@@ -567,14 +567,20 @@ public class FetcherThread extends Thread {
       if (fit != null) {
         fetchQueues.finishFetchItem(fit);
       }
-      // Emit fetch latency metrics
-      fetchLatencyTracker.emitCounters(context);
       // Emit error metrics
       errorTracker.emitCounters(context);
       activeThreads.decrementAndGet(); // count threads
       LOG.info("{} {} -finishing thread {}, activeThreads={}", getName(),
           Thread.currentThread().getId(), getName(), activeThreads);
     }
+  }
+
+  /**
+   * Returns the fetch latency tracker for this thread so the mapper can merge
+   * all thread trackers and emit job-level percentiles.
+   */
+  public LatencyTracker getFetchLatencyTracker() {
+    return fetchLatencyTracker;
   }
 
   private Text handleRedirect(FetchItem fit, String newUrl,

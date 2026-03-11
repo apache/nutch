@@ -46,9 +46,11 @@ import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapreduce.Partitioner;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,7 +79,7 @@ public class ParseSegment extends NutchTool implements Tool {
   }
 
   public static class ParseSegmentMapper extends
-     Mapper<WritableComparable<?>, Content, Text, ParseImpl> {
+     Mapper<WritableComparable<?>, Content, Text, Writable> {
 
     private ParseUtil parseUtil;
     private Text newKey = new Text();
@@ -87,7 +89,7 @@ public class ParseSegment extends NutchTool implements Tool {
     private ErrorTracker errorTracker;
 
     @Override
-    public void setup(Mapper<WritableComparable<?>, Content, Text, ParseImpl>.Context context) {
+    public void setup(Mapper<WritableComparable<?>, Content, Text, Writable>.Context context) {
       Configuration conf = context.getConfiguration();
       scfilters = new ScoringFilters(conf);
       skipTruncated = conf.getBoolean(SKIP_TRUNCATED, true);
@@ -98,15 +100,18 @@ public class ParseSegment extends NutchTool implements Tool {
     }
 
     @Override
-    public void cleanup(Mapper<WritableComparable<?>, Content, Text, ParseImpl>.Context context)
+    public void cleanup(Mapper<WritableComparable<?>, Content, Text, Writable>.Context context)
         throws IOException, InterruptedException {
-      // Emit parse latency metrics
-      parseLatencyTracker.emitCounters(context);
+      parseLatencyTracker.emitCountAndSumOnly(context);
+      byte[] digestBytes = parseLatencyTracker.toBytes();
+      if (digestBytes.length > 0) {
+        context.write(new Text(NutchMetrics.LATENCY_KEY), new BytesWritable(digestBytes));
+      }
     }
 
     @Override
     public void map(WritableComparable<?> key, Content content,
-        Context context)
+        Mapper<WritableComparable<?>, Content, Text, Writable>.Context context)
         throws IOException, InterruptedException {
       // convert on the fly from old UTF8 keys
       if (key instanceof Text) {
@@ -235,15 +240,60 @@ public class ParseSegment extends NutchTool implements Tool {
     return false;
   }
 
+  /** Sends LATENCY_KEY to partition 0 so one reducer merges all TDigests. */
+  public static class ParseSegmentPartitioner extends Partitioner<Text, Writable> {
+    @Override
+    public int getPartition(Text key, Writable value, int numPartitions) {
+      if (numPartitions <= 1) {
+        return 0;
+      }
+      if (key.toString().equals(NutchMetrics.LATENCY_KEY)) {
+        return 0;
+      }
+      return (key.hashCode() & Integer.MAX_VALUE) % numPartitions;
+    }
+  }
+
   public static class ParseSegmentReducer extends
-     Reducer<Text, Writable, Text, Writable> {
+     Reducer<Text, Writable, Text, ParseImpl> {
+
+    private static final Text LATENCY_KEY = new Text(NutchMetrics.LATENCY_KEY);
 
     @Override
     public void reduce(Text key, Iterable<Writable> values,
-        Context context)
+        Reducer<Text, Writable, Text, ParseImpl>.Context context)
         throws IOException, InterruptedException {
+        if (key.equals(LATENCY_KEY)) {
+        com.tdunning.math.stats.MergingDigest merged = null;
+        for (Writable w : values) {
+          if (w instanceof BytesWritable) {
+            byte[] bytes = ((BytesWritable) w).copyBytes();
+            if (bytes != null && bytes.length > 0) {
+              com.tdunning.math.stats.MergingDigest d = LatencyTracker.fromBytes(bytes);
+              if (d != null) {
+                if (merged == null) {
+                  merged = d;
+                } else {
+                  merged.add(d);
+                }
+              }
+            }
+          }
+        }
+        if (merged != null) {
+          context.getCounter(NutchMetrics.GROUP_PARSER,
+              NutchMetrics.PARSER_LATENCY + LatencyTracker.SUFFIX_P50_MS).setValue((long) merged.quantile(0.50));
+          context.getCounter(NutchMetrics.GROUP_PARSER,
+              NutchMetrics.PARSER_LATENCY + LatencyTracker.SUFFIX_P95_MS).setValue((long) merged.quantile(0.95));
+          context.getCounter(NutchMetrics.GROUP_PARSER,
+              NutchMetrics.PARSER_LATENCY + LatencyTracker.SUFFIX_P99_MS).setValue((long) merged.quantile(0.99));
+        }
+        return;
+      }
       Iterator<Writable> valuesIter = values.iterator();
-      context.write(key, valuesIter.next()); // collect first value
+      if (valuesIter.hasNext()) {
+        context.write(key, (ParseImpl) valuesIter.next());
+      }
     }
   }
 
@@ -268,6 +318,8 @@ public class ParseSegment extends NutchTool implements Tool {
     job.setJarByClass(ParseSegment.class);
     job.setMapperClass(ParseSegment.ParseSegmentMapper.class);
     job.setReducerClass(ParseSegment.ParseSegmentReducer.class);
+    job.setPartitionerClass(ParseSegment.ParseSegmentPartitioner.class);
+    job.setMapOutputValueClass(Writable.class);
 
     FileOutputFormat.setOutputPath(job, segment);
     job.setOutputFormatClass(ParseOutputFormat.class);

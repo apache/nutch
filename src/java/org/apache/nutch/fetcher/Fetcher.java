@@ -33,12 +33,14 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
@@ -46,9 +48,12 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+
+import com.tdunning.math.stats.MergingDigest;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.LatencyTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
@@ -223,9 +228,9 @@ public class Fetcher extends NutchTool implements Tool {
 
       setup(innerContext);
       initCounters(innerContext);
+      LinkedList<FetcherThread> fetcherThreads = new LinkedList<>();
       try {
         Configuration conf = innerContext.getConfiguration();
-        LinkedList<FetcherThread> fetcherThreads = new LinkedList<>();
         FetchItemQueues fetchQueues = new FetchItemQueues(conf);
         QueueFeeder feeder;
 
@@ -494,7 +499,66 @@ public class Fetcher extends NutchTool implements Tool {
         } while (activeThreads.get() > 0);
         LOG.info("-activeThreads={}", activeThreads);
       } finally {
+        // Merge all thread latency trackers and emit once; emit TDigest for reducer
+        LatencyTracker mergedLatencyTracker = new LatencyTracker(
+            NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_LATENCY);
+        for (FetcherThread fetcherThread : fetcherThreads) {
+          mergedLatencyTracker.merge(fetcherThread.getFetchLatencyTracker());
+        }
+        mergedLatencyTracker.emitCountAndSumOnly(innerContext);
+        byte[] digestBytes = mergedLatencyTracker.toBytes();
+        if (digestBytes.length > 0) {
+          innerContext.write(new Text(NutchMetrics.LATENCY_KEY),
+              new NutchWritable(new BytesWritable(digestBytes)));
+        }
         cleanup(innerContext);
+      }
+    }
+  }
+
+  /**
+   * Reducer that passes through (url, datum) records and merges TDigests from
+   * map tasks to set job-level latency percentile counters.
+   */
+  public static class FetcherReducer extends
+      Reducer<Text, NutchWritable, Text, NutchWritable> {
+
+    private static final Text LATENCY_KEY = new Text(NutchMetrics.LATENCY_KEY);
+
+    @Override
+    public void reduce(Text key, Iterable<NutchWritable> values,
+        Context context) throws IOException, InterruptedException {
+      if (key.equals(LATENCY_KEY)) {
+        MergingDigest mergedDigest = null;
+        for (NutchWritable nutchWritable : values) {
+          if (nutchWritable.get() instanceof BytesWritable) {
+            BytesWritable digestBytesWritable = (BytesWritable) nutchWritable.get();
+            byte[] digestBytes = digestBytesWritable.copyBytes();
+            if (digestBytes != null && digestBytes.length > 0) {
+              MergingDigest digest = LatencyTracker.fromBytes(digestBytes);
+              if (digest != null) {
+                if (mergedDigest == null) {
+                  mergedDigest = digest;
+                } else {
+                  mergedDigest.add(digest);
+                }
+              }
+            }
+          }
+        }
+        // Set only percentile counters; count_total and sum_ms are already correct from task aggregation
+        if (mergedDigest != null) {
+          context.getCounter(NutchMetrics.GROUP_FETCHER,
+              NutchMetrics.FETCHER_LATENCY + LatencyTracker.SUFFIX_P50_MS).setValue((long) mergedDigest.quantile(0.50));
+          context.getCounter(NutchMetrics.GROUP_FETCHER,
+              NutchMetrics.FETCHER_LATENCY + LatencyTracker.SUFFIX_P95_MS).setValue((long) mergedDigest.quantile(0.95));
+          context.getCounter(NutchMetrics.GROUP_FETCHER,
+              NutchMetrics.FETCHER_LATENCY + LatencyTracker.SUFFIX_P99_MS).setValue((long) mergedDigest.quantile(0.99));
+        }
+        return;
+      }
+      for (NutchWritable value : values) {
+        context.write(key, value);
       }
     }
   }
@@ -561,6 +625,8 @@ public class Fetcher extends NutchTool implements Tool {
     job.setInputFormatClass(InputFormat.class);
     job.setJarByClass(Fetcher.class);
     job.setMapperClass(Fetcher.FetcherRun.class);
+    job.setReducerClass(Fetcher.FetcherReducer.class);
+    job.setNumReduceTasks(1);
 
     FileOutputFormat.setOutputPath(job, segment);
     job.setOutputFormatClass(FetcherOutputFormat.class);
