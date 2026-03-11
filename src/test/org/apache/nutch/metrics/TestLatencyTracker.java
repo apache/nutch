@@ -99,6 +99,27 @@ class TestLatencyTracker {
     assertNull(LatencyTracker.fromBytes(new byte[0]));
   }
 
+  @Test
+  void testGetPercentileReturnsValueInRange() {
+    LatencyTracker tracker = new LatencyTracker(GROUP, PREFIX);
+    tracker.record(100);
+    tracker.record(200);
+    tracker.record(300);
+    long p50 = tracker.getPercentile(0.50);
+    long p95 = tracker.getPercentile(0.95);
+    long p99 = tracker.getPercentile(0.99);
+    assertTrue(p50 >= 100 && p50 <= 300);
+    assertTrue(p95 >= 100 && p95 <= 300);
+    assertTrue(p99 >= 100 && p99 <= 300);
+  }
+
+  @Test
+  void testGetPercentileWithZeroSamplesReturnsZero() {
+    LatencyTracker tracker = new LatencyTracker(GROUP, PREFIX);
+    assertEquals(0, tracker.getPercentile(0.50));
+    assertEquals(0, tracker.getPercentile(0.95));
+  }
+
   // Integration-style tests: real Hadoop Context and Counters (no mocks).
   // Uses ReducerContextWrapper to drive a reducer that emits latency counters.
 

@@ -162,8 +162,7 @@ public class IndexingJob extends NutchTool implements Tool {
       Path latencyDir = new Path(tmp, "_latency");
       FileSystem fs = tmp.getFileSystem(conf);
       if (fs.exists(latencyDir)) {
-        try {
-          Job mergeJob = IndexerMapReduce.createLatencyMergeJob(conf, latencyDir);
+        try (Job mergeJob = IndexerMapReduce.createLatencyMergeJob(conf, latencyDir)) {
           FileOutputFormat.setOutputPath(mergeJob, new Path(tmp, "_latency_merge_out"));
           boolean mergeSuccess = mergeJob.waitForCompletion(true);
           if (!mergeSuccess) {
@@ -171,8 +170,12 @@ public class IndexingJob extends NutchTool implements Tool {
             errorTracker.recordError(ErrorTracker.ErrorType.OTHER);
           }
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
+          if (e instanceof InterruptedException) {
+            Thread.currentThread().interrupt();
+          }
           LOG.error("Indexer Latency Merge job failed: {}", e.getMessage());
           errorTracker.recordError(e);
+          throw e;
         }
       }
       LOG.info("Indexer: number of documents indexed, deleted, or skipped:");
