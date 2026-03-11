@@ -90,7 +90,17 @@ public class ReducerContextWrapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
   public Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT>.Context getContext() {
     return context;
   }
-  
+
+  /**
+   * Return the underlying counters updated by the context, for assertions in tests.
+   * Uses the real Hadoop mapred Counters API (no mocks).
+   *
+   * @return the counters instance
+   */
+  public Counters getCounters() {
+    return counters;
+  }
+
   private void initContext() {
     // most methods are not used in Nutch unit tests.
     context =  reducer.new Context() {

@@ -21,11 +21,25 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.ReducerContextWrapper;
 import org.junit.jupiter.api.Test;
+
+import com.tdunning.math.stats.MergingDigest;
+import com.tdunning.math.stats.TDigest;
 
 /**
  * Unit tests for {@link LatencyTracker} merge, serialization (toBytes/fromBytes),
- * and percentile behavior.
+ * percentile behavior, and counter emission. Counter-emitting tests use the real
+ * Hadoop Context and Counters via {@link ReducerContextWrapper} (no mocks of Hadoop).
  */
 class TestLatencyTracker {
 
@@ -83,5 +97,188 @@ class TestLatencyTracker {
   void testFromBytesNullOrEmptyReturnsNull() {
     assertNull(LatencyTracker.fromBytes(null));
     assertNull(LatencyTracker.fromBytes(new byte[0]));
+  }
+
+  // Integration-style tests: real Hadoop Context and Counters (no mocks).
+  // Uses ReducerContextWrapper to drive a reducer that emits latency counters.
+
+  @Test
+  void testEmitCountAndSumOnlyUpdatesJobCounters() throws IOException, InterruptedException {
+    Configuration conf = NutchConfiguration.create();
+    Map<Text, Text> out = new HashMap<>();
+    EmitCountAndSumOnlyReducer reducer = new EmitCountAndSumOnlyReducer(GROUP, PREFIX);
+    ReducerContextWrapper<Text, Text, Text, Text> wrapper =
+        new ReducerContextWrapper<>(reducer, conf, out);
+    reducer.reduce(new Text("k"), Collections.singletonList(new Text("v")), wrapper.getContext());
+
+    assertEquals(2, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_COUNT_TOTAL).getValue());
+    assertEquals(30, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_SUM_MS).getValue());
+  }
+
+  @Test
+  void testEmitCountersUpdatesJobCounters() throws IOException, InterruptedException {
+    Configuration conf = NutchConfiguration.create();
+    Map<Text, Text> out = new HashMap<>();
+    EmitCountersReducer reducer = new EmitCountersReducer(GROUP, PREFIX);
+    ReducerContextWrapper<Text, Text, Text, Text> wrapper =
+        new ReducerContextWrapper<>(reducer, conf, out);
+    reducer.reduce(new Text("k"), Collections.singletonList(new Text("v")), wrapper.getContext());
+
+    assertEquals(3, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_COUNT_TOTAL).getValue());
+    assertEquals(600, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_SUM_MS).getValue());
+    long p50 = wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P50_MS).getValue();
+    long p95 = wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P95_MS).getValue();
+    long p99 = wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P99_MS).getValue();
+    assertTrue(p50 >= 100 && p50 <= 300);
+    assertTrue(p95 >= 100 && p95 <= 300);
+    assertTrue(p99 >= 100 && p99 <= 300);
+  }
+
+  @Test
+  void testEmitCountersWithZeroSamplesSetsPercentilesToZero() throws IOException, InterruptedException {
+    Configuration conf = NutchConfiguration.create();
+    Map<Text, Text> out = new HashMap<>();
+    EmitCountersZeroReducer reducer = new EmitCountersZeroReducer(GROUP, PREFIX);
+    ReducerContextWrapper<Text, Text, Text, Text> wrapper =
+        new ReducerContextWrapper<>(reducer, conf, out);
+    reducer.reduce(new Text("k"), Collections.emptyList(), wrapper.getContext());
+
+    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_COUNT_TOTAL).getValue());
+    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_SUM_MS).getValue());
+    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P50_MS).getValue());
+    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P95_MS).getValue());
+    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P99_MS).getValue());
+  }
+
+  @Test
+  void testSetJobLevelCountersUpdatesJobCounters() throws IOException, InterruptedException {
+    Configuration conf = NutchConfiguration.create();
+    Map<Text, Text> out = new HashMap<>();
+    SetJobLevelCountersReducer reducer = new SetJobLevelCountersReducer(GROUP, PREFIX);
+    ReducerContextWrapper<Text, Text, Text, Text> wrapper =
+        new ReducerContextWrapper<>(reducer, conf, out);
+    reducer.reduce(new Text("k"), Collections.singletonList(new Text("v")), wrapper.getContext());
+
+    assertEquals(3, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_COUNT_TOTAL).getValue());
+    assertEquals(600, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_SUM_MS).getValue());
+    long p50 = wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P50_MS).getValue();
+    long p95 = wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P95_MS).getValue();
+    long p99 = wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P99_MS).getValue();
+    assertTrue(p50 >= 100 && p50 <= 300);
+    assertTrue(p95 >= 100 && p95 <= 300);
+    assertTrue(p99 >= 100 && p99 <= 300);
+  }
+
+  @Test
+  void testSetJobLevelCountersWithZeroCountSetsPercentilesToZero() throws IOException, InterruptedException {
+    Configuration conf = NutchConfiguration.create();
+    Map<Text, Text> out = new HashMap<>();
+    SetJobLevelCountersZeroReducer reducer = new SetJobLevelCountersZeroReducer(GROUP, PREFIX);
+    ReducerContextWrapper<Text, Text, Text, Text> wrapper =
+        new ReducerContextWrapper<>(reducer, conf, out);
+    reducer.reduce(new Text("k"), Collections.emptyList(), wrapper.getContext());
+
+    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_COUNT_TOTAL).getValue());
+    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_SUM_MS).getValue());
+    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P50_MS).getValue());
+    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P95_MS).getValue());
+    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P99_MS).getValue());
+  }
+
+  /** Reducer that emits only count and sum via LatencyTracker (real Context, no mocks). */
+  private static final class EmitCountAndSumOnlyReducer extends Reducer<Text, Text, Text, Text> {
+    private final String group;
+    private final String prefix;
+
+    EmitCountAndSumOnlyReducer(String group, String prefix) {
+      this.group = group;
+      this.prefix = prefix;
+    }
+
+    @Override
+    protected void reduce(Text key, Iterable<Text> values, Context context)
+        throws IOException, InterruptedException {
+      LatencyTracker tracker = new LatencyTracker(group, prefix);
+      tracker.record(10);
+      tracker.record(20);
+      tracker.emitCountAndSumOnly(context);
+    }
+  }
+
+  /** Reducer that emits count, sum, and percentiles via LatencyTracker (real Context, no mocks). */
+  private static final class EmitCountersReducer extends Reducer<Text, Text, Text, Text> {
+    private final String group;
+    private final String prefix;
+
+    EmitCountersReducer(String group, String prefix) {
+      this.group = group;
+      this.prefix = prefix;
+    }
+
+    @Override
+    protected void reduce(Text key, Iterable<Text> values, Context context)
+        throws IOException, InterruptedException {
+      LatencyTracker tracker = new LatencyTracker(group, prefix);
+      tracker.record(100);
+      tracker.record(200);
+      tracker.record(300);
+      tracker.emitCounters(context);
+    }
+  }
+
+  /** Reducer that emits counters with zero samples (percentiles set to 0). */
+  private static final class EmitCountersZeroReducer extends Reducer<Text, Text, Text, Text> {
+    private final String group;
+    private final String prefix;
+
+    EmitCountersZeroReducer(String group, String prefix) {
+      this.group = group;
+      this.prefix = prefix;
+    }
+
+    @Override
+    protected void reduce(Text key, Iterable<Text> values, Context context)
+        throws IOException, InterruptedException {
+      LatencyTracker tracker = new LatencyTracker(group, prefix);
+      tracker.emitCounters(context);
+    }
+  }
+
+  /** Reducer that calls setJobLevelCounters with a merged digest (real Context, no mocks). */
+  private static final class SetJobLevelCountersReducer extends Reducer<Text, Text, Text, Text> {
+    private final String group;
+    private final String prefix;
+
+    SetJobLevelCountersReducer(String group, String prefix) {
+      this.group = group;
+      this.prefix = prefix;
+    }
+
+    @Override
+    protected void reduce(Text key, Iterable<Text> values, Context context)
+        throws IOException, InterruptedException {
+      MergingDigest digest = (MergingDigest) TDigest.createMergingDigest(100.0);
+      digest.add(100);
+      digest.add(200);
+      digest.add(300);
+      LatencyTracker.setJobLevelCounters(context, group, prefix, 3, 600, digest);
+    }
+  }
+
+  /** Reducer that calls setJobLevelCounters with zero count (percentiles set to 0). */
+  private static final class SetJobLevelCountersZeroReducer extends Reducer<Text, Text, Text, Text> {
+    private final String group;
+    private final String prefix;
+
+    SetJobLevelCountersZeroReducer(String group, String prefix) {
+      this.group = group;
+      this.prefix = prefix;
+    }
+
+    @Override
+    protected void reduce(Text key, Iterable<Text> values, Context context)
+        throws IOException, InterruptedException {
+      LatencyTracker.setJobLevelCounters(context, group, prefix, 0, 0, null);
+    }
   }
 }
