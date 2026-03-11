@@ -567,7 +567,6 @@ public class FetcherThread extends Thread {
       if (fit != null) {
         fetchQueues.finishFetchItem(fit);
       }
-      // Latency metrics are merged and emitted once by FetcherRun in the mapper
       // Emit error metrics
       errorTracker.emitCounters(context);
       activeThreads.decrementAndGet(); // count threads

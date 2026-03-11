@@ -132,8 +132,7 @@ class TestLatencyTracker {
         new ReducerContextWrapper<>(reducer, conf, out);
     reducer.reduce(new Text("k"), Collections.singletonList(new Text("v")), wrapper.getContext());
 
-    assertEquals(2, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_COUNT_TOTAL).getValue());
-    assertEquals(30, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_SUM_MS).getValue());
+    LatencyTestUtil.assertCountAndSum(wrapper.getCounters(), GROUP, PREFIX, 2, 30);
   }
 
   @Test
@@ -145,14 +144,8 @@ class TestLatencyTracker {
         new ReducerContextWrapper<>(reducer, conf, out);
     reducer.reduce(new Text("k"), Collections.singletonList(new Text("v")), wrapper.getContext());
 
-    assertEquals(3, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_COUNT_TOTAL).getValue());
-    assertEquals(600, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_SUM_MS).getValue());
-    long p50 = wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P50_MS).getValue();
-    long p95 = wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P95_MS).getValue();
-    long p99 = wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P99_MS).getValue();
-    assertTrue(p50 >= 100 && p50 <= 300);
-    assertTrue(p95 >= 100 && p95 <= 300);
-    assertTrue(p99 >= 100 && p99 <= 300);
+    LatencyTestUtil.assertCountAndSum(wrapper.getCounters(), GROUP, PREFIX, 3, 600);
+    LatencyTestUtil.assertPercentilesInRange(wrapper.getCounters(), GROUP, PREFIX, 100, 300);
   }
 
   @Test
@@ -164,11 +157,7 @@ class TestLatencyTracker {
         new ReducerContextWrapper<>(reducer, conf, out);
     reducer.reduce(new Text("k"), Collections.emptyList(), wrapper.getContext());
 
-    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_COUNT_TOTAL).getValue());
-    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_SUM_MS).getValue());
-    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P50_MS).getValue());
-    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P95_MS).getValue());
-    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P99_MS).getValue());
+    LatencyTestUtil.assertCountSumAndPercentilesZero(wrapper.getCounters(), GROUP, PREFIX);
   }
 
   @Test
@@ -180,14 +169,8 @@ class TestLatencyTracker {
         new ReducerContextWrapper<>(reducer, conf, out);
     reducer.reduce(new Text("k"), Collections.singletonList(new Text("v")), wrapper.getContext());
 
-    assertEquals(3, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_COUNT_TOTAL).getValue());
-    assertEquals(600, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_SUM_MS).getValue());
-    long p50 = wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P50_MS).getValue();
-    long p95 = wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P95_MS).getValue();
-    long p99 = wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P99_MS).getValue();
-    assertTrue(p50 >= 100 && p50 <= 300);
-    assertTrue(p95 >= 100 && p95 <= 300);
-    assertTrue(p99 >= 100 && p99 <= 300);
+    LatencyTestUtil.assertCountAndSum(wrapper.getCounters(), GROUP, PREFIX, 3, 600);
+    LatencyTestUtil.assertPercentilesInRange(wrapper.getCounters(), GROUP, PREFIX, 100, 300);
   }
 
   @Test
@@ -199,11 +182,7 @@ class TestLatencyTracker {
         new ReducerContextWrapper<>(reducer, conf, out);
     reducer.reduce(new Text("k"), Collections.emptyList(), wrapper.getContext());
 
-    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_COUNT_TOTAL).getValue());
-    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_SUM_MS).getValue());
-    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P50_MS).getValue());
-    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P95_MS).getValue());
-    assertEquals(0, wrapper.getCounters().findCounter(GROUP, PREFIX + LatencyTracker.SUFFIX_P99_MS).getValue());
+    LatencyTestUtil.assertCountSumAndPercentilesZero(wrapper.getCounters(), GROUP, PREFIX);
   }
 
   /** Reducer that emits only count and sum via LatencyTracker (real Context, no mocks). */

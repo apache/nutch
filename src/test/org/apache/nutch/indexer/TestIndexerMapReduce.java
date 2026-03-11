@@ -26,7 +26,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.util.StringUtils;
-import org.apache.nutch.metrics.LatencyTracker;
+import org.apache.nutch.metrics.LatencyTestUtil;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
@@ -211,24 +211,13 @@ public class TestIndexerMapReduce {
     ReducerContextWrapper<IntWritable, BytesWritable, IntWritable, BytesWritable> wrapper =
         new ReducerContextWrapper<>(reducer, conf, out);
 
-    LatencyTracker tracker = new LatencyTracker(NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_LATENCY);
-    tracker.record(50);
-    tracker.record(150);
-    tracker.record(250);
-    byte[] digestBytes = tracker.toBytes();
+    byte[] digestBytes = LatencyTestUtil.createDigestBytes(50, 150, 250);
     List<BytesWritable> values = Collections.singletonList(new BytesWritable(digestBytes));
 
     reducer.reduce(new IntWritable(1), values, wrapper.getContext());
 
-    long p50 = wrapper.getCounters().findCounter(NutchMetrics.GROUP_INDEXER,
-        NutchMetrics.INDEXER_LATENCY + LatencyTracker.SUFFIX_P50_MS).getValue();
-    long p95 = wrapper.getCounters().findCounter(NutchMetrics.GROUP_INDEXER,
-        NutchMetrics.INDEXER_LATENCY + LatencyTracker.SUFFIX_P95_MS).getValue();
-    long p99 = wrapper.getCounters().findCounter(NutchMetrics.GROUP_INDEXER,
-        NutchMetrics.INDEXER_LATENCY + LatencyTracker.SUFFIX_P99_MS).getValue();
-    assertTrue(p50 >= 50 && p50 <= 250);
-    assertTrue(p95 >= 50 && p95 <= 250);
-    assertTrue(p99 >= 50 && p99 <= 250);
+    LatencyTestUtil.assertPercentilesInRange(wrapper.getCounters(),
+        NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_LATENCY, 50, 250);
   }
 
   /**

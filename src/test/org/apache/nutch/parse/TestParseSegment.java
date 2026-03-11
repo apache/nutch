@@ -33,7 +33,7 @@ import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.metrics.LatencyTracker;
+import org.apache.nutch.metrics.LatencyTestUtil;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
@@ -106,24 +106,14 @@ public class TestParseSegment {
     ReducerContextWrapper<Text, Writable, Text, ParseImpl> wrapper =
         new ReducerContextWrapper<>(reducer, conf, out);
 
-    LatencyTracker tracker = new LatencyTracker(NutchMetrics.GROUP_PARSER, NutchMetrics.PARSER_LATENCY);
-    tracker.record(100);
-    tracker.record(200);
-    byte[] digestBytes = tracker.toBytes();
+    byte[] digestBytes = LatencyTestUtil.createDigestBytes(100, 200);
     List<Writable> values = new ArrayList<>();
     values.add(new BytesWritable(digestBytes));
 
     reducer.reduce(new Text(NutchMetrics.LATENCY_KEY), values, wrapper.getContext());
 
-    long p50 = wrapper.getCounters().findCounter(NutchMetrics.GROUP_PARSER,
-        NutchMetrics.PARSER_LATENCY + LatencyTracker.SUFFIX_P50_MS).getValue();
-    long p95 = wrapper.getCounters().findCounter(NutchMetrics.GROUP_PARSER,
-        NutchMetrics.PARSER_LATENCY + LatencyTracker.SUFFIX_P95_MS).getValue();
-    long p99 = wrapper.getCounters().findCounter(NutchMetrics.GROUP_PARSER,
-        NutchMetrics.PARSER_LATENCY + LatencyTracker.SUFFIX_P99_MS).getValue();
-    assertTrue(p50 >= 100 && p50 <= 200);
-    assertTrue(p95 >= 100 && p95 <= 200);
-    assertTrue(p99 >= 100 && p99 <= 200);
+    LatencyTestUtil.assertPercentilesInRange(wrapper.getCounters(),
+        NutchMetrics.GROUP_PARSER, NutchMetrics.PARSER_LATENCY, 100, 200);
     assertEquals(0, out.size());
   }
 

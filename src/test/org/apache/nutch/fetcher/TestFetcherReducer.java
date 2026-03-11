@@ -31,8 +31,8 @@ import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
-import org.apache.nutch.metrics.LatencyTracker;
 import org.apache.nutch.metrics.NutchMetrics;
+import org.apache.nutch.metrics.LatencyTestUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.ReducerContextWrapper;
 import org.junit.jupiter.api.Test;
@@ -51,25 +51,14 @@ class TestFetcherReducer {
     ReducerContextWrapper<Text, NutchWritable, Text, NutchWritable> wrapper =
         new ReducerContextWrapper<>(reducer, conf, out);
 
-    LatencyTracker tracker = new LatencyTracker(NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_LATENCY);
-    tracker.record(100);
-    tracker.record(200);
-    tracker.record(300);
-    byte[] digestBytes = tracker.toBytes();
+    byte[] digestBytes = LatencyTestUtil.createDigestBytes(100, 200, 300);
     List<NutchWritable> values = new ArrayList<>();
     values.add(new NutchWritable(new BytesWritable(digestBytes)));
 
     reducer.reduce(new Text(NutchMetrics.LATENCY_KEY), values, wrapper.getContext());
 
-    long p50 = wrapper.getCounters().findCounter(NutchMetrics.GROUP_FETCHER,
-        NutchMetrics.FETCHER_LATENCY + LatencyTracker.SUFFIX_P50_MS).getValue();
-    long p95 = wrapper.getCounters().findCounter(NutchMetrics.GROUP_FETCHER,
-        NutchMetrics.FETCHER_LATENCY + LatencyTracker.SUFFIX_P95_MS).getValue();
-    long p99 = wrapper.getCounters().findCounter(NutchMetrics.GROUP_FETCHER,
-        NutchMetrics.FETCHER_LATENCY + LatencyTracker.SUFFIX_P99_MS).getValue();
-    assertTrue(p50 >= 100 && p50 <= 300);
-    assertTrue(p95 >= 100 && p95 <= 300);
-    assertTrue(p99 >= 100 && p99 <= 300);
+    LatencyTestUtil.assertPercentilesInRange(wrapper.getCounters(),
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_LATENCY, 100, 300);
     assertEquals(0, out.size());
   }
 
@@ -81,19 +70,17 @@ class TestFetcherReducer {
     ReducerContextWrapper<Text, NutchWritable, Text, NutchWritable> wrapper =
         new ReducerContextWrapper<>(reducer, conf, out);
 
-    LatencyTracker t1 = new LatencyTracker(NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_LATENCY);
-    t1.record(10);
-    LatencyTracker t2 = new LatencyTracker(NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_LATENCY);
-    t2.record(90);
+    List<BytesWritable> digestWritables = LatencyTestUtil.createDigestBytesWritables(
+        new long[] { 10 }, new long[] { 90 });
     List<NutchWritable> values = new ArrayList<>();
-    values.add(new NutchWritable(new BytesWritable(t1.toBytes())));
-    values.add(new NutchWritable(new BytesWritable(t2.toBytes())));
+    for (BytesWritable bw : digestWritables) {
+      values.add(new NutchWritable(bw));
+    }
 
     reducer.reduce(new Text(NutchMetrics.LATENCY_KEY), values, wrapper.getContext());
 
-    long p50 = wrapper.getCounters().findCounter(NutchMetrics.GROUP_FETCHER,
-        NutchMetrics.FETCHER_LATENCY + LatencyTracker.SUFFIX_P50_MS).getValue();
-    assertTrue(p50 >= 10 && p50 <= 90);
+    LatencyTestUtil.assertPercentilesInRange(wrapper.getCounters(),
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_LATENCY, 10, 90);
     assertEquals(0, out.size());
   }
 
