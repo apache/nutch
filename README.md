@@ -40,11 +40,18 @@ To contribute a patch, follow these instructions (note that installing
 
 Pre-commit / Apache Yetus
 -------------------------
-Pull requests run [Apache Yetus](https://yetus.apache.org/) test-patch for automated checks (compile, tests, style, reporting). See the [Basic Precommit](https://yetus.apache.org/documentation/0.15.1/precommit/) docs and [Usage Introduction](https://yetus.apache.org/documentation/0.15.1/precommit/usage-intro/). CI uses the Ant build tool and Java 17, in line with the main master-build workflow. To run test-patch locally (e.g. before opening a PR):
 
-    test-patch --basedir=/path/to/clean/repo --build-tool=ant --plugins=ant,javac,javadoc,xml [patchfile]
+Pull requests run [Apache Yetus](https://yetus.apache.org/) test-patch for
+automated checks (style, reporting). See
+[Basic Precommit](https://yetus.apache.org/documentation/0.15.1/precommit/)
+and
+[Usage Introduction](https://yetus.apache.org/documentation/0.15.1/precommit/usage-intro/).
+CI uses Java 17. To run test-patch locally (e.g. before opening a PR):
 
-Use `--run-tests` to include unit tests. Exclude patterns can be added in `.yetus/excludes.txt` (regex, one per line).
+    test-patch --basedir=/path/to/clean/repo --build-tool=nobuild \
+      --plugins=all,-jira,-gitlab,-unit,-compile [patchfile]
+
+Exclude patterns can be added in `.yetus/excludes.txt` (regex, one per line).
 
 IDE setup
 =========

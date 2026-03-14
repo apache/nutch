@@ -21,6 +21,8 @@ fi
 
 # Pass JAVA_HOME into the re-exec Docker container so pre-patch and other
 # phases see it (YETUS-913; otherwise the inner container may not get it).
+# @audience private
+# @stability stable
 function docker_do_env_adds
 {
   declare k

@@ -59,7 +59,7 @@ jobs:
           buildtool: nobuild
           githubtoken: ${{ secrets.GITHUB_TOKEN }}
           javahome: '/usr/lib/jvm/java-17-openjdk-amd64'
-          patchdir: ${{ env.PATCH_DIR }}
+          patchdir: /github/workspace/out
           plugins: all,-jira,-gitlab,-unit,-compile
           project: nutch
       - name: Artifact output

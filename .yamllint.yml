@@ -1,0 +1,6 @@
+# Relax line-length for workflow and config YAML (Yetus yamllint plugin)
+extends: default
+
+rules:
+  line-length:
+    max: 200
