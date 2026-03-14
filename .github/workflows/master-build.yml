@@ -67,7 +67,7 @@ jobs:
           # Java 11 = major version 55, Java 17 = major version 61
           EXPECTED_VERSION=${{ matrix.javac-version == '11' && '55' || '61' }}
           echo "Expected major version: $EXPECTED_VERSION (Java ${{ matrix.javac-version }})"
-          
+
           # Find a real class file (exclude package-info.class which may have different version)
           cd build/classes
           CLASS_FILE=$(find . -name "*.class" ! -name "package-info.class" | head -1)
