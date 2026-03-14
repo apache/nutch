@@ -36,11 +36,7 @@ jobs:
     env:
       PATCH_DIR: ${{ github.workspace }}/out
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          path: src
-          fetch-depth: 0
+      - uses: actions/checkout@v5
       - name: Cache Ivy dependencies
         uses: actions/cache@v4
         with:
@@ -51,16 +47,14 @@ jobs:
       - name: Apache Yetus test-patch
         uses: apache/yetus-test-patch-action@0.15.1
         with:
-          basedir: ${{ github.workspace }}/src
-          branch-default: master
-          build-tool: ant
+          basedir: .
+          buildtool: ant
           githubtoken: ${{ secrets.GITHUB_TOKEN }}
           # Use Java 17 path if available in Yetus image; default may be Java 11
           javahome: '/usr/lib/jvm/java-17-openjdk-amd64'
-          patch-dir: ${{ env.PATCH_DIR }}
+          patchdir: ${{ env.PATCH_DIR }}
           plugins: all
           project: nutch
-          run-tests: false
       - name: Artifact output
         if: always()
         uses: actions/upload-artifact@v4
