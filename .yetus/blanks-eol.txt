@@ -1,0 +1,3 @@
+# Ignore trailing blanks in Yetus-generated patch/diff and logs (not source files).
+# See --blanks-eol-ignore-file in the blanks plugin.
+^out/
