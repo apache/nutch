@@ -31,60 +31,6 @@ on:
 # javac.version=11 bytecode target for backward compatibility.
 
 jobs:
-  javadoc:
-    strategy:
-      matrix:
-        java: ['17']
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v5
-      - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: 'temurin'
-      - name: Cache Ivy dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.ivy2/cache
-          key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-ivy-
-      - name: Javadoc
-        run: ant clean javadoc -buildfile build.xml
-
-  rat:
-    strategy:
-      matrix:
-        java: ['17']
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v5
-      - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: 'temurin'
-      - name: Cache Ivy dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.ivy2/cache
-          key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-ivy-
-      - name: Run Apache Rat
-        run: ant clean run-rat -buildfile build.xml
-      - name: Cache unknown licenses
-        run: echo "UNKNOWN_LICENSES=$(sed -n 18p /home/runner/work/nutch/nutch/build/apache-rat-report.txt)" >> $GITHUB_ENV
-      - name: Versions
-        run: |
-          echo $UNKNOWN_LICENSES
-      - name: Fail if any unknown licenses
-        if: ${{ env.UNKNOWN_LICENSES != '0 Unknown Licenses' }}
-        run: exit 1
-
   # Build verification with Java bytecode target matrix
   # Verifies bytecode compatibility for both Java 11 and Java 17 targets
   build:

@@ -1028,8 +1028,8 @@
     <delete file="${ivy.dir}/apache-rat-${apache-rat.version}-bin.tar.gz" />
   </target>
 
-  <target name="run-rat" depends="init, apache-rat-download"
-    description="--> runs Apache Rat on codebase">
+  <target name="releaseaudit" depends="init, apache-rat-download"
+    description="--> runs Apache Rat on codebase (releaseaudit for Yetus asflicense)">
     <taskdef
         uri="antlib:org.apache.rat.anttasks"
         resource="org/apache/rat/anttasks/antlib.xml">
