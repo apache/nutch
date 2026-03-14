@@ -101,18 +101,9 @@ jobs:
             echo "_Report truncated (GitHub comment limit). Full HTML in apacheyetuspatchdir artifact as report.html._" >> yetus-report-trimmed.md
             mv yetus-report-trimmed.md yetus-report.md
           fi
-      - name: Find existing Yetus comment
-        if: github.event_name == 'pull_request'
-        id: find
-        uses: peter-evans/find-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body-includes: "## Apache Yetus test-patch report"
       - name: Comment PR with Yetus report
         if: github.event_name == 'pull_request'
-        uses: peter-evans/create-or-update-comment@v5
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
