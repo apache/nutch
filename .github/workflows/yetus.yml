@@ -37,6 +37,8 @@ jobs:
       PATCH_DIR: ${{ github.workspace }}/out
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - name: Cache Ivy dependencies
         uses: actions/cache@v4
         with:
