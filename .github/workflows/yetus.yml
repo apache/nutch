@@ -29,10 +29,13 @@ concurrency:
   group: yetus-${{ github.ref }}
   cancel-in-progress: true
 
+# GITHUB_TOKEN cannot comment on PRs from forks (403). Use a PAT secret
+# (e.g. YETUS_COMMENT_TOKEN) if you need comments on fork PRs.
 permissions:
   contents: read
   statuses: write
   pull-requests: write
+  issues: write
 
 jobs:
   yetus:
@@ -105,8 +108,9 @@ jobs:
       - name: Comment PR with Yetus report
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9
+        continue-on-error: true
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.YETUS_COMMENT_TOKEN || secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
           issue-number: ${{ github.event.pull_request.number }}
           body-path: yetus-report.md
