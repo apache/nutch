@@ -1,2 +1,3 @@
 # Allow fenced code blocks (```) in addition to indented (Yetus markdownlint plugin)
+---
 MD046: fenced

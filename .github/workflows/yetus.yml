@@ -16,7 +16,7 @@
 # Apache Yetus test-patch: pre-commit patch testing (Ant, JDK 17).
 # Runs alongside master-build.yml; all CI is unified on Java 17.
 # See https://yetus.apache.org/documentation/0.15.1/precommit/
-
+---
 name: Apache Yetus
 on:
   push:

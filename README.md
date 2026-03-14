@@ -60,9 +60,7 @@ IDE setup
 
 Generate Eclipse project files
 
-```
-ant eclipse
-```
+    ant eclipse
 
 and follow the instructions in [Importing existing projects](https://help.eclipse.org/2019-06/topic/org.eclipse.platform.doc.user/tasks/tasks-importproject.htm).
 
