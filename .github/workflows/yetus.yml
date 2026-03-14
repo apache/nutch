@@ -72,7 +72,7 @@ jobs:
           # Use Java 17 path if available in Yetus image; default may be Java 11
           javahome: '/usr/lib/jvm/java-17-openjdk-amd64'
           patchdir: ${{ env.PATCH_DIR }}
-          plugins: all,-jira
+          plugins: all,-jira,-gitlab
           project: nutch
       - name: Artifact output
         if: always()

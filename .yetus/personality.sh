@@ -18,3 +18,17 @@
 if [ -z "${JAVA_HOME}" ] && [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
   export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
 fi
+
+# Pass JAVA_HOME into the re-exec Docker container so pre-patch and other
+# phases see it (YETUS-913; otherwise the inner container may not get it).
+function docker_do_env_adds
+{
+  declare k
+  DOCKER_EXTRAARGS+=("--env=JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64")
+  for k in "${DOCKER_EXTRAENVS[@]}"; do
+    [[ -z "${k}" ]] && continue
+    if [[ "JAVA_HOME" != "${k}" ]]; then
+      DOCKER_EXTRAARGS+=("--env=${k}=${!k}")
+    fi
+  done
+}
