@@ -57,15 +57,15 @@
 
   <!--
     Java Version Strategy (see HADOOP-18887 for similar approach):
-    
+
     BUILD REQUIREMENT: Java 17+ is required to build Nutch and run unit tests
     because JUnit 6 (Jupiter) requires Java 17+.
-    
+
     RUNTIME COMPATIBILITY: The compiled bytecode targets Java 11 by default
     (javac.version=11 in default.properties), allowing the binary package
     to run on Java 11+ environments. This is important for Hadoop clusters
     that may not yet support Java 17 runtime.
-    
+
     To build with Java 17 bytecode target: ant -Djavac.version=17 ...
   -->
 
@@ -1028,8 +1028,8 @@
     <delete file="${ivy.dir}/apache-rat-${apache-rat.version}-bin.tar.gz" />
   </target>
 
-  <target name="run-rat" depends="init, apache-rat-download"
-    description="--> runs Apache Rat on codebase">
+  <target name="releaseaudit" depends="init, apache-rat-download"
+    description="--> runs Apache Rat on codebase (releaseaudit for Yetus asflicense)">
     <taskdef
         uri="antlib:org.apache.rat.anttasks"
         resource="org/apache/rat/anttasks/antlib.xml">
