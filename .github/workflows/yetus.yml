@@ -29,14 +29,15 @@ concurrency:
   group: yetus-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  statuses: write
+  pull-requests: write
+
 jobs:
   yetus:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    permissions:
-      contents: read
-      statuses: write
-      pull-requests: write
     env:
       PATCH_DIR: ${{ github.workspace }}/out
       JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
@@ -51,6 +52,17 @@ jobs:
           key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
           restore-keys: |
             ${{ runner.os }}-ivy-
+      - name: Cache Yetus Docker image
+        id: yetus-image-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/yetus-docker-cache
+          key: ${{ runner.os }}-yetus-image-0.15.1
+      - name: Load Yetus Docker image
+        run: |
+          if [ -f /tmp/yetus-docker-cache/yetus-image.tar ]; then
+            docker load -i /tmp/yetus-docker-cache/yetus-image.tar
+          fi
       - name: Apache Yetus test-patch
         uses: apache/yetus-test-patch-action@0.15.1
         with:
@@ -60,7 +72,7 @@ jobs:
           # Use Java 17 path if available in Yetus image; default may be Java 11
           javahome: '/usr/lib/jvm/java-17-openjdk-amd64'
           patchdir: ${{ env.PATCH_DIR }}
-          plugins: all
+          plugins: all,-jira
           project: nutch
       - name: Artifact output
         if: always()
@@ -68,6 +80,11 @@ jobs:
         with:
           name: apacheyetuspatchdir
           path: ${{ env.PATCH_DIR }}
+      - name: Save Yetus Docker image to cache
+        if: always() && steps.yetus-image-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p /tmp/yetus-docker-cache
+          docker save ghcr.io/apache/yetus:0.15.1 -o /tmp/yetus-docker-cache/yetus-image.tar
       - name: Install pandoc
         if: github.event_name == 'pull_request'
         run: sudo apt-get update && sudo apt-get install -y pandoc
