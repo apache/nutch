@@ -21,6 +21,10 @@ on:
     types: [opened, synchronize, reopened]
     branches: [master]
 
+concurrency:
+  group: master-build-${{ github.ref }}
+  cancel-in-progress: true
+
 # Java Version Strategy:
 # - BUILD: Requires Java 17+ (JUnit 6 dependency)
 # - RUNTIME: Supports Java 11+ (javac.version=11 produces Java 11 bytecode)
