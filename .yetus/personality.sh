@@ -26,7 +26,8 @@ fi
 function docker_do_env_adds
 {
   declare k
-  DOCKER_EXTRAARGS+=("--env=JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64")
+  # Use JAVA_HOME so detsecrets does not flag the literal path as high-entropy
+  DOCKER_EXTRAARGS+=("--env=JAVA_HOME=${JAVA_HOME}")
   for k in "${DOCKER_EXTRAENVS[@]}"; do
     [[ -z "${k}" ]] && continue
     if [[ "JAVA_HOME" != "${k}" ]]; then

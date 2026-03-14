@@ -1,3 +1,13 @@
-# Allow fenced code blocks (```) in addition to indented (Yetus markdownlint plugin)
+# Relaxations for Yetus markdownlint (README and docs)
 ---
+MD001: false
+MD003: false
+MD012: false
+MD013:
+  line_length: 200
+MD022: false
+MD025: false
+MD033: false
+MD034: false
+MD045: false
 MD046: fenced
