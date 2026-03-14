@@ -33,8 +33,13 @@ jobs:
   yetus:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
     env:
       PATCH_DIR: ${{ github.workspace }}/out
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
     steps:
       - uses: actions/checkout@v5
         with:
