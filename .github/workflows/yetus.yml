@@ -1,0 +1,97 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Apache Yetus test-patch: pre-commit patch testing (Ant, JDK 17).
+# Runs alongside master-build.yml; all CI is unified on Java 17.
+# See https://yetus.apache.org/documentation/0.15.1/precommit/
+
+name: Apache Yetus
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [master]
+
+jobs:
+  yetus:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          path: src
+          fetch-depth: 0
+      - name: Apache Yetus test-patch
+        uses: apache/yetus-test-patch-action@main
+        with:
+          basedir: ${{ github.workspace }}/src
+          branch-default: master
+          build-tool: ant
+          githubtoken: ${{ secrets.GITHUB_TOKEN }}
+          # Use Java 17 path if available in Yetus image; default may be Java 11
+          javahome: '/usr/lib/jvm/java-17-openjdk-amd64'
+          patch-dir: ${{ github.workspace }}/build/out
+          plugins: all
+          project: nutch
+          run-tests: false
+      - name: Artifact output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apacheyetuspatchdir
+          path: ${{ github.workspace }}/build/out
+      - name: Install pandoc
+        if: github.event_name == 'pull_request'
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+      - name: Convert HTML report to Markdown
+        if: github.event_name == 'pull_request'
+        run: |
+          OUT="${{ github.workspace }}/build/out"
+          echo "## Apache Yetus test-patch report" > yetus-report.md
+          echo "" >> yetus-report.md
+          if [ -f "$OUT/report.html" ]; then
+            pandoc "$OUT/report.html" -f html -t gfm >> yetus-report.md 2>/dev/null || {
+              echo "Pandoc conversion failed; using brief report." >> yetus-report.md
+              echo '```' >> yetus-report.md
+              cat "$OUT/brief.txt" >> yetus-report.md 2>/dev/null || true
+              echo '```' >> yetus-report.md
+            }
+          elif [ -f "$OUT/brief.txt" ]; then
+            echo '```' >> yetus-report.md
+            cat "$OUT/brief.txt" >> yetus-report.md
+            echo '```' >> yetus-report.md
+          else
+            echo "No Yetus report or brief found." >> yetus-report.md
+          fi
+      - name: Truncate if over comment limit
+        if: github.event_name == 'pull_request'
+        run: |
+          MAX=60000
+          if [ $(wc -c < yetus-report.md) -gt $MAX ]; then
+            head -c $MAX yetus-report.md > yetus-report-trimmed.md
+            echo "" >> yetus-report-trimmed.md
+            echo "" >> yetus-report-trimmed.md
+            echo "_Report truncated (GitHub comment limit). Full HTML in apacheyetuspatchdir artifact as report.html._" >> yetus-report-trimmed.md
+            mv yetus-report-trimmed.md yetus-report.md
+          fi
+      - name: Comment PR with Yetus report
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-path: yetus-report.md
