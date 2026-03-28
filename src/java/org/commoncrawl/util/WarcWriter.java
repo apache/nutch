@@ -95,6 +95,9 @@ public class WarcWriter {
   protected static final String DETECTED_CHARSET = "Detected-Charset";
   protected static final String DETECTED_LANGUAGE = "Detected-Language";
 
+  public static final String CONTENT_TYPE_RESPONSE = "application/http; msgtype=response";
+  public static final String CONTENT_TYPE_METADATA = "application/warc-fields";
+
   private SimpleDateFormat isoDate;
 
   public static class CompressedOutputStream extends GZIPOutputStream {
@@ -196,7 +199,7 @@ public class WarcWriter {
     byte[] ba = sb.toString().getBytes(StandardCharsets.UTF_8);
     URI recordId = getRecordId();
 
-    writeRecord(WARC_INFO, date, "application/warc-fields", recordId, extra,
+    writeRecord(WARC_INFO, date, CONTENT_TYPE_METADATA, recordId, extra,
         new ByteArrayInputStream(ba), ba.length);
     return recordId;
   }
@@ -263,8 +266,7 @@ public class WarcWriter {
     extra.put(WARC_IDENTIFIED_PAYLOAD_TYPE, content.getContentType());
 
     URI recordId = getRecordId();
-    writeRecord(WARC_RESPONSE, date, "application/http; msgtype=response",
-        recordId, extra, block);
+    writeRecord(WARC_RESPONSE, date, CONTENT_TYPE_RESPONSE, recordId, extra, block);
     return recordId;
   }
 
@@ -304,7 +306,7 @@ public class WarcWriter {
     }
 
     URI recordId = getRecordId();
-    writeRecord(WARC_REVISIT, date, "message/http", recordId, extra, block);
+    writeRecord(WARC_REVISIT, date, CONTENT_TYPE_RESPONSE, recordId, extra, block);
     return recordId;
   }
 
@@ -321,8 +323,7 @@ public class WarcWriter {
     }
 
     URI recordId = getRecordId();
-    writeRecord(WARC_METADATA, date, "application/warc-fields", recordId, extra,
-        block);
+    writeRecord(WARC_METADATA, date, CONTENT_TYPE_METADATA, recordId, extra, block);
     return recordId;
   }
 
