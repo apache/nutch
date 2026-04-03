@@ -256,12 +256,19 @@ public class SitemapInjector extends Injector {
        * of the task timeout, do not start processing a subsitemap if fetch and
        * parsing time may hit the task timeout
        */
-      int taskTimeout = conf.getInt("mapreduce.task.timeout", 900000) / 1000;
+      int taskTimeout = conf.getInt("mapreduce.task.timeout", 900000);
+      LOG.info("mapreduce.task.timeout = {} ms", taskTimeout);
+      taskTimeout /= 1000; // now in seconds
+      LOG.info("http.time.limit = {} seconds",
+          conf.getInt("http.time.limit", 120));
       maxSitemapFetchTime = (int) (conf.getInt("http.time.limit", 120) * 1.5);
       maxSitemapProcessingTime = taskTimeout - (2 * maxSitemapFetchTime);
-      if ((taskTimeout * .8) < maxSitemapProcessingTime) {
+      if ((taskTimeout * .8) < maxSitemapProcessingTime
+          || maxSitemapProcessingTime < 1) {
         maxSitemapProcessingTime = (int) (taskTimeout * .8);
       }
+      LOG.info("Max. sitemap processing time: {} seconds",
+          maxSitemapProcessingTime);
       maxFailuresPerHost = conf
           .getInt("db.injector.sitemap.max.fetch.failures.per.host", 5);
 
