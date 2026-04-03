@@ -37,6 +37,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
@@ -75,6 +76,9 @@ import crawlercommons.sitemaps.SiteMap;
 import crawlercommons.sitemaps.SiteMapIndex;
 import crawlercommons.sitemaps.SiteMapParser;
 import crawlercommons.sitemaps.SiteMapURL;
+import crawlercommons.sitemaps.extension.Extension;
+import crawlercommons.sitemaps.extension.ExtensionMetadata;
+import crawlercommons.sitemaps.extension.LinkAttributes;
 
 /**
  * Inject URLs from sitemaps (https://www.sitemaps.org/).
@@ -231,6 +235,8 @@ public class SitemapInjector extends Injector {
           .addAcceptedNamespace(crawlercommons.sitemaps.Namespace.NEWS);
       sitemapParser
           .addAcceptedNamespace(crawlercommons.sitemaps.Namespace.EMPTY);
+      // enable support for localized links in sitemaps
+      sitemapParser.enableExtension(Extension.LINKS);
 
       maxRecursiveSitemaps = conf.getInt("db.injector.sitemap.index_max_size",
           50001);
@@ -887,8 +893,9 @@ public class SitemapInjector extends Injector {
           }
         }
 
-        int crossSubmitsRejected = 0;
-        int hostLimitRejected = 0;
+        AtomicLong crossSubmitsRejected = new AtomicLong(0);
+        AtomicLong hostLimitRejected = new AtomicLong(0);
+
         for (SiteMapURL siteMapURL : sitemapURLs) {
 
           if (totalUrls >= maxUrls) {
@@ -907,7 +914,7 @@ public class SitemapInjector extends Injector {
             }
           }
 
-          // TODO: score and fetch interval should be transparently overridable
+          // TODO: score and fetch interval should be transparently overridden
           float sitemapScore = (float) siteMapURL.getPriority();
           sitemapScore *= customScore;
           int sitemapInterval = getChangeFrequencySeconds(
@@ -916,91 +923,119 @@ public class SitemapInjector extends Injector {
           if (siteMapURL.getLastModified() != null) {
             lastModified = siteMapURL.getLastModified().getTime();
           }
-          URL u = siteMapURL.getUrl();
-          String url = u.toString();
-          if (url.length() > maxUrlLength) {
-            LOG.warn(
-                "Skipping overlong URL: {} ... (truncated, length = {} characters)",
-                url.substring(0, maxUrlLength), url.length());
-            continue;
-          }
-          // for simplicity do host and domain checks before normalization
-          String host = u.getHost();
-          if (injectedHosts.size() >= maxHosts
-              && !injectedHosts.contains(host)) {
-            hostLimitRejected++;
-            context
-                .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
-                    NutchMetrics.SITEMAP_URLS_SKIPPED_HOST_LIMIT_REACHED_TOTAL)
-                .increment(1);
-            continue;
-          }
-          if (checkCrossSubmits) {
-            String crossSubmit = host;
-            if (checkCrossSubmitsType == CrossSubmitType.PRIVATE_DOMAIN) {
-              crossSubmit = EffectiveTldFinder.getAssignedDomain(host, false,
-                  false);
-            } else if (checkCrossSubmitsType == CrossSubmitType.PUBLIC_DOMAIN) {
-              crossSubmit = EffectiveTldFinder.getAssignedDomain(host, false,
-                  true);
-            }
-            if (crossSubmit == null || !crossSubmits.contains(crossSubmit)) {
-              crossSubmitsRejected++;
-              context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
-                  NutchMetrics.SITEMAP_URLS_SKIPPED_NOT_ALLOWED_BY_CROSS_SUBMITS_TOTAL)
-                  .increment(1);
-              continue;
-            }
-          }
-          try {
-            url = filterNormalize(url);
-          } catch (Exception e) {
-            LOG.warn("Skipping {}:", url, e);
-            url = null;
-          }
-          if (url == null) {
-            context
-                .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
-                    NutchMetrics.SITEMAP_URLS_FROM_REJECTED_BY_URL_FILTERS)
-                .increment(1);
-          } else {
-            // URL passed normalizers and filters
-            totalUrls++;
-            Text value = new Text(url);
-            CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_INJECTED,
-                sitemapInterval, sitemapScore);
-            if (lastModified != -1) {
-              // datum.setModifiedTime(lastModified);
-            }
-            datum.setFetchTime(curTime);
 
-            try {
-              scfilters.injectedScore(value, datum);
-            } catch (ScoringFilterException e) {
-              LOG.warn(
-                  "Cannot filter injected score for url {}, using default ({})",
-                  url, e.getMessage());
-            }
+          injectURL(siteMapURL.getUrl(), sitemapScore, sitemapInterval, lastModified,
+              crossSubmitsRejected, hostLimitRejected);
 
-            context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
-                NutchMetrics.SITEMAP_URLS_INJECTED).increment(1);
-            context.write(value, datum);
-            injectedHosts.add(host);
+          /*
+           * Inject localized links if there are any. See
+           * <https://developers.google.com/search/docs/specialty/international/localized-versions>
+           * and
+           * <https://crawler-commons.github.io/crawler-commons/1.6/crawlercommons/sitemaps/extension/LinkAttributes.html>
+           */
+          ExtensionMetadata[] linkAttrs = siteMapURL
+              .getAttributesForExtension(Extension.LINKS);
+          if (linkAttrs != null) {
+            for (ExtensionMetadata attr : linkAttrs) {
+              LinkAttributes linkAttr = (LinkAttributes) attr;
+              URL href = linkAttr.getHref();
+              if (href != null) {
+                injectURL(href, sitemapScore, sitemapInterval, lastModified,
+                    crossSubmitsRejected, hostLimitRejected);
+                context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                    "sitemap_extension_localized_link").increment(1);
+              }
+            }
           }
+
         }
-        if (crossSubmitsRejected > 0) {
+        if (crossSubmitsRejected.get() > 0) {
           LOG.info("Rejected {} cross-submits for {} ({})",
-              crossSubmitsRejected, sitemap.getUrl(),
+              crossSubmitsRejected.get(), sitemap.getUrl(),
               sitemap.getType().toString());
+          context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+              NutchMetrics.SITEMAP_URLS_SKIPPED_NOT_ALLOWED_BY_CROSS_SUBMITS_TOTAL)
+              .increment(crossSubmitsRejected.get());
         }
-        if (hostLimitRejected > 0) {
+        if (hostLimitRejected.get() > 0) {
           LOG.info(
               "Rejected {} URLs because max. number of linked hosts is reached for {} ({})",
-              hostLimitRejected, sitemap.getUrl(),
+              hostLimitRejected.get(), sitemap.getUrl(),
               sitemap.getType().toString());
+          context
+              .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                  NutchMetrics.SITEMAP_URLS_SKIPPED_HOST_LIMIT_REACHED_TOTAL)
+              .increment(hostLimitRejected.get());
         }
       }
 
+      public void injectURL(URL u, float sitemapScore, int sitemapInterval,
+          long lastModified, AtomicLong crossSubmitsRejected, AtomicLong hostLimitRejected) throws IOException, InterruptedException {
+        String url = u.toString();
+        if (url.length() > maxUrlLength) {
+          LOG.warn(
+              "Skipping overlong URL: {} ... (truncated, length = {} characters)",
+              url.substring(0, maxUrlLength), url.length());
+          return;
+        }
+
+        // for simplicity do host and domain checks before normalization
+        String host = u.getHost();
+        if (injectedHosts.size() >= maxHosts && !injectedHosts.contains(host)) {
+          hostLimitRejected.incrementAndGet();
+          return;
+        }
+
+        if (checkCrossSubmits) {
+          String crossSubmit = host;
+          if (checkCrossSubmitsType == CrossSubmitType.PRIVATE_DOMAIN) {
+            crossSubmit = EffectiveTldFinder.getAssignedDomain(host, false,
+                false);
+          } else if (checkCrossSubmitsType == CrossSubmitType.PUBLIC_DOMAIN) {
+            crossSubmit = EffectiveTldFinder.getAssignedDomain(host, false,
+                true);
+          }
+          if (crossSubmit == null || !crossSubmits.contains(crossSubmit)) {
+            crossSubmitsRejected.incrementAndGet();
+            return;
+          }
+        }
+        try {
+          url = filterNormalize(url);
+        } catch (Exception e) {
+          LOG.warn("Skipping {}:", url, e);
+          url = null;
+        }
+        if (url == null) {
+          context
+              .getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+                  NutchMetrics.SITEMAP_URLS_FROM_REJECTED_BY_URL_FILTERS)
+              .increment(1);
+        } else {
+          // URL passed normalizers and filters
+          totalUrls++;
+          Text value = new Text(url);
+          CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_INJECTED,
+              sitemapInterval, sitemapScore);
+          if (lastModified != -1) {
+            // datum.setModifiedTime(lastModified);
+          }
+          datum.setFetchTime(curTime);
+
+          try {
+            scfilters.injectedScore(value, datum);
+          } catch (ScoringFilterException e) {
+            LOG.warn(
+                "Cannot filter injected score for url {}, using default ({})",
+                url, e.getMessage());
+          }
+
+          context.getCounter(NutchMetrics.GROUP_SITEMAP_INJECTOR,
+              NutchMetrics.SITEMAP_URLS_INJECTED).increment(1);
+          context.write(value, datum);
+          injectedHosts.add(host);
+        }
+      }
     }
 
     /**
