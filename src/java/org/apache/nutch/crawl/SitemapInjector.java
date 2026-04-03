@@ -77,7 +77,7 @@ import crawlercommons.sitemaps.SiteMapParser;
 import crawlercommons.sitemaps.SiteMapURL;
 
 /**
- * Inject URLs from sitemaps (http://www.sitemaps.org/).
+ * Inject URLs from sitemaps (https://www.sitemaps.org/).
  *
  * Sitemap URLs are given same way as "ordinary" seeds URLs - one URL per line.
  * Each URL points to one of
@@ -86,16 +86,16 @@ import crawlercommons.sitemaps.SiteMapURL;
  * <li>plain text sitemap (possibly compressed)</li>
  * <li>sitemap index (XML)</li>
  * <li>and all
- * <a href="http://www.sitemaps.org/protocol.html#otherformats">other
- * formats</a> supported by the Sitemap parser of
- * <a href="http://code.google.com/p/crawler-commons/">crawler-commons</a>.</li>
+ * <a href="https://www.sitemaps.org/protocol.html#otherformats">other
+ * formats</a> supported by the Sitemap parser of <a href=
+ * "https://github.com/crawler-commons/crawler-commons/">crawler-commons</a>.</li>
  * </ul>
  *
  * <p>
  * All sitemap URLs on the input path are fetched and the URLs contained in the
- * sitemaps are "injected" into CrawlDb. If a sitemap specifies modification
+ * sitemaps are "injected" into the CrawlDb. If a sitemap specifies modification
  * time, refresh rate, and/or priority for a page, these values are stored in
- * CrawlDb but adjusted so that they fit into global limits. E.g.,
+ * the CrawlDb but adjusted so that they fit into global limits. E.g.,
  *
  * <pre>
  * &lt;changefreq&gt;yearly&lt;/changefreq&gt;
@@ -113,24 +113,44 @@ import crawlercommons.sitemaps.SiteMapURL;
  * Fetching sitemaps is done by Nutch protocol plugins to make use of special
  * settings, e.g., HTTP proxy configurations.
  *
- * The behavior how entries in CrawlDb are overwritten by injected entries does
- * not differ from {@link Injector}.
+ * The behavior how entries in the CrawlDb are overwritten by injected entries
+ * does not differ from {@link Injector}. However, it is possible to run
+ * SitemapInjector in two steps:
+ * <ol>
+ * <li>Step 1: Extract URLs from sitemaps, store the URLs in a new CrawlDb.</li>
+ * <li>Step 2: Inject URLs from the CrawlDb created in Step 1 into another
+ * CrawlDb.</li>
+ * </ol>
+ * 
+ * <h2>Specifics and Limitations</h2>
  *
- * <h2>Limitations</h2>
- *
- * <p>
- * SitemapInjector does not support:
+ * SitemapInjector does <b>not</b> support:
  * <ul>
- * <li>[done/implemented] follow redirects</li>
- * <li>no retry scheduling if fetching a sitemap fails</li>
- * <li>be polite and add delays between fetching sitemaps. Usually, there is
- * only one sitemap per host, so this does not matter that much.</li>
- * <li>[done/implemented] check for
- * &quot;<a href="http://www.sitemaps.org/protocol.html#location">cross
- * submits</a>&quot;: if a sitemap URL is explicitly given it is assumed the
- * sitemap's content is trustworthy</li>
+ * <li>Retry scheduling if fetching a sitemap fails.</li>
+ * <li>Guarantee polite delays between fetching sitemaps from the same host.
+ * Usually, there is only one sitemap per host, so this does not matter that
+ * much. But it should be made sure that the input list of sitemap URLs does not
+ * contain multiple or many sitemaps from hosted on the same system.</li>
  * </ul>
- * </p>
+ * 
+ * The following features are implemented:
+ * <ul>
+ * <li>Respect robots.txt rules: do not access sitemaps disallowed per
+ * robots.txt</li>
+ * <li>Apply URL filters and normalization rules to URLs of sitemaps and URLs
+ * listed in sitemaps.</li>
+ * <li>Follow redirects.</li>
+ * <li>Check for
+ * &quot;<a href="https://www.sitemaps.org/protocol.html#location">cross
+ * submits</a>&quot;: if a sitemap URL is explicitly given it is assumed the
+ * sitemap's content is trustworthy.</li>
+ * <li>Configure multiple limits on sitemap fetching and processing, to avoid
+ * that the sitemap processing is overloaded, get stuck, or too many URLs are
+ * emitted. See
+ * {@link SitemapInjector.SitemapInjectMapper.SitemapProcessor#processSitemap(AbstractSiteMap, Set, int)}
+ * for more details.</li>
+ * </ul>
+ * 
  */
 public class SitemapInjector extends Injector {
 
@@ -194,12 +214,14 @@ public class SitemapInjector extends Injector {
 
       protocolFactory = new ProtocolFactory(conf);
 
-      // SiteMapParser to allow "cross submits" from different prefixes
-      // (up to last slash), cf. http://www.sitemaps.org/protocol.html#location
-      // strict = true : do not allow cross submits.
-      // This would need to pass a set of cross-submit allowed hosts beforehand
-      // which is not supported by the sitemap parser. Done in SitemapInjector,
-      // see below.
+      /*
+       * SiteMapParser to allow "cross submits" from different prefixes (up to
+       * the last slash), cf. https://www.sitemaps.org/protocol.html#location.
+       * 
+       * strict = true : do not allow cross submits. This would need to pass a
+       * set of cross-submit allowed hosts beforehand which is not supported by
+       * the sitemap parser. Done in SitemapInjector, see below.
+       */
       boolean strict = conf.getBoolean("db.injector.sitemap.strict", false);
       sitemapParser = new SiteMapParser(strict, true);
       sitemapParser.setStrictNamespace(true);
@@ -223,9 +245,11 @@ public class SitemapInjector extends Injector {
       checkCrossSubmitsType = CrossSubmitType
           .valueOf(conf.get(SITEMAP_CROSS_SUBMIT_CHECK_TYPE, "PRIVATE_DOMAIN"));
 
-      // make sure a sitemap is entirely, even recursively processed within 80%
-      // of the task timeout, do not start processing a subsitemap if fetch
-      // and parsing time may hit the task timeout
+      /*
+       * Make sure a sitemap is entirely, even recursively processed within 80%
+       * of the task timeout, do not start processing a subsitemap if fetch and
+       * parsing time may hit the task timeout
+       */
       int taskTimeout = conf.getInt("mapreduce.task.timeout", 900000) / 1000;
       maxSitemapFetchTime = (int) (conf.getInt("http.time.limit", 120) * 1.5);
       maxSitemapProcessingTime = taskTimeout - (2 * maxSitemapFetchTime);
@@ -246,9 +270,11 @@ public class SitemapInjector extends Injector {
         maxInterval = conf.getInt("db.fetch.interval.max", 365 * 24 * 3600);
       }
 
-      // Sitemaps can be quite large, so it is desirable to
-      // increase the content limits above defaults (64kB):
-      // TODO: make configurable?
+      /*
+       * Sitemaps can be quite large, so it is desirable to increase the content
+       * limits above defaults (1 MiB) to the 50 MiB specified in the sitemaps
+       * protocol:
+       */
       String[] contentLimitProperties = { "http.content.limit",
           "ftp.content.limit", "file.content.limit" };
       for (int i = 0; i < contentLimitProperties.length; i++) {
