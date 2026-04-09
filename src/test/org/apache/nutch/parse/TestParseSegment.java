@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,7 @@ import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
+import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metrics.LatencyTestUtil;
 import org.apache.nutch.metrics.NutchMetrics;
@@ -103,14 +102,15 @@ public class TestParseSegment {
     Configuration conf = NutchConfiguration.create();
     Map<Text, ParseImpl> out = new HashMap<>();
     ParseSegment.ParseSegmentReducer reducer = new ParseSegment.ParseSegmentReducer();
-    ReducerContextWrapper<Text, Writable, Text, ParseImpl> wrapper =
-        new ReducerContextWrapper<>(reducer, conf, out);
+    ReducerContextWrapper<Text, NutchWritable, Text, ParseImpl> wrapper = new ReducerContextWrapper<>(
+        reducer, conf, out);
 
     byte[] digestBytes = LatencyTestUtil.createDigestBytes(100, 200);
-    List<Writable> values = new ArrayList<>();
-    values.add(new BytesWritable(digestBytes));
+    List<NutchWritable> values = new ArrayList<>();
+    values.add(new NutchWritable(new BytesWritable(digestBytes)));
 
-    reducer.reduce(new Text(NutchMetrics.LATENCY_KEY), values, wrapper.getContext());
+    reducer.reduce(new Text(NutchMetrics.LATENCY_KEY), values,
+        wrapper.getContext());
 
     LatencyTestUtil.assertPercentilesInRange(wrapper.getCounters(),
         NutchMetrics.GROUP_PARSER, NutchMetrics.PARSER_LATENCY, 100, 200);
@@ -125,13 +125,16 @@ public class TestParseSegment {
   void testParseSegmentPartitionerSendsLatencyKeyToPartitionZero() {
     ParseSegment.ParseSegmentPartitioner partitioner = new ParseSegment.ParseSegmentPartitioner();
     int numPartitions = 4;
-    assertEquals(0, partitioner.getPartition(new Text(NutchMetrics.LATENCY_KEY), new BytesWritable(), numPartitions));
+    assertEquals(0, partitioner.getPartition(new Text(NutchMetrics.LATENCY_KEY),
+        new NutchWritable(new BytesWritable()), numPartitions));
   }
 
   @Test
   void testParseSegmentPartitionerWithSinglePartition() {
     ParseSegment.ParseSegmentPartitioner partitioner = new ParseSegment.ParseSegmentPartitioner();
-    assertEquals(0, partitioner.getPartition(new Text(NutchMetrics.LATENCY_KEY), new BytesWritable(), 1));
-    assertEquals(0, partitioner.getPartition(new Text("http://example.com/"), new BytesWritable(), 1));
+    assertEquals(0, partitioner.getPartition(new Text(NutchMetrics.LATENCY_KEY),
+        new NutchWritable(new BytesWritable()), 1));
+    assertEquals(0, partitioner.getPartition(new Text("http://example.com/"),
+        new NutchWritable(new BytesWritable()), 1));
   }
 }
