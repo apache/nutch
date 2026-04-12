@@ -126,8 +126,8 @@
     <dependency org="org.testcontainers" name="testcontainers" rev="2.0.3" conf="test->default"/>
     <dependency org="org.testcontainers" name="junit-jupiter" rev="1.21.4" conf="test->default"/>
 
-		<!-- Jetty used to serve test pages for unit tests, but is also provided as dependency of Hadoop -->
-		<dependency org="org.eclipse.jetty" name="jetty-server" rev="12.1.5" conf="test->default">
+		<!-- MockServer (https://www.mock-server.com/) for static HTTP content in unit tests. -->
+		<dependency org="org.mock-server" name="mockserver-netty" rev="5.15.0" conf="test->default">
 			<exclude org="ch.qos.reload4j" module="*" />
 			<exclude org="org.slf4j" module="slf4j-reload" />
 		</dependency>
