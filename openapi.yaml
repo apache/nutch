@@ -19,8 +19,7 @@ info:
   title: Apache Nutch REST API
   description: >-
     REST API for managing Apache Nutch crawl jobs, configurations, seed lists,
-    database queries, and data readers. The server is powered by Apache CXF
-    with JAX-RS.
+    database queries, and data readers.
   version: "1.0.0"
   license:
     name: Apache 2.0
