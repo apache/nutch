@@ -227,7 +227,7 @@ public class Generator extends NutchTool implements Tool {
       if (!restrictStatusString.isEmpty()) {
         restrictStatus = CrawlDatum.getStatusByName(restrictStatusString);
       }
-      expr = JexlUtil.parseExpression(conf.get(GENERATOR_EXPR, null));
+      expr = JexlUtil.parseExpression(conf, conf.get(GENERATOR_EXPR, null));
       // Initialize error tracker with cached counters
       errorTracker = new ErrorTracker(NutchMetrics.GROUP_GENERATOR, context);
       // Initialize cached counter references
@@ -453,10 +453,10 @@ public class Generator extends NutchTool implements Tool {
             URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
 
       if (conf.get(GENERATOR_HOSTDB) != null) {
-        maxCountExpr = JexlUtil
-            .parseExpression(conf.get(GENERATOR_MAX_COUNT_EXPR, null));
-        fetchDelayExpr = JexlUtil
-            .parseExpression(conf.get(GENERATOR_FETCH_DELAY_EXPR, null));
+        maxCountExpr = JexlUtil.parseExpression(conf,
+            conf.get(GENERATOR_MAX_COUNT_EXPR, null));
+        fetchDelayExpr = JexlUtil.parseExpression(conf,
+            conf.get(GENERATOR_FETCH_DELAY_EXPR, null));
       }
       // Initialize error tracker with cached counters
       errorTracker = new ErrorTracker(NutchMetrics.GROUP_GENERATOR, context);
@@ -871,7 +871,7 @@ public class Generator extends NutchTool implements Tool {
    *          maximum number of segments to generate
    * @param expr
    *          a Jexl expression to use in the Generator job.
-   * @see JexlUtil#parseExpression(String)
+   * @see JexlUtil#parseExpression(Configuration, String)
    * @throws IOException
    *           if an I/O exception occurs.
    * @see LockUtil#createLockFile(Configuration, Path, boolean)
@@ -922,7 +922,7 @@ public class Generator extends NutchTool implements Tool {
    * @param hostdb
    *          name of a hostdb from which to execute Jexl expressions in a bid
    *          to determine the maximum URL count and/or fetch delay per host.
-   * @see JexlUtil#parseExpression(String)
+   * @see JexlUtil#parseExpression(Configuration, String)
    * @throws IOException
    *           if an I/O exception occurs.
    * @see LockUtil#createLockFile(Configuration, Path, boolean)

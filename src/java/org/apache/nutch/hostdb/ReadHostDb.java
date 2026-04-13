@@ -44,11 +44,10 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.SegmentReaderUtil;
 
-import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlScript;
-import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.MapContext;
+import org.apache.nutch.util.JexlUtil;
 
 /**
  * @see <a href='https://commons.apache.org/proper/commons-jexl/reference/syntax.html'>Commons</a>
@@ -77,11 +76,7 @@ public class ReadHostDb extends Configured implements Tool {
       fieldHeader = context.getConfiguration().getBoolean(HOSTDB_DUMP_HEADER, true);
       String expr = context.getConfiguration().get(HOSTDB_FILTER_EXPRESSION);
       if (expr != null) {
-        // Create or retrieve a JexlEngine
-        JexlEngine jexl = new JexlBuilder().silent(true).strict(true).create();
-        
-        // Create an expression object
-        this.expr = jexl.createScript(expr);
+        this.expr = JexlUtil.parseExpression(context.getConfiguration(), expr);
       }
     }
 

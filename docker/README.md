@@ -56,6 +56,12 @@ $(boot2docker shellinit | grep export) #may not be necessary
 docker build -t apache/nutch . --build-arg BUILD_MODE=2 --build-arg SERVER_PORT=8081 --build-arg SERVER_HOST=0.0.0.0 --build-arg WEBAPP_PORT=8080
 ```
 
+## Security and plugin directories
+
+Nutch loads executable code from the directories configured as `plugin.folders` (see `nutch-default.xml`). For production and shared images, treat those paths as **trusted**: mount them read-only where possible, rebuild images to change plugins, and run the crawl process under a dedicated low-privilege user so the filesystem cannot be abused to drop unexpected JARs or `plugin.xml` files into that tree.
+
+User-defined JEXL in configuration (for example `index.jexl.filter`, generator expressions, and `hostdb.filter.expression`) is evaluated in a **sandboxed** engine by default. The property `nutch.jexl.disable-sandbox` disables that protection and must not be set in untrusted environments.
+
 ## Usage
 
 If not already running, start docker
