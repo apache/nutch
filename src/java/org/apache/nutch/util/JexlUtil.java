@@ -47,7 +47,7 @@ public class JexlUtil {
    * When {@code true}, JEXL parsing skips the sandbox (unsafe). For trusted
    * environments only; not recommended.
    */
-  public static final String DISABLE_SANDBOX_KEY = "nutch.jexl.disable-sandbox";
+  public static final String DISABLE_SANDBOX_KEY = "nutch.jexl.disable.sandbox";
 
   /** Supported format for date parsing yyyy-MM-ddTHH:mm:ssZ */
   private static final Pattern DATE_PATTERN = Pattern

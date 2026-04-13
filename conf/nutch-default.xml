@@ -2150,12 +2150,12 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   * doc - contains all the NutchFields from the NutchDocument.
     each property value is always an array of Objects.
   Expressions are evaluated in a sandboxed JEXL engine (see also
-  nutch.jexl.disable-sandbox).
+  nutch.jexl.disable.sandbox).
   </description>
 </property>
 
 <property>
-  <name>nutch.jexl.disable-sandbox</name>
+  <name>nutch.jexl.disable.sandbox</name>
   <value>false</value>
   <description>If true, disables the Commons JEXL sandbox and the restriction
   on the JEXL "new" operator for all Nutch JEXL expressions (index filter,
