@@ -906,7 +906,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       retry = config.getInt("retry", -1);
 
       if (config.get("expr", null) != null) {
-        expr = JexlUtil.parseExpression(config.get("expr", null));
+        expr = JexlUtil.parseExpression(config, config.get("expr", null));
       }
       sample = config.getFloat("sample", 1);
     }

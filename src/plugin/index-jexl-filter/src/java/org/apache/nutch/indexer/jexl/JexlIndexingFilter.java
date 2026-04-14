@@ -114,7 +114,7 @@ public class JexlIndexingFilter implements IndexingFilter {
           "The property index.jexl.filter must have a value when index-jexl-filter is used. You can use 'true' or 'false' to index all/none");
     }
 
-    expr = JexlUtil.parseExpression(strExpr);
+    expr = JexlUtil.parseExpression(conf, strExpr);
 
     if (expr == null) {
       LOG.error("Failed parsing JEXL from index.jexl.filter: {}", strExpr);
