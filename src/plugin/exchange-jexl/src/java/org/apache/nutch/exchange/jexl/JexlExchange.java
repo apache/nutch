@@ -41,7 +41,8 @@ public class JexlExchange implements Exchange {
    */
   @Override
   public void open(Map<String, String> parameters) {
-    expression = JexlUtil.parseExpression(parameters.get(EXPRESSION_KEY));
+    expression = JexlUtil.parseExpression(getConf(),
+        parameters.get(EXPRESSION_KEY));
   }
 
   /**

@@ -35,6 +35,83 @@ concurrency:
 # javac.version=11 bytecode target for backward compatibility.
 
 jobs:
+  javadoc:
+    strategy:
+      matrix:
+        java: ['17']
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v5
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+      - name: Cache Ivy dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.ivy2/cache
+          key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-ivy-
+      - name: Javadoc
+        run: ant clean javadoc -buildfile build.xml
+
+  rat:
+    strategy:
+      matrix:
+        java: ['17']
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v5
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+      - name: Cache Ivy dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.ivy2/cache
+          key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-ivy-
+      - name: Run Apache Rat
+        run: ant clean run-rat -buildfile build.xml
+      - name: Cache unknown licenses
+        run: echo "UNKNOWN_LICENSES=$(sed -n 18p /home/runner/work/nutch/nutch/build/apache-rat-report.txt)" >> $GITHUB_ENV
+      - name: Versions
+        run: |
+          echo $UNKNOWN_LICENSES
+      - name: Fail if any unknown licenses
+        if: ${{ env.UNKNOWN_LICENSES != '0 Unknown Licenses' }}
+        run: exit 1
+
+  openapi-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
+        id: filter
+        with:
+          filters: |
+            openapi:
+              - 'openapi.yaml'
+              - '.spectral.yaml'
+      - name: Set up Node.js
+        if: steps.filter.outputs.openapi == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install IBM OpenAPI Validator
+        if: steps.filter.outputs.openapi == 'true'
+        run: npm install --no-save ibm-openapi-validator
+      - name: Validate OpenAPI specification
+        if: steps.filter.outputs.openapi == 'true'
+        run: ./node_modules/.bin/lint-openapi openapi.yaml
+
   # Build verification with Java bytecode target matrix
   # Verifies bytecode compatibility for both Java 11 and Java 17 targets
   build:

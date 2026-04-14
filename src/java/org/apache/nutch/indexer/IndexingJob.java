@@ -309,7 +309,9 @@ public class IndexingJob extends NutchTool implements Tool {
   }
 
 
-  //Used for REST API
+  /**
+   * Programmatic entry point for {@link org.apache.nutch.util.NutchTool} callers.
+   */
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
     boolean noCommit = false;

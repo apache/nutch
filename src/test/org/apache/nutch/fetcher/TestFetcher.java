@@ -30,7 +30,7 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.CancellationAwareTestUtils;
 import org.apache.nutch.util.CancellationAwareTestUtils.CancellationToken;
-import org.eclipse.jetty.server.Server;
+import org.mockserver.integration.ClientAndServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,7 +59,7 @@ public class TestFetcher {
   Path crawldbPath;
   Path segmentsPath;
   Path urlPath;
-  Server server;
+  ClientAndServer mockServer;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -69,19 +69,15 @@ public class TestFetcher {
     urlPath = new Path(testdir, "urls");
     crawldbPath = new Path(testdir, "crawldb");
     segmentsPath = new Path(testdir, "segments");
-    server = CrawlDBTestUtil.getServer(
+    mockServer = CrawlDBTestUtil.startMockServerForStaticContent(
         conf.getInt("content.server.port", 50000),
         "build/test/data/fetch-test-site");
-    server.start();
   }
 
   @AfterEach
   public void tearDown() throws Exception {
-    server.stop();
-    for (int i = 0; i < 5; i++) {
-      if (!server.isStopped()) {
-       Thread.sleep(1000);
-      }
+    if (mockServer != null) {
+      mockServer.stop();
     }
     fs.delete(testdir, true);
   }
@@ -224,7 +220,7 @@ public class TestFetcher {
   }
 
   private void addUrl(ArrayList<String> urls, String page) {
-    urls.add("http://127.0.0.1:" + server.getURI().getPort() + "/" + page);
+    urls.add("http://127.0.0.1:" + mockServer.getLocalPort() + "/" + page);
   }
 
   @Test

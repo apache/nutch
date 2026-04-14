@@ -18,11 +18,16 @@ package org.apache.nutch.crawl;
 
 import java.lang.invoke.MethodHandles;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -50,10 +55,8 @@ import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.security.Credentials;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.mockserver.configuration.ConfigurationProperties;
+import org.mockserver.integration.ClientAndServer;
 
 /**
  * Test utility for creating and manipulating CrawlDb instances.
@@ -452,29 +455,49 @@ public class CrawlDBTestUtil {
   }
 
   /**
-   * Creates a new JettyServer with one static root context
-   * 
+   * Starts a <a href="https://www.mock-server.com/">MockServer</a> instance that
+   * serves files from {@code staticContent} for GET requests (one expectation per
+   * file).
+   *
    * @param port
-   *          port to listen to
+   *          port to listen on
    * @param staticContent
-   *          folder where static content lives
-   * @return configured Jetty server instance
-   * @throws UnknownHostException
+   *          directory of static files
+   * @return running mock server (already started); call {@link ClientAndServer#stop()} when done
    */
   @NonNull
-  public static Server getServer(int port, @NonNull String staticContent)
-      throws UnknownHostException {
-    Server webServer = new Server();
+  public static ClientAndServer startMockServerForStaticContent(int port,
+      @NonNull String staticContent) throws IOException {
+    ConfigurationProperties.disableLogging(true);
+    java.nio.file.Path root = java.nio.file.Path.of(staticContent)
+        .toAbsolutePath().normalize();
+    ClientAndServer mockServer = ClientAndServer.startClientAndServer(port);
+    java.nio.file.Path indexPath = root.resolve("index.html");
+    if (Files.isRegularFile(indexPath)) {
+      byte[] data = Files.readAllBytes(indexPath);
+      mockServer.when(request().withMethod("GET").withPath("/"))
+          .respond(response().withStatusCode(200)
+              .withHeader("Content-Type", probeContentType(indexPath))
+              .withBody(data));
+    }
+    try (Stream<java.nio.file.Path> walk = Files.walk(root)) {
+      for (java.nio.file.Path file : walk.filter(Files::isRegularFile)
+          .collect(Collectors.toList())) {
+        String rel = root.relativize(file).toString().replace('\\', '/');
+        String mockPath = "/" + rel;
+        byte[] data = Files.readAllBytes(file);
+        mockServer.when(request().withMethod("GET").withPath(mockPath))
+            .respond(response().withStatusCode(200)
+                .withHeader("Content-Type", probeContentType(file))
+                .withBody(data));
+      }
+    }
+    return mockServer;
+  }
 
-    ServerConnector listener = new ServerConnector(webServer);
-    listener.setPort(port);
-    listener.setHost("127.0.0.1");
-    webServer.addConnector(listener);
-    ContextHandler staticContext = new ContextHandler();
-    staticContext.setContextPath("/");
-    staticContext.setResourceBase(staticContent);
-    staticContext.insertHandler(new ResourceHandler());
-    webServer.insertHandler(staticContext);
-    return webServer;
+  private static String probeContentType(java.nio.file.Path file)
+      throws IOException {
+    String ct = Files.probeContentType(file);
+    return ct != null ? ct : "application/octet-stream";
   }
 }
