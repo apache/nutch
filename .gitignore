@@ -35,3 +35,5 @@ lib/native/libhadooputils.*
 lib/native/libhdfs.*
 lib/native/libhdfspp.*
 lib/native/libnativetask.*
+#Jacoco download
+ivy/jacoco*
