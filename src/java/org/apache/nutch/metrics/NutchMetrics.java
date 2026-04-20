@@ -372,6 +372,13 @@ public final class NutchMetrics {
    */
   public static final String INDEXER_LATENCY = "index_latency";
 
+  /**
+   * Special key used in map output to send serialized TDigest bytes to the
+   * reducer for job-level percentile merge. Reducers detect this key and merge
+   * digests instead of writing to output.
+   */
+  public static final String LATENCY_KEY = "__LATENCY__";
+
   // =========================================================================
   // Common Error Counter Names (used with component-specific groups)
   // These constants are shared across all components for consistent error
