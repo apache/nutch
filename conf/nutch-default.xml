@@ -1614,7 +1614,10 @@
   <value>plugins</value>
   <description>Directories where Nutch plugins are located.  Each
   element may be a relative or absolute path.  If absolute, it is used
-  as is.  If relative, it is searched for on the classpath.</description>
+  as is.  If relative, it is searched for on the classpath.
+  For secure deployments, treat these directories as trusted code: use
+  read-only filesystem permissions or immutable images so untrusted
+  parties cannot add or replace plugin JARs or plugin.xml files.</description>
 </property>
 
 <property>
@@ -2163,6 +2166,19 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
     each property value is always an array of Strings (so if you expect one value, use [0])
   * doc - contains all the NutchFields from the NutchDocument.
     each property value is always an array of Objects.
+  Expressions are evaluated in a sandboxed JEXL engine (see also
+  nutch.jexl.disable.sandbox).
+  </description>
+</property>
+
+<property>
+  <name>nutch.jexl.disable.sandbox</name>
+  <value>false</value>
+  <description>If true, disables the Commons JEXL sandbox and the restriction
+  on the JEXL "new" operator for all Nutch JEXL expressions (index filter,
+  generator, hostdb filter, crawl_db_reader, exchange-jexl, etc.). This is
+  unsafe and should only be used in fully trusted environments when a
+  legitimate expression cannot be expressed under the default sandbox.
   </description>
 </property>
 

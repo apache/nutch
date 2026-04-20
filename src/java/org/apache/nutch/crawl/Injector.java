@@ -43,7 +43,6 @@ import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
-import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -638,25 +637,21 @@ public class Injector extends NutchTool implements Tool {
   }
 
   /**
-   * Used by the Nutch REST service
+   * Programmatic entry point for {@link org.apache.nutch.util.NutchTool} callers.
    */
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId)
       throws Exception {
     if(args.size()<1){
-      throw new IllegalArgumentException("Required arguments <url_dir> or <seedName>");
+      throw new IllegalArgumentException("Required argument " + Nutch.ARG_SEEDDIR);
     }
     Path input;
     Object path = null;
     if(args.containsKey(Nutch.ARG_SEEDDIR)) {
       path = args.get(Nutch.ARG_SEEDDIR);
     }
-    else if(args.containsKey(Nutch.ARG_SEEDNAME)) {
-      path = NutchServer.getInstance().getSeedManager().
-          getSeedList((String)args.get(Nutch.ARG_SEEDNAME)).getSeedFilePath();
-    }
     else {
-      throw new IllegalArgumentException("Required arguments <url_dir> or <seedName>");
+      throw new IllegalArgumentException("Required argument " + Nutch.ARG_SEEDDIR);
     }
     if(path instanceof Path) {
       input = (Path) path;

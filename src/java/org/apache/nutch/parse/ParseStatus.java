@@ -56,7 +56,7 @@ public class ParseStatus implements Writable {
   // Secondary failure codes go here:
 
   /**
-   * Parsing failed. An Exception occured (which may be retrieved from the
+   * Parsing failed. An Exception occurred (which may be retrieved from the
    * arguments).
    */
   public static final short FAILED_EXCEPTION = 200;

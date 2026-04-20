@@ -337,8 +337,8 @@ public class ParseSegment extends NutchTool implements Tool {
     return 0;
   }
 
-  /*
-   * Used for Nutch REST service
+  /**
+   * Programmatic entry point for {@link org.apache.nutch.util.NutchTool} callers.
    */
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {

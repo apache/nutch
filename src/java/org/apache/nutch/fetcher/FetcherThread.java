@@ -65,7 +65,6 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
-import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
@@ -147,10 +146,6 @@ public class FetcherThread extends Thread {
   private long robotsDeferVisitsDelay;
   private int robotsDeferVisitsRetries;
 
-  //Used by the REST service
-  private FetchNode fetchNode;
-  private boolean reportToNutchServer;
-  
   //Used for publishing events
   private FetcherThreadPublisher publisher;
   private boolean activatePublisher;
@@ -310,17 +305,7 @@ public class FetcherThread extends Thread {
 
     FetchItem fit = null;
     try {
-      // checking for the server to be running and fetcher.parse to be true
-      if (parsing && NutchServer.getInstance().isRunning())
-        reportToNutchServer = true;
-      
       while (true) {
-        // creating FetchNode for storing in FetchNodeDb
-        if (reportToNutchServer)
-          this.fetchNode = new FetchNode();
-        else
-          this.fetchNode = null;
-
         // check whether must be stopped
         if (isHalted()) {
           LOG.debug("{} set to halted", getName());
@@ -445,13 +430,6 @@ public class FetcherThread extends Thread {
             // unblock queue
             fetchQueues.finishFetchItem(fit);
 
-            // used for FetchNode
-            if (fetchNode != null) {
-              fetchNode.setStatus(status.getCode());
-              fetchNode.setFetchTime(System.currentTimeMillis());
-              fetchNode.setUrl(fit.url);
-            }
-            
             //Publish fetch finish event
             if(activatePublisher) {
               FetcherThreadEvent endEvent = new FetcherThreadEvent(PublishEventType.END, fit.getUrl().toString());
@@ -825,13 +803,6 @@ public class FetcherThread extends Thread {
             else {
               origin = originURL.getHost().toLowerCase();
             }
-          }
-          
-          //used by fetchNode         
-          if(fetchNode!=null){
-            fetchNode.setOutlinks(links);
-            fetchNode.setTitle(parseData.getTitle());
-            FetchNodeDb.getInstance().put(fetchNode.getUrl().toString(), fetchNode);
           }
           int validCount = 0;
 
