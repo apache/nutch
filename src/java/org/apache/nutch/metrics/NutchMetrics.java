@@ -82,6 +82,9 @@ public final class NutchMetrics {
   /** Counter group for WARC export operations. */
   public static final String GROUP_WARC_EXPORTER = "nutch_warc_exporter";
 
+  /** Counter group for Common Crawl data dumper tool. */
+  public static final String GROUP_COMMONCRAWL_DUMPER = "nutch_commoncrawl_dumper";
+
   /** Counter group for domain statistics operations. */
   public static final String GROUP_DOMAIN_STATS = "nutch_domain_stats";
 
