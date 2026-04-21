@@ -31,7 +31,6 @@ import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapred.InvalidJobConfException;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -48,7 +47,7 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
     Configuration conf = job.getConfiguration();
     Path out = FileOutputFormat.getOutputPath(job);
     if ((out == null) && (job.getNumReduceTasks() != 0)) {
-      throw new InvalidJobConfException("Output directory not set in conf.");
+      throw new IOException("Output directory not set in conf.");
     }
     FileSystem fs = out.getFileSystem(conf);
     if (fs.exists(new Path(out, CrawlDatum.FETCH_DIR_NAME))) {

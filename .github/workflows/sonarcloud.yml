@@ -47,26 +47,34 @@ jobs:
             ${{ runner.os }}-ivy-
       - name: Compile (no tests)
         run: ant compile compile-plugins resolve-test -buildfile build.xml
-      - name: Download coverage data
+      - name: Download coverage data (Ubuntu JDK 17)
         uses: dawidd6/action-download-artifact@v11
         with:
-          name: coverage-data
+          name: coverage-data-ubuntu-jdk17
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
           path: ./build/coverage/
         continue-on-error: true
-      - name: Download test reports
+      - name: Download test reports (Ubuntu JDK 17)
         uses: dawidd6/action-download-artifact@v11
         with:
-          name: junit-test-results-ubuntu-latest
+          name: junit-test-results-ubuntu-latest-jdk17
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
-          path: ./build/test/
+          path: ./build/test-jdk17/
+        continue-on-error: true
+      - name: Download test reports (Ubuntu JDK 21)
+        uses: dawidd6/action-download-artifact@v11
+        with:
+          name: junit-test-results-ubuntu-latest-jdk21
+          workflow: master-build.yml
+          run_id: ${{ github.event.workflow_run.id }}
+          path: ./build/test-jdk21/
         continue-on-error: true
       - name: Flatten test reports
         run: |
           mkdir -p ./build/test-reports
-          find ./build/test -name 'TEST-*.xml' -exec cp {} ./build/test-reports/ \;
+          find ./build/test-jdk17 ./build/test-jdk21 -name 'TEST-*.xml' -exec cp {} ./build/test-reports/ \; 2>/dev/null || true
         continue-on-error: true
       - name: Generate JaCoCo XML report
         run: ant jacoco-report -buildfile build.xml

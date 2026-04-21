@@ -27,12 +27,18 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     steps:
-      - name: Download Test Report (Ubuntu)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Download Test Report (Ubuntu JDK 17)
         uses: dawidd6/action-download-artifact@v11
         with:
-          name: junit-test-results-ubuntu-latest
+          name: junit-test-results-ubuntu-latest-jdk17
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
+          path: ./junit-ubuntu-jdk17
         continue-on-error: true
       - name: Resolve PR number
         id: pr
@@ -55,8 +61,8 @@ jobs:
         uses: mikepenz/action-junit-report@v6
         with:
           report_paths: |-
-            ./test/TEST-*.xml
-            ./*/**/test/TEST-*.xml
+            ./junit-ubuntu-jdk17/build/test/TEST-*.xml
+            ./junit-ubuntu-jdk17/build/**/test/TEST-*.xml
           check_name: |-
             JUnit Test Report
             JUnit Test Report Plugins
