@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Ensure JAVA_HOME is set for pre-patch and other phases. GitHub Actions
-# should use actions/setup-java before Yetus (see .github/workflows/yetus.yml)
-# so JAVA_HOME points at Temurin. This fallback covers apt OpenJDK on Debian/Ubuntu.
-if [ -z "${JAVA_HOME}" ] && [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
-  export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+# Ensure JAVA_HOME is set for pre-patch and other phases. The Yetus GitHub Action
+# runs inside ghcr.io/apache/yetus (see yetus.yml javahome). This fallback matches
+# OpenJDK layouts on Debian/Ubuntu when JAVA_HOME is not already set.
+if [ -z "${JAVA_HOME}" ] && [ -d "/usr/lib/jvm/java-11-openjdk-amd64" ]; then
+  export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+elif [ -z "${JAVA_HOME}" ] && [ -d "/usr/lib/jvm/java-11-openjdk-arm64" ]; then
+  export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-arm64"
 fi
 
 # Pass JAVA_HOME into the re-exec Docker container so pre-patch and other

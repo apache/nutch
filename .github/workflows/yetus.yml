@@ -13,8 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Apache Yetus test-patch: pre-commit patch testing (Ant, JDK 17).
-# Runs alongside master-build.yml; all CI is unified on Java 17.
+# Apache Yetus test-patch: pre-commit patch testing (apache/yetus-test-patch-action).
+# The action runs inside ghcr.io/apache/yetus:0.15.1 — javahome must be a JDK path
+# inside that image (OpenJDK 11 on amd64), not actions/setup-java on the runner.
 # See https://yetus.apache.org/documentation/0.15.1/precommit/
 ---
 name: Apache Yetus
@@ -47,12 +48,6 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - id: setup-java
-        name: Set up JDK 17
-        uses: actions/setup-java@v5
-        with:
-          java-version: '17'
-          distribution: 'temurin'
       - name: Cache Ivy dependencies
         uses: actions/cache@v4
         with:
@@ -66,7 +61,7 @@ jobs:
           basedir: .
           buildtool: nobuild
           githubtoken: ${{ secrets.GITHUB_TOKEN }}
-          javahome: ${{ steps.setup-java.outputs.path }}
+          javahome: /usr/lib/jvm/java-11-openjdk-amd64
           patchdir: /github/workspace/out
           plugins: all,-jira,-gitlab,-unit,-compile
           project: nutch
