@@ -17,98 +17,98 @@
 -->
 
 <ivy-module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd" 
-	xmlns:ns0="http://ant.apache.org/ivy/maven" version="2.0">
-	<info organisation="org.apache.nutch" module="nutch">
-		<license name="Apache 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt" />
-		<ivyauthor name="Apache Nutch Team" url="https://nutch.apache.org/" />
-		<description homepage="https://nutch.apache.org/">Nutch is an open source web-search
-			software. It builds on Hadoop, Tika and Solr, adding web-specifics,
-			such as a crawler, a link-graph database etc.
-		</description>
-	</info>
+  xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd" 
+  xmlns:ns0="http://ant.apache.org/ivy/maven" version="2.0">
+  <info organisation="org.apache.nutch" module="nutch">
+    <license name="Apache 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+    <ivyauthor name="Apache Nutch Team" url="https://nutch.apache.org/" />
+    <description homepage="https://nutch.apache.org/">Nutch is an open source web-search
+      software. It builds on Hadoop, Tika and Solr, adding web-specifics,
+      such as a crawler, a link-graph database etc.
+    </description>
+  </info>
 
-	<configurations>
-		<include file="${basedir}/ivy/ivy-configurations.xml" />
-	</configurations>
+  <configurations>
+    <include file="${basedir}/ivy/ivy-configurations.xml" />
+  </configurations>
 
-	<publications>
-		<!--get the artifact from our module name -->
-		<artifact conf="master" />
-	</publications>
+  <publications>
+    <!--get the artifact from our module name -->
+    <artifact conf="master" />
+  </publications>
 
-	<dependencies>
-		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.25.2" conf="*->master" />
-		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.25.2" conf="*->master" />
-		<dependency org="org.apache.logging.log4j" name="log4j-slf4j2-impl" rev="2.25.2" conf="*->master" />
-		<dependency org="org.slf4j" name="slf4j-api" rev="2.0.17" conf="*->master" />
+  <dependencies>
+    <dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.25.2" conf="*->master" />
+    <dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.25.2" conf="*->master" />
+    <dependency org="org.apache.logging.log4j" name="log4j-slf4j2-impl" rev="2.25.2" conf="*->master" />
+    <dependency org="org.slf4j" name="slf4j-api" rev="2.0.17" conf="*->master" />
 
-		<dependency org="org.apache.commons" name="commons-lang3" rev="3.20.0" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-collections4" rev="4.5.0" conf="*->master" />
-		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.14" conf="*->master" />
-		<!-- commons-httpclient is still required -->
-		<dependency org="commons-httpclient" name="commons-httpclient" rev="3.1"/>
-		<dependency org="commons-codec" name="commons-codec" rev="1.20.0" conf="*->default" />
+    <dependency org="org.apache.commons" name="commons-lang3" rev="3.20.0" conf="*->default" />
+    <dependency org="org.apache.commons" name="commons-collections4" rev="4.5.0" conf="*->master" />
+    <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.14" conf="*->master" />
+    <!-- commons-httpclient is still required -->
+    <dependency org="commons-httpclient" name="commons-httpclient" rev="3.1"/>
+    <dependency org="commons-codec" name="commons-codec" rev="1.20.0" conf="*->default" />
 
-		<dependency org="commons-io" name="commons-io" rev="2.21.0" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-compress" rev="1.28.0" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-jexl3" rev="3.6.0" conf="*->default" />
-		<dependency org="com.tdunning" name="t-digest" rev="3.3" />
+    <dependency org="commons-io" name="commons-io" rev="2.21.0" conf="*->default" />
+    <dependency org="org.apache.commons" name="commons-compress" rev="1.28.0" conf="*->default" />
+    <dependency org="org.apache.commons" name="commons-jexl3" rev="3.6.0" conf="*->default" />
+    <dependency org="com.tdunning" name="t-digest" rev="3.3" />
 
-		<!-- Hadoop Dependencies -->
-		<dependency org="org.apache.hadoop" name="hadoop-common" rev="${hadoop.version}" conf="*->default">
-			<exclude org="ch.qos.reload4j" name="*"/>
-			<exclude org="org.slf4j" name="*" />
-		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="${hadoop.version}" conf="*->default">
-			<exclude org="ch.qos.reload4j" name="*"/>
-			<exclude org="org.slf4j" name="*" />
-		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="${hadoop.version}" conf="*->default">
-			<exclude org="ch.qos.reload4j" name="*"/>
-			<exclude org="org.slf4j" name="*" />
-		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="${hadoop.version}" conf="*->default">
-			<exclude org="ch.qos.reload4j" name="*"/>
-			<exclude org="org.slf4j" name="*" />
-		</dependency>
-		<!-- End of Hadoop Dependencies -->
+    <!-- Hadoop Dependencies -->
+    <dependency org="org.apache.hadoop" name="hadoop-common" rev="${hadoop.version}" conf="*->default">
+      <exclude org="ch.qos.reload4j" name="*"/>
+      <exclude org="org.slf4j" name="*" />
+    </dependency>
+    <dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="${hadoop.version}" conf="*->default">
+      <exclude org="ch.qos.reload4j" name="*"/>
+      <exclude org="org.slf4j" name="*" />
+    </dependency>
+    <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="${hadoop.version}" conf="*->default">
+      <exclude org="ch.qos.reload4j" name="*"/>
+      <exclude org="org.slf4j" name="*" />
+    </dependency>
+    <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="${hadoop.version}" conf="*->default">
+      <exclude org="ch.qos.reload4j" name="*"/>
+      <exclude org="org.slf4j" name="*" />
+    </dependency>
+    <!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.apache.tika" name="tika-core" rev="3.2.3" conf="*->default"/>
+    <dependency org="org.apache.tika" name="tika-core" rev="3.2.3" conf="*->default"/>
 
-		<dependency org="xml-apis" name="xml-apis" rev="1.4.01" /><!-- force this version as it is required by Tika -->
-		<dependency org="xerces" name="xercesImpl" rev="2.12.2" />
+    <dependency org="xml-apis" name="xml-apis" rev="1.4.01" /><!-- force this version as it is required by Tika -->
+    <dependency org="xerces" name="xercesImpl" rev="2.12.2" />
 
-		<dependency org="com.ibm.icu" name="icu4j" rev="78.1" />
+    <dependency org="com.ibm.icu" name="icu4j" rev="78.1" />
 
-		<dependency org="com.google.guava" name="guava" rev="33.5.0-jre" />
+    <dependency org="com.google.guava" name="guava" rev="33.5.0-jre" />
 
-		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="1.6" />
+    <dependency org="com.github.crawler-commons" name="crawler-commons" rev="1.6" />
 
-		<dependency org="com.google.code.gson" name="gson" rev="2.13.2"/>
-		<dependency org="com.martinkl.warc" name="warc-hadoop" rev="0.1.0">
-			<exclude module="hadoop-client" />
-		</dependency>
+    <dependency org="com.google.code.gson" name="gson" rev="2.13.2"/>
+    <dependency org="com.martinkl.warc" name="warc-hadoop" rev="0.1.0">
+      <exclude module="hadoop-client" />
+    </dependency>
 
-		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.18.5" conf="*->default" />
-		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.18.5" conf="*->default" />
-		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.18.5" conf="*->default" />
+    <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.18.5" conf="*->default" />
+    <dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.18.5" conf="*->default" />
+    <dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.18.5" conf="*->default" />
 
-		<!-- WARC artifacts needed -->
-		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="3.0.2" conf="*->default">
-			<exclude module="hadoop-core" />
-			<exclude org="com.google.guava" />
-			<exclude org="junit" />
-			<!-- Exclude dependencies with incompatible license (see https://www.apache.org/legal/resolved.html#category-x) -->
-			<exclude org="org.json" /><!-- JSON License -->
-			<!--
-				Exclusion of the following dependencies disables support of WARC generation by
-				"bin/nutch commoncrawldump -warc ..."
-				Please remove these exclusion and recompile Nutch to generate WARC files using the tool "commoncrawldump".
-			-->
-			<exclude org="it.unimi.dsi" module="dsiutils" /><!-- LGPL 2.1 -->
-			<exclude org="org.gnu.inet" module="libidn" /><!-- LGPL 2.1 -->
-		</dependency>
+    <!-- WARC artifacts needed -->
+    <dependency org="org.netpreserve.commons" name="webarchive-commons" rev="3.0.2" conf="*->default">
+      <exclude module="hadoop-core" />
+      <exclude org="com.google.guava" />
+      <exclude org="junit" />
+      <!-- Exclude dependencies with incompatible license (see https://www.apache.org/legal/resolved.html#category-x) -->
+      <exclude org="org.json" /><!-- JSON License -->
+      <!--
+        Exclusion of the following dependencies disables support of WARC generation by
+        "bin/nutch commoncrawldump -warc ..."
+        Please remove these exclusion and recompile Nutch to generate WARC files using the tool "commoncrawldump".
+      -->
+      <exclude org="it.unimi.dsi" module="dsiutils" /><!-- LGPL 2.1 -->
+      <exclude org="org.gnu.inet" module="libidn" /><!-- LGPL 2.1 -->
+    </dependency>
 
     <dependency org="org.hamcrest" name="hamcrest" rev="3.0" conf="test->default"/>
     <!-- JSpecify nullability annotations for improved null safety -->
@@ -126,28 +126,28 @@
     <dependency org="org.testcontainers" name="testcontainers" rev="2.0.3" conf="test->default"/>
     <dependency org="org.testcontainers" name="junit-jupiter" rev="1.21.4" conf="test->default"/>
 
-		<!-- MockServer (https://www.mock-server.com/) for static HTTP content in unit tests. -->
-		<dependency org="org.mock-server" name="mockserver-netty" rev="5.15.0" conf="test->default">
-			<exclude org="ch.qos.reload4j" module="*" />
-			<exclude org="org.slf4j" module="slf4j-reload" />
-		</dependency>
+    <!-- MockServer (https://www.mock-server.com/) for static HTTP content in unit tests. -->
+    <dependency org="org.mock-server" name="mockserver-netty" rev="5.15.0" conf="test->default">
+      <exclude org="ch.qos.reload4j" module="*" />
+      <exclude org="org.slf4j" module="slf4j-reload" />
+    </dependency>
 
-		<!--Added Because of Elasticsearch JEST client-->
-		<!--TODO refactor these to indexer-elastic-rest plugin somehow, currently doesn't resolve correctly-->
-		<dependency org="org.apache.httpcomponents" name="httpcore-nio" rev="4.4.16" />
-		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.16" />
+    <!--Added Because of Elasticsearch JEST client-->
+    <!--TODO refactor these to indexer-elastic-rest plugin somehow, currently doesn't resolve correctly-->
+    <dependency org="org.apache.httpcomponents" name="httpcore-nio" rev="4.4.16" />
+    <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.16" />
 
-		<dependency org="de.vandermeer" name="asciitable" rev="0.3.2" />
-		<dependency org="org.littleshoot" name="littleproxy" rev="1.1.2" conf="test->default"/>
+    <dependency org="de.vandermeer" name="asciitable" rev="0.3.2" />
+    <dependency org="org.littleshoot" name="littleproxy" rev="1.1.2" conf="test->default"/>
 
-		<!--global exclusion -->
-		<exclude module="jmxtools" />
-		<exclude module="jms" />
-		<exclude module="jmxri" />
-		<exclude module="slf4j-log4j12" />
-		<exclude module="log4j" /><!-- exclude log4j 1.x -->
-		<exclude org="com.thoughtworks.xstream" />
+    <!--global exclusion -->
+    <exclude module="jmxtools" />
+    <exclude module="jms" />
+    <exclude module="jmxri" />
+    <exclude module="slf4j-log4j12" />
+    <exclude module="log4j" /><!-- exclude log4j 1.x -->
+    <exclude org="com.thoughtworks.xstream" />
 
-	</dependencies>
+  </dependencies>
 
 </ivy-module>

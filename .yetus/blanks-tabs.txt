@@ -1,0 +1,3 @@
+# Ignore tabs in Yetus-generated patch dir (not source files).
+# See --blanks-tabs-ignore-file in the blanks plugin.
+^out/
