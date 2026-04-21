@@ -43,11 +43,16 @@ jobs:
     timeout-minutes: 45
     env:
       PATCH_DIR: ${{ github.workspace }}/out
-      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+      - id: setup-java
+        name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
       - name: Cache Ivy dependencies
         uses: actions/cache@v4
         with:
@@ -61,7 +66,7 @@ jobs:
           basedir: .
           buildtool: nobuild
           githubtoken: ${{ secrets.GITHUB_TOKEN }}
-          javahome: '/usr/lib/jvm/java-17-openjdk-amd64'
+          javahome: ${{ steps.setup-java.outputs.path }}
           patchdir: /github/workspace/out
           plugins: all,-jira,-gitlab,-unit,-compile
           project: nutch

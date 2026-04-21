@@ -13,8 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Ensure JAVA_HOME is set for pre-patch and other phases when running in
-# the Yetus Docker container (avoids "JAVA_HOME is not defined" in pre-patch).
+# Ensure JAVA_HOME is set for pre-patch and other phases. GitHub Actions
+# should use actions/setup-java before Yetus (see .github/workflows/yetus.yml)
+# so JAVA_HOME points at Temurin. This fallback covers apt OpenJDK on Debian/Ubuntu.
 if [ -z "${JAVA_HOME}" ] && [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
   export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
 fi
