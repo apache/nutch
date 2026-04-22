@@ -52,6 +52,7 @@ jobs:
             ${{ runner.os }}-ivy-
       - name: Compile (no tests)
         run: ant compile compile-plugins resolve-test -buildfile build.xml
+      # Coverage and JUnit XML come only from the master-build Ubuntu JDK 17 matrix job.
       - name: Download coverage data (Ubuntu JDK 17)
         uses: dawidd6/action-download-artifact@v11
         with:
@@ -68,18 +69,10 @@ jobs:
           run_id: ${{ github.event.workflow_run.id }}
           path: ./build/test-jdk17/
         continue-on-error: true
-      - name: Download test reports (Ubuntu JDK 21)
-        uses: dawidd6/action-download-artifact@v11
-        with:
-          name: junit-test-results-ubuntu-latest-jdk21
-          workflow: master-build.yml
-          run_id: ${{ github.event.workflow_run.id }}
-          path: ./build/test-jdk21/
-        continue-on-error: true
-      - name: Flatten test reports
+      - name: Flatten test reports (JDK 17 only)
         run: |
           mkdir -p ./build/test-reports
-          find ./build/test-jdk17 ./build/test-jdk21 -name 'TEST-*.xml' -exec cp {} ./build/test-reports/ \; 2>/dev/null || true
+          find ./build/test-jdk17 -name 'TEST-*.xml' -exec cp {} ./build/test-reports/ \; 2>/dev/null || true
         continue-on-error: true
       - name: Generate JaCoCo XML report
         run: ant jacoco-report -buildfile build.xml
@@ -118,7 +111,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
       - name: SonarCloud Scan (PR)
         if: steps.pr.outputs.is_pr == 'true'
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@299e4b793aaa83bf2aba7c9c14bedbb485688ec4
         with:
           args: >
             -Dsonar.pullrequest.key=${{ steps.pr.outputs.number }}
@@ -129,7 +122,7 @@ jobs:
           SONAR_HOST_URL: https://sonarcloud.io
       - name: SonarCloud Scan (branch)
         if: steps.pr.outputs.is_pr == 'false' && steps.pr.outputs.skip != 'true'
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@299e4b793aaa83bf2aba7c9c14bedbb485688ec4
         with:
           args: >
             -Dsonar.branch.name=${{ github.event.workflow_run.head_branch }}

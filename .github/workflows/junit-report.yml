@@ -24,12 +24,14 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
+  actions: read
   checks: write
   contents: read
   issues: write
   pull-requests: write
 jobs:
   checks:
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Set up JDK 17
@@ -44,7 +46,22 @@ jobs:
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
           path: ./junit-ubuntu-jdk17
-        continue-on-error: true
+      - name: Verify JUnit XML layout
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+          root="./junit-ubuntu-jdk17"
+          if [ ! -d "$root" ]; then
+            echo "::error::Download path $root is missing."
+            exit 1
+          fi
+          files=("$root"/build/**/TEST-*.xml)
+          if [ ${#files[@]} -eq 0 ] || [ ! -e "${files[0]}" ]; then
+            echo "::error::No TEST-*.xml under $root/build/ (artifact missing, wrong layout, or download failed)."
+            find "$root" -maxdepth 5 -type d -print 2>/dev/null | head -80 || true
+            exit 1
+          fi
+          echo "Found ${#files[@]} JUnit report file(s) under $root/build/."
       - name: Resolve PR number
         id: pr
         run: |
@@ -65,12 +82,8 @@ jobs:
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v6
         with:
-          report_paths: |-
-            ./junit-ubuntu-jdk17/build/test/TEST-*.xml
-            ./junit-ubuntu-jdk17/build/**/test/TEST-*.xml
-          check_name: |-
-            JUnit Test Report
-            JUnit Test Report Plugins
+          report_paths: ./junit-ubuntu-jdk17/build/**/TEST-*.xml
+          check_name: JUnit Test Report
           commit: ${{ github.event.workflow_run.head_sha }}
           fail_on_failure: false
           fail_on_parse_error: true
