@@ -84,26 +84,6 @@ public class HttpRobotRulesParser extends RobotRulesParser {
     return cacheKey;
   }
 
-  static String normalizeMalformedHttpSlashes(String uriString) {
-		String schemePrefix;
-		if (uriString.startsWith("http:")) {
-			schemePrefix = "http:";
-		} else if (uriString.startsWith("https:")) {
-			schemePrefix = "https:";
-		} else {
-			return uriString;
-		}
-		int slashStart = schemePrefix.length();
-		int slashEnd = slashStart;
-		while (slashEnd < uriString.length() && uriString.charAt(slashEnd) == '/') {
-			slashEnd++;
-		}
-		if (slashEnd - slashStart == 2) {
-			return uriString;
-		}
-		return schemePrefix + "//" + uriString.substring(slashEnd);
-	}
-
   /**
    * Get the rules from robots.txt which applies for the given {@code url}.
    * Robot rules are cached for a unique combination of host, protocol, and
@@ -198,19 +178,6 @@ public class HttpRobotRulesParser extends RobotRulesParser {
                   robotsUrlRedir, redirectionLocation, e.getMessage());
               break;
             }
-
-            if (robotsUrlRedir.getHost() == null || robotsUrlRedir.getHost().isEmpty()) {
-                LOG.info("Robots.txt redirect resolved to malformed URL {} (initial: {}); will normalize",
-                  robotsUrlRedir, robotsUrl);
-              try {
-                robotsUrlRedir = new URL(normalizeMalformedHttpSlashes(robotsUrlRedir.toString()));
-              } catch (MalformedURLException mue) {
-                cacheRule = false; // TODO: validate with Sebastian
-                LOG.info("Failed to normalize malformed robots.txt redirect: {} ({})",
-                robotsUrlRedir, mue.getMessage());
-              }
-            }
-
             response = ((HttpBase) http).getResponse(robotsUrlRedir,
                 new CrawlDatum(), true);
             code = response.getCode();
