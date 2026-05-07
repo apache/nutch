@@ -105,9 +105,9 @@ radio button and select "Eclipse". Click "Create". On the next screen the
 "Eclipse projects directory" should be already set to the nutch folder. Leave
 the "Create module files near .classpath files" radio button selected.
 
-Click "Next" on the next screens. On the project SDK screen select Java 11 and
-click "Create". **N.B.** On Mac with homebrew openjdk, use the directory under
-_libexec_: `<openjdk11_directory>/libexec/openjdk.jdk/Contents/Home`.
+Click "Next" on the next screens. On the project SDK screen select Java 17
+(or newer) and click "Create". **N.B.** On Mac with homebrew openjdk, use the
+directory under _libexec_: `<openjdk_directory>/libexec/openjdk.jdk/Contents/Home`.
 
 Once the project is imported, you will see a popup saying "Ant build scripts
 found", "Frameworks detected - IvyIDEA Framework detected". Click "Import". If
