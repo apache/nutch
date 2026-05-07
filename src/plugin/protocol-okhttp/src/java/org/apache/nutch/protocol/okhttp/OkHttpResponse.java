@@ -17,6 +17,7 @@
 package org.apache.nutch.protocol.okhttp;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.Base64;
@@ -186,7 +187,12 @@ public class OkHttpResponse implements Response {
       } catch (IOException e) {
         if (partialAsTruncated && source.getBuffer().size() > 0) {
           // treat already fetched content as truncated
-          truncated.setReason(TruncatedContentReason.DISCONNECT);
+          if (e instanceof InterruptedIOException) {
+            // thrown by OkHttp if the call timeout is hit
+            truncated.setReason(TruncatedContentReason.TIME);
+          } else {
+            truncated.setReason(TruncatedContentReason.DISCONNECT);
+          }
           LOG.info("Truncated content for {}, partial fetch caused by:", this.url,
               e);
         } else {
