@@ -183,6 +183,7 @@ public class Ftp implements Protocol {
     } catch (Exception e) {
       LOG.error("Could not get protocol output for {}: {}", url,
           e.getMessage());
+      datum.getMetaData().put(Nutch.PROTOCOL_STATUS_CODE_KEY, new Text("500"));
       return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
