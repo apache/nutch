@@ -1,0 +1,10 @@
+# Relax rules for workflow and config YAML (Yetus yamllint plugin)
+---
+extends: default
+
+rules:
+  line-length:
+    max: 200
+  document-start: disable
+  truthy:
+    allowed-values: ['true', 'false', 'yes', 'no', 'on', 'off']

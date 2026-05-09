@@ -43,8 +43,8 @@ import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.conf.Configuration.IntegerRanges;
 import org.apache.hadoop.io.RawComparator;
-import org.apache.hadoop.mapred.Counters;
-import org.apache.hadoop.mapred.Counters.Counter;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -141,12 +141,12 @@ public class CrawlDBTestUtil {
 
     @Override
     public Counter getCounter(Enum<?> arg0) {
-      return dummyCounters.getGroup("dummy").getCounterForName("dummy");
+      return dummyCounters.findCounter(arg0);
     }
 
     @Override
     public Counter getCounter(String arg0, String arg1) {
-      return dummyCounters.getGroup("dummy").getCounterForName("dummy");
+      return dummyCounters.findCounter(arg0, arg1);
     }
 
     @Override

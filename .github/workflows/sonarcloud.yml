@@ -18,6 +18,11 @@ on:
   workflow_run:
     workflows: [master pull request ci]
     types: [completed]
+
+concurrency:
+  group: sonarcloud-${{ github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
 jobs:
   analysis:
     if: github.event.workflow_run.conclusion == 'success'
@@ -47,26 +52,27 @@ jobs:
             ${{ runner.os }}-ivy-
       - name: Compile (no tests)
         run: ant compile compile-plugins resolve-test -buildfile build.xml
-      - name: Download coverage data
+      # Coverage and JUnit XML come only from the master-build Ubuntu JDK 17 matrix job.
+      - name: Download coverage data (Ubuntu JDK 17)
         uses: dawidd6/action-download-artifact@v11
         with:
-          name: coverage-data
+          name: coverage-data-ubuntu-jdk17
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
           path: ./build/coverage/
         continue-on-error: true
-      - name: Download test reports
+      - name: Download test reports (Ubuntu JDK 17)
         uses: dawidd6/action-download-artifact@v11
         with:
-          name: junit-test-results-ubuntu-latest
+          name: junit-test-results-ubuntu-latest-jdk17
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
-          path: ./build/test/
+          path: ./build/test-jdk17/
         continue-on-error: true
-      - name: Flatten test reports
+      - name: Flatten test reports (JDK 17 only)
         run: |
           mkdir -p ./build/test-reports
-          find ./build/test -name 'TEST-*.xml' -exec cp {} ./build/test-reports/ \;
+          find ./build/test-jdk17 -name 'TEST-*.xml' -exec cp {} ./build/test-reports/ \; 2>/dev/null || true
         continue-on-error: true
       - name: Generate JaCoCo XML report
         run: ant jacoco-report -buildfile build.xml
@@ -105,7 +111,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
       - name: SonarCloud Scan (PR)
         if: steps.pr.outputs.is_pr == 'true'
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@299e4b793aaa83bf2aba7c9c14bedbb485688ec4
         with:
           args: >
             -Dsonar.pullrequest.key=${{ steps.pr.outputs.number }}
@@ -116,7 +122,7 @@ jobs:
           SONAR_HOST_URL: https://sonarcloud.io
       - name: SonarCloud Scan (branch)
         if: steps.pr.outputs.is_pr == 'false' && steps.pr.outputs.skip != 'true'
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@299e4b793aaa83bf2aba7c9c14bedbb485688ec4
         with:
           args: >
             -Dsonar.branch.name=${{ github.event.workflow_run.head_branch }}

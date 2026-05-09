@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,6 +46,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -489,25 +491,49 @@ public class SegmentReader extends Configured implements Tool {
   }
 
   private List<Writable> getSeqRecords(Path dir, Text key) throws Exception {
-    SequenceFile.Reader[] readers = org.apache.hadoop.mapred.SequenceFileOutputFormat
-        .getReaders(getConf(), dir);
-    ArrayList<Writable> res = new ArrayList<>();
-    Class<?> keyClass = readers[0].getKeyClass();
-    Class<?> valueClass = readers[0].getValueClass();
-    if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
-      throw new IOException("Incompatible key (" + keyClass.getName() + ")");
-    WritableComparable<?> aKey = (WritableComparable<?>) keyClass.getConstructor().newInstance();
-    Writable value = (Writable) valueClass.getConstructor().newInstance();
-    for (int i = 0; i < readers.length; i++) {
-      while (readers[i].next(aKey, value)) {
-        if (aKey.equals(key)) {
-          res.add(value);
-          value = (Writable) valueClass.getConstructor().newInstance();
+    Configuration conf = getConf();
+    FileSystem fs = dir.getFileSystem(conf);
+    FileStatus[] listed = fs.listStatus(dir);
+    ArrayList<FileStatus> parts = new ArrayList<>();
+    for (FileStatus st : listed) {
+      if (!st.isFile()) {
+        continue;
+      }
+      String name = st.getPath().getName();
+      if (!name.startsWith("_") && !name.startsWith(".")) {
+        parts.add(st);
+      }
+    }
+    FileStatus[] statuses = parts.toArray(new FileStatus[0]);
+    if (statuses.length == 0) {
+      throw new IOException("No sequence file parts under " + dir);
+    }
+    Arrays.sort(statuses, Comparator.comparing(f -> f.getPath().getName()));
+    SequenceFile.Reader[] readers = new SequenceFile.Reader[statuses.length];
+    try {
+      for (int i = 0; i < statuses.length; i++) {
+        readers[i] = new SequenceFile.Reader(conf,
+            SequenceFile.Reader.file(statuses[i].getPath()));
+      }
+      ArrayList<Writable> res = new ArrayList<>();
+      Class<?> keyClass = readers[0].getKeyClass();
+      Class<?> valueClass = readers[0].getValueClass();
+      if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
+        throw new IOException("Incompatible key (" + keyClass.getName() + ")");
+      WritableComparable<?> aKey = (WritableComparable<?>) keyClass.getConstructor().newInstance();
+      Writable value = (Writable) valueClass.getConstructor().newInstance();
+      for (int i = 0; i < readers.length; i++) {
+        while (readers[i].next(aKey, value)) {
+          if (aKey.equals(key)) {
+            res.add(value);
+            value = (Writable) valueClass.getConstructor().newInstance();
+          }
         }
       }
-      readers[i].close();
+      return res;
+    } finally {
+      IOUtils.cleanupWithLogger(LOG, readers);
     }
-    return res;
   }
 
   /**
