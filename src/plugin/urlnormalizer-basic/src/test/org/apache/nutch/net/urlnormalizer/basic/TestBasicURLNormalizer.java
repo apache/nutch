@@ -275,6 +275,46 @@ public class TestBasicURLNormalizer {
   }
 
   /**
+   * Test for IDNA2008 and IDNA2003 compatibility.
+   */
+  @Test
+  public void testHostNameIDNA2008() throws Exception {
+    // IDNA2008 (https://www.rfc-editor.org/rfc/rfc5890.html#section-1.1)
+    BasicURLNormalizer norm = new BasicURLNormalizer();
+    conf = NutchConfiguration.create();
+    conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toAscii");
+    norm.setConf(conf);
+
+    // IDNA2003 / RFC 3490
+    // Note: IDNA2008 and IDNA2003 deviate for this example
+    normalizeTest(norm, "https://straße.de/", "https://strasse.de/");
+
+    // Verify that characters not in Unicode 3.2 do not fail the normalization
+    normalizeTest(norm, "https://example.ᬩᬮᬶ.id/", "https://example.xn--9tfky.id/");
+
+    // IDNA2008 / RFC 5890
+    conf.setBoolean(BasicURLNormalizer.NORM_HOST_IDNA_2008, true);
+    norm.setConf(conf);
+    // Note: this is different from IDNA2003
+    normalizeTest(norm, "https://straße.de/", "https://xn--strae-oqa.de/");
+
+    // Verify that characters not in Unicode 3.2 do not fail the normalization
+    normalizeTest(norm, "https://example.ᬩᬮᬶ.id/", "https://example.xn--9tfky.id/");
+
+    // test conversion to Unicode (IDNA2008)
+    conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toUnicode");
+    norm.setConf(conf);
+    normalizeTest(norm, "https://xn--strae-oqa.de/", "https://straße.de/");
+    normalizeTest(norm, "https://example.xn--9tfky.id/", "https://example.ᬩᬮᬶ.id/");
+
+    // test conversion to Unicode (IDNA2003)
+    conf.setBoolean(BasicURLNormalizer.NORM_HOST_IDNA_2008, false);
+    norm.setConf(conf);
+    normalizeTest(norm, "https://xn--strae-oqa.de/", "https://xn--strae-oqa.de/");
+    normalizeTest(norm, "https://example.xn--9tfky.id/", "https://example.ᬩᬮᬶ.id/");
+  }
+
+  /**
    * Test that normalizer throws MalformedURLException for invalid URLs
    */
   @Test

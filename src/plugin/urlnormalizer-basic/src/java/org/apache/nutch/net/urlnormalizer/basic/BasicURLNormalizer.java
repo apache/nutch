@@ -16,12 +16,11 @@
  */
 package org.apache.nutch.net.urlnormalizer.basic;
 
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.IDN;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -36,6 +35,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +47,12 @@ import org.slf4j.LoggerFactory;
  * <li>normalize <a href=
  * "https://en.wikipedia.org/wiki/Percent-encoding#Percent-encoding_in_a_URI">
  * percent-encoding</a> in URL paths</li>
+ * <li>normalize the host name if it is an Internationalized Domain Name (IDN)
+ * to ASCII or Unicode, depending on the configuration properties
+ * <code>urlnormalizer.basic.host.idn</code> and
+ * <code>urlnormalizer.basic.host.idna2008</code></li>
+ * <li>remove a trailing dot in the host name (if the property
+ * <code>urlnormalizer.basic.host.trim-trailing-dot</code> is true)</li>
  * </ul>
  */
 public class BasicURLNormalizer implements URLNormalizer {
@@ -54,6 +60,7 @@ public class BasicURLNormalizer implements URLNormalizer {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   public final static String NORM_HOST_IDN = "urlnormalizer.basic.host.idn";
+  public final static String NORM_HOST_IDNA_2008 = "urlnormalizer.basic.host.idna2008";
   public final static String NORM_HOST_TRIM_TRAILING_DOT = "urlnormalizer.basic.host.trim-trailing-dot";
 
   /**
@@ -132,20 +139,11 @@ public class BasicURLNormalizer implements URLNormalizer {
         || (0x30 <= c && c <= 0x39);
   }
 
-  private static boolean isAscii(String str) {
-    char[] chars = str.toCharArray();
-    for (char c : chars) {
-      if (c > 127) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   private Configuration conf;
 
   private boolean hostIDNtoASCII;
   private boolean hostASCIItoIDN;
+  private boolean hostIDNA2008;
   private boolean hostTrimTrailingDot;
 
   @Override
@@ -162,6 +160,7 @@ public class BasicURLNormalizer implements URLNormalizer {
     } else if (normIdn.equalsIgnoreCase("toUnicode")) {
       hostASCIItoIDN = true;
     }
+    hostIDNA2008 = conf.getBoolean(NORM_HOST_IDNA_2008, false);
     hostTrimTrailingDot = conf.getBoolean(NORM_HOST_TRIM_TRAILING_DOT, false);
   }
 
@@ -429,21 +428,18 @@ public class BasicURLNormalizer implements URLNormalizer {
 
     // 3. if configured: convert between Unicode and ASCII forms
     //    for Internationalized Domain Names (IDNs)
-    if (hostIDNtoASCII && !isAscii(host)) {
-      try {
-        host = IDN.toASCII(host);
-      } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
-        // IllegalArgumentException: thrown if the input string contains
-        // non-convertible Unicode codepoints
-        // IndexOutOfBoundsException: thrown (undocumented) if one "label"
-        // (non-ASCII dot-separated segment) is longer than 256 characters,
-        // cf. https://bugs.openjdk.java.net/browse/JDK-6806873
-        LOG.debug("Failed to convert IDN host {}: ", host, e);
-        throw (MalformedURLException) new MalformedURLException(
-            "Invalid IDN " + host + ": " + e.getMessage()).initCause(e);
+    if (hostIDNtoASCII && !URLUtil.isAscii(host)) {
+      if (hostIDNA2008) {
+        host = URLUtil.convertIDNA2008(host, true);
+      } else {
+        host = URLUtil.convertIDNA2003(host, true, false);
       }
     } else if (hostASCIItoIDN && host.contains("xn--")) {
-      host = IDN.toUnicode(host);
+      if (hostIDNA2008) {
+        host = URLUtil.convertIDNA2008(host, false);
+      } else {
+        host = URLUtil.convertIDNA2003(host, false, false);
+      }
     }
 
     // 4. optionally trim a trailing dot

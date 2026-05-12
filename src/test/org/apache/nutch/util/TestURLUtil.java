@@ -16,11 +16,16 @@
  */
 package org.apache.nutch.util;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /** Test class for URLUtil */
 public class TestURLUtil {
@@ -312,7 +317,12 @@ public class TestURLUtil {
     assertEquals("http://www.medizin.uni-tübingen.de:8080/search.php?q=abc#p1",
             URLUtil
                 .toUNICODE("http://www.medizin.xn--uni-tbingen-xhb.de:8080/search.php?q=abc#p1"));
-
+    // do not fail on characters not in Unicode 3.2
+    assertEquals("https://example.ᬩᬮᬶ.id/",
+        URLUtil.toUNICODE("https://example.xn--9tfky.id/"));
+    // IDNA2008
+    assertEquals("http://straße.de/",
+        URLUtil.toUNICODE("http://xn--strae-oqa.de/"));
   }
 
   @Test
@@ -324,6 +334,50 @@ public class TestURLUtil {
     assertEquals("http://www.medizin.xn--uni-tbingen-xhb.de:8080/search.php?q=abc#p1",
             URLUtil
                 .toASCII("http://www.medizin.uni-tübingen.de:8080/search.php?q=abc#p1"));
+    // IDNA2003
+    // assertEquals("http://strasse.de/",
+    //    URLUtil.toASCII("http://straße.de/"));
+    // do not fail on characters not in Unicode 3.2
+    assertEquals("https://example.xn--9tfky.id/",
+        URLUtil.toASCII("https://example.ᬩᬮᬶ.id/"));
+    // IDNA2008
+    assertEquals("http://xn--strae-oqa.de/",
+        URLUtil.toASCII("http://straße.de/"));
+  }
+
+  @ParameterizedTest
+  @CsvSource({ //
+      "www.xn--evir-zoa.com,www.çevir.com,IDNA2003,true", //
+      "xn--uni-tbingen-xhb.de,uni-tübingen.de,IDNA2003,true", //
+      "example.xn--9tfky.id,example.ᬩᬮᬶ.id,IDNA2008,true", //
+      "xn--53h.example,☕.example,IDNA2008,true", //
+      "xn--0ca.xn--ssa73l,à.א̈,IDNA2008,true", //
+      // Note: IDNA2008 and IDNA2003 deviate for the following example
+      "xn--strae-oqa.de,straße.de,IDNA2008,true", //
+      "strasse.de,straße.de,IDNA2003,false", //
+      "strasse.de,strasse.de,IDNA2003,true", //
+  })
+  public final void testConvertHost(String ascii, String unicode, String type,
+      boolean roundTrip) throws Exception {
+    if ("IDNA2008".equals(type)) {
+      assertEquals(ascii, URLUtil.convertIDNA2008(unicode, true));
+      assertEquals(unicode, URLUtil.convertIDNA2008(ascii, false));
+      try {
+        assertNotNull(URLUtil.convertIDNA2003(unicode, true, false));
+      } catch (MalformedURLException e) {
+        /*
+         * Ok. A IDNA2008 input may raise an exception when using the IDNA2003
+         * method
+         */
+      }
+    } else if ("IDNA2003".equals(type)) {
+      assertEquals(ascii, URLUtil.convertIDNA2003(unicode, true, true));
+      assertEquals(ascii, URLUtil.convertIDNA2003(unicode, true, false));
+      if (roundTrip) {
+        assertEquals(unicode, URLUtil.convertIDNA2003(ascii, false, true));
+        assertEquals(unicode, URLUtil.convertIDNA2003(ascii, false, false));
+      }
+    }
   }
 
   @Test
