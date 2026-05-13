@@ -119,6 +119,11 @@ public class OkHttp extends HttpBase {
         .writeTimeout(this.timeout, TimeUnit.MILLISECONDS)
         .readTimeout(this.timeout, TimeUnit.MILLISECONDS);
 
+    if (this.maxDuration >= 0) {
+      // timeout for the entire request
+      builder.callTimeout(this.maxDuration, TimeUnit.SECONDS);
+    }
+
     if (!this.tlsCheckCertificate) {
       try {
         SSLContext trustAllSslContext = SSLContext.getInstance("TLS");
