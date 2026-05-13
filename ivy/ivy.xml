@@ -122,9 +122,13 @@
     <dependency org="org.mockito" name="mockito-core" rev="5.18.0" conf="test->default"/>
     <dependency org="org.mockito" name="mockito-junit-jupiter" rev="5.18.0" conf="test->default"/>
 
-    <!-- Testcontainers for indexer plugin integration tests -->
+    <!-- Testcontainers for indexer and protocol plugin integration tests -->
     <dependency org="org.testcontainers" name="testcontainers" rev="2.0.3" conf="test->default"/>
     <dependency org="org.testcontainers" name="junit-jupiter" rev="1.21.4" conf="test->default"/>
+    <!-- WireMock for HTTP mock server in protocol-httpclient integration tests -->
+    <dependency org="com.github.tomakehurst" name="wiremock-standalone" rev="3.0.1" conf="test->default"/>
+    <!-- MockFtpServer for in-process FTP server in protocol-ftp integration tests -->
+    <dependency org="org.mockftpserver" name="MockFtpServer" rev="3.1.0" conf="test->default"/>
 
     <!-- MockServer (https://www.mock-server.com/) for static HTTP content in unit tests. -->
     <dependency org="org.mock-server" name="mockserver-netty" rev="5.15.0" conf="test->default">

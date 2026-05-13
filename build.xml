@@ -99,7 +99,7 @@
   </target>
 
   <target name="dependencytests" depends="resolve-test" description="Show unit tests dependency tree">
-	<ivy:dependencytree />
+    <ivy:dependencytree />
   </target>
 
   <!-- ====================================================== -->
@@ -526,6 +526,10 @@
 
   <target name="test-indexer-integration" depends="resolve-test, compile, compile-core-test, job" description="--> run indexer plugin integration tests (Testcontainers)">
     <ant dir="src/plugin" target="test-indexer-integration" inheritAll="false"/>
+  </target>
+
+  <target name="test-protocol-integration" depends="resolve-test, compile, compile-core-test, job" description="--> run protocol plugin integration tests (Testcontainers)">
+    <ant dir="src/plugin" target="test-protocol-integration" inheritAll="false"/>
   </target>
 
   <target name="nightly" depends="test, tar-src, zip-src" description="--> run the nightly target build">
@@ -1079,7 +1083,7 @@
             projectName="Apache Nutch Spotbugs Analysis"
             stylesheet="fancy-hist.xsl" >
       <auxClasspath>
-        <!-- depency jars required for analysis but not analyzed (not our bugs) -->
+        <!-- dependency jars required for analysis but not analyzed (not our bugs) -->
         <pathelement path="${basedir}/${build.dir}/lib"/>
         <fileset dir="${basedir}/${build.dir}/plugins">
           <include name="**/*.jar"/>

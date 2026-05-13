@@ -224,6 +224,8 @@ jobs:
               - 'src/plugin/**'
             indexer_plugins:
               - 'src/plugin/indexer-*/**'
+            protocol_plugins:
+              - 'src/plugin/protocol-*/**'
             buildconf:
               - 'build.xml'
               - 'ivy/ivy.xml'
@@ -244,6 +246,10 @@ jobs:
       - name: test indexer integration
         if: ${{ steps.filter.outputs.indexer_plugins == 'true' && matrix.os == 'ubuntu-latest' }}
         run: ant clean test-indexer-integration -buildfile build.xml
+      # run protocol integration tests when protocol plugin files change (Docker required, ubuntu-latest only)
+      - name: test protocol integration
+        if: ${{ steps.filter.outputs.protocol_plugins == 'true' && matrix.os == 'ubuntu-latest' }}
+        run: ant clean test-protocol-integration -buildfile build.xml
       - name: Check for test results
         id: check_tests
         if: always() && matrix.os == 'ubuntu-latest'

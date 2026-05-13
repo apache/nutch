@@ -38,6 +38,7 @@
 
   <dependencies>
     <dependency org="org.jsoup" name="jsoup" rev="1.8.1" />
+    <dependency org="com.github.tomakehurst" name="wiremock-standalone" rev="3.0.1" conf="test->default"/>
   </dependencies>
   
 </ivy-module>

@@ -183,6 +183,19 @@
     <ant dir="indexer-solr" target="test-indexer-integration"/>
   </target>
 
+  <!-- ======================================================  -->
+  <!-- Protocol plugin integration tests (Testcontainers)    -->
+  <!-- Run sequentially to avoid container resource contention-->
+  <!-- ======================================================  -->
+  <target name="test-protocol-integration">
+    <ant dir="protocol-ftp"        target="test-protocol-integration"/>
+    <ant dir="protocol-http"       target="test-protocol-integration"/>
+    <ant dir="protocol-httpclient" target="test-protocol-integration"/>
+    <ant dir="protocol-htmlunit"   target="test-protocol-integration"/>
+    <ant dir="protocol-okhttp"     target="test-protocol-integration"/>
+    <ant dir="protocol-selenium"   target="test-protocol-integration"/>
+  </target>
+
   <!-- ====================================================== -->
   <!-- Clean all of the plugins.                              -->
   <!-- ====================================================== -->
