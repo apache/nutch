@@ -156,7 +156,9 @@ public class BasicURLNormalizer implements URLNormalizer {
     String normIdn = conf.get(NORM_HOST_IDN, "");
     if (normIdn.equalsIgnoreCase("toAscii")) {
       hostIDNtoASCII = true;
+      hostASCIItoIDN = false;
     } else if (normIdn.equalsIgnoreCase("toUnicode")) {
+      hostIDNtoASCII = false;
       hostASCIItoIDN = true;
     }
     hostIDNA2008 = conf.getBoolean(NORM_HOST_IDNA_2008, false);
