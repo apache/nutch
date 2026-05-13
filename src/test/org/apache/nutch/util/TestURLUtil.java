@@ -16,16 +16,18 @@
  */
 package org.apache.nutch.util;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /** Test class for URLUtil */
 public class TestURLUtil {
@@ -323,6 +325,14 @@ public class TestURLUtil {
     // IDNA2008
     assertEquals("http://straße.de/",
         URLUtil.toUNICODE("http://xn--strae-oqa.de/"));
+    // host names with uppercase characters
+    assertEquals("https://googie.com/",
+        URLUtil.toUNICODE("https://googIe.com/"));
+    assertEquals("https://googie.com/", URLUtil.toASCII("https://googIe.com/"));
+    assertEquals("https://xn--90ax2c.xn--p1ai/",
+        URLUtil.toASCII("https://нЭб.РФ/"));
+    assertEquals("https://нэб.рф/",
+        URLUtil.toUNICODE("https://Xn--90Ax2c.xN--P1ai/"));
   }
 
   @Test
@@ -350,15 +360,39 @@ public class TestURLUtil {
       "www.xn--evir-zoa.com,www.çevir.com,IDNA2003,true", //
       "xn--uni-tbingen-xhb.de,uni-tübingen.de,IDNA2003,true", //
       "example.xn--9tfky.id,example.ᬩᬮᬶ.id,IDNA2008,true", //
+      // Test examples from whatwg-url
       "xn--53h.example,☕.example,IDNA2008,true", //
       "xn--0ca.xn--ssa73l,à.א̈,IDNA2008,true", //
-      // Note: IDNA2008 and IDNA2003 deviate for the following example
+      "xn--mgba3gch31f060k.com,\u0646\u0627\u0645\u0647\u200c\u0627\u06cc.com,IDNA2008,true", //
+      /* Note: IDNA2008 and IDNA2003 deviate for the following examples,
+       * cf. https://www.unicode.org/reports/tr46/#IDNA2003-Section */
       "xn--strae-oqa.de,straße.de,IDNA2008,true", //
       "strasse.de,straße.de,IDNA2003,false", //
       "strasse.de,strasse.de,IDNA2003,true", //
+      "xn--fa-hia.de,faß.de,IDNA2008,true", //
+      "fass.de,faß.de,IDNA2003,false", //
+      "fass.de,fass.de,IDNA2003,true", //
+      "xn--nxasmm1c.com,βόλος.com,IDNA2008,true", //
+      "xn--nxasmq6b.com,βόλος.com,IDNA2003,false", //
+      "xn--nxasmq6b.com,βόλοσ.com,IDNA2003,true", //
+      "xn--10cl1a0b660p.com,ශ්‍රී.com,IDNA2008,true", //
+      "xn--10cl1a0b.com,ශ්‍රී.com,IDNA2003,false", //
+      "xn--10cl1a0b.com,ශ්රී.com,IDNA2003,true", //
+      "xn--mgba3gch31f060k.com,نامه‌ای.com,IDNA2008,true", //
+      "xn--mgba3gch31f.com,نامه‌ای.com,IDNA2003,false", //
+      "xn--mgba3gch31f.com,نامهای.com,IDNA2003,true", //
+      // mixed lowercase/uppercase: no round trip conversion
+      "xn--bb-eka.at,ÖBB.at,IDNA2003,false", //
+      "xn--bb-eka.at,öbb.at,IDNA2003,true", //
+      // mixed encoding (Punycode and Unicode)
+      "xn--p1ai.xn--p1ai,рф.xn--p1ai,IDNA2003,false", //
+      "xn--p1ai.xn--p1ai,xn--p1ai.рф,IDNA2003,false", //
+      // percent-encoding is not supported
+      // "xn--p1ai.xn--p1ai,xn--p1ai.%D1%80%D1%84,IDNA2003,false", //
   })
   public final void testConvertHost(String ascii, String unicode, String type,
       boolean roundTrip) throws Exception {
+    System.out.println(ascii + " <> " + unicode);
     if ("IDNA2008".equals(type)) {
       assertEquals(ascii, URLUtil.convertIDNA2008(unicode, true));
       assertEquals(unicode, URLUtil.convertIDNA2008(ascii, false));
@@ -378,6 +412,38 @@ public class TestURLUtil {
         assertEquals(unicode, URLUtil.convertIDNA2003(ascii, false, false));
       }
     }
+  }
+
+  @Test
+  public final void testConvertHostInvalid() {
+    // broken Punycode
+    assertDoesNotThrow(() -> assertEquals("xn--xn--bss-7z6ccid.com",
+        URLUtil.convertIDNA2003("xn--xn--bss-7z6ccid.com", false, true)));
+
+    // invalid Punycode
+    assertThrows(MalformedURLException.class,
+        () -> URLUtil.convertIDNA2008("xn--0.pt", false));
+
+    // IDNA2003 not allowing characters not in Unicode 3.2
+    assertThrows(MalformedURLException.class,
+        () -> URLUtil.convertIDNA2003("☕.example", true, true));
+    assertDoesNotThrow(() -> assertEquals("xn--53h.example",
+        URLUtil.convertIDNA2003("xn--53h.example", false, true)));
+
+    // IDNA2008 invalid,
+    // cf. https://www.unicode.org/reports/tr46/#Implementation_Notes
+    // cf. https://www.unicode.org/Public/17.0.0/idna/IdnaTestV2.txt
+    // disallowed character: ⒈ (U+2488 - DIGIT ONE FULL STOP)
+    assertThrows(MalformedURLException.class,
+        () -> URLUtil.convertIDNA2008("\u2488com", true));
+    assertThrows(MalformedURLException.class,
+        () -> URLUtil.convertIDNA2008("xn--acom-0w1b", false));
+    assertThrows(MalformedURLException.class,
+        () -> URLUtil.convertIDNA2008("xn--xn--a--gua.pt", false));
+    assertThrows(MalformedURLException.class,
+        () -> URLUtil.convertIDNA2008("xn--a-ä.pt", false));
+    assertThrows(MalformedURLException.class,
+        () -> URLUtil.convertIDNA2008("xn--a-ä.pt", true));
   }
 
   @Test
