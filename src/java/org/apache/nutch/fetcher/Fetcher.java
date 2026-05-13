@@ -452,16 +452,21 @@ public class Fetcher extends NutchTool implements Tool {
            * fetcher.threads.timeout.divisor.
            */
           if ((System.currentTimeMillis() - lastRequestStart.get()) > timeout) {
-            LOG.warn("Timeout reached with no new requests since {} seconds.",
+            LOG.warn(
+                "Timeout reached with no new requests since {} milliseconds.",
                 timeout);
-            LOG.warn("Aborting with {} hung threads{}.", activeThreads,
+            LOG.warn("Aborting with {} hung or idle threads{}.", activeThreads,
                 feeder.isAlive() ? " (queue feeder still alive)" : "");
             hungThreadsCounter.increment(activeThreads.get());
             for (int i = 0; i < fetcherThreads.size(); i++) {
               FetcherThread thread = fetcherThreads.get(i);
               if (thread.isAlive()) {
-                LOG.warn("Thread #{} hung while processing {}", i,
-                    thread.getReprUrl());
+                if (thread.getReprUrl() != null) {
+                  LOG.warn("Thread #{} hung while processing {}", i,
+                      thread.getReprUrl());
+                } else {
+                  LOG.warn("Thread #{} idle", i);
+                }
                 StackTraceElement[] stack = thread.getStackTrace();
                 StringBuilder sb = new StringBuilder();
                 sb.append("Stack of thread #").append(i).append(":\n");

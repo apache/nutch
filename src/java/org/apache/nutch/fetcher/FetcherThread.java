@@ -623,6 +623,9 @@ public class FetcherThread extends Thread {
           output(fit.url, fit.datum, null, ProtocolStatus.STATUS_FAILED,
               CrawlDatum.STATUS_FETCH_RETRY);
         }
+
+        // done: unset reprUrl for reporting
+        setReprUrl(null);
       }
 
     } catch (Throwable e) {
