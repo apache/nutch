@@ -544,7 +544,7 @@ public class URLUtil {
 
   /**
    * Convert URL with IDN host/domain name into the ASCII representation.
-   * 
+   *
    * @param url
    *          URL string to convert
    * @return URL string with ASCII host/domain name or null if conversion fails.
@@ -574,7 +574,7 @@ public class URLUtil {
 
   /**
    * Convert URL with IDN host/domain name to the Unicode representation.
-   * 
+   *
    * @param url
    *          URL string to convert
    * @return URL string with Unicode host/domain name or null if conversion
@@ -620,14 +620,14 @@ public class URLUtil {
   /**
    * Convert IDN host to ASCII or Unicode using Java's built-in {@link IDN}
    * class.
-   * 
+   *
    * The conversion supports only IDNA2003, it does not support IDNA2008.
    * However, unless the parameter <code>strictIDNA2003</code> is true, the
    * methods {@link IDN#toASCII(String, int)} resp.
    * {@link IDN#toUnicode(String, int)} are called passing the flag
    * {@link IDN#ALLOW_UNASSIGNED} to avoid that the conversion fails on
    * characters not in the repertoire of Unicode 3.2.
-   * 
+   *
    * @param host
    *          host name to be converted (lowercase expected)
    * @param toAscii
@@ -660,9 +660,9 @@ public class URLUtil {
 
   /**
    * Convert IDN host to ASCII or Unicode using ICU's {@link IDNA} class.
-   * 
+   *
    * The conversion supports IDNA2008 names.
-   * 
+   *
    * @param host
    *          host name to be converted (lowercase expected)
    * @param toAscii
