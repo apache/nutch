@@ -542,18 +542,28 @@ public class URLUtil {
     return true;
   }
 
+  /**
+   * Convert URL with IDN host/domain name into the ASCII representation.
+   * 
+   * @param url
+   *          URL string to convert
+   * @return URL string with ASCII host/domain name or null if conversion fails.
+   */
   public static String toASCII(String url) {
     try {
       URL u = new URL(url);
       String host = u.getHost();
-      if (host == null || host.isEmpty() || isAscii(host)) {
+      String hostLowerCase = host.toLowerCase(Locale.ROOT);
+      if (host == null || host.isEmpty()
+          || (isAscii(host) && host.equals(hostLowerCase))) {
         // - no host name => no punycoded domain name
         // - also do not add additional slashes for file: URLs (NUTCH-1880)
         // - do nothing if host is already ASCII-only
+        // - not already in lowercase => conversion also lowercases host name
         return url;
       }
       URI p = new URI(u.getProtocol(), u.getUserInfo(),
-          convertIDNA2008(u.getHost(), true), u.getPort(), u.getPath(),
+          convertIDNA2008(hostLowerCase, true), u.getPort(), u.getPath(),
           u.getQuery(), u.getRef());
 
       return p.toString();
@@ -562,14 +572,25 @@ public class URLUtil {
     }
   }
 
+  /**
+   * Convert URL with IDN host/domain name to the Unicode representation.
+   * 
+   * @param url
+   *          URL string to convert
+   * @return URL string with Unicode host/domain name or null if conversion
+   *         fails.
+   */
   public static String toUNICODE(String url) {
     try {
       URL u = new URL(url);
       String host = u.getHost();
-      if (host == null || host.isEmpty() || !host.contains("xn--")) {
+      String hostLowerCase = host.toLowerCase(Locale.ROOT);
+      if (host == null || host.isEmpty()
+          || (!hostLowerCase.contains("xn--") && host.equals(hostLowerCase))) {
         // - no host name => no punycoded domain name
         // - also do not add additional slashes for file: URLs (NUTCH-1880)
-        // - ???
+        // - contains 'xn--' => needs conversion
+        // - not already in lowercase => conversion also lowercases host name
         return url;
       }
       StringBuilder sb = new StringBuilder();
@@ -579,7 +600,7 @@ public class URLUtil {
         sb.append(u.getUserInfo());
         sb.append('@');
       }
-      sb.append(convertIDNA2008(u.getHost(), false));
+      sb.append(convertIDNA2008(hostLowerCase, false));
       if (u.getPort() != -1) {
         sb.append(':');
         sb.append(u.getPort());
@@ -608,7 +629,7 @@ public class URLUtil {
    * characters not in the repertoire of Unicode 3.2.
    * 
    * @param host
-   *          host name to be converted
+   *          host name to be converted (lowercase expected)
    * @param toAscii
    *          if true convert to ASCII, otherwise to Unicode
    * @param strictIDNA2003
@@ -643,7 +664,7 @@ public class URLUtil {
    * The conversion supports IDNA2008 names.
    * 
    * @param host
-   *          host name to be converted
+   *          host name to be converted (lowercase expected)
    * @param toAscii
    *          if true convert to ASCII, otherwise to Unicode
    * @return converted host name
