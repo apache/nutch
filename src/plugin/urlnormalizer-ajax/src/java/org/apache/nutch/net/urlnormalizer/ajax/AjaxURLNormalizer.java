@@ -16,19 +16,18 @@
  */
 package org.apache.nutch.net.urlnormalizer.ajax;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.MalformedURLException;
-import java.nio.charset.Charset;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.net.URLNormalizers;
-import org.apache.hadoop.conf.Configuration;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * URLNormalizer capable of dealing with AJAX URL's.
  *
@@ -43,13 +42,11 @@ public class AjaxURLNormalizer implements URLNormalizer {
   public static String ESCAPED_URL_PART = "_escaped_fragment_=";
 
   private Configuration conf;
-  private Charset utf8;
 
   /**
    * Default constructor.
    */
   public AjaxURLNormalizer() {
-    utf8 = Charset.forName("UTF-8");
   }
 
   /**
@@ -195,7 +192,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
     String hex = null;
     StringBuilder sb = new StringBuilder(fragmentPart.length());
 
-    for (byte b : fragmentPart.getBytes(utf8)) {
+    for (byte b : fragmentPart.getBytes(UTF_8)) {
       if (b < 33) {
         sb.append('%');
 

@@ -19,7 +19,6 @@ package org.apache.nutch.net.urlnormalizer.basic;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -77,7 +76,7 @@ public class BasicURLNormalizer implements URLNormalizer {
       .compile("%([0-9A-Fa-f]{2})");
   
   // charset used for encoding URLs before escaping
-  private final static Charset utf8 = StandardCharsets.UTF_8;
+  private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
   /** look-up table for characters which should not be escaped in URL paths */
   private final static boolean[] unescapedCharacters = new boolean[128];
@@ -363,7 +362,7 @@ public class BasicURLNormalizer implements URLNormalizer {
     StringBuilder sb = new StringBuilder(path.length());
 
     // Traverse over all bytes in this URL
-    byte[] bytes = path.getBytes(utf8);
+    byte[] bytes = path.getBytes(UTF_8);
     for (int i = 0; i < bytes.length; i++) {
       byte b = bytes[i];
       // Is this a control character?
@@ -414,8 +413,8 @@ public class BasicURLNormalizer implements URLNormalizer {
     // 1. unescape percent-encoded characters in host name
     if (host.indexOf('%') != -1) {
       try {
-        host = URLDecoder.decode(host, StandardCharsets.UTF_8.toString());
-      } catch (UnsupportedEncodingException | IllegalArgumentException e) {
+        host = URLDecoder.decode(host, UTF_8);
+      } catch (IllegalArgumentException e) {
         LOG.debug("Failed to convert percent-encoded host name {}: ", host, e);
         throw (MalformedURLException) new MalformedURLException(
             "Invalid percent-encoded host name " + host + ": " + e.getMessage())
@@ -462,7 +461,7 @@ public class BasicURLNormalizer implements URLNormalizer {
     }
     String line, normUrl;
     BufferedReader in = new BufferedReader(
-        new InputStreamReader(System.in, utf8));
+        new InputStreamReader(System.in, UTF_8));
     while ((line = in.readLine()) != null) {
       try {
         normUrl = normalizer.normalize(line, scope);

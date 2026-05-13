@@ -18,11 +18,11 @@ package org.apache.nutch.plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -124,10 +124,7 @@ public class PluginManifestParser {
       String path = url.getPath();
       if (WINDOWS && path.startsWith("/")) // patch a windows bug
         path = path.substring(1);
-      try {
-        path = URLDecoder.decode(path, "UTF-8"); // decode the url path
-      } catch (UnsupportedEncodingException e) {
-      }
+      path = URLDecoder.decode(path, StandardCharsets.UTF_8); // decode the url path
       directory = new File(path);
     } else if (!directory.exists()) {
       LOG.warn("Plugins: directory not found: {}", name);
