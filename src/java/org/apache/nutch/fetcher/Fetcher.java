@@ -577,11 +577,11 @@ public class Fetcher extends NutchTool implements Tool {
     } catch (InterruptedException | ClassNotFoundException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
+    } finally {
+      stopWatch.stop();
+      LOG.info("Fetcher: finished, elapsed: {} ms", stopWatch.getTime(
+          TimeUnit.MILLISECONDS));
     }
-
-    stopWatch.stop();
-    LOG.info("Fetcher: finished, elapsed: {} ms", stopWatch.getTime(
-        TimeUnit.MILLISECONDS));
   }
 
   /**

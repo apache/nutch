@@ -500,4 +500,33 @@ public class CrawlDBTestUtil {
     String ct = Files.probeContentType(file);
     return ct != null ? ct : "application/octet-stream";
   }
+  
+  /**
+   * Creates a new JettyServer with one static root context and the provided resource handler.
+   * 
+   * @param port
+   *          port to listen to
+   * @param staticContent
+   *          folder where static content lives
+   * @param resourceHandler 
+   *          resource handler to override the default behavior if needed.
+   * @return configured Jetty server instance
+   * @throws UnknownHostException
+   */
+  @NonNull
+  public static Server getServer(int port, @NonNull String staticContent, ResourceHandler resourceHandler)
+      throws UnknownHostException {
+    Server webServer = new Server();
+
+    ServerConnector listener = new ServerConnector(webServer);
+    listener.setPort(port);
+    listener.setHost("127.0.0.1");
+    webServer.addConnector(listener);
+    ContextHandler staticContext = new ContextHandler();
+    staticContext.setContextPath("/");
+    staticContext.setResourceBase(staticContent);
+    staticContext.insertHandler(resourceHandler);
+    webServer.insertHandler(staticContext);
+    return webServer;
+  }
 }
