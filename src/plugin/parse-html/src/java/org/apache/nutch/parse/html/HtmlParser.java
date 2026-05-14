@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
@@ -64,15 +62,10 @@ public class HtmlParser implements Parser {
   // NUTCH-2042 (cf. TIKA-357): increased to 8 kB
   private static final int CHUNK_SIZE = 8192;
 
-  // NUTCH-1006 Meta equiv with single quotes not accepted
-  private static Pattern metaPattern = Pattern.compile(
-      "<meta\\s+([^>]*http-equiv=(\"|')?content-type(\"|')?[^>]*)>",
-      Pattern.CASE_INSENSITIVE);
-  private static Pattern charsetPattern = Pattern.compile(
-      "charset=\\s*([a-z][_\\-0-9a-z]*)", Pattern.CASE_INSENSITIVE);
-  private static Pattern charsetPatternHTML5 = Pattern.compile(
-      "<meta\\s+charset\\s*=\\s*[\"']?([a-z][_\\-0-9a-z]*)[^>]*>",
-      Pattern.CASE_INSENSITIVE);
+  private static final String META_TAG_START = "<meta";
+  private static final String CHARSET_EQ = "charset=";
+  private static final String HTTP_EQUIV = "http-equiv";
+  private static final String CONTENT_TYPE = "content-type";
 
   private String parserImpl;
 
@@ -93,6 +86,82 @@ public class HtmlParser implements Parser {
    *          <code>byte[]</code> representation of an html file
    */
 
+  /**
+   * Extracts charset value from a string like "charset=utf-8" or "charset = utf-8".
+   * Uses linear scan to avoid ReDoS. Value must start with [a-z] and contain only [a-z0-9_-].
+   */
+  private static String extractCharsetValue(String s, int fromIndex) {
+    int idx = s.indexOf(CHARSET_EQ, fromIndex);
+    if (idx < 0) {
+      return null;
+    }
+    int start = idx + CHARSET_EQ.length();
+    while (start < s.length() && (s.charAt(start) == ' ' || s.charAt(start) == '\t')) {
+      start++;
+    }
+    if (start >= s.length()) {
+      return null;
+    }
+    char first = s.charAt(start);
+    if (first != '"' && first != '\'' && (first < 'a' || first > 'z') && (first < 'A' || first > 'Z')) {
+      return null;
+    }
+    if (first == '"' || first == '\'') {
+      start++;
+    }
+    int end = start;
+    while (end < s.length()) {
+      char c = s.charAt(end);
+      if (c == ' ' || c == '\t' || c == ';' || c == '"' || c == '\'' || c == '>') {
+        break;
+      }
+      if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '-') {
+        end++;
+      } else {
+        break;
+      }
+    }
+    return end > start ? s.substring(start, end) : null;
+  }
+
+  /**
+   * Finds charset from HTML string using linear scans only (no backtracking regex).
+   * Checks meta http-equiv Content-Type then HTML5 meta charset.
+   * Package-private for unit testing.
+   */
+  static String extractCharsetFromMeta(String str) {
+    String lower = str.toLowerCase();
+    int pos = 0;
+    while (true) {
+      int metaStart = lower.indexOf(META_TAG_START, pos);
+      if (metaStart < 0) {
+        break;
+      }
+      int tagEnd = str.indexOf('>', metaStart);
+      if (tagEnd < 0) {
+        break;
+      }
+      String tagContent = str.substring(metaStart, tagEnd);
+      String tagLower = tagContent.toLowerCase();
+      // HTML4: meta http-equiv=Content-Type ... charset=...
+      if (tagLower.contains(HTTP_EQUIV) && tagLower.contains(CONTENT_TYPE)) {
+        String charset = extractCharsetValue(tagContent, 0);
+        if (charset != null) {
+          return charset;
+        }
+      }
+      // HTML5: <meta charset="utf-8">
+      if (tagLower.contains(CHARSET_EQ)) {
+        String charset = extractCharsetValue(tagContent, 0);
+        if (charset != null) {
+          return charset;
+        }
+      }
+      pos = tagEnd + 1;
+    }
+    return null;
+  }
+
   private static String sniffCharacterEncoding(byte[] content) {
     int length = content.length < CHUNK_SIZE ? content.length : CHUNK_SIZE;
 
@@ -102,20 +171,7 @@ public class HtmlParser implements Parser {
     // {U+0041, U+0082, U+00B7}.
     String str = new String(content, 0, length, StandardCharsets.US_ASCII);
 
-    Matcher metaMatcher = metaPattern.matcher(str);
-    String encoding = null;
-    if (metaMatcher.find()) {
-      Matcher charsetMatcher = charsetPattern.matcher(metaMatcher.group(1));
-      if (charsetMatcher.find())
-        encoding = charsetMatcher.group(1);
-    }
-    if (encoding == null) {
-      // check for HTML5 meta charset
-      metaMatcher = charsetPatternHTML5.matcher(str);
-      if (metaMatcher.find()) {
-        encoding = metaMatcher.group(1);
-      }
-    }
+    String encoding = extractCharsetFromMeta(str);
     if (encoding == null) {
       // check for BOM
       if (content.length >= 3 && content[0] == (byte) 0xEF

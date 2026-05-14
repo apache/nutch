@@ -26,8 +26,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.HtmlParseFilter;
@@ -188,13 +186,72 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     return ParseResult.createParseResult(c.getUrl(), new ParseImpl(script, pd));
   }
 
-  private static final Pattern STRING_PATTERN = Pattern.compile(
-      "(\\\\*(?:\"|\'))([^\\s\"\']+?)(?:\\1)",
-      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-  // A simple pattern. This allows also invalid URL characters.
-  private static final Pattern URI_PATTERN = Pattern.compile(
-      "(^|\\s*?)/?\\S+?[/\\.]\\S+($|\\s*)",
-      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+  /**
+   * Extracts content of quoted strings (single or double) from JavaScript.
+   * Uses linear scan to avoid ReDoS. Backslash escapes the next character.
+   * Package-private for unit testing.
+   */
+  static List<String> extractQuotedStrings(String plainText) {
+    List<String> result = new ArrayList<>();
+    int i = 0;
+    while (i < plainText.length()) {
+      char q = 0;
+      int start = -1;
+      if (plainText.charAt(i) == '"' || plainText.charAt(i) == '\'') {
+        q = plainText.charAt(i);
+        start = i + 1;
+      }
+      if (start > 0) {
+        StringBuilder content = new StringBuilder();
+        int j = start;
+        while (j < plainText.length()) {
+          char c = plainText.charAt(j);
+          if (c == '\\') {
+            j++;
+            if (j < plainText.length()) {
+              content.append(plainText.charAt(j));
+              j++;
+            }
+            continue;
+          }
+          if (c == q) {
+            String s = content.toString().trim();
+            if (s.length() > 0) {
+              result.add(s);
+            }
+            i = j + 1;
+            break;
+          }
+          content.append(c);
+          j++;
+        }
+        if (j >= plainText.length()) {
+          i++;
+        }
+      } else {
+        i++;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Checks if the string looks like a URI/path (contains . or /, no internal whitespace).
+   * Linear check to avoid ReDoS. Package-private for unit testing.
+   */
+  static boolean looksLikeUri(String s) {
+    if (s == null) {
+      return false;
+    }
+    s = s.trim();
+    if (s.isEmpty()) {
+      return false;
+    }
+    if (s.indexOf(' ') >= 0 || s.indexOf('\t') >= 0) {
+      return false;
+    }
+    return s.contains(".") || s.contains("/");
+  }
 
   // Alternative pattern, which limits valid url characters.
   // private static final String URI_PATTERN =
@@ -216,14 +273,10 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
 
     try {
 
-      Matcher matcher = STRING_PATTERN.matcher(plainText);
+      List<String> quotedStrings = extractQuotedStrings(plainText);
 
-      String url;
-
-      while (matcher.find()) {
-        url = matcher.group(2);
-        Matcher matcherUri = URI_PATTERN.matcher(url);
-        if (!matcherUri.matches()) {
+      for (String url : quotedStrings) {
+        if (!looksLikeUri(url)) {
           continue;
         }
         if (url.startsWith("www.")) {
