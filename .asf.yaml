@@ -9,8 +9,21 @@ github:
     - hadoop
     - apache
 
+  rulesets:
+    - name: "Default Branch Protection"
+      type: branch
+      branches:
+        includes:
+          - "~DEFAULT_BRANCH"
+          - "release/*"
+          - "rel/*"
+        excludes: []
+      bypass_teams:
+        - root
+      restrict_deletion: true
+      restrict_force_push: true
 notifications:
-  commits:      commits@nutch.apache.org
-  issues:       dev@nutch.apache.org
+  commits: commits@nutch.apache.org
+  issues: dev@nutch.apache.org
   pullrequests: dev@nutch.apache.org
   jira_options: link label comment
