@@ -16,19 +16,17 @@
  */
 package org.apache.nutch.protocol.file;
 
-import java.net.URL;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.protocol.Content;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
-
+import org.apache.nutch.protocol.Content;
 import org.apache.tika.Tika;
-
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * FileResponse.java mimics file replies as http response. It tries its best to
@@ -125,11 +123,8 @@ public class FileResponse {
 
     String path = url.getPath().isEmpty() ? "/" : url.getPath();
 
-    try {
-      // specify the encoding via the config later?
-      path = java.net.URLDecoder.decode(path, "UTF-8");
-    } catch (UnsupportedEncodingException ex) {
-    }
+    // specify the encoding via the config later?
+    path = java.net.URLDecoder.decode(path, StandardCharsets.UTF_8);
 
     try {
 

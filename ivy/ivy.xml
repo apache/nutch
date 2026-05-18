@@ -151,6 +151,14 @@
         <dependency org="org.mockito" name="mockito-core" rev="5.18.0" conf="test->default"/>
         <dependency org="org.mockito" name="mockito-junit-jupiter" rev="5.18.0" conf="test->default"/>
 
+    <!-- Testcontainers for indexer and protocol plugin integration tests -->
+    <dependency org="org.testcontainers" name="testcontainers" rev="2.0.3" conf="test->default"/>
+    <dependency org="org.testcontainers" name="junit-jupiter" rev="1.21.4" conf="test->default"/>
+    <!-- WireMock for HTTP mock server in protocol-httpclient integration tests -->
+    <dependency org="com.github.tomakehurst" name="wiremock-standalone" rev="3.0.1" conf="test->default"/>
+    <!-- MockFtpServer for in-process FTP server in protocol-ftp integration tests -->
+    <dependency org="org.mockftpserver" name="MockFtpServer" rev="3.1.0" conf="test->default"/>
+
 		<!-- Jetty used to serve test pages for unit tests, but is also provided as dependency of Hadoop -->
 		<dependency org="org.eclipse.jetty" name="jetty-server" rev="10.0.25" conf="test->default">
 			<exclude org="ch.qos.reload4j" module="*" />

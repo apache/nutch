@@ -61,4 +61,4 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-ivy-
       - name: Test
-        run: ant clean test -buildfile build.xml
+        run: ant clean test test-protocol-integration -buildfile build.xml

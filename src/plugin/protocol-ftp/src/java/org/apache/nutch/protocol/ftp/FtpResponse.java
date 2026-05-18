@@ -30,6 +30,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.net.InetAddress;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.LinkedList;
 import java.io.ByteArrayOutputStream;
@@ -164,7 +165,8 @@ public class FtpResponse {
           Ftp.LOG.info("connect to {}", addr);
         }
 
-        ftp.client.connect(addr);
+        int port = url.getPort();
+        ftp.client.connect(addr, port > 0 ? port : FTP.DEFAULT_PORT);
         if (!FTPReply.isPositiveCompletion(ftp.client.getReplyCode())) {
           ftp.client.disconnect();
           Ftp.LOG.warn("ftp.client.connect() failed: {} {}", addr,
@@ -206,6 +208,11 @@ public class FtpResponse {
         try {
           ftp.parser = null;
           String parserKey = ftp.client.getSystemName();
+          // strip surrounding quotes that some servers include in SYST reply
+          if (parserKey.length() > 2 && parserKey.charAt(0) == '"'
+              && parserKey.charAt(parserKey.length() - 1) == '"') {
+            parserKey = parserKey.substring(1, parserKey.length() - 1);
+          }
           // some server reports as UNKNOWN Type: L8, but in fact UNIX Type: L8
           if (parserKey.startsWith("UNKNOWN Type: L8"))
             parserKey = "UNIX Type: L8";
@@ -239,7 +246,7 @@ public class FtpResponse {
 
       this.content = null;
       
-      path = java.net.URLDecoder.decode(path, "UTF-8");
+      path = java.net.URLDecoder.decode(path, StandardCharsets.UTF_8);
 
       if (path.endsWith("/")) {
         getDirAsHttpResponse(path, datum.getModifiedTime());
@@ -301,6 +308,11 @@ public class FtpResponse {
       // first get its possible attributes
       list = new LinkedList<FTPFile>();
       ftp.client.retrieveList(path, list, ftp.maxContentLength, ftp.parser);
+
+      if (list.isEmpty()) {
+        this.code = 404; // file not found (server returned empty listing)
+        return;
+      }
 
       FTPFile ftpFile = (FTPFile) list.get(0);
       this.headers.set(Response.CONTENT_LENGTH,
