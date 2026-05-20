@@ -71,7 +71,7 @@ public class OkHttpResponse implements Response {
   public OkHttpResponse(OkHttp okhttp, URL url, CrawlDatum datum)
       throws ProtocolException, IOException {
 
-    this.url = url;
+    this.url = url;  // provisional; overwritten below with the normalized form
 
     Request.Builder rb = new Request.Builder().url(url);
 
@@ -102,7 +102,14 @@ public class OkHttpResponse implements Response {
     }
 
     Request request = rb.build();
-    okhttp3.Call call = okhttp.getClient(url).newCall(request);
+
+    // OkHttp parsed the URL via HttpUrl; that's the form actually going on
+    // the wire (IDN→punycode, repeated-slash repair, host lowercasing).
+    this.url = request.url().url();
+    if (LOG.isDebugEnabled() && !this.url.toString().equals(url.toString())) {
+       LOG.debug("The normalized URL different from the requested URL: {} -> {}", url, this.url);
+    }
+    okhttp3.Call call = okhttp.getClient(this.url).newCall(request);
 
     // ensure that Response and underlying ResponseBody are closed
     try (okhttp3.Response response = call.execute()) {
