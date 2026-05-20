@@ -309,6 +309,11 @@ public class HttpResponse implements Response {
   }
 
   @Override
+  public URL getRawUrl() {
+    return url;  // htmlunit does not transform URLs; raw equals effective
+  }
+
+  @Override
   public int getCode() {
     return code;
   }

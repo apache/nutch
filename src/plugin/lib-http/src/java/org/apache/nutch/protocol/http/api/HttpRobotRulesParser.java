@@ -171,7 +171,8 @@ public class HttpRobotRulesParser extends RobotRulesParser {
             LOG.debug("Following robots.txt redirect: {} -> {}", robotsUrlRedir,
                 redirectionLocation);
             try {
-              robotsUrlRedir = new URL(robotsUrlRedir, redirectionLocation);
+              robotsUrlRedir = ((HttpBase) http).resolveUrl(robotsUrlRedir,
+                  redirectionLocation);
             } catch (MalformedURLException e) {
               LOG.info(
                   "Failed to resolve redirect location for robots.txt: {} -> {} ({})",

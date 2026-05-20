@@ -46,6 +46,7 @@ import org.apache.hadoop.io.Text;
 public class HttpResponse implements Response {
 
   private URL url;
+  private URL rawUrl;
   private byte[] content;
   private int code;
   private Metadata headers = new SpellCheckedMetadata();
@@ -71,6 +72,7 @@ public class HttpResponse implements Response {
 
     // Prepare GET method for HTTP request
     this.url = url;
+    this.rawUrl = url;
     GetMethod get = new GetMethod(url.toString());
     get.setFollowRedirects(followRedirects);
     get.setDoAuthentication(true);
@@ -120,6 +122,18 @@ public class HttpResponse implements Response {
       HttpClient client = Http.getClient();
       client.getParams().setParameter("http.useragent", http.getUserAgent()); // NUTCH-1941
       code = client.executeMethod(get);
+
+      // When followRedirects=true HC3 walks the redirect chain internally;
+      // getURI() returns the final URI. Capture it so getUrl() honors the
+      // contract — without this, robots.txt redirects via this plugin
+      // report the original URL even though a different URL was fetched.
+      try {
+        this.url = new URL(get.getURI().toString());
+      } catch (org.apache.commons.httpclient.URIException
+          | java.net.MalformedURLException e) {
+        // Keep the input URL — a parsing quirk shouldn't void a fetch
+        // that already succeeded.
+      }
 
       Header[] heads = get.getResponseHeaders();
 
@@ -212,6 +226,11 @@ public class HttpResponse implements Response {
   @Override
   public URL getUrl() {
     return url;
+  }
+
+  @Override
+  public URL getRawUrl() {
+    return rawUrl;
   }
 
   @Override

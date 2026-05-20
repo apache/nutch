@@ -354,6 +354,11 @@ public class HttpResponse implements Response {
   }
 
   @Override
+  public URL getRawUrl() {
+    return url;  // raw-socket plugin does not transform; raw equals effective
+  }
+
+  @Override
   public int getCode() {
     return code;
   }

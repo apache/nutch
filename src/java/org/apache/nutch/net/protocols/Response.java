@@ -85,10 +85,25 @@ public interface Response extends HttpHeaders {
   };
 
   /**
-   * Get the URL used to retrieve this response.
+   * Get the URL the protocol actually used to retrieve this response.
+   * May differ from the URL passed to {@code getResponse(...)} if the protocol
+   * library normalized or transformed it (e.g. IDN→punycode via OkHttp's
+   * HttpUrl, or post-redirect URI from Commons HttpClient when
+   * followRedirects=true). For the originally-requested URL see
+   * {@link #getRawUrl()}.
    * @return {@link java.net.URL}
    */
   public URL getUrl();
+
+  /**
+   * Get the URL the caller originally requested, verbatim, as passed to
+   * {@code getResponse(...)}. Implementers that do not transform URLs may
+   * simply return {@link #getUrl()} — but they must say so explicitly, so
+   * that any future plugin which does transform is forced by the compiler
+   * to consider what raw means for it.
+   * @return {@link java.net.URL}
+   */
+  public URL getRawUrl();
 
   /**
    * Get the response code.

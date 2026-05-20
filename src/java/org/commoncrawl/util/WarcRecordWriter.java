@@ -556,7 +556,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     try {
       targetUri = new URI(url);
     } catch (URISyntaxException e) {
-      if (value.datum != null
+      if (value.datum != null // not a robots.txt
           && value.datum.getStatus() == CrawlDatum.STATUS_FETCH_SUCCESS) {
         // if a successful capture, try to normalize the URL
         String urlNorm = null;

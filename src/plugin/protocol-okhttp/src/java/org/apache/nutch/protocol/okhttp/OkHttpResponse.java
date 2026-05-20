@@ -44,6 +44,7 @@ public class OkHttpResponse implements Response {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   private URL url;
+  private URL rawUrl;
   private byte[] content;
   private int code;
   private Metadata headers = new Metadata();
@@ -72,7 +73,8 @@ public class OkHttpResponse implements Response {
   public OkHttpResponse(OkHttp okhttp, URL url, CrawlDatum datum)
       throws ProtocolException, IOException {
 
-    this.url = url;
+    this.url = url;  // provisional; overwritten below with the normalized form
+    this.rawUrl = url;
 
     Request.Builder rb = new Request.Builder().url(url);
 
@@ -103,7 +105,11 @@ public class OkHttpResponse implements Response {
     }
 
     Request request = rb.build();
-    okhttp3.Call call = okhttp.getClient(url).newCall(request);
+
+    // OkHttp parsed the URL via HttpUrl; that's the form actually going on
+    // the wire (IDN→punycode, repeated-slash repair, host lowercasing).
+    this.url = request.url().url();
+    okhttp3.Call call = okhttp.getClient(this.url).newCall(request);
 
     // ensure that Response and underlying ResponseBody are closed
     try (okhttp3.Response response = call.execute()) {
@@ -231,6 +237,11 @@ public class OkHttpResponse implements Response {
   @Override
   public URL getUrl() {
     return this.url;
+  }
+
+  @Override
+  public URL getRawUrl() {
+    return this.rawUrl;
   }
 
   @Override
