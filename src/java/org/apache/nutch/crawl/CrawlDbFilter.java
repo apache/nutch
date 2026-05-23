@@ -18,6 +18,7 @@ package org.apache.nutch.crawl;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,9 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.NutchMetrics;
+import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 
@@ -56,6 +59,8 @@ public class CrawlDbFilter extends
   private Counter orphanRecordsRemovedCounter;
   private Counter urlsFilteredCounter;
 
+  private ErrorTracker errorTracker;
+
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
@@ -77,6 +82,9 @@ public class CrawlDbFilter extends
     
     // Initialize cached counter references
     initCounters(context);
+
+    // Initialize error tracker with cached counters (NUTCH-3164)
+    errorTracker = new ErrorTracker(NutchMetrics.GROUP_CRAWLDB_FILTER, context);
   }
 
   /**
@@ -114,17 +122,32 @@ public class CrawlDbFilter extends
     if (url != null && urlNormalizers) {
       try {
         url = normalizers.normalize(url, scope); // normalize the url
-      } catch (Exception e) {
-        LOG.warn("Skipping {}: ", url, e);
-        url = null;
+      } catch (MalformedURLException e) {
+        // NUTCH-3164: malformed URL is a legitimate reason to drop; tracked via
+        // ErrorTracker, not urlsFilteredCounter (which conflates filtering with
+        // malformed input).
+        LOG.error("Skipping malformed URL {}: {}", url, e.getMessage());
+        errorTracker.incrementCounters(e);
+        return;
+      } catch (RuntimeException e) {
+        // NUTCH-3164: a normalizer plugin bug must not silently delete URLs.
+        LOG.error("Unexpected exception normalizing {}, keeping URL: ", url, e);
+        errorTracker.incrementCounters(e);
       }
     }
     if (url != null && urlFiltering) {
       try {
         url = filters.filter(url); // filter the url
-      } catch (Exception e) {
-        LOG.warn("Skipping {}: ", url, e);
-        url = null;
+      } catch (URLFilterException e) {
+        // NUTCH-3164: URLFilterException signals an internal filter failure,
+        // not URL rejection (rejection is communicated by returning null).
+        // Track via ErrorTracker; do not drop the URL.
+        LOG.error("Filter error for {}, keeping URL: {}", url, e.getMessage());
+        errorTracker.incrementCounters(e);
+      } catch (RuntimeException e) {
+        // NUTCH-3164: a filter plugin bug must not silently delete URLs.
+        LOG.error("Unexpected exception filtering {}, keeping URL: ", url, e);
+        errorTracker.incrementCounters(e);
       }
     }
     if (url == null) {
