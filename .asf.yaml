@@ -17,9 +17,20 @@ github:
           - "~DEFAULT_BRANCH"
           - "release/*"
           - "rel/*"
+          - "branch-*.*"
+          - "branch-*.*.*"
         excludes: []
       bypass_teams:
         - root
+      restrict_deletion: true
+      restrict_force_push: true
+    - name: "Protect release tags"
+      type: tag
+      branches:
+        includes:
+          - "release-*.*"
+          - "release-*.*.*"
+        excludes: []
       restrict_deletion: true
       restrict_force_push: true
 notifications:
