@@ -676,20 +676,22 @@ public class URLUtil {
       throws MalformedURLException {
     final IDNA.Info idnaInfo = new IDNA.Info();
     final StringBuilder hostConverted = new StringBuilder();
-      try {
-    if (toAscii) {
-      idna.nameToASCII(host, hostConverted, idnaInfo);
-    } else {
-      idna.nameToUnicode(host, hostConverted, idnaInfo);
+    try {
+      if (toAscii) {
+        idna.nameToASCII(host, hostConverted, idnaInfo);
+      } else {
+        idna.nameToUnicode(host, hostConverted, idnaInfo);
+      }
+    } catch (ICUException | IllegalArgumentException | IllegalStateException e) {
+      // ICU's UTS46 + Punycode conversion throws these unchecked exceptions:
+      // ICUException (incl. ICUInputTooLongException from Punycode.encode on an
+      // over-long label), IllegalArgumentException (UTS46), IllegalStateException
+      // (Punycode). Convert to MalformedURLException so callers (e.g.
+      // BasicURLNormalizer) reject the URL instead of crashing the task.
+      LOG.debug("Failed to convert IDN host {}: ", host, e);
+      throw (MalformedURLException) new MalformedURLException(
+          "Invalid IDN host " + host + ": " + e.getMessage()).initCause(e);
     }
-  } catch (ICUException | IndexOutOfBoundsException e) {
-    // ICUInputTooLongException (from Punycode.encode on an over-long label) and
-    // other hard ICU failures are unchecked; convert to MalformedURLException so
-    // callers (e.g. BasicURLNormalizer) reject the URL instead of crashing the task.
-    LOG.debug("Failed to convert IDN host {}: ", host, e);
-    throw (MalformedURLException) new MalformedURLException(
-        "Invalid IDN host " + host + ": " + e.getMessage()).initCause(e);
-  }
 
     if (idnaInfo.hasErrors()) {
       StringBuilder msg = new StringBuilder();
