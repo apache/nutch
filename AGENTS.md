@@ -7,11 +7,13 @@ consult before producing output.
 
 ## Security
 
-Security model: [SECURITY.md](./SECURITY.md), which links to
-the canonical model document at
-<https://nutch.apache.org/documentation/security/#security-model>.
+Security model: [SECURITY.md](./SECURITY.md) -> [THREAT_MODEL.md](./THREAT_MODEL.md)
+(the project's full threat model, a superset of the website security model at
+<https://nutch.apache.org/documentation/security/#security-model>).
 
-Agents that scan this repository should consult the linked
-security model for the project's threat model, in-scope /
-out-of-scope declarations, and known non-findings before
-reporting issues.
+Agents that scan this repository should consult `THREAT_MODEL.md` for the
+project's in-scope / out-of-scope declarations, the security properties it
+provides and disclaims, and the known non-findings (recurring false positives)
+before reporting issues. Note: Apache Nutch fetches and parses untrusted web
+content by design — that is the crawler's function, not a vulnerability; see
+`THREAT_MODEL.md` §3, §9, and §11a.
