@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.protocol;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -40,6 +41,18 @@ public interface Protocol extends Pluggable, Configurable {
    */
   ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum);
 
+/**
+   * Resolve a relative URL against a base URL using the protocol's URL
+   * library.
+   *
+   * @param base the base URL the relative URL is resolved against
+   * @param relative the relative URL string (typically a Location: header value)
+   * @return resolved absolute URL
+   * @throws MalformedURLException if the URL is malformed
+   */
+  default URL resolveUrl(URL base, String relative) throws MalformedURLException {
+    return new URL(base, relative);
+  }
   /**
    * Retrieve robot rules applicable for this URL.
    *

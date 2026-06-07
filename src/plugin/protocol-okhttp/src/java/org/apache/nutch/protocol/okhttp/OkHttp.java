@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
@@ -58,6 +59,7 @@ import okhttp3.ConnectionPool;
 import okhttp3.Gzip;
 import okhttp3.Handshake;
 import okhttp3.Headers;
+import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
@@ -434,6 +436,22 @@ public class OkHttp extends HttpBase {
   protected Response getResponse(URL url, CrawlDatum datum, boolean redirect)
       throws ProtocolException, IOException {
     return new OkHttpResponse(this, url, datum);
+  }
+
+  /**
+   * Resolve a relative URL using OkHttp's {@link HttpUrl} parser, which is
+   * more lenient than Java's {@link URL} (handles malformed protocol-relative
+   * slashes such as {@code https:////host/path}, IDN→punycode, host case
+   * normalization, etc.). Falls back to Java URL if HttpUrl cannot parse.
+   */
+  @Override
+  public URL resolveUrl(URL base, String relative) throws MalformedURLException {
+    HttpUrl baseHttpUrl = HttpUrl.get(base);
+    HttpUrl resolved = baseHttpUrl.resolve(relative);
+    if (resolved != null) {
+      return resolved.url();
+    }
+    return super.resolveUrl(base, relative);
   }
 
   public static void main(String[] args) throws Exception {
