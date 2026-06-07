@@ -17,9 +17,9 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +34,6 @@ import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.mapreduce.CounterGroup;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -70,7 +69,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
   protected final static Text urlKey = new Text("_URLTEMPKEY_");
   protected final static String DEDUPLICATION_GROUP_MODE = "deduplication.group.mode";
   protected final static String DEDUPLICATION_COMPARE_ORDER = "deduplication.compare.order";
-  protected final static String UTF_8 = StandardCharsets.UTF_8.toString();
+  protected final static Charset UTF_8 = StandardCharsets.UTF_8;
 
   public static class DBFilter extends
       Mapper<Text, CrawlDatum, BytesWritable, CrawlDatum> {
@@ -224,13 +223,13 @@ public class DeduplicationJob extends NutchTool implements Tool {
           String urlnewDoc = newDoc.getMetaData().get(urlKey).toString();
           try {
             urlExisting = URLDecoder.decode(urlExisting, UTF_8);
-          } catch (UnsupportedEncodingException | IllegalArgumentException e) {
+          } catch (IllegalArgumentException e) {
             LOG.error("Error decoding: {}", urlExisting, e);
             // use the encoded URL
           }
           try {
             urlnewDoc = URLDecoder.decode(urlnewDoc, UTF_8);
-          } catch (UnsupportedEncodingException | IllegalArgumentException e) {
+          } catch (IllegalArgumentException e) {
             LOG.error("Error decoding: {}", urlnewDoc, e);
             // use the encoded URL
           }

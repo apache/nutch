@@ -1557,6 +1557,17 @@
 </property>
 
 <property>
+  <name>urlnormalizer.basic.host.idna2008</name>
+  <value>false</value>
+  <description>If true, let urlnormalizer-basic
+  normalize Internationalized Domain Names (IDNs) using the
+  standard IDNA2008 (RFC 5890). If false, use IDNA2003 (RFC 3490).
+  Note that urlnormalizer.basic.host.idn must be set, otherwise
+  this property has no effect.
+  </description>
+</property>
+
+<property>
   <name>urlnormalizer.basic.host.trim-trailing-dot</name>
   <value>false</value>
   <description>urlnormalizer-basic: Trim a trailing dot in host names:
