@@ -682,12 +682,12 @@ public class URLUtil {
       } else {
         idna.nameToUnicode(host, hostConverted, idnaInfo);
       }
-    } catch (ICUException | IllegalArgumentException | IllegalStateException e) {
+    } catch (ICUException | IllegalStateException  e) {
       // ICU's UTS46 + Punycode conversion throws these unchecked exceptions:
       // ICUException (incl. ICUInputTooLongException from Punycode.encode on an
-      // over-long label), IllegalArgumentException (UTS46), IllegalStateException
-      // (Punycode). Convert to MalformedURLException so callers (e.g.
-      // BasicURLNormalizer) reject the URL instead of crashing the task.
+      // over-long label), IllegalStateException (Punycode).
+      // Convert to MalformedURLException so callers (e.g. BasicURLNormalizer)
+      // reject the URL instead of crashing the task.
       LOG.debug("Failed to convert IDN host {}: ", host, e);
       throw (MalformedURLException) new MalformedURLException(
           "Invalid IDN host " + host + ": " + e.getMessage()).initCause(e);
