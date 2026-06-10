@@ -653,7 +653,6 @@ public class URLUtil {
       // IndexOutOfBoundsException: thrown (undocumented) if one "label"
       // (non-ASCII dot-separated segment) is longer than 256 characters,
       // cf. https://bugs.openjdk.java.net/browse/JDK-6806873
-      LOG.debug("Failed to convert IDN host {}: ", host, e);
       throw (MalformedURLException) new MalformedURLException(
           "Invalid IDN " + host + ": " + e.getMessage()).initCause(e);
     }
