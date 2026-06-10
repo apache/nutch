@@ -118,6 +118,7 @@
     <!-- Required for JUnit 6 (Jupiter) test execution -->
     <dependency org="org.junit.jupiter" name="junit-jupiter-engine" rev="6.0.3" conf="test->default"/>
     <dependency org="org.junit.jupiter" name="junit-jupiter-api" rev="6.0.3" conf="test->default"/>
+    <dependency org="org.junit.jupiter" name="junit-jupiter-params" rev="6.0.3" conf="test->default"/>
     <!-- Mockito for mocking in tests -->
     <dependency org="org.mockito" name="mockito-core" rev="5.18.0" conf="test->default"/>
     <dependency org="org.mockito" name="mockito-junit-jupiter" rev="5.18.0" conf="test->default"/>

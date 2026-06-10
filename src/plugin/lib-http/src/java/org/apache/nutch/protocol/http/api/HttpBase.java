@@ -223,6 +223,12 @@ public abstract class HttpBase implements Protocol {
     this.timeout = conf.getInt("http.timeout", 10000);
     this.maxContent = conf.getInt("http.content.limit", 1024 * 1024);
     this.maxDuration = conf.getInt("http.time.limit", -1);
+    if (maxDuration >= 0 && (maxDuration * 1000) < timeout) {
+      LOG.warn(
+          "The configuration property http.time.limit ({} seconds) is less than http.timeout ({} ms), "
+              + "the entire request will time out before individual reads are timed out.",
+          maxDuration, timeout);
+    }
     this.partialAsTruncated = conf.getBoolean("http.partial.truncated", false);
     this.userAgent = getAgentString(conf.get("http.agent.name"),
         conf.get("http.agent.version"), conf.get("http.agent.description"),
@@ -272,8 +278,8 @@ public abstract class HttpBase implements Protocol {
         }
 
       } catch (Exception e) {
-        this.logger.warn("Failed to read http.agent.rotate.file {}: {}", agentsFile,
-            StringUtils.stringifyException(e));
+        this.logger.warn("Failed to read http.agent.rotate.file {}:",
+            agentsFile, e);
         this.userAgentNames = null;
       } finally {
         if (br != null) {
@@ -314,8 +320,8 @@ public abstract class HttpBase implements Protocol {
           }
         }
       } catch (Exception e) {
-        this.logger.warn("Failed to read http.agent.host.cookie.file {}: {}",
-            cookieFile, StringUtils.stringifyException(e));
+        this.logger.warn("Failed to read http.agent.host.cookie.file {}:",
+            cookieFile, e);
         this.hostCookies = null;
       } finally {
         if (br != null) {
@@ -614,8 +620,9 @@ public abstract class HttpBase implements Protocol {
       this.logger.info("http.proxy.host = {}", this.proxyHost);
       this.logger.info("http.proxy.port = {}", this.proxyPort);
       this.logger.info("http.proxy.exception.list = {}", this.useProxy);
-      this.logger.info("http.timeout = {}", this.timeout);
-      this.logger.info("http.content.limit = {}", this.maxContent);
+      this.logger.info("http.timeout = {} ms", this.timeout);
+      this.logger.info("http.time.limit = {} seconds", this.maxDuration);
+      this.logger.info("http.content.limit = {} bytes", this.maxContent);
       this.logger.info("http.agent = {}", this.userAgent);
       this.logger.info("http.accept.language = {}", this.acceptLanguage);
       this.logger.info("http.accept = {}", this.accept);

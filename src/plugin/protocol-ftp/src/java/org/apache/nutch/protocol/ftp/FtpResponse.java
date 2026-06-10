@@ -30,6 +30,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.net.InetAddress;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.LinkedList;
 import java.io.ByteArrayOutputStream;
@@ -245,7 +246,7 @@ public class FtpResponse {
 
       this.content = null;
       
-      path = java.net.URLDecoder.decode(path, "UTF-8");
+      path = java.net.URLDecoder.decode(path, StandardCharsets.UTF_8);
 
       if (path.endsWith("/")) {
         getDirAsHttpResponse(path, datum.getModifiedTime());

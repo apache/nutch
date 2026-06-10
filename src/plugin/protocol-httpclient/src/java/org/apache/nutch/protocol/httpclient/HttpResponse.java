@@ -121,6 +121,17 @@ public class HttpResponse implements Response {
       client.getParams().setParameter("http.useragent", http.getUserAgent()); // NUTCH-1941
       code = client.executeMethod(get);
 
+      // When followRedirects=true HC3 walks the redirect chain internally;
+      // getURI() returns the final URI. Capture it so getUrl() honors the
+      // contract — without this, robots.txt redirects via this plugin
+      // report the original URL even though a different URL was fetched.
+      try {
+        this.url = new URL(get.getURI().toString());
+      } catch (org.apache.commons.httpclient.URIException
+          | java.net.MalformedURLException e) {
+        // Keep the input URL or try to normalize it?
+      }
+
       Header[] heads = get.getResponseHeaders();
 
       for (int i = 0; i < heads.length; i++) {
