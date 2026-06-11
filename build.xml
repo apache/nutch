@@ -1168,10 +1168,10 @@
   <!-- Policeman's Forbidden API checker                                  -->
   <!-- https://github.com/policeman-tools/forbidden-apis/wiki/AntUsage    -->
   <!-- ================================================================== -->
-  <ivy:cachepath organisation="de.thetaphi" module="forbiddenapis" revision="${forbiddenapis.version}"
-                 inline="true" pathid="forbiddenapis.classpath"/>
-  <taskdef uri="antlib:de.thetaphi.forbiddenapis" classpathref="forbiddenapis.classpath"/>
   <target name="forbidden-api-checks" depends="compile, resolve-test">
+    <ivy:cachepath organisation="de.thetaphi" module="forbiddenapis" revision="${forbiddenapis.version}"
+                   inline="true" pathid="forbiddenapis.classpath"/>
+    <taskdef uri="antlib:de.thetaphi.forbiddenapis" classpathref="forbiddenapis.classpath"/>
     <fa:forbiddenapis classpathref="classpath" dir="${build.dir}" targetVersion="${javac.version}">
       <bundledsignatures name="jdk-unsafe"/>
       <bundledsignatures name="jdk-deprecated"/>
