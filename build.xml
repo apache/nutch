@@ -1171,7 +1171,14 @@
     <ivy:cachepath organisation="de.thetaphi" module="forbiddenapis" revision="${forbiddenapis.version}"
                    inline="true" pathid="forbiddenapis.classpath"/>
     <taskdef uri="antlib:de.thetaphi.forbiddenapis" classpathref="forbiddenapis.classpath"/>
-    <fa:forbiddenapis classpathref="classpath" dir="${build.dir}" targetVersion="${javac.version}">
+    <path id="classpath.core-and-plugins">
+      <path refid="classpath"/>
+      <fileset dir="${basedir}/${build.dir}/plugins">
+        <include name="**/*.jar"/>
+      </fileset>
+    </path>
+    <fa:forbiddenapis classpathref="classpath.core-and-plugins"
+                      dir="${build.dir}" targetVersion="${javac.version}">
       <bundledsignatures name="jdk-unsafe"/>
       <bundledsignatures name="jdk-deprecated"/>
       <bundledsignatures name="jdk-non-portable"/>
