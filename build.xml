@@ -1168,14 +1168,22 @@
   <!-- Policeman's Forbidden API checker                                  -->
   <!-- https://github.com/policeman-tools/forbidden-apis/wiki/AntUsage    -->
   <!-- ================================================================== -->
-  <target name="forbidden-api-checks" depends="compile, resolve-test">
+  <target name="forbidden-api-checks" depends="compile, compile-core-test, test-plugins">
+    <!-- Depends on test-plugins, in order to compile also the plugin test classes. -->
     <ivy:cachepath organisation="de.thetaphi" module="forbiddenapis" revision="${forbiddenapis.version}"
                    inline="true" pathid="forbiddenapis.classpath"/>
     <taskdef uri="antlib:de.thetaphi.forbiddenapis" classpathref="forbiddenapis.classpath"/>
     <path id="classpath.core-and-plugins">
       <path refid="classpath"/>
+      <pathelement location="${test.build.classes}" />
+      <fileset dir="${test.build.lib.dir}">
+        <include name="*.jar" />
+      </fileset>
       <fileset dir="${basedir}/${build.dir}/plugins">
         <include name="**/*.jar"/>
+      </fileset>
+      <fileset dir="${basedir}/${build.dir}">
+        <include name="**/test/lib/*.jar"/>
       </fileset>
     </path>
     <fa:forbiddenapis classpathref="classpath.core-and-plugins"
@@ -1183,7 +1191,6 @@
       <bundledsignatures name="jdk-unsafe"/>
       <bundledsignatures name="jdk-deprecated"/>
       <bundledsignatures name="jdk-non-portable"/>
-      <bundledsignatures name="jdk-reflection"/>
       <signaturesFileset file="src/testresources/forbidden-apis-signatures.txt"/>
     </fa:forbiddenapis>
   </target>
