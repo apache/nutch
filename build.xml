@@ -476,6 +476,7 @@
     </copy>
     <copy file="${test.src.dir}/log4j.properties" todir="${test.build.classes}"/>
     <copy file="${test.src.dir}/crawl-tests.xml" todir="${test.build.classes}"/>
+    <copy file="${test.src.dir}/host-protocol-mapping.txt" todir="${test.build.classes}"/>
     <copy file="${test.src.dir}/filter-all.txt" todir="${test.build.classes}"/>
     <junitlauncher printSummary="true" haltOnFailure="true" failureProperty="tests.failed">
       <classpath refid="test.classpath"/>
