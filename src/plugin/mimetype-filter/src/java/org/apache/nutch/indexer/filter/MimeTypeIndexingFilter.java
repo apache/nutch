@@ -16,53 +16,46 @@
  */
 package org.apache.nutch.indexer.filter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
 import org.apache.commons.cli.UnrecognizedOptionException;
-
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-
+import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
-
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
-
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
-
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
-
-import org.apache.nutch.metadata.Metadata;
-
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.PrefixStringMatcher;
 import org.apache.nutch.util.TrieStringMatcher;
 import org.apache.tika.Tika;
-
-import java.lang.invoke.MethodHandles;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An {@link org.apache.nutch.indexer.IndexingFilter} that allows filtering
@@ -139,9 +132,8 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
 
     if (file != null) {
       if (file.isEmpty()) {
-        LOG.warn(String
-            .format("Missing %s property, ALL mimetypes will be allowed",
-                MIMEFILTER_REGEX_FILE));
+        LOG.warn("Missing {} property, ALL mimetypes will be allowed",
+            MIMEFILTER_REGEX_FILE);
       } else {
         Reader reader = conf.getConfResourceAsReader(file);
 
@@ -240,7 +232,8 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
     conf.set(MimeTypeIndexingFilter.MIMEFILTER_REGEX_FILE, rulesFile);
     filter.setConf(conf);
 
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader in = new BufferedReader(
+        new InputStreamReader(System.in, StandardCharsets.UTF_8));
     String line;
 
     while ((line = in.readLine()) != null && !line.isEmpty()) {

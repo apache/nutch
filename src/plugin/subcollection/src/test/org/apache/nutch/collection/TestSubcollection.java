@@ -18,6 +18,7 @@ package org.apache.nutch.collection;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 import org.apache.nutch.util.NutchConfiguration;
@@ -30,7 +31,7 @@ public class TestSubcollection {
 
   /**
    * Test filtering logic
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -70,7 +71,8 @@ public class TestSubcollection {
     xml.append("</subcollection>");
     xml.append("</subcollections>");
 
-    InputStream is = new ByteArrayInputStream(xml.toString().getBytes());
+    InputStream is = new ByteArrayInputStream(
+        xml.toString().getBytes(StandardCharsets.UTF_8));
 
     CollectionManager cm = new CollectionManager();
     cm.parse(is);
@@ -91,10 +93,10 @@ public class TestSubcollection {
     // test whitelist
     assertEquals(2, collection.whiteList.size());
 
-    String wlUrl = (String) collection.whiteList.get(0);
+    String wlUrl = collection.whiteList.get(0);
     assertEquals("http://lucene.apache.org/nutch/", wlUrl);
 
-    wlUrl = (String) collection.whiteList.get(1);
+    wlUrl = collection.whiteList.get(1);
     assertEquals("http://wiki.apache.org/nutch/", wlUrl);
 
     // matches whitelist
@@ -104,7 +106,7 @@ public class TestSubcollection {
     // test blacklist
     assertEquals(1, collection.blackList.size());
 
-    String blUrl = (String) collection.blackList.get(0);
+    String blUrl = collection.blackList.get(0);
     assertEquals("http://www.xxx.yyy", blUrl);
 
     // no match

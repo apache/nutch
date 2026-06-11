@@ -16,12 +16,14 @@
  */
 package org.apache.nutch.protocol.http.api;
 
+import java.util.Locale;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
 import crawlercommons.robots.BaseRobotRules;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -114,16 +116,16 @@ public class TestRobotRulesParser {
    */
   @Test
   public void testRobotsAgent() {
-    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
-        CONTENT_TYPE, Set.of(SINGLE_AGENT1.toLowerCase()));
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(UTF_8),
+        CONTENT_TYPE, Set.of(SINGLE_AGENT1.toLowerCase(Locale.ROOT)));
     testRulesOnPaths(SINGLE_AGENT1, TEST_PATHS, RESULTS_AGENT1);
 
-    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
-        CONTENT_TYPE, Set.of(SINGLE_AGENT2.toLowerCase()));
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(UTF_8),
+        CONTENT_TYPE, Set.of(SINGLE_AGENT2.toLowerCase(Locale.ROOT)));
     testRulesOnPaths(SINGLE_AGENT2, TEST_PATHS, RESULTS_AGENT2);
 
-    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
-        CONTENT_TYPE, Set.of(MULTIPLE_AGENTS.toLowerCase().split("\\s*,\\s*")));
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(UTF_8),
+        CONTENT_TYPE, Set.of(MULTIPLE_AGENTS.toLowerCase(Locale.ROOT).split("\\s*,\\s*")));
     testRulesOnPaths(MULTIPLE_AGENTS, TEST_PATHS, RESULTS_AGENT1_AND_AGENT2);
   }
 
@@ -136,21 +138,21 @@ public class TestRobotRulesParser {
   public void testCrawlDelay() {
     // for SINGLE_AGENT1, the crawl delay of 10 seconds, i.e. 10000 msec must be
     // returned by the parser
-    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
-        CONTENT_TYPE, Set.of(SINGLE_AGENT1.toLowerCase()));
+    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(UTF_8),
+        CONTENT_TYPE, Set.of(SINGLE_AGENT1.toLowerCase(Locale.ROOT)));
     assertTrue((rules.getCrawlDelay() == 10000),
         "testing crawl delay for agent " + SINGLE_AGENT1 + " : ");
 
     // for SINGLE_AGENT2, the crawl delay of 20 seconds, i.e. 20000 msec must be
     // returned by the parser
-    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
-        CONTENT_TYPE, Set.of(SINGLE_AGENT2.toLowerCase()));
+    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(UTF_8),
+        CONTENT_TYPE, Set.of(SINGLE_AGENT2.toLowerCase(Locale.ROOT)));
     assertTrue((rules.getCrawlDelay() == 20000),
         "testing crawl delay for agent " + SINGLE_AGENT2 + " : ");
 
     // for UNKNOWN_AGENT, the default crawl delay must be returned.
-    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
-        CONTENT_TYPE, Set.of(UNKNOWN_AGENT.toLowerCase()));
+    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(UTF_8),
+        CONTENT_TYPE, Set.of(UNKNOWN_AGENT.toLowerCase(Locale.ROOT)));
     assertTrue((rules.getCrawlDelay() == Long.MIN_VALUE),
         "testing crawl delay for agent " + UNKNOWN_AGENT + " : ");
   }
@@ -162,15 +164,15 @@ public class TestRobotRulesParser {
   @Deprecated
   @Test
   public void testRobotsAgentDeprecatedAPIMethod() {
-    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(UTF_8),
         CONTENT_TYPE, SINGLE_AGENT1);
     testRulesOnPaths(SINGLE_AGENT1, TEST_PATHS, RESULTS_AGENT1);
 
-    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(UTF_8),
         CONTENT_TYPE, SINGLE_AGENT2);
     testRulesOnPaths(SINGLE_AGENT2, TEST_PATHS, RESULTS_AGENT2);
 
-    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(UTF_8),
         CONTENT_TYPE, MULTIPLE_AGENTS);
     testRulesOnPaths(MULTIPLE_AGENTS, TEST_PATHS, RESULTS_AGENT1_AND_AGENT2);
   }
@@ -185,20 +187,20 @@ public class TestRobotRulesParser {
   public void testCrawlDelayDeprecatedAPIMethod() {
     // for SINGLE_AGENT1, the crawl delay of 10 seconds, i.e. 10000 msec must be
     // returned by the parser
-    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
+    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(UTF_8),
         CONTENT_TYPE, SINGLE_AGENT1);
     assertTrue((rules.getCrawlDelay() == 10000),
         "testing crawl delay for agent " + SINGLE_AGENT1 + " : ");
 
     // for SINGLE_AGENT2, the crawl delay of 20 seconds, i.e. 20000 msec must be
     // returned by the parser
-    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
+    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(UTF_8),
         CONTENT_TYPE, SINGLE_AGENT2);
     assertTrue((rules.getCrawlDelay() == 20000),
         "testing crawl delay for agent " + SINGLE_AGENT2 + " : ");
 
     // for UNKNOWN_AGENT, the default crawl delay must be returned.
-    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
+    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(UTF_8),
         CONTENT_TYPE, UNKNOWN_AGENT);
     assertTrue((rules.getCrawlDelay() == Long.MIN_VALUE),
         "testing crawl delay for agent " + UNKNOWN_AGENT + " : ");

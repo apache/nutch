@@ -16,34 +16,35 @@
  */
 package org.apache.nutch.urlfilter.api;
 
-import java.lang.invoke.MethodHandles;
-import java.io.File;
-import java.io.Reader;
-import java.io.FileReader;
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.util.URLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generic {@link org.apache.nutch.net.URLFilter} based on regular
  * expressions.
- * 
+ *
  * <p>
  * The regular expressions rules are expressed in a file. The file of rules is
  * determined for each implementation using the
  * {@link #getRulesReader(Configuration conf)} method.
  * </p>
- * 
+ *
  * <p>
  * The format of this file is made of many rules (one per line):<br>
  * <code>
@@ -81,27 +82,27 @@ public abstract class RegexURLFilterBase implements URLFilter {
 
   /**
    * Constructs a new RegexURLFilter and init it with a file of rules.
-   * 
+   *
    * @param filename
    *          is the name of rules file.
    * @throws IOException if there is a fatal I/O error interpreting the input
    * {@link File}
-   * @throws IllegalArgumentException if there is a fatal error processing the regex 
+   * @throws IllegalArgumentException if there is a fatal error processing the regex
    * rules wiuthin the {@link org.apache.nutch.net.URLFilter}
    */
   public RegexURLFilterBase(File filename) throws IOException,
       IllegalArgumentException {
-    this(new FileReader(filename));
+    this(new FileReader(filename, StandardCharsets.UTF_8));
   }
 
   /**
    * Constructs a new RegexURLFilter and inits it with a list of rules.
-   * 
+   *
    * @param rules
    *          string with a list of rules, one rule per line
    * @throws IOException if there is a fatal I/O error interpreting the input
    * rules
-   * @throws IllegalArgumentException if there is a fatal error processing the regex 
+   * @throws IllegalArgumentException if there is a fatal error processing the regex
    * rules wiuthin the {@link org.apache.nutch.net.URLFilter}
    */
   public RegexURLFilterBase(String rules) throws IOException,
@@ -111,12 +112,12 @@ public abstract class RegexURLFilterBase implements URLFilter {
 
   /**
    * Constructs a new RegexURLFilter and init it with a Reader of rules.
-   * 
+   *
    * @param reader
    *          is a reader of rules.
    * @throws IOException if there is a fatal I/O error interpreting the input
    * {@link Reader}
-   * @throws IllegalArgumentException if there is a fatal error processing the regex 
+   * @throws IllegalArgumentException if there is a fatal error processing the regex
    * rules wiuthin the {@link org.apache.nutch.net.URLFilter}
    */
   protected RegexURLFilterBase(Reader reader) throws IOException,
@@ -126,7 +127,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
 
   /**
    * Creates a new {@link RegexRule}.
-   * 
+   *
    * @param sign
    *          of the regular expression. A <code>true</code> value means that
    *          any URL matching this rule must be included, whereas a
@@ -137,10 +138,10 @@ public abstract class RegexURLFilterBase implements URLFilter {
    * @return {@link RegexRule}
    */
   protected abstract RegexRule createRule(boolean sign, String regex);
-  
+
   /**
    * Creates a new {@link RegexRule}.
-   * @param 
+   * @param
    *        sign of the regular expression.
    *        A <code>true</code> value means that any URL matching this rule
    *        must be included, whereas a <code>false</code>
@@ -156,11 +157,11 @@ public abstract class RegexURLFilterBase implements URLFilter {
   /**
    * Returns the name of the file of rules to use for a particular
    * implementation.
-   * 
+   *
    * @param conf
    *          is the current configuration.
    * @return the name of the resource containing the rules to use.
-   * @throws IOException if there is a fatal error obtaining the 
+   * @throws IOException if there is a fatal error obtaining the
    * {@link Reader}
    */
   protected abstract Reader getRulesReader(Configuration conf)
@@ -181,7 +182,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
 
       LOG.debug("URL belongs to host {} and domain {}", host, domain);
     }
-    
+
     for (RegexRule rule : rules) {
       // Skip the skip for rules that don't share the same host and domain
       if (rule.hostOrDomain() != null &&
@@ -192,7 +193,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
 
         continue;
       }
-    
+
       LOG.debug("Applying rule [{}] for host {} and domain {}", rule.regex(),
           host, domain);
 
@@ -229,7 +230,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
 
   /**
    * Read the specified file of rules.
-   * 
+   *
    * @param reader
    *          is a reader of regular expressions rules.
    * @return the corresponding {@RegexRule rules}.
@@ -241,7 +242,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
     List<RegexRule> rules = new ArrayList<RegexRule>();
     String line;
     String hostOrDomain = null;
-    
+
     while ((line = in.readLine()) != null) {
       if (line.length() == 0) {
         continue;
@@ -282,20 +283,21 @@ public abstract class RegexURLFilterBase implements URLFilter {
 
   /**
    * Filter the standard input using a RegexURLFilterBase.
-   * 
+   *
    * @param filter
    *          is the RegexURLFilterBase to use for filtering the standard input.
    * @param args
    *          some optional parameters (not used).
    * @throws IOException if there is a fatal I/O error interpreting the input
    * arguments
-   * @throws IllegalArgumentException if there is a fatal error processing the 
+   * @throws IllegalArgumentException if there is a fatal error processing the
    * input arguments
    */
   public static void main(RegexURLFilterBase filter, String args[])
       throws IOException, IllegalArgumentException {
 
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader in = new BufferedReader(
+        new InputStreamReader(System.in, StandardCharsets.UTF_8));
     String line;
     while ((line = in.readLine()) != null) {
       String out = filter.filter(line);

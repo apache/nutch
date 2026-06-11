@@ -16,26 +16,28 @@
  */
 package org.apache.nutch.urlfilter.api;
 
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.nutch.net.URLFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.nutch.net.URLFilter;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * JUnit based test of class <code>RegexURLFilterBase</code>.
- * 
+ *
  * @author J&eacute;r&ocirc;me Charron
  */
 public abstract class RegexURLFilterBaseTest {
@@ -51,8 +53,8 @@ public abstract class RegexURLFilterBaseTest {
 
   protected void bench(int loops, String file) {
     try {
-      bench(loops, new FileReader(SAMPLES + SEPARATOR + file + ".rules"),
-          new FileReader(SAMPLES + SEPARATOR + file + ".urls"));
+      bench(loops, new FileReader(SAMPLES + SEPARATOR + file + ".rules", UTF_8),
+          new FileReader(SAMPLES + SEPARATOR + file + ".urls", UTF_8));
     } catch (Exception e) {
       fail(e.toString());
     }
@@ -76,8 +78,8 @@ public abstract class RegexURLFilterBaseTest {
 
   protected void bench(int loops, String rulesFile, String urlsFile) {
     try {
-      bench(loops, new FileReader(SAMPLES + SEPARATOR + rulesFile),
-          new FileReader(SAMPLES + SEPARATOR + urlsFile));
+      bench(loops, new FileReader(SAMPLES + SEPARATOR + rulesFile, UTF_8),
+          new FileReader(SAMPLES + SEPARATOR + urlsFile, UTF_8));
     } catch (Exception e) {
       fail(e.toString());
     }
@@ -85,8 +87,8 @@ public abstract class RegexURLFilterBaseTest {
 
   protected void test(String rulesFile, String urlsFile) {
     try {
-      test(new FileReader(SAMPLES + SEPARATOR + rulesFile),
-          new FileReader(SAMPLES + SEPARATOR + urlsFile));
+      test(new FileReader(SAMPLES + SEPARATOR + rulesFile, UTF_8),
+          new FileReader(SAMPLES + SEPARATOR + urlsFile, UTF_8));
     } catch (Exception e) {
       fail(e.toString());
     }
@@ -94,8 +96,8 @@ public abstract class RegexURLFilterBaseTest {
 
   protected void test(String file) {
     try {
-      test(new FileReader(SAMPLES + SEPARATOR + file + ".rules"),
-          new FileReader(SAMPLES + SEPARATOR + file + ".urls"));
+      test(new FileReader(SAMPLES + SEPARATOR + file + ".rules", UTF_8),
+          new FileReader(SAMPLES + SEPARATOR + file + ".urls", UTF_8));
     } catch (Exception e) {
       fail(e.toString());
     }

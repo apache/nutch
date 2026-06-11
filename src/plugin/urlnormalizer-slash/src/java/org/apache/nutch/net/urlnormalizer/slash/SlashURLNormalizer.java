@@ -16,24 +16,25 @@
  */
 package org.apache.nutch.net.urlnormalizer.slash;
 
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author markus@openindex.io
@@ -51,7 +52,7 @@ public class SlashURLNormalizer implements URLNormalizer {
   private static final String PROTOCOL_DELIMITER = "://";
 
   private static String attributeFile = null;
-  
+
   // We record a map of hosts and boolean, the boolean denotes whether the host should
   // have slashes after URL paths. True means slash, false means remove the slash
   private static final Map<String,Boolean> slashesMap = new HashMap<>();
@@ -77,7 +78,7 @@ public class SlashURLNormalizer implements URLNormalizer {
 
         host = line.substring(0, delimiterIndex);
         rule = line.substring(delimiterIndex + 1).trim();
-        
+
         if (rule.equals("+")) {
           slashesMap.put(host, true);
         } else {
@@ -138,7 +139,7 @@ public class SlashURLNormalizer implements URLNormalizer {
     }
     try {
       if (reader == null) {
-        reader = new FileReader(file);
+        reader = new FileReader(file, StandardCharsets.UTF_8);
       }
       readConfiguration(reader);
     }
@@ -146,12 +147,12 @@ public class SlashURLNormalizer implements URLNormalizer {
       LOG.error("Error reading {} rule file {}", pluginName, file, e);
     }
   }
-  
+
   @Override
   public String normalize(String url, String scope) throws MalformedURLException {
     // Get URL repr.
     URL u = new URL(url);
-    
+
     // Get the host
     String host = u.getHost();
 
@@ -165,19 +166,19 @@ public class SlashURLNormalizer implements URLNormalizer {
       // / is always set by basic normalizer
       if (path.length() > 1) {
         String queryString = u.getQuery();
-        
+
         // Get the rule
         boolean rule = slashesMap.get(host);
-        
+
         // Does it have a trailing slash
         int lastIndexOfSlash = path.lastIndexOf(SLASH);
         boolean trailingSlash = (lastIndexOfSlash == path.length() - 1);
-        
+
         // Do we need to add a trailing slash?
         if (!trailingSlash && rule) {
           // Only add a trailing slash if this path doesn't appear to have an extension/suffix such as .html
           int lastIndexOfDot = path.lastIndexOf(DOT);
-          if (path.length() < 6 || lastIndexOfDot == -1 || lastIndexOfDot < path.length() - 6) {          
+          if (path.length() < 6 || lastIndexOfDot == -1 || lastIndexOfDot < path.length() - 6) {
             StringBuilder buffer = new StringBuilder(protocol);
             buffer.append(PROTOCOL_DELIMITER);
             buffer.append(host);
@@ -190,7 +191,7 @@ public class SlashURLNormalizer implements URLNormalizer {
             url = buffer.toString();
           }
         }
-        
+
         // Do we need to remove a trailing slash?
         else if (trailingSlash && !rule) {
           StringBuilder buffer = new StringBuilder(protocol);
@@ -201,7 +202,7 @@ public class SlashURLNormalizer implements URLNormalizer {
             buffer.append(QUESTION_MARK);
             buffer.append(queryString);
           }
-          url = buffer.toString();      
+          url = buffer.toString();
         }
       }
     }

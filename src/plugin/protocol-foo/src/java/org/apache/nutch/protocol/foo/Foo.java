@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
 
 import crawlercommons.robots.BaseRobotRules;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class Foo implements Protocol {
   protected static final Logger LOG = LoggerFactory.getLogger(Foo.class);
 
@@ -54,7 +56,7 @@ public class Foo implements Protocol {
   /**
    * This is a dummy implementation only. So what we will do is return this
    * structure:
-   * 
+   *
    * <pre>
    * foo://example.com - will contain one directory and one file
    * foo://example.com/a - directory, will contain two files
@@ -87,7 +89,7 @@ public class Foo implements Protocol {
         sb.append("<a href='a/" + "'>a/</a>\t"+ time + "\t-\n"); // add directory
         sb.append("<a href='a.txt'>a.txt</a>\t" + time + "\t" + 0 + "\n"); // add file
         sb.append("</pre></html></body>");
-        bytes = sb.toString().getBytes();
+        bytes = sb.toString().getBytes(UTF_8);
         status = ProtocolStatus.STATUS_SUCCESS;
         break;
       }
@@ -101,7 +103,7 @@ public class Foo implements Protocol {
         sb.append("<a href='aa.txt'>aa.txt</a>\t" + time + "\t" + 0 + "\n"); // add file
         sb.append("<a href='ab.txt'>ab.txt</a>\t" + time + "\t" + 0 + "\n"); // add file
         sb.append("</pre></html></body>");
-        bytes = sb.toString().getBytes();
+        bytes = sb.toString().getBytes(UTF_8);
         status = ProtocolStatus.STATUS_SUCCESS;
         break;
       }
@@ -109,7 +111,8 @@ public class Foo implements Protocol {
       case "foo://example.com/a/aa.txt":
       case "foo://example.com/a/ab.txt": {
         contentType = "text/plain";
-        bytes = "In publishing and graphic design, lorem ipsum is a filler text or greeking commonly used to demonstrate the textual elements of a graphic document or visual presentation. Replacing meaningful content with placeholder text allows designers to design the form of the content before the content itself has been produced.".getBytes();
+        bytes = "In publishing and graphic design, lorem ipsum is a filler text or greeking commonly used to demonstrate the textual elements of a graphic document or visual presentation. Replacing meaningful content with placeholder text allows designers to design the form of the content before the content itself has been produced."
+            .getBytes(UTF_8);
         status = ProtocolStatus.STATUS_SUCCESS;
         break;
       }

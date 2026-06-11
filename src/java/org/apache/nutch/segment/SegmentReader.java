@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -569,7 +570,8 @@ public class SegmentReader extends Configured implements Tool {
     public long parseErrors = -1L;
   }
 
-  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
+      Locale.ROOT);
 
   public void list(List<Path> dirs, Writer writer) throws Exception {
     writer

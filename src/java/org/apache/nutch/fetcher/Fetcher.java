@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -185,7 +186,8 @@ public class Fetcher extends NutchTool implements Tool {
       }
       status.append(fetchQueues.getTotalSize()).append(" URLs queued, ");
       status.append(pages).append(" pages, ").append(errors).append(" errors, ");
-      status.append(String.format("%.2f", avgPagesSec)).append(" pages/s (");
+      status.append(String.format(Locale.ROOT, "%.2f", avgPagesSec))
+          .append(" pages/s (");
       status.append(pagesLastSec).append(" last sec), ");
       status.append(avgBytesSec).append(" kbits/s (")
       .append((bytesLastSec / 128)).append(" last sec)");

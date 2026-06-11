@@ -18,22 +18,23 @@ package org.apache.nutch.tools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.protocol.Content;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import org.apache.nutch.protocol.Content;
 
 /**
- * This class provides methods to map crawled data on JSON using Jackson Streaming APIs. 
+ * This class provides methods to map crawled data on JSON using Jackson Streaming APIs.
  *
  */
 public class CommonCrawlFormatJackson extends AbstractCommonCrawlFormat {
-	
+
 	private ByteArrayOutputStream out;
-	
+
 	private JsonGenerator generator;
 
 	public CommonCrawlFormatJackson(Configuration nutchConf,
@@ -46,29 +47,29 @@ public class CommonCrawlFormatJackson extends AbstractCommonCrawlFormat {
 
 		this.generator.useDefaultPrettyPrinter(); // INDENTED OUTPUT
 	}
-	
+
 	public CommonCrawlFormatJackson(String url, Content content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
 		super(url, content, metadata, nutchConf, config);
-		
+
 		JsonFactory factory = new JsonFactory();
 		this.out = new ByteArrayOutputStream();
 		this.generator = factory.createGenerator(out);
-		
+
 		this.generator.useDefaultPrettyPrinter(); // INDENTED OUTPUT
 	}
-	
+
 	@Override
 	protected void writeKeyValue(String key, String value) throws IOException {
 		generator.writeFieldName(key);
 		generator.writeString(value);
 	}
-	
+
 	@Override
 	protected void writeKeyNull(String key) throws IOException {
 		generator.writeFieldName(key);
 		generator.writeNull();
 	}
-	
+
 	@Override
 	protected void startArray(String key, boolean nested, boolean newline) throws IOException {
 		if (key != null) {
@@ -76,17 +77,17 @@ public class CommonCrawlFormatJackson extends AbstractCommonCrawlFormat {
 		}
 		generator.writeStartArray();
 	}
-	
+
 	@Override
 	protected void closeArray(String key, boolean nested, boolean newline) throws IOException {
 		generator.writeEndArray();
 	}
-	
+
 	@Override
 	protected void writeArrayValue(String value) throws IOException {
 		generator.writeString(value);
 	}
-	
+
 	@Override
 	protected void startObject(String key) throws IOException {
 		if (key != null) {
@@ -94,15 +95,15 @@ public class CommonCrawlFormatJackson extends AbstractCommonCrawlFormat {
 		}
 		generator.writeStartObject();
 	}
-	
+
 	@Override
 	protected void closeObject(String key) throws IOException {
 		generator.writeEndObject();
 	}
-	
+
 	@Override
 	protected String generateJson() throws IOException {
 		this.generator.flush();
-		return this.out.toString();
+		return this.out.toString(StandardCharsets.UTF_8);
 	}
 }

@@ -16,10 +16,19 @@
  */
 package org.apache.nutch.parse;
 
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.hadoop.io.MapWritable;
@@ -28,37 +37,27 @@ import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.io.SequenceFile.Metadata;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.DefaultCodec;
-import org.apache.hadoop.util.Progressable;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.JobContext;
+import org.apache.hadoop.mapreduce.OutputCommitter;
 import org.apache.hadoop.mapreduce.OutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.apache.hadoop.mapreduce.OutputCommitter;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputCommitter;
-import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.TaskID;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputCommitter;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.fetcher.Fetcher;
-import org.apache.nutch.scoring.ScoringFilterException;
-import org.apache.nutch.scoring.ScoringFilters;
-import org.apache.nutch.util.StringUtil;
-import org.apache.nutch.util.URLUtil;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLExemptionFilters;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
-
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
+import org.apache.nutch.scoring.ScoringFilterException;
+import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.util.StringUtil;
+import org.apache.nutch.util.URLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /* Parse content in a segment. */
 public class ParseOutputFormat extends OutputFormat<Text, Parse> {
@@ -68,12 +67,12 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
   private URLExemptionFilters exemptionFilters;
   private URLNormalizers normalizers;
   private ScoringFilters scfilters;
-  private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
+  private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.ROOT);
   static{
     NUMBER_FORMAT.setMinimumIntegerDigits(5);
     NUMBER_FORMAT.setGroupingUsed(false);
   }
-  
+
   private static class SimpleEntry implements Entry<Text, CrawlDatum> {
     private Text key;
     private CrawlDatum value;
@@ -101,10 +100,10 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
   }
 
   @Override
-  public OutputCommitter getOutputCommitter(TaskAttemptContext context) 
+  public OutputCommitter getOutputCommitter(TaskAttemptContext context)
       throws IOException {
     Path path = FileOutputFormat.getOutputPath(context);
-    return new FileOutputCommitter(path, context); 
+    return new FileOutputCommitter(path, context);
   }
 
   @Override
@@ -183,11 +182,11 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
     // textOut Options
     final MapFile.Writer textOut;
     if (storeText) {
-      Option tKeyClassOpt = (Option) MapFile.Writer.keyClass(Text.class);
+      Option tKeyClassOpt = MapFile.Writer.keyClass(Text.class);
       org.apache.hadoop.io.SequenceFile.Writer.Option tValClassOpt = SequenceFile.Writer
           .valueClass(ParseText.class);
       org.apache.hadoop.io.SequenceFile.Writer.Option tProgressOpt = SequenceFile.Writer
-          .progressable((Progressable)context);
+          .progressable(context);
       org.apache.hadoop.io.SequenceFile.Writer.Option tCompOpt = SequenceFile.Writer
           .compression(CompressionType.RECORD);
 
@@ -198,14 +197,14 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
     }
 
     // dataOut Options
-    Option dKeyClassOpt = (Option) MapFile.Writer.keyClass(Text.class);
+    Option dKeyClassOpt = MapFile.Writer.keyClass(Text.class);
     org.apache.hadoop.io.SequenceFile.Writer.Option dValClassOpt = SequenceFile.Writer.valueClass(ParseData.class);
-    org.apache.hadoop.io.SequenceFile.Writer.Option dProgressOpt = SequenceFile.Writer.progressable((Progressable)context);
+    org.apache.hadoop.io.SequenceFile.Writer.Option dProgressOpt = SequenceFile.Writer.progressable(context);
     org.apache.hadoop.io.SequenceFile.Writer.Option dCompOpt = SequenceFile.Writer.compression(compType);
 
     final MapFile.Writer dataOut = new MapFile.Writer(conf, data,
         dKeyClassOpt, dValClassOpt, dCompOpt, dProgressOpt);
-    
+
     final SequenceFile.Writer crawlOut = SequenceFile.createWriter(conf, SequenceFile.Writer.file(crawl),
         SequenceFile.Writer.keyClass(Text.class),
         SequenceFile.Writer.valueClass(CrawlDatum.class),
@@ -213,8 +212,8 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
         SequenceFile.Writer.replication(fs.getDefaultReplication(crawl)),
         SequenceFile.Writer.blockSize(1073741824),
         SequenceFile.Writer.compression(compType, new DefaultCodec()),
-        SequenceFile.Writer.progressable((Progressable)context),
-        SequenceFile.Writer.metadata(new Metadata())); 
+        SequenceFile.Writer.progressable(context),
+        SequenceFile.Writer.metadata(new Metadata()));
 
     return new RecordWriter<Text, Parse>() {
 
@@ -262,11 +261,11 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
           URL originURL = new URL(fromUrl.toString());
           // based on domain?
           if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
-            origin = URLUtil.getDomainName(originURL).toLowerCase();
-          } 
-          // use host 
+            origin = URLUtil.getDomainName(originURL);
+          }
+          // use host
           else {
-            origin = originURL.getHost().toLowerCase();
+            origin = originURL.getHost().toLowerCase(Locale.ROOT);
           }
         }
 
@@ -415,13 +414,13 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
       }
       if (ignoreExternalLinks) {
         if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
-          String toDomain = URLUtil.getDomainName(targetURL).toLowerCase();
-          //FIXME: toDomain will never be null, correct?
+          String toDomain = URLUtil.getDomainName(targetURL);
+          // FIXME: toDomain will never be null, correct?
           if (toDomain == null || !toDomain.equals(origin)) {
             return null; // skip it
           }
         } else {
-          String toHost = targetURL.getHost().toLowerCase();
+          String toHost = targetURL.getHost().toLowerCase(Locale.ROOT);
           if (!toHost.equals(origin)) { // external host link
             if (exemptionFilters == null // check if it is exempted?
                 || !exemptionFilters.isExempted(fromUrl, toUrl)) {
@@ -432,13 +431,13 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
       }
       if (ignoreInternalLinks) {
         if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
-          String toDomain = URLUtil.getDomainName(targetURL).toLowerCase();
+          String toDomain = URLUtil.getDomainName(targetURL);
           //FIXME: toDomain will never be null, correct?
           if (toDomain == null || toDomain.equals(origin)) {
             return null; // skip it
           }
         } else {
-          String toHost = targetURL.getHost().toLowerCase();
+          String toHost = targetURL.getHost().toLowerCase(Locale.ROOT);
           //FIXME: toDomain will never be null, correct?
           if (toHost == null || toHost.equals(origin)) {
             return null; // skip it

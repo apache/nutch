@@ -19,6 +19,7 @@ package org.apache.nutch.protocol.ftp;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
@@ -56,7 +57,7 @@ public class FtpRobotRulesParser extends RobotRulesParser {
    * a Ftp request to the host corresponding to the {@link URL} passed, gets
    * robots file, parses the rules and caches the rules object to avoid re-work
    * in future.
-   * 
+   *
    * @param ftp
    *          The {@link Protocol} object
    * @param url
@@ -67,16 +68,15 @@ public class FtpRobotRulesParser extends RobotRulesParser {
    *          may include redirects or an error page (404, etc.). Response
    *          {@link Content} is appended to the passed list. If null is passed
    *          nothing is stored.
-   * 
+   *
    * @return robotRules A {@link BaseRobotRules} object for the rules
    */
   @Override
   public BaseRobotRules getRobotRulesSet(Protocol ftp, URL url,
       List<Content> robotsTxtContent) {
 
-    String protocol = url.getProtocol().toLowerCase(); // normalize to lower
-                                                       // case
-    String host = url.getHost().toLowerCase(); // normalize to lower case
+    String protocol = url.getProtocol().toLowerCase(Locale.ROOT);
+    String host = url.getHost().toLowerCase(Locale.ROOT);
 
     if (LOG.isTraceEnabled() && isAllowListed(url)) {
       LOG.trace("Ignoring robots.txt (host is allowlisted) for URL: {}", url);

@@ -16,35 +16,33 @@
  */
 package org.apache.nutch.parse.ext;
 
-import org.apache.nutch.protocol.Content;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.lang.invoke.MethodHandles;
+import java.nio.charset.Charset;
+import java.util.Hashtable;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.net.protocols.Response;
+import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.OutlinkExtractor;
+import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
-import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.parse.ParseImpl;
-import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.parse.OutlinkExtractor;
-
-import org.apache.nutch.util.CommandRunner;
-import org.apache.nutch.net.protocols.Response;
-import org.apache.hadoop.conf.Configuration;
-
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
-
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.CommandRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Hashtable;
-
-import java.lang.invoke.MethodHandles;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.Charset;
+import com.nimbusds.jose.util.StandardCharset;
 
 /**
  * A wrapper that invokes external command to do real parsing job.
- * 
+ *
  * @author John Xing
  */
 
@@ -71,7 +69,7 @@ public class ExtParser implements Parser {
 
     String contentType = content.getContentType();
 
-    String[] params = (String[]) TYPE_PARAMS_MAP.get(contentType);
+    String[] params = TYPE_PARAMS_MAP.get(contentType);
     if (params == null)
       return new ParseStatus(ParseStatus.FAILED,
           "No external command defined for contentType: " + contentType)
@@ -79,7 +77,7 @@ public class ExtParser implements Parser {
 
     String command = params[0];
     int timeout = Integer.parseInt(params[1]);
-    String encoding = params[2];
+    Charset encoding = Charset.forName(params[2]);
 
     if (LOG.isTraceEnabled()) {
       LOG.trace("Use " + command + " with timeout=" + timeout + "secs");
@@ -116,9 +114,10 @@ public class ExtParser implements Parser {
       cr.evaluate();
 
       if (cr.getExitValue() != 0)
-        return new ParseStatus(ParseStatus.FAILED, "External command "
-            + command + " failed with error: " + es.toString())
-            .getEmptyParseResult(content.getUrl(), getConf());
+        return new ParseStatus(ParseStatus.FAILED,
+            "External command " + command + " failed with error: "
+                + es.toString(StandardCharset.UTF_8))
+                    .getEmptyParseResult(content.getUrl(), getConf());
 
       text = os.toString(encoding);
 

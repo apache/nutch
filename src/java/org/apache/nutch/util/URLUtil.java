@@ -44,7 +44,7 @@ public class URLUtil {
   /**
    * Resolve relative URL-s and fix a java.net.URL error in handling of URLs
    * with pure query targets.
-   * 
+   *
    * @param base
    *          base url
    * @param target
@@ -104,14 +104,14 @@ public class URLUtil {
    *  </code><br>
    * will return <br>
    * <code>apache.org</code>
-   * 
+   *
    * Special cases:
    * <ul>
    * <li>if the hostname does not end in a valid domain suffix, the entire
    * hostname is returned.</li>
    * <li>for URLs without a hostname, an empty string is returned.</li>
    * </ul>
-   * 
+   *
    * Valid domain suffixes are taken from the
    * <a href= "https://publicsuffix.org/list/public_suffix_list.dat"
    * >https://publicsuffix.org/list/public_suffix_list.dat</a> and are compared
@@ -123,9 +123,11 @@ public class URLUtil {
    * a specific version of the public suffix list (e.g., the most recent one) by
    * placing the public suffix list with the name "effective_tld_names.dat" in
    * Nutch's <code>conf/</code> folder.
-   * 
+   *
+   * The returned domain names are always normalized to lowercase.
+   *
    * See {@link EffectiveTldFinder#getAssignedDomain(String, boolean, boolean)}
-   * 
+   *
    * @param url
    *          input {@link URL} to extract the domain from
    * @return the domain name string
@@ -148,9 +150,9 @@ public class URLUtil {
    *  </code><br>
    * will return <br>
    * <code>apache.org</code>
-   * 
+   *
    * See {@link #getDomainName(URL)} for more information.
-   * 
+   *
    * @param url
    *          input URL string to extract the domain from
    * @return the domain name
@@ -170,10 +172,10 @@ public class URLUtil {
    *  </code><br>
    * will return <br>
    * <code>uk</code>
-   * 
+   *
    * In case of internationalized top-level domains, the ASCII representation is
    * returned.
-   * 
+   *
    * @param url
    *          input {@link URL} to extract the top-level domain name from
    * @return the top-level domain name or null if there is none
@@ -200,10 +202,10 @@ public class URLUtil {
    *  </code><br>
    * will return <br>
    * <code>uk</code>
-   * 
+   *
    * In case of internationalized top-level domains, the ASCII representation is
    * returned.
-   * 
+   *
    * @param url
    *          input URL string to extract the top-level domain name from
    * @return the top-level domain name or null if there is none
@@ -221,12 +223,12 @@ public class URLUtil {
    * <code>isSameDomain(new URL("http://lucene.apache.org")
    * , new URL("http://people.apache.org/"))</code>
    * <br>will return true.
-   * 
+   *
    * @param url1
    *          first {@link URL} to compare domain name
    * @param url2
    *          second {@link URL} to compare domain name
-   * 
+   *
    * @return true if the domain names are equal
    */
   public static boolean isSameDomainName(URL url1, URL url2) {
@@ -239,7 +241,7 @@ public class URLUtil {
    * <code>isSameDomain("http://lucene.apache.org"
    * ,"http://people.apache.org/")</code>
    * <br>will return true.
-   * 
+   *
    * @param url1
    *          first URL string to compare domain name
    * @param url2
@@ -256,11 +258,11 @@ public class URLUtil {
   /**
    * Returns the public suffix corresponding to the last public part of the
    * hostname.
-   * 
+   *
    * In case of internationalized domain suffixes, the ASCII representation is
    * returned. For the URL <code>https://www.taiuru.māori.nz/</code> the suffix
    * <code>xn--mori-qsa.nz</code> is returned.
-   * 
+   *
    * @param url
    *          a {@link URL} to extract the domain suffix from
    * @return the domain suffix or null if there is none
@@ -284,11 +286,11 @@ public class URLUtil {
   /**
    * Returns the domain suffix corresponding to the last public part of the
    * hostname.
-   * 
+   *
    * In case of internationalized domain suffixes, the ASCII representation is
    * returned. For the URL <code>https://www.taiuru.māori.nz/</code> the suffix
    * <code>xn--mori-qsa.nz</code> is returned.
-   * 
+   *
    * @param url
    *          a {@link URL} to extract the domain suffix from
    * @return the domain suffix or null if there is none
@@ -371,14 +373,14 @@ public class URLUtil {
    * same) against their linkrank scores and the highest scoring one is kept as
    * the url and the lower scoring one is held as the orig url inside of the
    * index.
-   * 
+   *
    * @param src
    *          The source url.
    * @param dst
    *          The destination url.
    * @param temp
    *          Is the redirect a temporary redirect.
-   * 
+   *
    * @return String The representative url.
    */
   public static String chooseRepr(String src, String dst, boolean temp) {
@@ -477,7 +479,7 @@ public class URLUtil {
 
   /**
    * Returns the lowercased hostname for the URL or null if the URL is not well-formed.
-   * 
+   *
    * @param url
    *          The URL to check.
    * @return String the hostname for the URL.
@@ -492,7 +494,7 @@ public class URLUtil {
 
   /**
    * Returns the lowercased hostname for the URL.
-   * 
+   *
    * @param url
    *          The URL to check.
    * @return String the hostname for the URL.
@@ -505,7 +507,7 @@ public class URLUtil {
    * Returns the page for the url. The page consists of the protocol, host, and
    * path, but does not include the query string. The host is lowercased but the
    * path is not.
-   * 
+   *
    * @param url
    *          The url to check.
    * @return String The page for the url.
@@ -513,7 +515,7 @@ public class URLUtil {
   public static String getPage(String url) {
     try {
       // get the full url, and replace the query string with and empty string
-      url = url.toLowerCase();
+      url = url.toLowerCase(Locale.ROOT);
       String queryStr = new URL(url).getQuery();
       return (queryStr != null) ? url.replace("?" + queryStr, "") : url;
     } catch (MalformedURLException e) {
@@ -713,7 +715,7 @@ public class URLUtil {
    * case if the URL path is <code>/</code> and query, port, fragment, userinfo
    * are empty resp. not given. In other words the URL is:
    * <code>protocol://hostName/</code>
-   * 
+   *
    * @param url
    *          the URL to test
    * @param hostName

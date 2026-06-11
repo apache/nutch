@@ -16,30 +16,30 @@
  */
 package org.apache.nutch.protocol.ftp;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.ftp.parser.DefaultFTPFileEntryParserFactory;
 import org.apache.commons.net.ftp.parser.ParserInitializationException;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.protocol.Content;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
-import org.apache.hadoop.conf.Configuration;
-
-import java.net.InetAddress;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.LinkedList;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import org.apache.nutch.protocol.Content;
 
 /**
  * FtpResponse.java mimics ftp replies as http response. It tries its best to
  * follow http's way for headers, response codes as well as exceptions.
- * 
+ *
  * Comments: In this class, all FtpException*.java thrown by Client.java and
  * some important commons-net exceptions passed by Client.java must have been
  * properly dealt with. They'd better not be leaked to the caller of this class.
@@ -245,7 +245,7 @@ public class FtpResponse {
       }
 
       this.content = null;
-      
+
       path = java.net.URLDecoder.decode(path, StandardCharsets.UTF_8);
 
       if (path.endsWith("/")) {
@@ -314,7 +314,7 @@ public class FtpResponse {
         return;
       }
 
-      FTPFile ftpFile = (FTPFile) list.get(0);
+      FTPFile ftpFile = list.get(0);
       this.headers.set(Response.CONTENT_LENGTH,
           Long.valueOf(ftpFile.getSize()).toString());
       this.headers.set(Response.LAST_MODIFIED,
@@ -359,7 +359,7 @@ public class FtpResponse {
         return;
       }
 
-      FTPFile ftpFile = (FTPFile) list.get(0);
+      FTPFile ftpFile = list.get(0);
       this.headers.set(Response.CONTENT_LENGTH,
           Long.valueOf(ftpFile.getSize()).toString());
       // this.headers.put("content-type", "text/html");
@@ -485,7 +485,7 @@ public class FtpResponse {
     }
 
     for (int i = 0; i < list.size(); i++) {
-      FTPFile f = (FTPFile) list.get(i);
+      FTPFile f = list.get(i);
       String name = f.getName();
       String time = HttpDateFormat.toString(f.getTimestamp());
       if (f.isDirectory()) {
@@ -505,7 +505,7 @@ public class FtpResponse {
 
     x.append("</pre></body></html>\n");
 
-    return new String(x).getBytes();
+    return new String(x).getBytes(StandardCharsets.UTF_8);
   }
 
 }

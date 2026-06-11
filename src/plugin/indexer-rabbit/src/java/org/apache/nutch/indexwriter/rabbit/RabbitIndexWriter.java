@@ -17,26 +17,24 @@
 package org.apache.nutch.indexwriter.rabbit;
 
 import java.io.IOException;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.indexer.IndexWriterParams;
-import org.apache.nutch.indexer.NutchDocument;
-
-import org.apache.nutch.indexer.IndexWriter;
-
-import org.apache.nutch.indexer.NutchField;
-import org.apache.nutch.rabbitmq.RabbitMQClient;
-import org.apache.nutch.rabbitmq.RabbitMQMessage;
-import org.apache.nutch.util.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.indexer.IndexWriter;
+import org.apache.nutch.indexer.IndexWriterParams;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.NutchField;
+import org.apache.nutch.rabbitmq.RabbitMQClient;
+import org.apache.nutch.rabbitmq.RabbitMQMessage;
+import org.apache.nutch.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RabbitIndexWriter implements IndexWriter {
 
@@ -174,7 +172,7 @@ public class RabbitIndexWriter implements IndexWriter {
         // The messages to delete
         for (String s : rabbitMessage.getDocsToDelete()) {
           RabbitMQMessage message = new RabbitMQMessage();
-          message.setBody(s.getBytes());
+          message.setBody(s.getBytes(StandardCharsets.UTF_8));
           message.setHeaders(headersStatic);
           message.addHeader("action", "delete");
           client.publish(exchange, routingKey, message);

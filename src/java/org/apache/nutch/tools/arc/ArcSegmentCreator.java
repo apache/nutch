@@ -20,21 +20,20 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -58,26 +57,29 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
  * The <code>ArcSegmentCreator</code> is a replacement for fetcher that will
  * take arc files as input and produce a nutch segment as output.
  * </p>
- * 
+ *
  * <p>
  * Arc files are tars of compressed gzips which are produced by both the
  * internet archive project and the grub distributed crawler project.
  * </p>
- * 
+ *
  */
 public class ArcSegmentCreator extends Configured implements Tool {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
-  
+
   public static final String URL_VERSION = "arc.url.version";
-  private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+  private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss",
+      Locale.ROOT);
 
   public ArcSegmentCreator() {
 
@@ -85,7 +87,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
 
   /**
    * Constructor that sets the job configuration.
-   * 
+   *
    * @param conf a populated {@link Configuration}
    */
   public ArcSegmentCreator(Configuration conf) {
@@ -94,7 +96,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
 
   /**
    * Generates a random name for the segments.
-   * 
+   *
    * @return The generated segment name.
    */
   public static synchronized String generateSegmentName() {
@@ -110,7 +112,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
 
   /**
    * Logs any error that occurs during conversion.
-   * 
+   *
    * @param url
    *          The url we are parsing.
    * @param t
@@ -135,7 +137,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
      * Parses the raw content of a single record to create output. This method is
      * almost the same as the {@link org.apache.nutch.Fetcher#output} method in
      * terms of processing and output.
-     * 
+     *
      * @param context
      *          The context of the job.
      * @param segmentName
@@ -150,7 +152,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
      *          The protocol status
      * @param status
      *          The fetch status.
-     * 
+     *
      * @return The result of the parse in a ParseStatus object.
      */
     private ParseStatus output(Context context,
@@ -188,8 +190,8 @@ public class ArcSegmentCreator extends Configured implements Tool {
           byte[] signature = SignatureFactory.getSignature(conf).calculate(
               content, new ParseStatus().getEmptyParse(conf));
           datum.setSignature(signature);
-        } 
-    
+        }
+
         if (parseResult == null) {
           byte[] signature = SignatureFactory.getSignature(conf).calculate(
               content, new ParseStatus().getEmptyParse(conf));
@@ -235,7 +237,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
           }
         } catch (IOException e) {
           LOG.error("ArcSegmentCreator caught:{}", StringUtils.stringifyException(e));
-        }  
+        }
 
         if (parseResult != null && !parseResult.isEmpty()) {
           Parse p = parseResult.get(content.getUrl());
@@ -251,12 +253,12 @@ public class ArcSegmentCreator extends Configured implements Tool {
     /**
      * Configures the job mapper. Sets the url filters, scoring filters, url normalizers
      * and other relevant data.
-     * 
+     *
      * @param context
      *          The task context.
      */
     @Override
-    public void setup(Mapper<Text, BytesWritable, Text, NutchWritable>.Context context) { 
+    public void setup(Mapper<Text, BytesWritable, Text, NutchWritable>.Context context) {
       // set the url filters, scoring filters the parse util and the url
       // normalizers
       conf = context.getConfiguration();
@@ -269,7 +271,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
 
     /**
      * Runs the Map job to translate an arc record into output for Nutch segments.
-     * 
+     *
      * @param key
      *          The arc record header.
      * @param bytes
@@ -341,12 +343,12 @@ public class ArcSegmentCreator extends Configured implements Tool {
 
   /**
    * Creates the arc files to segments job.
-   * 
+   *
    * @param arcFiles
    *          The path to the directory holding the arc files
    * @param segmentsOutDir
    *          The output directory for writing the segments
-   * 
+   *
    * @throws IOException
    *           If an IO error occurs while running the job.
    * @throws InterruptedException if this {@link Job} is interrupted

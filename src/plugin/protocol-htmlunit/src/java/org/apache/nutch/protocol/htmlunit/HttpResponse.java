@@ -26,6 +26,7 @@ import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -224,7 +225,7 @@ public class HttpResponse implements Response {
         headers.add(Response.REQUEST, reqStr.toString());
       }
 
-      byte[] reqBytes = reqStr.toString().getBytes();
+      byte[] reqBytes = reqStr.toString().getBytes(StandardCharsets.UTF_8);
 
       req.write(reqBytes);
       req.flush();
@@ -335,7 +336,7 @@ public class HttpResponse implements Response {
 
   private void readContentFromHtmlUnit(URL url) throws IOException {
     String page = HtmlUnitWebDriver.getHtmlPage(url.toString(), conf);
-    content = page.getBytes("UTF-8");
+    content = page.getBytes(StandardCharsets.UTF_8);
   }
 
   private void readPlainContent(InputStream in)
@@ -537,7 +538,7 @@ public class HttpResponse implements Response {
           || ((pos = line.indexOf("<HTML")) != -1)
           || ((pos = line.indexOf("<html")) != -1)) {
 
-        in.unread(line.substring(pos).getBytes("UTF-8"));
+        in.unread(line.substring(pos).getBytes(StandardCharsets.UTF_8));
         line.setLength(pos);
 
         try {

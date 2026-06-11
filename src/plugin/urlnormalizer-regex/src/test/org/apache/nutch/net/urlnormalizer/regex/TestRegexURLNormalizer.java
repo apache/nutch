@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.net.urlnormalizer.regex;
 
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -24,16 +23,22 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -68,7 +73,7 @@ public class TestRegexURLNormalizer {
     });
     for (int i = 0; i < configs.length; i++) {
       try {
-        FileReader reader = new FileReader(configs[i]);
+        FileReader reader = new FileReader(configs[i], StandardCharsets.UTF_8);
         String cname = configs[i].getName();
         cname = cname.substring(16, cname.indexOf(".xml"));
         normalizer.setConfiguration(reader, cname);
@@ -82,7 +87,7 @@ public class TestRegexURLNormalizer {
 
   @Test
   public void testNormalizerDefault() throws Exception {
-    normalizeTest((NormalizedURL[]) testData.get(URLNormalizers.SCOPE_DEFAULT),
+    normalizeTest(testData.get(URLNormalizers.SCOPE_DEFAULT),
         URLNormalizers.SCOPE_DEFAULT);
   }
 
@@ -91,7 +96,7 @@ public class TestRegexURLNormalizer {
     Iterator<String> it = testData.keySet().iterator();
     while (it.hasNext()) {
       String scope = it.next();
-      normalizeTest((NormalizedURL[]) testData.get(scope), scope);
+      normalizeTest(testData.get(scope), scope);
     }
   }
 
@@ -111,7 +116,7 @@ public class TestRegexURLNormalizer {
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
     try {
-      NormalizedURL[] expected = (NormalizedURL[]) testData.get(scope);
+      NormalizedURL[] expected = testData.get(scope);
       if (expected == null)
         return;
       for (int i = 0; i < loops; i++) {
@@ -140,7 +145,7 @@ public class TestRegexURLNormalizer {
     File f = new File(sampleDir, "regex-normalize-" + scope + ".test");
     @SuppressWarnings("resource")
     BufferedReader in = new BufferedReader(new InputStreamReader(
-        new FileInputStream(f), "UTF-8"));
+        new FileInputStream(f), StandardCharsets.UTF_8));
     List<NormalizedURL> list = new ArrayList<NormalizedURL>();
     String line;
     while ((line = in.readLine()) != null) {
@@ -176,11 +181,11 @@ public class TestRegexURLNormalizer {
       System.exit(-1);
     }
     TestRegexURLNormalizer test = new TestRegexURLNormalizer();
-    NormalizedURL[] urls = (NormalizedURL[]) test.testData.get(scope);
+    NormalizedURL[] urls = test.testData.get(scope);
     if (urls == null) {
       LOG.warn("Missing test data for scope '{}', using default scope.", scope);
       scope = URLNormalizers.SCOPE_DEFAULT;
-      urls = (NormalizedURL[]) test.testData.get(scope);
+      urls = test.testData.get(scope);
     }
     if (bench) {
       test.bench(iter, scope);

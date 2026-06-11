@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,8 +32,8 @@ import org.apache.hadoop.io.MD5Hash;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.StringUtil;
 
 /**
  * <p>
@@ -61,7 +62,7 @@ import org.apache.nutch.util.NutchConfiguration;
  * spaces, in the order of decreasing frequency.</li>
  * </ul>
  * This list is then submitted to an MD5 hash calculation.
- * 
+ *
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class TextProfileSignature extends Signature {
@@ -198,7 +199,7 @@ public class TextProfileSignature extends Signature {
     for (int i = 0; i < files.length; i++) {
       FileInputStream fis = new FileInputStream(files[i]);
       BufferedReader br = new BufferedReader(
-          new InputStreamReader(fis, "UTF-8"));
+          new InputStreamReader(fis, StandardCharsets.UTF_8));
       StringBuffer text = new StringBuffer();
       String line = null;
       while ((line = br.readLine()) != null) {

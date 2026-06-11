@@ -16,23 +16,24 @@
  */
 package org.apache.nutch.parse.html;
 
-import org.apache.nutch.parse.Outlink;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.util.NutchConfiguration;
-
 import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.cyberneko.html.parsers.*;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.html.dom.HTMLDocumentImpl;
+import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.util.NutchConfiguration;
+import org.cyberneko.html.parsers.DOMFragmentParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.xml.sax.*;
-import org.w3c.dom.*;
-import org.apache.html.dom.*;
+import org.w3c.dom.DocumentFragment;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -197,9 +198,8 @@ public class TestDOMContentUtils {
     for (int i = 0; i < testPages.length; i++) {
       DocumentFragment node = new HTMLDocumentImpl().createDocumentFragment();
       try {
-        parser.parse(
-            new InputSource(new ByteArrayInputStream(testPages[i].getBytes())),
-            node);
+        parser.parse(new InputSource(
+            new ByteArrayInputStream(testPages[i].getBytes(UTF_8))), node);
         testBaseHrefURLs[i] = new URL(testBaseHrefs[i]);
       } catch (Exception e) {
         fail("caught exception: " + e);

@@ -25,8 +25,8 @@ import java.util.Locale;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.util.URLUtil;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class describes the item to be fetched.
@@ -104,7 +104,7 @@ public class FetchItem {
         return null;
       }
     } else if (FetchItemQueues.QUEUE_MODE_DOMAIN.equalsIgnoreCase(queueMode)) {
-      key = URLUtil.getDomainName(u).toLowerCase(Locale.ROOT);
+      key = URLUtil.getDomainName(u);
       if (key == null) {
         LOG.warn("Unknown domain for url: {}, using URL string as key", url);
         key = u.toExternalForm();

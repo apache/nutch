@@ -22,6 +22,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Locale;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizer;
@@ -60,12 +61,12 @@ public class AjaxURLNormalizer implements URLNormalizer {
   @Override
   public String normalize(String urlString, String scope) throws MalformedURLException {
     LOG.info("{} // {}", scope, urlString);
-  
+
     // When indexing, transform _escaped_fragment_ URL's to their #! counterpart
     if (scope.equals(URLNormalizers.SCOPE_INDEXER) && urlString.contains(ESCAPED_URL_PART)) {
       return normalizeEscapedFragment(urlString);
     }
-    
+
     // Otherwise transform #! URL's to their _escaped_fragment_ counterpart
     if (urlString.contains(AJAX_URL_PART)) {
       LOG.info("{} // {}", scope, normalizeHashedFragment(urlString));
@@ -174,7 +175,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
    */
   protected String unescape(String fragmentPart) {
     try {
-      fragmentPart = URLDecoder.decode(fragmentPart, "UTF-8");
+      fragmentPart = URLDecoder.decode(fragmentPart, UTF_8);
     } catch (Exception e) {
       /// bluh
     }
@@ -196,7 +197,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
       if (b < 33) {
         sb.append('%');
 
-        hex = Integer.toHexString(b & 0xFF).toUpperCase();
+        hex = Integer.toHexString(b & 0xFF).toUpperCase(Locale.ROOT);
 
         // Prevent odd # chars
         if (hex.length() % 2 != 0) {

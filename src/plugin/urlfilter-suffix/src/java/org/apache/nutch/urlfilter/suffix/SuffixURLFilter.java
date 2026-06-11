@@ -16,30 +16,28 @@
  */
 package org.apache.nutch.urlfilter.suffix;
 
-import org.apache.hadoop.conf.Configuration;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
-import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.SuffixStringMatcher;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
-
+import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.SuffixStringMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-import java.io.Reader;
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.io.StringReader;
-
-import java.util.List;
-import java.util.ArrayList;
-
-import java.net.URL;
-import java.net.MalformedURLException;
 
 /**
  * Filters URLs based on a file of URL suffixes. The file is named by
@@ -48,7 +46,7 @@ import java.net.MalformedURLException;
  * <li>attribute "file" in plugin.xml of this plugin</li>
  * </ol>
  * If the config file is missing, all URLs will be rejected.
- * 
+ *
  * <p>
  * This filter can be configured to work in one of two modes:
  * <ul>
@@ -78,7 +76,7 @@ import java.net.MalformedURLException;
  * expressions, it only accepts literal suffixes. I.e. a suffix "+*.jpg" is most
  * probably wrong, you should use "+.jpg" instead.
  * </p>
- * 
+ *
  * <section>
  * <h2>Examples</h2>
  * <h3>Example 1</h3>
@@ -87,30 +85,30 @@ import java.net.MalformedURLException;
  * suffixes (case-sensitive - '.HTML' or '.HTM' will be rejected), and prohibit
  * all other suffixes.
  * </p>
- * 
+ *
  * <pre>
  *  # this is a comment
- *  
+ *
  *  # prohibit all unknown, case-sensitive matching
  *  -
- * 
+ *
  *  # collect only HTML files.
  *  .html
  *  .htm
  * </pre>
- * 
+ *
  * <h3>Example 2</h3>
  * <p>
  * The configuration shown below will accept all URLs except common graphical
  * formats.
  * </p>
- * 
+ *
  * <pre>
  *  # this is a comment
- *  
+ *
  *  # allow all unknown, case-insensitive matching
  *  +I
- *  
+ *
  *  # prohibited suffixes
  *  .gif
  *  .png
@@ -149,7 +147,7 @@ public class SuffixURLFilter implements URLFilter {
       return null;
     String _url;
     if (ignoreCase)
-      _url = url.toLowerCase();
+      _url = url.toLowerCase(Locale.ROOT);
     else
       _url = url;
     if (filterFromPath) {
@@ -222,7 +220,7 @@ public class SuffixURLFilter implements URLFilter {
     }
     if (ignore) {
       for (int i = 0; i < aSuffixes.size(); i++) {
-        aSuffixes.set(i, ((String) aSuffixes.get(i)).toLowerCase());
+        aSuffixes.set(i, aSuffixes.get(i).toLowerCase(Locale.ROOT));
       }
     }
     suffixes = new SuffixStringMatcher(aSuffixes);
@@ -234,13 +232,14 @@ public class SuffixURLFilter implements URLFilter {
 
     SuffixURLFilter filter;
     if (args.length >= 1)
-      filter = new SuffixURLFilter(new FileReader(args[0]));
+      filter = new SuffixURLFilter(new FileReader(args[0], StandardCharsets.UTF_8));
     else {
       filter = new SuffixURLFilter();
       filter.setConf(NutchConfiguration.create());
     }
 
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader in = new BufferedReader(
+        new InputStreamReader(System.in, StandardCharsets.UTF_8));
     String line;
     while ((line = in.readLine()) != null) {
       String out = filter.filter(line);

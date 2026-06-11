@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -38,11 +39,11 @@ import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.fetcher.Fetcher.FetcherRun;
 import org.apache.nutch.fetcher.FetcherThreadEvent.PublishEventType;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.LatencyTracker;
 import org.apache.nutch.metrics.NutchMetrics;
-import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLExemptionFilters;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
@@ -141,7 +142,7 @@ public class FetcherThread extends Thread {
   private AtomicInteger pages;
 
   private AtomicLong bytes;
-  
+
   private List<Content> robotsTxtContent = null;
   private long robotsDeferVisitsDelay;
   private int robotsDeferVisitsRetries;
@@ -170,9 +171,9 @@ public class FetcherThread extends Thread {
   // Error tracker for categorized error metrics
   private ErrorTracker errorTracker;
 
-  public FetcherThread(Configuration conf, AtomicInteger activeThreads, FetchItemQueues fetchQueues, 
+  public FetcherThread(Configuration conf, AtomicInteger activeThreads, FetchItemQueues fetchQueues,
       QueueFeeder feeder, AtomicInteger spinWaiting, AtomicLong lastRequestStart, FetcherRun.Context context,
-      AtomicInteger errors, String segmentName, boolean parsing, boolean storingContent, 
+      AtomicInteger errors, String segmentName, boolean parsing, boolean storingContent,
       AtomicInteger pages, AtomicLong bytes) {
     this.setDaemon(true); // don't hang JVM on exit
     this.setName("FetcherThread"); // use an informative name
@@ -225,7 +226,7 @@ public class FetcherThread extends Thread {
 
     if ((activatePublisher = conf.getBoolean("fetcher.publisher", false)))
       this.publisher = new FetcherThreadPublisher(conf);
-    
+
     queueMode = conf.get("fetcher.queue.mode",
         FetchItemQueues.QUEUE_MODE_HOST);
     queueMode = FetchItemQueues.checkQueueMode(queueMode);
@@ -289,11 +290,11 @@ public class FetcherThread extends Thread {
         NutchMetrics.GROUP_FETCHER_OUTLINKS, NutchMetrics.FETCHER_OUTLINKS_DETECTED_TOTAL);
     outlinksFollowingCounter = context.getCounter(
         NutchMetrics.GROUP_FETCHER_OUTLINKS, NutchMetrics.FETCHER_OUTLINKS_FOLLOWING_TOTAL);
-    
+
     // Initialize latency tracker for fetch timing
     fetchLatencyTracker = new LatencyTracker(
         NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_LATENCY);
-    
+
     // Initialize error tracker for categorized error metrics
     errorTracker = new ErrorTracker(NutchMetrics.GROUP_FETCHER);
   }
@@ -346,13 +347,13 @@ public class FetcherThread extends Thread {
           // fetch the page
           redirecting = false;
           redirectCount = 0;
-          
+
           //Publisher event
           if(activatePublisher) {
             FetcherThreadEvent startEvent = new FetcherThreadEvent(PublishEventType.START, fit.getUrl().toString());
             publisher.publish(startEvent, conf);
           }
-          
+
           do {
             LOG.info("{} {} fetching {} (queue crawl delay={}ms)", getName(),
                 Thread.currentThread().getId(), fit.url,
@@ -583,12 +584,14 @@ public class FetcherThread extends Thread {
         if (ignoreExternalLinks) {
           String origHostOrDomain, newHostOrDomain;
           if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
-            origHostOrDomain = URLUtil.getDomainName(origUrl).toLowerCase();
-            newHostOrDomain = URLUtil.getDomainName(redirUrl).toLowerCase();
+            origHostOrDomain = URLUtil.getDomainName(origUrl)
+                .toLowerCase(Locale.ROOT);
+            newHostOrDomain = URLUtil.getDomainName(redirUrl)
+                .toLowerCase(Locale.ROOT);
           } else {
             // byHost
-            origHostOrDomain = origUrl.getHost().toLowerCase();
-            newHostOrDomain = redirUrl.getHost().toLowerCase();
+            origHostOrDomain = origUrl.getHost().toLowerCase(Locale.ROOT);
+            newHostOrDomain = redirUrl.getHost().toLowerCase(Locale.ROOT);
           }
           if (!origHostOrDomain.equals(newHostOrDomain)) {
             LOG.debug(
@@ -599,8 +602,8 @@ public class FetcherThread extends Thread {
         }
 
         if (ignoreInternalLinks) {
-          String origHost = origUrl.getHost().toLowerCase();
-          String newHost = redirUrl.getHost().toLowerCase();
+          String origHost = origUrl.getHost().toLowerCase(Locale.ROOT);
+          String newHost = redirUrl.getHost().toLowerCase(Locale.ROOT);
           if (origHost.equals(newHost)) {
             LOG.debug(
                 " - ignoring redirect {} from {} to {} because internal links are ignored",
@@ -800,11 +803,11 @@ public class FetcherThread extends Thread {
             URL originURL = new URL(url.toString());
             // based on domain?
             if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
-              origin = URLUtil.getDomainName(originURL).toLowerCase();
-            } 
-            // use host 
+              origin = URLUtil.getDomainName(originURL);
+            }
+            // use host
             else {
-              origin = originURL.getHost().toLowerCase();
+              origin = originURL.getHost().toLowerCase(Locale.ROOT);
             }
           }
           int validCount = 0;
@@ -831,8 +834,8 @@ public class FetcherThread extends Thread {
             outlinkList.add(links[i]);
             outlinks.add(toUrl);
           }
-          
-          //Publish fetch report event 
+
+          //Publish fetch report event
           if(activatePublisher) {
             FetcherThreadEvent reportEvent = new FetcherThreadEvent(PublishEventType.REPORT, url.toString());
             reportEvent.addOutlinksToEventData(outlinkList);
@@ -877,14 +880,14 @@ public class FetcherThread extends Thread {
                 continue;
               }
               queue.alreadyFetched.add(urlHashCode);
-              
+
               // Create new FetchItem with depth incremented
               FetchItem fit = FetchItem.create(new Text(followUrl),
                   new CrawlDatum(CrawlDatum.STATUS_LINKED, interval),
                   queueMode, outlinkDepth + 1);
-              
+
               outlinksFollowingCounter.increment(1);
-              
+
               fetchQueues.addFetchItem(fit);
 
               outlinkCounter++;
@@ -917,7 +920,7 @@ public class FetcherThread extends Thread {
     }
     return null;
   }
-  
+
   private void outputRobotsTxt(List<Content> robotsTxtContent) throws InterruptedException {
     for (Content robotsTxt : robotsTxtContent) {
       LOG.debug("Fetched and stored robots.txt {}",
@@ -947,10 +950,10 @@ public class FetcherThread extends Thread {
   public String getReprUrl() {
     return reprUrl;
   }
-  
+
   private void setReprUrl(String urlString) {
     this.reprUrl = urlString;
-    
+
   }
 
 }

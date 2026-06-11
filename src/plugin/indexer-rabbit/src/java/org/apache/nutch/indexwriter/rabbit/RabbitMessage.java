@@ -16,10 +16,11 @@
  */
 package org.apache.nutch.indexwriter.rabbit;
 
-import com.google.gson.Gson;
-
 import java.util.LinkedList;
 import java.util.List;
+
+import com.google.gson.Gson;
+import com.nimbusds.jose.util.StandardCharset;
 
 class RabbitMessage {
   private List<RabbitDocument> docsToWrite = new LinkedList<>();
@@ -40,7 +41,7 @@ class RabbitMessage {
 
   byte[] getBytes() {
     Gson gson = new Gson();
-    return gson.toJson(this).getBytes();
+    return gson.toJson(this).getBytes(StandardCharset.UTF_8);
   }
 
   boolean isEmpty () {

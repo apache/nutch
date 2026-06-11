@@ -16,17 +16,18 @@
  */
 package org.apache.nutch.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.util.Locale;
+import java.util.Map;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.io.MD5Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.Map;
 
 public class DumpFileUtil {
 	private static final Logger LOG = LoggerFactory
@@ -35,14 +36,14 @@ public class DumpFileUtil {
     private final static String DIR_PATTERN = "%s/%s/%s";
     private final static String FILENAME_PATTERN = "%s_%s.%s";
     private final static Integer MAX_LENGTH_OF_FILENAME = 32;
-    private final static Integer MAX_LENGTH_OF_EXTENSION = 5; 
-   
+    private final static Integer MAX_LENGTH_OF_EXTENSION = 5;
+
     public static String getUrlMD5(String url) {
         byte[] digest = MD5Hash.digest(url).getDigest();
 
         StringBuffer sb = new StringBuffer();
         for (byte b : digest) {
-            sb.append(String.format("%02x", b & 0xff));
+            sb.append(String.format(Locale.ROOT, "%02x", b & 0xff));
         }
 
         return sb.toString();
@@ -52,7 +53,8 @@ public class DumpFileUtil {
         String firstLevelDirName = new StringBuilder().append(md5.charAt(0)).append(md5.charAt(8)).toString();
         String secondLevelDirName = new StringBuilder().append(md5.charAt(16)).append(md5.charAt(24)).toString();
 
-        String fullDirPath = String.format(DIR_PATTERN, basePath, firstLevelDirName, secondLevelDirName);
+        String fullDirPath = String.format(Locale.ROOT, basePath,
+            firstLevelDirName, secondLevelDirName);
 
         if (makeDir) {
 	        try {
@@ -65,7 +67,7 @@ public class DumpFileUtil {
 
         return fullDirPath;
     }
-    
+
     public static String createTwoLevelsDirectory(String basePath, String md5) {
         return createTwoLevelsDirectory(basePath, md5, true);
     }
@@ -74,23 +76,24 @@ public class DumpFileUtil {
         if (fileBaseName.length() > MAX_LENGTH_OF_FILENAME) {
             LOG.info("File name is too long. Truncated to {} characters.", MAX_LENGTH_OF_FILENAME);
             fileBaseName = StringUtils.substring(fileBaseName, 0, MAX_LENGTH_OF_FILENAME);
-        } 
-        
+        }
+
         if (fileExtension.length() > MAX_LENGTH_OF_EXTENSION) {
             LOG.info("File extension is too long. Truncated to {} characters.", MAX_LENGTH_OF_EXTENSION);
             fileExtension = StringUtils.substring(fileExtension, 0, MAX_LENGTH_OF_EXTENSION);
         }
-	
+
 	// Added to prevent FileNotFoundException (Invalid Argument) - in *nix environment
         fileBaseName = fileBaseName.replaceAll("\\?", "");
         fileExtension = fileExtension.replaceAll("\\?", "");
 
-        return String.format(FILENAME_PATTERN, md5, fileBaseName, fileExtension);
-    }
-    
+        return String.format(Locale.ROOT, FILENAME_PATTERN, md5, fileBaseName,
+            fileExtension);
+      }
+
     public static String createFileNameFromUrl(String basePath, String reverseKey, String urlString, String epochScrapeTime, String fileExtension, boolean makeDir) {
 		String fullDirPath = basePath + File.separator + reverseKey + File.separator + DigestUtils.sha1Hex(urlString);
-		
+
 		if (makeDir) {
 	        try {
 	            FileUtils.forceMkdir(new File(fullDirPath));
@@ -99,17 +102,17 @@ public class DumpFileUtil {
 	            fullDirPath = null;
 	        }
         }
-		
+
 		if (fileExtension.length() > MAX_LENGTH_OF_EXTENSION) {
 			LOG.info("File extension is too long. Truncated to {} characters.", MAX_LENGTH_OF_EXTENSION);
 			fileExtension = StringUtils.substring(fileExtension, 0, MAX_LENGTH_OF_EXTENSION);
 	    }
-		
+
 		String outputFullPath = fullDirPath + File.separator + epochScrapeTime + "." + fileExtension;
-		
+
 		return outputFullPath;
     }
-    
+
 	public static String displayFileTypes(Map<String, Integer> typeCounts, Map<String, Integer> filteredCounts) {
 		StringBuilder builder = new StringBuilder();
 		// print total stats
@@ -143,5 +146,5 @@ public class DumpFileUtil {
 			builder.append("Total filtered count: " + mimetypeCount + "\n");
 		}
 		return builder.toString();
-	}  
+	}
 }

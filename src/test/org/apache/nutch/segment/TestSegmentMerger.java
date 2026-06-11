@@ -17,6 +17,8 @@
 package org.apache.nutch.segment;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
@@ -34,9 +36,9 @@ import org.apache.nutch.util.CancellationAwareTestUtils.CancellationToken;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -72,7 +74,8 @@ public class TestSegmentMerger {
 
     // create large parse-text segments
     System.err.println("Creating large segment 1...");
-    DecimalFormat df = new DecimalFormat("0000000");
+    DecimalFormat df = new DecimalFormat("0000000",
+        new DecimalFormatSymbols(Locale.ROOT));
     Text k = new Text();
     Path ptPath = new Path(new Path(seg1, ParseText.DIR_NAME), "part-00000");
     Option kOpt = MapFile.Writer.keyClass(Text.class);
@@ -144,7 +147,7 @@ public class TestSegmentMerger {
           if (cancellationToken.isCancelled()) {
             return;
           }
-          
+
           String ks = k.toString();
           String vs = v.getText();
           if (ks.startsWith("seg1-")) {

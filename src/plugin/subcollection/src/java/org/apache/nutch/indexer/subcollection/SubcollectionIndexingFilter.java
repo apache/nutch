@@ -16,21 +16,20 @@
  */
 package org.apache.nutch.indexer.subcollection;
 
+import java.util.Locale;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
-
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.util.NutchConfiguration;
-
-import org.apache.nutch.indexer.IndexingFilter;
-import org.apache.nutch.indexer.IndexingException;
-import org.apache.nutch.indexer.NutchDocument;
-
 import org.apache.nutch.collection.CollectionManager;
 import org.apache.nutch.collection.Subcollection;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.IndexingFilter;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.util.NutchConfiguration;
 
 public class SubcollectionIndexingFilter extends Configured implements
     IndexingFilter {
@@ -56,7 +55,7 @@ public class SubcollectionIndexingFilter extends Configured implements
     metadataSource = conf.get("subcollection.metadata.source", "subcollection");
     caseInsensitive = conf.getBoolean("subcollection.case.insensitive", false);
   }
-  
+
 
   /**
    * @return Configuration
@@ -70,7 +69,7 @@ public class SubcollectionIndexingFilter extends Configured implements
    * Doc field name
    */
   public static String fieldName = "subcollection";
-  
+
   /**
    * Metadata source field name
    */
@@ -78,7 +77,7 @@ public class SubcollectionIndexingFilter extends Configured implements
 
   /**
    * "Mark" document to be a part of subcollection
-   * 
+   *
    * @param doc
    * @param url
    */
@@ -100,16 +99,16 @@ public class SubcollectionIndexingFilter extends Configured implements
     String subcollection = parse.getData().getMeta(metadataSource);
     if (subcollection != null) {
       subcollection = subcollection.trim();
-      
+
       if (subcollection.length() > 0) {
         doc.add(fieldName, subcollection);
         return doc;
       }
     }
-    
+
     String sUrl = url.toString();
     if (caseInsensitive) {
-      sUrl = sUrl.toLowerCase();
+      sUrl = sUrl.toLowerCase(Locale.ROOT);
     }
     addSubCollectionField(doc, sUrl);
     return doc;

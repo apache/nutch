@@ -16,32 +16,30 @@
  */
 package org.apache.nutch.urlfilter.prefix;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
-
-import org.apache.nutch.util.PrefixStringMatcher;
-import org.apache.nutch.util.TrieStringMatcher;
 import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
-
-import java.lang.invoke.MethodHandles;
-import java.io.Reader;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.io.StringReader;
-
-import java.util.List;
-import java.util.ArrayList;
+import org.apache.nutch.util.PrefixStringMatcher;
+import org.apache.nutch.util.TrieStringMatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Filters URLs based on a file of URL prefixes. The file is named by (1)
  * property "urlfilter.prefix.file" in ./conf/nutch-default.xml, or (2)
  * the attribute "file" in plugin.xml of this plugin.
- * 
+ *
  * <p>
  * The format of this file is one URL prefix per line.
  * </p>
@@ -106,7 +104,8 @@ public class PrefixURLFilter implements URLFilter {
     else
       filter = new PrefixURLFilter();
 
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader in = new BufferedReader(
+        new InputStreamReader(System.in, StandardCharsets.UTF_8));
     String line;
     while ((line = in.readLine()) != null) {
       String out = filter.filter(line);

@@ -16,13 +16,14 @@
  */
 package org.apache.nutch.protocol.http.api;
 
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.invoke.MethodHandles;
 import java.net.Proxy;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,11 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+
 import javax.net.ssl.SSLSocketFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.HttpHeaders;
 import org.apache.nutch.metadata.Nutch;
@@ -46,14 +48,11 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
+import org.apache.nutch.util.DeflateUtils;
 import org.apache.nutch.util.GZIPUtils;
 import org.apache.nutch.util.MimeUtil;
-import org.apache.nutch.util.DeflateUtils;
-import org.apache.hadoop.util.StringUtils;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import crawlercommons.robots.BaseRobotRules;
 
@@ -338,13 +337,13 @@ public abstract class HttpBase implements Protocol {
     String[] ciphers = conf.getStrings("http.tls.supported.cipher.suites");
     if (protocols == null){
       // use SSL3 or above by default
-      protocols = new String[] {"TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1", "SSLv3"}; 
+      protocols = new String[] {"TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1", "SSLv3"};
     }
     if (ciphers == null){
       // use default ciphers by default unless manually specified otherwise in the config
       ciphers = ((SSLSocketFactory) SSLSocketFactory.getDefault()).getDefaultCipherSuites();
     }
-    
+
     this.tlsPreferredProtocols = new HashSet<>(Arrays.asList(protocols));
     this.tlsPreferredCipherSuites = new HashSet<>(Arrays.asList(ciphers));
 
@@ -545,7 +544,7 @@ public abstract class HttpBase implements Protocol {
 
   /**
    * Value of "Accept-Language" request header sent by Nutch.
-   * 
+   *
    * @return The value of the header "Accept-Language" header.
    */
   public String getAcceptLanguage() {
@@ -714,7 +713,7 @@ public abstract class HttpBase implements Protocol {
       System.out.println("Content Length: "
           + content.getMetadata().get(HttpHeaders.CONTENT_LENGTH));
       System.out.println("Content:");
-      String text = new String(content.getContent());
+      String text = new String(content.getContent(), StandardCharsets.UTF_8);
       System.out.println(text);
     }
   }
@@ -736,7 +735,7 @@ public abstract class HttpBase implements Protocol {
 
   /**
    * Transforming a String[] into a HashMap for faster searching
-   * 
+   *
    * @param input
    *          String[]
    * @return a new HashMap

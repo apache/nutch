@@ -59,7 +59,7 @@ public class HttpResponse implements Response {
   private Metadata headers = new SpellCheckedMetadata();
   // used for storing the http headers verbatim
   private StringBuffer httpHeaders;
-  
+
   protected enum Scheme {
     HTTP, HTTPS,
   }
@@ -223,15 +223,15 @@ public class HttpResponse implements Response {
 
       if (http.isCookieEnabled()) {
         String cookie = null;
-        
+
         if (datum.getMetaData().containsKey(HttpBase.COOKIE)) {
           cookie = ((Text)datum.getMetaData().get(HttpBase.COOKIE)).toString();
         }
-        
+
         if (cookie == null) {
           cookie = http.getCookie(url);
         }
-        
+
         if (cookie != null) {
           reqStr.append("Cookie: ");
           reqStr.append(cookie);
@@ -255,7 +255,7 @@ public class HttpResponse implements Response {
         headers.add(Response.REQUEST, reqStr.toString());
       }
 
-      byte[] reqBytes = reqStr.toString().getBytes();
+      byte[] reqBytes = reqStr.toString().getBytes(StandardCharsets.UTF_8);
 
       req.write(reqBytes);
       req.flush();
@@ -389,7 +389,7 @@ public class HttpResponse implements Response {
           new TrustManager[] { new DummyX509TrustManager(null) }, null);
       factory = sslContext.getSocketFactory();
     }
-    
+
     SSLSocket sslsocket = (SSLSocket) factory
       .createSocket(socket, sockHost, sockPort, true);
     sslsocket.setUseClientMode(true);

@@ -20,12 +20,14 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class TimingUtil {
 
   /** Formats dates for logging */
-  public static DateTimeFormatter logDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+  public static DateTimeFormatter logDateFormat = DateTimeFormatter
+      .ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT);
 
   /**
    * Convert epoch milliseconds ({@link System#currentTimeMillis()}) into date
@@ -40,7 +42,7 @@ public class TimingUtil {
 
   /**
    * Calculate the elapsed time between two times specified in milliseconds.
-   * 
+   *
    * @param start
    *          The start of the time period
    * @param end
@@ -54,10 +56,10 @@ public class TimingUtil {
     }
     return secondsToHMS((end-start)/1000);
   }
-  
+
   /**
    * Show time in seconds as hours, minutes and seconds (hh:mm:ss)
-   * 
+   *
    * @param seconds
    *          (elapsed) time in seconds
    * @return human readable time string "hh:mm:ss"
@@ -68,12 +70,13 @@ public class TimingUtil {
         % TimeUnit.HOURS.toMinutes(1);
     seconds = TimeUnit.SECONDS.toSeconds(seconds)
         % TimeUnit.MINUTES.toSeconds(1);
-    return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    return String.format(Locale.ROOT, "%02d:%02d:%02d", hours, minutes,
+        seconds);
   }
 
   /**
    * Show time in seconds as days, hours, minutes and seconds (d days, hh:mm:ss)
-   * 
+   *
    * @param seconds
    *          (elapsed) time in seconds
    * @return human readable time string "d days, hh:mm:ss"
@@ -83,7 +86,7 @@ public class TimingUtil {
     if (days == 0)
       return secondsToHMS(seconds);
     String hhmmss = secondsToHMS(seconds % TimeUnit.DAYS.toSeconds(1));
-    return String.format("%d days, %s", days, hhmmss);
+    return String.format(Locale.ROOT, "%d days, %s", days, hhmmss);
   }
 
 }

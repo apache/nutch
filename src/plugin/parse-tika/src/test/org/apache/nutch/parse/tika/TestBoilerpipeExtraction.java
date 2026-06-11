@@ -23,7 +23,9 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for Boilerpipe content extraction integration with Tika.
@@ -31,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class TestBoilerpipeExtraction {
 
-  private static final String HTML_WITH_BOILERPLATE = 
+  private static final String HTML_WITH_BOILERPLATE =
       "<!DOCTYPE html><html><head><title>Article Title</title></head><body>"
       + "<div id='header'>Navigation | Menu | Links</div>"
       + "<div id='content'>"
@@ -49,40 +51,42 @@ public class TestBoilerpipeExtraction {
     conf.set("plugin.includes", "parse-tika");
     conf.set("tika.extractor", "boilerpipe");
     conf.set("tika.extractor.boilerpipe.algorithm", "ArticleExtractor");
-    
+
     TikaParser parser = new TikaParser();
     parser.setConf(conf);
-    
+
     String url = "http://example.com/article.html";
-    Content content = new Content(url, url, 
-        HTML_WITH_BOILERPLATE.getBytes(), "text/html", new Metadata(), conf);
-    
+    Content content = new Content(url, url,
+        HTML_WITH_BOILERPLATE.getBytes(UTF_8), "text/html", new Metadata(),
+        conf);
+
     Parse parse = parser.getParse(content).get(url);
     String text = parse.getText();
-    
+
     // Boilerpipe should extract main content
-    assertTrue(text.contains("Main Article Heading"), 
+    assertTrue(text.contains("Main Article Heading"),
         "Should contain article heading");
-    assertTrue(text.contains("main article content"), 
+    assertTrue(text.contains("main article content"),
         "Should contain main content");
   }
-  
+
   @Test
   public void testBoilerpipeDisabled() {
     Configuration conf = NutchConfiguration.create();
     conf.set("plugin.includes", "parse-tika");
     conf.set("tika.extractor", "none"); // Default - boilerpipe disabled
-    
+
     TikaParser parser = new TikaParser();
     parser.setConf(conf);
-    
+
     String url = "http://example.com/article.html";
-    Content content = new Content(url, url, 
-        HTML_WITH_BOILERPLATE.getBytes(), "text/html", new Metadata(), conf);
-    
+    Content content = new Content(url, url,
+        HTML_WITH_BOILERPLATE.getBytes(UTF_8), "text/html", new Metadata(),
+        conf);
+
     Parse parse = parser.getParse(content).get(url);
     String text = parse.getText();
-    
+
     // Without boilerpipe, all text should be extracted including boilerplate
     assertTrue(text.contains("Navigation"), "Should contain navigation text");
     assertTrue(text.contains("Copyright"), "Should contain footer text");
@@ -97,15 +101,16 @@ public class TestBoilerpipeExtraction {
     conf.set("tika.extractor.boilerpipe.algorithm", "ArticleExtractor");
     // Only apply to HTML mime types
     conf.setStrings("tika.extractor.boilerpipe.mime.types", "text/html");
-    
+
     TikaParser parser = new TikaParser();
     parser.setConf(conf);
-    
+
     // Using XHTML mime type which is not in the configured list
     String url = "http://example.com/article.xhtml";
-    Content content = new Content(url, url, 
-        HTML_WITH_BOILERPLATE.getBytes(), "application/xhtml+xml", new Metadata(), conf);
-    
+    Content content = new Content(url, url,
+        HTML_WITH_BOILERPLATE.getBytes(UTF_8), "application/xhtml+xml",
+        new Metadata(), conf);
+
     Parse parse = parser.getParse(content).get(url);
     assertNotNull(parse, "Should parse successfully even when boilerpipe doesn't apply");
   }

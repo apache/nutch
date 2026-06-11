@@ -20,7 +20,10 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /** Unit tests for GZIPUtils methods. */
 public class TestGZIPUtils {
@@ -113,40 +116,40 @@ public class TestGZIPUtils {
 
   @Test
   public void testZipUnzip() {
-    byte[] testBytes = SHORT_TEST_STRING.getBytes();
+    byte[] testBytes = SHORT_TEST_STRING.getBytes(UTF_8);
     testZipUnzip(testBytes);
-    testBytes = LONGER_TEST_STRING.getBytes();
+    testBytes = LONGER_TEST_STRING.getBytes(UTF_8);
     testZipUnzip(testBytes);
-    testBytes = WEBPAGE.getBytes();
+    testBytes = WEBPAGE.getBytes(UTF_8);
     testZipUnzip(testBytes);
   }
 
   @Test
   public void testZipUnzipBestEffort() {
-    byte[] testBytes = SHORT_TEST_STRING.getBytes();
+    byte[] testBytes = SHORT_TEST_STRING.getBytes(UTF_8);
     testZipUnzipBestEffort(testBytes);
-    testBytes = LONGER_TEST_STRING.getBytes();
+    testBytes = LONGER_TEST_STRING.getBytes(UTF_8);
     testZipUnzipBestEffort(testBytes);
-    testBytes = WEBPAGE.getBytes();
+    testBytes = WEBPAGE.getBytes(UTF_8);
     testZipUnzipBestEffort(testBytes);
   }
 
   public void testTruncation() {
-    byte[] testBytes = SHORT_TEST_STRING.getBytes();
+    byte[] testBytes = SHORT_TEST_STRING.getBytes(UTF_8);
     testTruncation(testBytes);
-    testBytes = LONGER_TEST_STRING.getBytes();
+    testBytes = LONGER_TEST_STRING.getBytes(UTF_8);
     testTruncation(testBytes);
-    testBytes = WEBPAGE.getBytes();
+    testBytes = WEBPAGE.getBytes(UTF_8);
     testTruncation(testBytes);
   }
 
   @Test
   public void testLimit() {
-    byte[] testBytes = SHORT_TEST_STRING.getBytes();
+    byte[] testBytes = SHORT_TEST_STRING.getBytes(UTF_8);
     testLimit(testBytes);
-    testBytes = LONGER_TEST_STRING.getBytes();
+    testBytes = LONGER_TEST_STRING.getBytes(UTF_8);
     testLimit(testBytes);
-    testBytes = WEBPAGE.getBytes();
+    testBytes = WEBPAGE.getBytes(UTF_8);
     testLimit(testBytes);
   }
 
