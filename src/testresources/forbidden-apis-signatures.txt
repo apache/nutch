@@ -1,5 +1,6 @@
 java.net.URL#equals(java.lang.Object) @ may trigger a DNS lookup to resolve the host part
 java.net.URL#hashCode()               @ may trigger a DNS lookup to resolve the host part
+### NUTCH-3181 Java 20 deprecates all constructors of the class java.net.URL
 # java.net.URL#<init>(java.lang.String) @ deprecated since Java 20
 # java.net.URL#<init>(java.lang.String, java.lang.String, java.lang.String) @ deprecated since Java 20
 # java.net.URL#<init>(java.lang.String, java.lang.String, int, java.lang.String) @ deprecated since Java 20
