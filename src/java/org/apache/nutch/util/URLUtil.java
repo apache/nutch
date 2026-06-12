@@ -687,7 +687,6 @@ public class URLUtil {
       // over-long label), IllegalStateException (Punycode).
       // Convert to MalformedURLException so callers (e.g. BasicURLNormalizer)
       // reject the URL instead of crashing the task.
-      LOG.debug("Failed to convert IDN host {}: ", host, e);
       throw (MalformedURLException) new MalformedURLException(
           "Invalid IDN host " + host + ": " + e.getMessage()).initCause(e);
     }
