@@ -30,7 +30,7 @@
    provider-name="net.sourceforge.nekohtml">
 
    <runtime>
-     <library name="nekohtml-1.9.19.jar">
+     <library name="nekohtml-1.9.22.jar">
         <export name="*"/>
      </library>
    </runtime>
