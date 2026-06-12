@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.apache.nutch.fetcher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,34 +65,34 @@ public class TestFetchWithParseFailures {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
-  
+
   private static final Path TEST_DIR = new Path("build/test/test-fail-parse");
-  
+
   private static final String BASE_FOLDER = "build/test/data/fetch-parse-failure";
   private static final String TEST_FILE = "test.html";
-  
+
   private Configuration conf;
   private FileSystem fs;
   private Path crawldbPath;
   private Path segmentsPath;
   private Path urlPath;
   private Server server;
-  
+
   private static List<String> files;
   private static java.nio.file.Path baseFolderPath;
-  
+
   private static ExecutorService executor = Executors.newCachedThreadPool();
   private static final AtomicInteger FETCH_COUNT = new AtomicInteger(0);
-  
-  
+
+
   @BeforeEach
   public void setUp() throws Exception {
     baseFolderPath = java.nio.file.Paths.get(BASE_FOLDER);
-    
+
     files = java.nio.file.Files.list(baseFolderPath).map(p -> p.getFileName().toString()).filter(n -> !n.equals("robots.txt")).collect(Collectors.toList());
     Collections.sort(files);
     LOG.info("TEST FILES : " + files);
-    
+
     conf = CrawlDBTestUtil.createContext().getConfiguration();
     // Do not include 'parse-tika', because it would parse anything
     conf.set("plugin.includes", "protocol-http|urlfilter-regex|parse-html|index-(basic|anchor)|indexer-csv|scoring-opic|urlnormalizer-(pass|regex|basic)");
@@ -86,7 +102,7 @@ public class TestFetchWithParseFailures {
     conf.setBoolean("fetcher.parse", true);
     conf.setBoolean("fetcher.store.content", true);
     conf.setBoolean(ParseSegment.DELETE_FAILED_PARSE, true);
-    
+
     fs = FileSystem.get(conf);
     fs.delete(TEST_DIR, true);
     crawldbPath = new Path(TEST_DIR, "crawldb");
@@ -109,12 +125,12 @@ public class TestFetchWithParseFailures {
     }
     fs.delete(TEST_DIR, true);
   }
-  
+
 
   @Test
   public void testFetchWithParseFailure() throws Exception {
     AbstractFetchSchedule schedule = new AbstractFetchSchedule(conf) {};
-    
+
     // generate seedlist
     ArrayList<String> urls = new ArrayList<String>();
     files.forEach(f -> urls.add("http://127.0.0.1:" + server.getURI().getPort() + "/" + f));
@@ -129,7 +145,7 @@ public class TestFetchWithParseFailures {
     Path[] generatedSegment1 = g1.generate(crawldbPath, segmentsPath, 1,
         Long.MAX_VALUE, Long.MAX_VALUE, false, false, true, 1, null);
     Assertions.assertNotNull(generatedSegment1);
-    
+
     Map<String, Object> args1 = Map.of("segment", generatedSegment1[0]);
     // fetch once
     LOG.info("1ST FETCH");
@@ -150,10 +166,10 @@ public class TestFetchWithParseFailures {
     Assertions.assertFalse(result1.isEmpty());
     Assertions.assertEquals("0", result1.get(Nutch.VAL_RESULT));
     Assertions.assertEquals(1, FETCH_COUNT.get());
-    
+
     CrawlDb crawlDb = new CrawlDb(conf);
     crawlDb.update(crawldbPath, generatedSegment1, true, true, true, true);
-    
+
     // verify content
     LOG.info("1ST VERIFY CONTENT");
     Map<String, String> fetchedUrls = new HashMap<>();
@@ -173,9 +189,9 @@ public class TestFetchWithParseFailures {
     assertEquals(urls.size(), fetchedUrls.size());
     LOG.info("1ST FETCHED URLS: {}", fetchedUrls);
     fetchedUrls.entrySet().forEach(i -> Assertions.assertEquals(i.getValue(), "" + CrawlDatum.STATUS_FETCH_SUCCESS));
-    
+
     // force re-fetch and wait a bit
-    urls.forEach(i -> 
+    urls.forEach(i ->
       schedule.forceRefetch(new Text(i), new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED, 1), true));
     long start = System.currentTimeMillis();
     while(System.currentTimeMillis() < start + 1000L);
@@ -193,7 +209,7 @@ public class TestFetchWithParseFailures {
     // next fetch should generate parse failure
     LOG.info("2ND FETCH");
     Fetcher fetcher2 = new Fetcher(conf);
-    
+
     Map<String, Object> result2 = executor.submit(new Callable<Map<String, Object>>(){
 
       @Override
@@ -228,7 +244,7 @@ public class TestFetchWithParseFailures {
     }
     assertEquals(urls.size(), fetchedUrls.size());
     LOG.info("2ND FETCHED STATUS: {}", fetchedUrls);
-    
+
     for (Map.Entry<String, String> entry : fetchedUrls.entrySet()) {
       if(entry.getKey().endsWith(TEST_FILE)) {
         Assertions.assertEquals(entry.getValue(), "" + CrawlDatum.STATUS_PARSE_FAILED);
@@ -237,15 +253,15 @@ public class TestFetchWithParseFailures {
       }
     }
   }
-  
+
   public static class ParseFailureResourceHandler extends ResourceHandler {
-    
+
     public ParseFailureResourceHandler() {
       super();
     }
-    
+
     @Override
-    public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) 
+    public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
         throws IOException, ServletException {
       if(FETCH_COUNT.get() == 1 && target.endsWith(TEST_FILE)) {
         LOG.info("Set mime type 'application/unknown' and random bytes content");
@@ -255,7 +271,7 @@ public class TestFetchWithParseFailures {
         byte[] randomBytes = new byte[1024];
         new Random(123).nextBytes(randomBytes);
         response.getOutputStream().write(randomBytes);
-        
+
       } else {
         super.handle(target, baseRequest, request, response);
       }

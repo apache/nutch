@@ -1808,8 +1808,8 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 <property>
   <name>parser.delete.failed.parse</name>
   <value>false</value>
-  <description>Boolean value for whether we should delete a page from the index when parsing the page fails. 
-  By default this property is deactivated, because it will delete an existing page from the index, where a 
+  <description>Boolean value for whether we should delete a page from the index when parsing the page fails.
+  By default this property is deactivated, because it will delete an existing page from the index, where a
   previous fetch produced content that was successfully parsed.
   </description>
 </property>
@@ -2264,14 +2264,14 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 </property>
 
 <!-- index-geoip plugin properties -->
-<!-- 
+<!--
   To use the index-geoip plugin, you must set 'store.ip.address' to true.
-  
+
   Configure one or more GeoIP databases by setting the corresponding property below.
   Each database type can be enabled independently - set any combination you need.
   Database files must be in MMDB format and available on the Hadoop classpath
   (e.g., place them in $NUTCH_HOME/conf).
-  
+
   More information: https://support.maxmind.com/knowledge-base/articles/maxmind-database-formats
 -->
 
@@ -2414,7 +2414,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   <value></value>
   <description>The values (as strings) to pass into the POJO constructor.
     The POJO must accept a String representation of the NutchDocument's URL
-    as the first parameter in the constructor. The values you specify here 
+    as the first parameter in the constructor. The values you specify here
     will populate the constructor arguments 1,..,n-1 where n=the count of
     arguments to the constructor. Argument #0 will be the NutchDocument's URL.
   </description>

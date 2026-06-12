@@ -188,7 +188,7 @@ public class ParseStatus implements Writable {
   public boolean isSuccess() {
     return majorCode == SUCCESS;
   }
-  
+
   public boolean isFailed() {
     return majorCode == FAILED;
   }

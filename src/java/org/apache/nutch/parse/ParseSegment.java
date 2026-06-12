@@ -129,7 +129,7 @@ public class ParseSegment extends NutchTool implements Tool {
         return;
       } else if(deleteFailedParse && Integer.parseInt(fetchStatus) == CrawlDatum.STATUS_PARSE_FAILED) {
         LOG.debug("Skipping {} as un-parseable content will be deleted", key);
-        return;        
+        return;
       } else if (Integer.parseInt(fetchStatus) != CrawlDatum.STATUS_FETCH_SUCCESS) {
         // content not fetched successfully, skip document
         LOG.debug("Skipping {} as content is not fetched successfully", key);
@@ -199,7 +199,7 @@ public class ParseSegment extends NutchTool implements Tool {
 
   /**
    * Checks if the page's content is truncated.
-   * 
+   *
    * @param content the response {@link org.apache.nutch.protocol.Content}
    * @return If the page is truncated <code>true</code>. When it is not, or when
    *         it couldn't be determined, <code>false</code>.
@@ -259,7 +259,7 @@ public class ParseSegment extends NutchTool implements Tool {
     }
   }
 
-  public void parse(Path segment) throws IOException, 
+  public void parse(Path segment) throws IOException,
       InterruptedException, ClassNotFoundException {
     if (SegmentChecker.isParsed(segment, segment.getFileSystem(getConf()))) {
       LOG.warn("Segment: {} already parsed!! Skipped parsing this segment!!", segment); // NUTCH-1854
@@ -356,7 +356,7 @@ public class ParseSegment extends NutchTool implements Tool {
     else {
     	String segment_dir = crawlId+"/segments";
         File segmentsDir = new File(segment_dir);
-        File[] segmentsList = segmentsDir.listFiles();  
+        File[] segmentsList = segmentsDir.listFiles();
         Arrays.sort(segmentsList, (f1, f2) -> {
           if(f1.lastModified()>f2.lastModified())
             return -1;
@@ -365,7 +365,7 @@ public class ParseSegment extends NutchTool implements Tool {
         });
         segment = new Path(segmentsList[0].getPath());
     }
-    
+
     if (args.containsKey("nofilter")) {
       getConf().setBoolean("parse.filter.urls", false);
     }

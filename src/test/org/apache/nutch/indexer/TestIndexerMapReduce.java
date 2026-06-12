@@ -106,7 +106,7 @@ public class TestIndexerMapReduce {
   public void testDeleteParseFailure() {
     configuration = NutchConfiguration.create();
     configuration.setBoolean(ParseSegment.DELETE_FAILED_PARSE, true);
-    
+
     // unrelated issue with "index.jexl.filter", don't use all plugins.  Ref: src/test/nutch-site.xml
     configuration.set("plugin.includes", "protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|indexer-csv|scoring-opic|urlnormalizer-(pass|regex|basic)");
 
@@ -124,7 +124,7 @@ public class TestIndexerMapReduce {
       Content content = new Content(testUrl, testUrl,
           testHtmlDoc.getBytes(StandardCharsets.UTF_8), htmlContentType, htmlMeta,
           configuration);
-      
+
       if(failParse) {
         data = failedParseData;
         text = failedParseText;
@@ -159,7 +159,7 @@ public class TestIndexerMapReduce {
   public void testBinaryContentBase64() {
     configuration = NutchConfiguration.create();
     configuration.setBoolean(IndexerMapReduce.INDEXER_BINARY_AS_BASE64, true);
-    
+
     // unrelated issue with "index.jexl.filter", don't use all plugins.  Ref: src/test/nutch-site.xml
     configuration.set("plugin.includes", "protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|indexer-csv|scoring-opic|urlnormalizer-(pass|regex|basic)");
 
@@ -216,8 +216,8 @@ public class TestIndexerMapReduce {
    * @param content
    *          (optional, if index binary content) protocol content
    * @return &quot;indexed&quot; document
-   * @throws InterruptedException 
-   * @throws IOException 
+   * @throws InterruptedException
+   * @throws IOException
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public NutchDocument runIndexer(CrawlDatum dbDatum, CrawlDatum fetchDatum,
@@ -228,14 +228,14 @@ public class TestIndexerMapReduce {
     values.add(new NutchWritable(parseText));
     values.add(new NutchWritable(parseData));
     values.add(new NutchWritable(content));
-    Map<Text, NutchIndexAction> reduceResult = new HashMap<>();  
+    Map<Text, NutchIndexAction> reduceResult = new HashMap<>();
     ReducerContextWrapper contextWrapper = new ReducerContextWrapper(reducer, configuration, reduceResult);
     NutchDocument doc = null;
-    try {      
+    try {
       reducer.setup(contextWrapper.getContext());
       // test
       reducer.reduce(testUrlText, values, contextWrapper.getContext());
-      
+
       for (Map.Entry<Text, NutchIndexAction> e : reduceResult.entrySet()) {
         if (e.getValue().action != NutchIndexAction.DELETE) {
           doc = e.getValue().doc;

@@ -76,8 +76,8 @@ public class CrawlDbReducer extends
    * Get counter for status, caching for subsequent lookups.
    */
   private Counter getStatusCounter(byte status, Context context) {
-    return statusCounters.computeIfAbsent(status, 
-        s -> context.getCounter(NutchMetrics.GROUP_CRAWLDB, 
+    return statusCounters.computeIfAbsent(status,
+        s -> context.getCounter(NutchMetrics.GROUP_CRAWLDB,
             CrawlDatum.getStatusName(s)));
   }
 
@@ -130,7 +130,7 @@ public class CrawlDbReducer extends
         }
         continue;
       }
-      
+
       switch (datum.getStatus()) { // collect other info
       case CrawlDatum.STATUS_LINKED:
         CrawlDatum link;
@@ -243,7 +243,7 @@ public class CrawlDbReducer extends
           result.getMetaData().put(e.getKey(), e.getValue());
         }
       }
-      
+
       // determine the modification status
       int modified = FetchSchedule.STATUS_UNKNOWN;
       if (fetch.getStatus() == CrawlDatum.STATUS_FETCH_NOTMODIFIED) {
@@ -327,7 +327,7 @@ public class CrawlDbReducer extends
       result = schedule.setPageGoneSchedule(key, result, prevFetchTime,
           prevModifiedTime, fetch.getFetchTime());
       break;
-      
+
     case CrawlDatum.STATUS_FETCH_GONE: // permanent failure
       if (oldSet)
         result.setSignature(old.getSignature()); // use old signature

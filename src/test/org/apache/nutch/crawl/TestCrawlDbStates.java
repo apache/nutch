@@ -239,9 +239,9 @@ public class TestCrawlDbStates {
           LOG.error(StringUtils.stringifyException(e));
         }
         values.add(injected);
-        
+
         List<CrawlDatum> result = new ArrayList<CrawlDatum>();
-        Map<Text, CrawlDatum> res = new HashMap<>(); 
+        Map<Text, CrawlDatum> res = new HashMap<>();
         ReducerContextWrapper contextWrapper = new ReducerContextWrapper(injector, conf, res);
         try {
           injector.setup(contextWrapper.getContext());
@@ -371,7 +371,7 @@ public class TestCrawlDbStates {
       e.printStackTrace();
     }
   }
-  
+
 
   @Test
   public void testCrawlDbReducerParseFailed() {
@@ -785,7 +785,7 @@ public class TestCrawlDbStates {
     }
 
   }
-  
+
   private class CrawlTestParserFailure extends ContinuousCrawlTestUtil {
 
     int counter = 0;
@@ -794,7 +794,7 @@ public class TestCrawlDbStates {
     public CrawlTestParserFailure(Context context) {
       super(context);
     }
-    
+
     @Override
     protected CrawlDatum fetch(CrawlDatum datum, long currentTime) {
       counter++;
@@ -807,7 +807,7 @@ public class TestCrawlDbStates {
       } else {
         failing = false;
         datum.setStatus(STATUS_FETCH_SUCCESS);
-        LOG.info("expect fetch success");  
+        LOG.info("expect fetch success");
       }
       datum.setFetchTime(currentTime);
       return datum;
