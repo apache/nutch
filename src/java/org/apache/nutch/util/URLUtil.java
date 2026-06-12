@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import com.ibm.icu.util.ICUException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -652,7 +653,6 @@ public class URLUtil {
       // IndexOutOfBoundsException: thrown (undocumented) if one "label"
       // (non-ASCII dot-separated segment) is longer than 256 characters,
       // cf. https://bugs.openjdk.java.net/browse/JDK-6806873
-      LOG.debug("Failed to convert IDN host {}: ", host, e);
       throw (MalformedURLException) new MalformedURLException(
           "Invalid IDN " + host + ": " + e.getMessage()).initCause(e);
     }
@@ -675,11 +675,22 @@ public class URLUtil {
       throws MalformedURLException {
     final IDNA.Info idnaInfo = new IDNA.Info();
     final StringBuilder hostConverted = new StringBuilder();
-    if (toAscii) {
-      idna.nameToASCII(host, hostConverted, idnaInfo);
-    } else {
-      idna.nameToUnicode(host, hostConverted, idnaInfo);
+    try {
+      if (toAscii) {
+        idna.nameToASCII(host, hostConverted, idnaInfo);
+      } else {
+        idna.nameToUnicode(host, hostConverted, idnaInfo);
+      }
+    } catch (ICUException | IllegalStateException  e) {
+      // ICU's UTS46 + Punycode conversion throws these unchecked exceptions:
+      // ICUException (incl. ICUInputTooLongException from Punycode.encode on an
+      // over-long label), IllegalStateException (Punycode).
+      // Convert to MalformedURLException so callers (e.g. BasicURLNormalizer)
+      // reject the URL instead of crashing the task.
+      throw (MalformedURLException) new MalformedURLException(
+          "Invalid IDN host " + host + ": " + e.getMessage()).initCause(e);
     }
+
     if (idnaInfo.hasErrors()) {
       StringBuilder msg = new StringBuilder();
       for (IDNA.Error error : idnaInfo.getErrors()) {

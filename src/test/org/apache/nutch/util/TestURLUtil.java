@@ -444,6 +444,22 @@ public class TestURLUtil {
         () -> URLUtil.convertIDNA2008("xn--a-ä.pt", false));
     assertThrows(MalformedURLException.class,
         () -> URLUtil.convertIDNA2008("xn--a-ä.pt", true));
+
+    assertThrows(MalformedURLException.class, // Thai, 1001 units
+        () -> URLUtil.convertIDNA2008("ก".repeat(1001), true));
+    assertThrows(MalformedURLException.class, // emoji (surrogate pairs), 1002 units
+        () -> URLUtil.convertIDNA2008("😀".repeat(501), true));
+    assertThrows(MalformedURLException.class, // CJK Ext-B, 1200 units
+        () -> URLUtil.convertIDNA2008(
+            new String(Character.toChars(0x20000)).repeat(600), true));
+
+    // boundary: exactly 1000 units does not throw; rejected via LABEL_TOO_LONG
+    assertThrows(MalformedURLException.class,
+        () -> URLUtil.convertIDNA2008("ก".repeat(1000), true));
+
+    // EMPTY_LABEL: a bare dot (empty label) is rejected via IDNA.Info errors
+    assertThrows(MalformedURLException.class,
+        () -> URLUtil.convertIDNA2008(".", true));
   }
 
   @Test
