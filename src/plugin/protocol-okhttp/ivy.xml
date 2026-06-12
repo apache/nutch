@@ -37,9 +37,9 @@
   </publications>
 
   <dependencies>
-    <dependency org="com.squareup.okhttp3" name="okhttp" rev="5.3.2"/>
-    <dependency org="com.squareup.okhttp3" name="okhttp-brotli" rev="5.3.2"/>
-    <dependency org="com.squareup.okhttp3" name="okhttp-zstd" rev="5.3.2"/>
+    <dependency org="com.squareup.okhttp3" name="okhttp" rev="5.4.0"/>
+    <dependency org="com.squareup.okhttp3" name="okhttp-brotli" rev="5.4.0"/>
+    <dependency org="com.squareup.okhttp3" name="okhttp-zstd" rev="5.4.0"/>
   </dependencies>
 
 </ivy-module>
