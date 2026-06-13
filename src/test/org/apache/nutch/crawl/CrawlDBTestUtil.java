@@ -19,6 +19,7 @@ package org.apache.nutch.crawl;
 import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,8 +30,11 @@ import java.util.stream.Stream;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -70,7 +74,7 @@ public class CrawlDBTestUtil {
   private static CrawlDbReducer reducer = new CrawlDbReducer();
   /**
    * Creates synthetic crawldb
-   * 
+   *
    * @param conf
    *          configuration to use
    * @param fs
@@ -213,7 +217,7 @@ public class CrawlDBTestUtil {
     public RawComparator<?> getCombinerKeyGroupingComparator() {
       return null;
     }
-  
+
     @Override
     public Configuration getConfiguration() {
       return conf;
@@ -325,7 +329,7 @@ public class CrawlDBTestUtil {
     public Class<? extends Partitioner<?, ?>> getPartitionerClass() throws ClassNotFoundException {
       return null;
     }
-    
+
     @Override
     public boolean getProfileEnabled() {
       return false;
@@ -376,7 +380,7 @@ public class CrawlDBTestUtil {
    * For now we need to manually construct our Configuration, because we need to
    * override the default one and it is currently not possible to use
    * dynamically set values.
-   * 
+   *
    * @return a new Reducer Context with test configuration
    */
   @NonNull
@@ -405,7 +409,7 @@ public class CrawlDBTestUtil {
 
   /**
    * Generate seedlist
-   * 
+   *
    * @param fs filesystem to use
    * @param urlPath path where seed file will be created
    * @param urls list of URLs to write
@@ -418,7 +422,7 @@ public class CrawlDBTestUtil {
 
   /**
    * Generate seedlist with optional metadata
-   * 
+   *
    * @param fs filesystem to use
    * @param urlPath path where seed file will be created
    * @param urls list of URLs to write
@@ -499,5 +503,34 @@ public class CrawlDBTestUtil {
       throws IOException {
     String ct = Files.probeContentType(file);
     return ct != null ? ct : "application/octet-stream";
+  }
+
+  /**
+   * Creates a new JettyServer with one static root context and the provided resource handler.
+   *
+   * @param port
+   *          port to listen to
+   * @param staticContent
+   *          folder where static content lives
+   * @param resourceHandler
+   *          resource handler to override the default behavior if needed.
+   * @return configured Jetty server instance
+   * @throws UnknownHostException
+   */
+  @NonNull
+  public static Server getServer(int port, @NonNull String staticContent, ResourceHandler resourceHandler)
+      throws UnknownHostException {
+    Server webServer = new Server();
+
+    ServerConnector listener = new ServerConnector(webServer);
+    listener.setPort(port);
+    listener.setHost("127.0.0.1");
+    webServer.addConnector(listener);
+    ContextHandler staticContext = new ContextHandler();
+    staticContext.setContextPath("/");
+    staticContext.setResourceBase(staticContent);
+    staticContext.insertHandler(resourceHandler);
+    webServer.insertHandler(staticContext);
+    return webServer;
   }
 }

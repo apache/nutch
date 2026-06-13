@@ -112,6 +112,7 @@ public class FetcherThread extends Thread {
   URLNormalizers normalizersForOutlinks;
 
   private boolean skipTruncated;
+  private boolean deleteFailedParse;
 
   private boolean halted = false;
 
@@ -181,6 +182,7 @@ public class FetcherThread extends Thread {
     this.scfilters = new ScoringFilters(conf);
     this.parseUtil = new ParseUtil(conf);
     this.skipTruncated = conf.getBoolean(ParseSegment.SKIP_TRUNCATED, true);
+    this.deleteFailedParse = conf.getBoolean(ParseSegment.DELETE_FAILED_PARSE, false);
     this.signatureWithoutParsing = conf.getBoolean("fetcher.signature", false);
     this.protocolFactory = new ProtocolFactory(conf);
     this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
@@ -221,7 +223,7 @@ public class FetcherThread extends Thread {
           .getInt("http.robots.503.defer.visits.retries", 3);
     }
 
-    if((activatePublisher=conf.getBoolean("fetcher.publisher", false)))
+    if ((activatePublisher = conf.getBoolean("fetcher.publisher", false)))
       this.publisher = new FetcherThreadPublisher(conf);
     
     queueMode = conf.get("fetcher.queue.mode",
@@ -442,7 +444,7 @@ public class FetcherThread extends Thread {
             case ProtocolStatus.SUCCESS: // got a page
               pstatus = output(fit.url, fit.datum, content, status,
                   CrawlDatum.STATUS_FETCH_SUCCESS, fit.outlinkDepth);
-              updateStatus(content.getContent().length);
+              updateStatus(content.getContent() != null ? content.getContent().length : 0);
               if (pstatus != null && pstatus.isSuccess()
                   && pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
                 String newUrl = pstatus.getMessage();
@@ -734,14 +736,18 @@ public class FetcherThread extends Thread {
               .calculate(content, new ParseStatus().getEmptyParse(conf));
           datum.setSignature(signature);
         }
+
+        if (parseResult == null && parsing && deleteFailedParse) {
+          datum.setStatus(CrawlDatum.STATUS_PARSE_FAILED);
+          status = CrawlDatum.STATUS_PARSE_FAILED;
+        }
       }
 
       /*
        * Store status code in content So we can read this value during parsing
        * (as a separate job) and decide to parse or not.
        */
-      content.getMetadata().add(Nutch.FETCH_STATUS_KEY,
-          Integer.toString(status));
+      content.getMetadata().add(Nutch.FETCH_STATUS_KEY, Integer.toString(status));
     }
 
     try {
@@ -759,6 +765,10 @@ public class FetcherThread extends Thread {
             LOG.warn("{} {} Error parsing: {}: {}", getName(),
                 Thread.currentThread().getId(), key, parseStatus);
             parse = parseStatus.getEmptyParse(conf);
+            if (deleteFailedParse && content != null) {
+              // forward the failure status in the content
+              content.getMetadata().add(Nutch.FETCH_STATUS_KEY, Integer.toString(CrawlDatum.STATUS_PARSE_FAILED));
+            }
           }
 
           // Calculate page signature. For non-parsing fetchers this will

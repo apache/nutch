@@ -189,6 +189,10 @@ public class ParseStatus implements Writable {
     return majorCode == SUCCESS;
   }
 
+  public boolean isFailed() {
+    return majorCode == FAILED;
+  }
+
   /**
    * @return a String representation of the first argument,
    * or null.

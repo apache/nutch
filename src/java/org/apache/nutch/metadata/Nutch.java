@@ -26,31 +26,31 @@ import org.apache.hadoop.io.Text;
  */
 public interface Nutch {
 
-	public static final String ORIGINAL_CHAR_ENCODING = "OriginalCharEncoding";
+  public static final String ORIGINAL_CHAR_ENCODING = "OriginalCharEncoding";
 
-	public static final String CHAR_ENCODING_FOR_CONVERSION = "CharEncodingForConversion";
+  public static final String CHAR_ENCODING_FOR_CONVERSION = "CharEncodingForConversion";
 
-	public static final String SIGNATURE_KEY = "nutch.content.digest";
+  public static final String SIGNATURE_KEY = "nutch.content.digest";
 
-	public static final String SEGMENT_NAME_KEY = "nutch.segment.name";
+  public static final String SEGMENT_NAME_KEY = "nutch.segment.name";
 
-	public static final String SCORE_KEY = "nutch.crawl.score";
+  public static final String SCORE_KEY = "nutch.crawl.score";
 
-	public static final String GENERATE_TIME_KEY = "_ngt_";
+  public static final String GENERATE_TIME_KEY = "_ngt_";
 
-	public static final Text WRITABLE_GENERATE_TIME_KEY = new Text(
-			GENERATE_TIME_KEY);
+  public static final Text WRITABLE_GENERATE_TIME_KEY = new Text(
+      GENERATE_TIME_KEY);
 
-	public static final Text PROTOCOL_STATUS_CODE_KEY = new Text("nutch.protocol.code");
+  public static final Text PROTOCOL_STATUS_CODE_KEY = new Text("nutch.protocol.code");
 
-	public static final String PROTO_STATUS_KEY = "_pst_";
+  public static final String PROTO_STATUS_KEY = "_pst_";
 
-	public static final Text WRITABLE_PROTO_STATUS_KEY = new Text(
-			PROTO_STATUS_KEY);
+  public static final Text WRITABLE_PROTO_STATUS_KEY = new Text(
+      PROTO_STATUS_KEY);
 
-	public static final String FETCH_TIME_KEY = "_ftk_";
+  public static final String FETCH_TIME_KEY = "_ftk_";
 
-	public static final String FETCH_STATUS_KEY = "_fst_";
+  public static final String FETCH_STATUS_KEY = "_fst_";
 
   /**
    * Name to store the <a href="https://www.robotstxt.org/meta.html">robots
@@ -58,30 +58,30 @@ public interface Nutch {
    */
   public static final String ROBOTS_METATAG = "robots";
 
-	/**
-	 * Sites may request that search engines don't provide access to cached
-	 * documents.
-	 */
-	public static final String CACHING_FORBIDDEN_KEY = "caching.forbidden";
+  /**
+   * Sites may request that search engines don't provide access to cached
+   * documents.
+   */
+  public static final String CACHING_FORBIDDEN_KEY = "caching.forbidden";
 
-	/** Show both original forbidden content and summaries (default). */
-	public static final String CACHING_FORBIDDEN_NONE = "none";
+  /** Show both original forbidden content and summaries (default). */
+  public static final String CACHING_FORBIDDEN_NONE = "none";
 
-	/** Don't show either original forbidden content or summaries. */
-	public static final String CACHING_FORBIDDEN_ALL = "all";
+  /** Don't show either original forbidden content or summaries. */
+  public static final String CACHING_FORBIDDEN_ALL = "all";
 
-	/** Don't show original forbidden content, but show summaries. */
-	public static final String CACHING_FORBIDDEN_CONTENT = "content";
+  /** Don't show original forbidden content, but show summaries. */
+  public static final String CACHING_FORBIDDEN_CONTENT = "content";
 
-	public static final String REPR_URL_KEY = "_repr_";
+  public static final String REPR_URL_KEY = "_repr_";
 
-	public static final Text WRITABLE_REPR_URL_KEY = new Text(REPR_URL_KEY);
+  public static final Text WRITABLE_REPR_URL_KEY = new Text(REPR_URL_KEY);
 
-	/** Used by AdaptiveFetchSchedule to maintain custom fetch interval */
-	public static final String FIXED_INTERVAL_KEY = "fixedInterval";
+  /** Used by AdaptiveFetchSchedule to maintain custom fetch interval */
+  public static final String FIXED_INTERVAL_KEY = "fixedInterval";
 
-	public static final Text WRITABLE_FIXED_INTERVAL_KEY = new Text(
-			FIXED_INTERVAL_KEY);
+  public static final Text WRITABLE_FIXED_INTERVAL_KEY = new Text(
+      FIXED_INTERVAL_KEY);
 
 	 /** For progress of job (programmatic / tooling). */
 	public static final String STAT_PROGRESS = "progress";
