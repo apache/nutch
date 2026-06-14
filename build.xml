@@ -467,7 +467,9 @@
     </antcall>
   </target>
 
-  <target name="test-core" depends="compile-core-test, job, jacoco-download" description="--> run core JUnit tests">
+  <target name="test-core"
+          depends="compile-core-test, job, jacoco-download"
+          description="--> run core JUnit tests">
     <delete dir="${test.build.data}"/>
     <mkdir dir="${test.build.data}"/>
     <mkdir dir="${coverage.dir}"/>
@@ -517,7 +519,9 @@
     <fail if="tests.failed">Tests failed!</fail>
   </target>
 
-  <target name="test-plugins" depends="resolve-test, compile, compile-core-test, jacoco-download" description="--> run JUnit tests for all plugins">
+  <target name="test-plugins"
+          depends="resolve-test, compile, compile-core-test, jacoco-download"
+          description="--> run JUnit tests for all plugins">
     <ant dir="src/plugin" target="test" inheritAll="false"/>
   </target>
 
@@ -1168,8 +1172,16 @@
   <!-- Policeman's Forbidden API checker                                  -->
   <!-- https://github.com/policeman-tools/forbidden-apis/wiki/AntUsage    -->
   <!-- ================================================================== -->
-  <target name="forbidden-api-checks" depends="compile, compile-core-test, test-plugins">
-    <!-- Depends on test-plugins, in order to compile also the plugin test classes. -->
+  <target name="forbidden-api-checks" depends="compile-core, compile-plugins">
+    <!-- Note: by default, when the target "forbidden-api-checks" is
+         launched from a clean project root (after "ant clean"), only
+         core and plugin classes are checked.  In order to check also
+         the test classes, run it together with "test-core" or
+         "test-plugins", or any target which depends on the two, e.g.
+           ant clean test-core forbidden-api-checks
+           ant clean test-plugins forbidden-api-checks
+           ant clean test forbidden-api-checks
+    -->
     <ivy:cachepath organisation="de.thetaphi" module="forbiddenapis" revision="${forbiddenapis.version}"
                    inline="true" pathid="forbiddenapis.classpath"/>
     <taskdef uri="antlib:de.thetaphi.forbiddenapis" classpathref="forbiddenapis.classpath"/>
