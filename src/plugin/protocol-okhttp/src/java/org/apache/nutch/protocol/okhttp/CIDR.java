@@ -27,10 +27,16 @@ import com.google.common.net.InetAddresses;
  * defined by the CIDR.
  */
 public class CIDR {
-  InetAddress addr;
-  int mask;
 
-  public CIDR(InetAddress address, int mask) {
+  private final InetAddress addr;
+  private final int mask;
+
+  public CIDR(InetAddress address, int mask) throws IllegalArgumentException {
+    int maxMask = address.getAddress().length * 8;
+    if (mask < 0 || mask > maxMask) {
+      throw new IllegalArgumentException(
+          "Invalid CIDR mask /" + mask + " for " + address);
+    }
     this.addr = address;
     this.mask = mask;
   }
@@ -42,16 +48,23 @@ public class CIDR {
       ipStr = cidr.substring(0, sep);
     }
     addr = InetAddresses.forString(ipStr);
+    int parsedMask;
     if (sep > -1) {
-      mask = Integer.parseInt(cidr.substring(sep + 1));
+      parsedMask = Integer.parseInt(cidr.substring(sep + 1));
     } else {
-      mask = addr.getAddress().length * 8;
+      parsedMask = addr.getAddress().length * 8;
     }
     if (cidr.indexOf(':') > -1 && addr.getAddress().length == 4) {
       // IPv4-mapped IPv6 addresses are automatically converted to IPv4,
       // need to shift the mask
-      mask = Math.max(0, mask - 96);
+      parsedMask = Math.max(0, parsedMask - 96);
     }
+    int maxMask = addr.getAddress().length * 8;
+    if (parsedMask < 0 || parsedMask > maxMask) {
+      throw new IllegalArgumentException(
+          "Invalid CIDR mask /" + parsedMask + " for " + ipStr);
+    }
+    this.mask = parsedMask;
   }
 
   public boolean contains(InetAddress address) {
@@ -63,11 +76,18 @@ public class CIDR {
     }
     for (int i = 0; i < addr0.length; i++) {
       int remainingMaskBits = mask - (i * 8);
-      if (remainingMaskBits <= 0)
+      if (remainingMaskBits <= 0) {
         return true;
-      int m = ~(0xff >> remainingMaskBits); // mask for byte under cursor
-      if ((addr0[i] & m) != (addr1[i] & m))
+      }
+      /*
+       * keep the mask within one byte so the shift does not wrap (Java shifts
+       * mod 32)
+       */
+      int m = remainingMaskBits >= 8 ? 0xff
+          : (0xff << (8 - remainingMaskBits)) & 0xff;
+      if ((addr0[i] & m) != (addr1[i] & m)) {
         return false;
+      }
     }
     return true;
   }
