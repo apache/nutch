@@ -28,6 +28,7 @@ import com.google.common.net.InetAddresses;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -63,6 +64,17 @@ public class TestIPAddressFiltering extends AbstractHttpProtocolPluginTest {
     assertFalse(c.contains(i), i + " should not be in " + c);
   }
 
+  @Test
+  public void testInvalidCIDR() {
+    assertThrows(IllegalArgumentException.class,
+        () -> new CIDR(InetAddress.getByName("1.2.3.4"), 33));
+    assertThrows(IllegalArgumentException.class, () -> new CIDR("1.2.3.4/33"));
+    assertThrows(IllegalArgumentException.class, () -> new CIDR("::ffff:7f00:0/129"));
+    assertThrows(IllegalArgumentException.class, () -> new CIDR("1.2.3.4/-1"));
+    // invalid rule
+    assertThrows(IllegalArgumentException.class, () -> new CIDR("foobar"));
+  }
+
   /** Tests for {@link CIDR} */
   @Test
   public void testCIDRs() {
@@ -89,6 +101,13 @@ public class TestIPAddressFiltering extends AbstractHttpProtocolPluginTest {
     testCIDRnotContains("10.0.0.0/8", "9.255.255.255");
     testCIDRnotContains("172.16.0.0/12", "172.32.0.0");
     testCIDRnotContains("172.16.0.0/12", "171.255.255.255");
+
+    testCIDRnotContains("127.0.0.1/31", "0.0.0.1");
+    // NUTCH-3187 CIDR edge cases - /32, /128 - test bit shifting
+    testCIDRnotContains("127.0.0.1", "0.0.0.1");
+    testCIDRnotContains("127.0.0.1/32", "0.0.0.1");
+    testCIDRnotContains("127.0.0.1", "255.0.0.1");
+    testCIDRnotContains("fe80::2f29:b6f0:a4c:32ae/128", "::2f29:b6f0:a4c:32ae");
   }
 
   public void testFilter(Configuration conf, String[] included, String[] excluded) {

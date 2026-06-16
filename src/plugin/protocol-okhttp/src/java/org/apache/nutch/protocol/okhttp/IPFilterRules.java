@@ -105,15 +105,15 @@ public class IPFilterRules {
       switch (ipRule.toLowerCase(Locale.ROOT)) {
       case "localhost":
       case "loopback":
-        rules.add((InetAddress a) -> a.isLoopbackAddress());
+        rules.add(InetAddress::isLoopbackAddress);
         break;
       case "sitelocal":
-        rules.add((InetAddress a) -> a.isSiteLocalAddress());
+        rules.add(InetAddress::isSiteLocalAddress);
         break;
       default:
         try {
           CIDR cidr = new CIDR(ipRule);
-          rules.add((InetAddress a) -> cidr.contains(a));
+          rules.add(cidr::contains);
         } catch (IllegalArgumentException e) {
           LOG.error(
               "Failed to parse {} as CIDR, ignoring to configure IP rules ({})",
