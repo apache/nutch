@@ -262,7 +262,7 @@ jobs:
             echo "has_results=false" >> $GITHUB_OUTPUT
           fi
       - name: Upload Test Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always() && matrix.os == 'ubuntu-latest' && matrix.java == '17' && steps.check_tests.outputs.has_results == 'true'
         with:
           name: junit-test-results-${{ matrix.os }}-jdk${{ matrix.java }}
@@ -271,7 +271,7 @@ jobs:
             ./build/**/test/TEST-*.xml
           retention-days: 1
       - name: Upload Coverage Data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always() && matrix.os == 'ubuntu-latest'
         with:
           name: coverage-data-ubuntu-jdk${{ matrix.java }}
