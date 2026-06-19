@@ -54,7 +54,7 @@ jobs:
         run: ant compile compile-plugins resolve-test -buildfile build.xml
       # Coverage and JUnit XML come only from the master-build Ubuntu JDK 17 matrix job.
       - name: Download coverage data (Ubuntu JDK 17)
-        uses: dawidd6/action-download-artifact@v11
+        uses: dawidd6/action-download-artifact@v21
         with:
           name: coverage-data-ubuntu-jdk17
           workflow: master-build.yml
@@ -62,7 +62,7 @@ jobs:
           path: ./build/coverage/
         continue-on-error: true
       - name: Download test reports (Ubuntu JDK 17)
-        uses: dawidd6/action-download-artifact@v11
+        uses: dawidd6/action-download-artifact@v21
         with:
           name: junit-test-results-ubuntu-latest-jdk17
           workflow: master-build.yml
