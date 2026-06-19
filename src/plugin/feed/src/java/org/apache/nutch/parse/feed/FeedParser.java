@@ -57,16 +57,10 @@ import com.rometools.rome.feed.synd.SyndPerson;
 import com.rometools.rome.io.SyndFeedInput;
 
 /**
+ * A RSS/ATOM Feed{@link Parser} that rapidly parses all referenced links and
+ * content present in the feed.
  *
- * @author dogacan
- * @author mattmann
  * @since NUTCH-444
- *
- *        <p>
- *        A new RSS/ATOM Feed{@link Parser} that rapidly parses all referenced
- *        links and content present in the feed.
- *        </p>
- *
  */
 public class FeedParser implements Parser {
 

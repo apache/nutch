@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author markus@openindex.io
+ * Configurable normalization of trailing slashes in URLs.
  */
 public class SlashURLNormalizer implements URLNormalizer {
 
@@ -97,7 +97,6 @@ public class SlashURLNormalizer implements URLNormalizer {
   public void setConf(Configuration conf) {
     this.conf = conf;
 
-    // get the extensions for domain urlfilter
     String pluginName = "urlnormalizer-slash";
     Extension[] extensions = PluginRepository.get(conf).getExtensionPoint(
       URLNormalizer.class.getName()).getExtensions();

@@ -48,8 +48,6 @@ import org.apache.tika.Tika;
  * are just treated as individual files.
  *
  * (4) No funcy POSIX file attributes yet. May never need?
- *
- * @author John Xing
  */
 public class FileResponse {
 

@@ -74,8 +74,6 @@ import org.slf4j.LoggerFactory;
  * the calculated re-fetch interval for a URL matching the hostname will not be
  * allowed to fall outside of the corresponding range, instead of the default
  * range.
- *
- * @author Andrzej Bialecki
  */
 public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
 

@@ -146,5 +146,5 @@ public class DumpFileUtil {
 			builder.append("Total filtered count: " + mimetypeCount + "\n");
 		}
 		return builder.toString();
-	}
+  }
 }

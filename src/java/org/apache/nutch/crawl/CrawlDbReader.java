@@ -92,9 +92,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Read utility for the CrawlDB.
- *
- * @author Andrzej Bialecki
- *
  */
 public class CrawlDbReader extends AbstractChecker implements Closeable {
 

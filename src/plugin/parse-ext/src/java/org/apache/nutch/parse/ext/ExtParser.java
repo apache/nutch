@@ -42,10 +42,7 @@ import com.nimbusds.jose.util.StandardCharset;
 
 /**
  * A wrapper that invokes external command to do real parsing job.
- *
- * @author John Xing
  */
-
 public class ExtParser implements Parser {
 
   private static final Logger LOG = LoggerFactory

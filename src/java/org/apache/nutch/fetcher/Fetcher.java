@@ -94,8 +94,6 @@ import org.slf4j.LoggerFactory;
  * ready, FetcherThread-s will spin-wait until either some items become
  * available, or a timeout is reached (at which point the Fetcher will abort,
  * assuming the task is hung).
- *
- * @author Andrzej Bialecki
  */
 public class Fetcher extends NutchTool implements Tool {
 

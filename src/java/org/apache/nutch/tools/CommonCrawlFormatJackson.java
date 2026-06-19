@@ -104,6 +104,6 @@ public class CommonCrawlFormatJackson extends AbstractCommonCrawlFormat {
 	@Override
 	protected String generateJson() throws IOException {
 		this.generator.flush();
-		return this.out.toString(StandardCharsets.UTF_8);
+    return this.out.toString(StandardCharsets.UTF_8);
 	}
 }

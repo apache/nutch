@@ -36,8 +36,6 @@ import org.slf4j.LoggerFactory;
  * Implementation of RFC 2617 Basic Authentication. Usernames and passwords are
  * stored in standard Nutch configuration files using the following properties:
  * http.auth.basic.&lt;realm&gt;.user http.auth.basic.&lt;realm&gt;.pass
- *
- * @author Matt Tencati
  */
 public class HttpBasicAuthentication implements HttpAuthentication,
     Configurable {

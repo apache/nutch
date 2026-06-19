@@ -42,8 +42,6 @@ import crawlercommons.robots.BaseRobotRules;
  * Configurable parameters are {@code file.content.limit} and
  * {@code file.crawl.parent} in nutch-default.xml defined under
  * "file properties" section.
- *
- * @author John Xing
  */
 public class File implements Protocol {
 

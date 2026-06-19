@@ -59,8 +59,6 @@ import org.apache.commons.net.ftp.FTPReply;
  * About exceptions: Some specific exceptions are re-thrown as one of
  * FtpException*.java In fact, each function throws FtpException*.java or pass
  * IOException.
- *
- * @author John Xing
  */
 
 public class Client extends FTP {

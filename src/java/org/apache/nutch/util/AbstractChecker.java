@@ -40,8 +40,6 @@ import crawlercommons.robots.BaseRobotRules;
 
 /**
  * Scaffolding class for the various Checker implementations. Can process cmdline input, stdin and TCP connections.
- *
- * @author Jurian Broertjes
  */
 public abstract class AbstractChecker extends Configured implements Tool {
 

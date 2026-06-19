@@ -62,8 +62,6 @@ import org.apache.nutch.util.StringUtil;
  * spaces, in the order of decreasing frequency.</li>
  * </ul>
  * This list is then submitted to an MD5 hash calculation.
- *
- * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class TextProfileSignature extends Signature {
 

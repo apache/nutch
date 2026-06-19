@@ -61,9 +61,6 @@ import org.xml.sax.InputSource;
  * This class also supports different rules depending on the scope. Please see
  * the javadoc in {@link org.apache.nutch.net.URLNormalizers} for more details.
  * </p>
- *
- * @author Luke Baker
- * @author Andrzej Bialecki
  */
 public class RegexURLNormalizer extends Configured implements URLNormalizer {
 
