@@ -57,6 +57,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -73,7 +74,23 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
     NUMBER_FORMAT.setMinimumIntegerDigits(5);
     NUMBER_FORMAT.setGroupingUsed(false);
   }
-  
+
+  /**
+   * Parses the comma-separated db.parsemeta.to.crawldb config value.
+   * Uses comma-split and trim to avoid ReDoS from regex backtracking.
+   * @param value config value (may be null or empty)
+   * @return array of trimmed, non-empty metadata keys (never null)
+   */
+  static String[] getParseMetaToCrawlDBKeys(String value) {
+    if (value == null || value.isEmpty()) {
+      return new String[0];
+    }
+    return Arrays.stream(value.split(",", -1))
+        .map(String::trim)
+        .filter(s -> !s.isEmpty())
+        .toArray(String[]::new);
+  }
+
   private static class SimpleEntry implements Entry<Text, CrawlDatum> {
     private Text key;
     private CrawlDatum value;
@@ -177,8 +194,8 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
     Path data = new Path(new Path(out, ParseData.DIR_NAME), name);
     Path crawl = new Path(new Path(out, CrawlDatum.PARSE_DIR_NAME), name);
 
-    final String[] parseMDtoCrawlDB = conf.get("db.parsemeta.to.crawldb", "")
-        .split(" *, *");
+    final String[] parseMDtoCrawlDB = getParseMetaToCrawlDBKeys(
+        conf.get("db.parsemeta.to.crawldb", ""));
 
     // textOut Options
     final MapFile.Writer textOut;

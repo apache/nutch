@@ -16,6 +16,8 @@
  */
 package org.apache.nutch.urlfilter.validator;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,39 +59,13 @@ public class UrlValidator implements URLFilter {
 
   private static final String ALPHA_CHARS = "a-zA-Z";
 
-  private static final String ALPHA_NUMERIC_CHARS = ALPHA_CHARS + "\\d";
-
   private static final String SPECIAL_CHARS = ";/@&=,.?:+$";
 
   private static final String VALID_CHARS = "[^\\s" + SPECIAL_CHARS + "]";
 
   private static final String SCHEME_CHARS = ALPHA_CHARS;
 
-  // Drop numeric, and "+-." for now
-  private static final String AUTHORITY_CHARS = ALPHA_NUMERIC_CHARS + "\\-\\.";
-
   private static final String ATOM = VALID_CHARS + '+';
-
-  /**
-   * This expression derived/taken from the BNF for URI (RFC2396).
-   */
-  private static final Pattern URL_PATTERN = Pattern
-      .compile("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)"
-          + "(\\?([^#]*))?(#(.*))?");
-
-  /**
-   * Schema/Protocol (ie. http:, ftp:, file:, etc).
-   */
-  private static final int PARSE_URL_SCHEME = 2;
-
-  /**
-   * Includes hostname/ip and port number.
-   */
-  private static final int PARSE_URL_AUTHORITY = 4;
-
-  private static final int PARSE_URL_PATH = 5;
-
-  private static final int PARSE_URL_QUERY = 7;
 
   /**
    * Protocol (ie. http:, ftp:,https:).
@@ -97,17 +73,10 @@ public class UrlValidator implements URLFilter {
   private static final Pattern SCHEME_PATTERN = Pattern.compile("^["
       + SCHEME_CHARS + "]+");
 
-  private static final Pattern AUTHORITY_PATTERN = Pattern.compile("^(["
-      + AUTHORITY_CHARS + "]*)(:\\d*)?(.*)?");
-
-  private static final int PARSE_AUTHORITY_HOST_IP = 1;
-
-  private static final int PARSE_AUTHORITY_PORT = 2;
-
-  /**
-   * Should always be empty.
-   */
-  private static final int PARSE_AUTHORITY_EXTRA = 3;
+  /** Index for host/IP in parseAuthority result. */
+  private static final int PARSE_AUTHORITY_HOST_IP = 0;
+  /** Index for port string (e.g. ":80") in parseAuthority result, or null. */
+  private static final int PARSE_AUTHORITY_PORT = 1;
 
   private static final Pattern PATH_PATTERN = Pattern
       .compile("^(/[-\\w:@&?=+,.!/~*'%$_;\\(\\)]*)?$");
@@ -157,38 +126,72 @@ public class UrlValidator implements URLFilter {
    *          value is considered invalid.
    * @return true if the url is valid.
    */
+  /**
+   * Parse authority "host" or "host:port" using linear scan (avoids ReDoS).
+   * @return String[2]: { hostOrIp, portOrNull } where port is e.g. ":80" or null
+   */
+  /** Package-private for unit testing. */
+  static String[] parseAuthority(String authority) {
+    if (authority == null || authority.isEmpty()) {
+      return new String[] { "", null };
+    }
+    int lastColon = authority.lastIndexOf(':');
+    if (lastColon < 0) {
+      return new String[] { authority, null };
+    }
+    String portPart = authority.substring(lastColon + 1);
+    boolean allDigits = true;
+    for (int i = 0; i < portPart.length(); i++) {
+      if (!Character.isDigit(portPart.charAt(i))) {
+        allDigits = false;
+        break;
+      }
+    }
+    if (allDigits && !portPart.isEmpty()) {
+      return new String[] { authority.substring(0, lastColon), ":" + portPart };
+    }
+    return new String[] { authority, null };
+  }
+
   private boolean isValid(String value) {
     if (value == null) {
       return false;
     }
 
-    Matcher matchUrlPat = URL_PATTERN.matcher(value);
     if (!LEGAL_ASCII_PATTERN.matcher(value).matches()) {
       return false;
     }
 
-    // Check the whole url address structure
-    if (!matchUrlPat.matches()) {
+    String scheme;
+    String authority;
+    String path;
+    String query;
+    try {
+      URI uri = new URI(value);
+      scheme = uri.getScheme();
+      authority = uri.getRawAuthority();
+      path = uri.getPath();
+      query = uri.getRawQuery();
+      if (path == null) {
+        path = "";
+      }
+    } catch (URISyntaxException e) {
       return false;
     }
 
-    if (!isValidScheme(matchUrlPat.group(PARSE_URL_SCHEME))) {
+    if (!isValidScheme(scheme)) {
       return false;
     }
 
-    if (!isValidAuthority(matchUrlPat.group(PARSE_URL_AUTHORITY))) {
+    if (!isValidAuthority(authority)) {
       return false;
     }
 
-    if (!isValidPath(matchUrlPat.group(PARSE_URL_PATH))) {
+    if (!isValidPath(path)) {
       return false;
     }
 
-    if (!isValidQuery(matchUrlPat.group(PARSE_URL_QUERY))) {
-      return false;
-    }
-
-    return true;
+    return isValidQuery(query);
   }
 
   /**
@@ -223,15 +226,13 @@ public class UrlValidator implements URLFilter {
       return false;
     }
 
-    Matcher authorityMatcher = AUTHORITY_PATTERN.matcher(authority);
-    if (!authorityMatcher.matches()) {
-      return false;
-    }
+    String[] parsed = parseAuthority(authority);
+    String hostIP = parsed[PARSE_AUTHORITY_HOST_IP];
+    String port = parsed[PARSE_AUTHORITY_PORT];
 
     boolean ipV4Address = false;
     boolean hostname = false;
     // check if authority is IP address or hostname
-    String hostIP = authorityMatcher.group(PARSE_AUTHORITY_HOST_IP);
     Matcher matchIPV4Pat = IP_V4_DOMAIN_PATTERN.matcher(hostIP);
     ipV4Address = matchIPV4Pat.matches();
 
@@ -299,29 +300,13 @@ public class UrlValidator implements URLFilter {
       return false;
     }
 
-    String port = authorityMatcher.group(PARSE_AUTHORITY_PORT);
     if (port != null) {
       if (!PORT_PATTERN.matcher(port).matches()) {
         return false;
       }
     }
 
-    String extra = authorityMatcher.group(PARSE_AUTHORITY_EXTRA);
-    return isBlankOrNull(extra);
-  }
-
-  /**
-   * <p>
-   * Checks if the field isn't null and length of the field is greater than zero
-   * not including whitespace.
-   * </p>
-   * 
-   * @param value
-   *          The value validation is being performed on.
-   * @return true if blank or null.
-   */
-  private boolean isBlankOrNull(String value) {
-    return ((value == null) || (value.trim().length() == 0));
+    return true;
   }
 
   /**
