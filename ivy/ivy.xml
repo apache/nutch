@@ -131,10 +131,8 @@
     <dependency org="org.mockftpserver" name="MockFtpServer" rev="3.2.0" conf="test->default"/>
 
     <!-- MockServer (https://www.mock-server.com/) for static HTTP content in unit tests. -->
-    <dependency org="org.mock-server" name="mockserver-netty" rev="5.15.0" conf="test->default">
-      <exclude org="ch.qos.reload4j" module="*" />
-      <exclude org="org.slf4j" module="slf4j-reload" />
-    </dependency>
+    <dependency org="org.mock-server" name="mockserver-netty-no-dependencies" rev="7.2.0" conf="test->default" />
+    <dependency org="org.mock-server" name="mockserver-client-java-no-dependencies" rev="7.2.0" conf="test->default" />
 
     <!--Added Because of Elasticsearch JEST client-->
     <!--TODO refactor these to indexer-elastic-rest plugin somehow, currently doesn't resolve correctly-->
