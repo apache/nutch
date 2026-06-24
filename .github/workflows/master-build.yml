@@ -77,12 +77,14 @@ jobs:
       - name: Run Apache Rat
         run: ant clean releaseaudit -buildfile build.xml
       - name: Cache unknown licenses
-        run: echo "UNKNOWN_LICENSES=$(sed -n 18p /home/runner/work/nutch/nutch/build/apache-rat-report.txt)" >> $GITHUB_ENV
+        # Note: Apache RAT 0.18 only reports unknown licenses as "Unknown license: N" (if there are any)
+        run: |
+          echo "UNKNOWN_LICENSES=$(grep -E '^Unknown license: [0-9]+' /home/runner/work/nutch/nutch/build/apache-rat-report.txt)" >> $GITHUB_ENV
       - name: Versions
         run: |
           echo $UNKNOWN_LICENSES
       - name: Fail if any unknown licenses
-        if: ${{ env.UNKNOWN_LICENSES != '0 Unknown Licenses' }}
+        if: ${{ env.UNKNOWN_LICENSES != '' }}
         run: exit 1
 
   openapi-lint:
