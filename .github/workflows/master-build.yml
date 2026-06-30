@@ -45,7 +45,7 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: Cache Ivy dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.ivy2/cache
           key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
@@ -68,7 +68,7 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: Cache Ivy dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.ivy2/cache
           key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
@@ -125,7 +125,7 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: Cache Ivy dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.ivy2/cache
           key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
@@ -173,7 +173,7 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: Cache Ivy dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.ivy2/cache
           key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
@@ -206,7 +206,7 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: Cache Ivy dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.ivy2/cache
           key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
