@@ -50,7 +50,7 @@
   <property name="jacoco.ant.jar" value="${jacoco.home}/lib/jacocoant.jar" />
   <property name="coverage.dir" value="${build.dir}/coverage" />
 
-  <property name="apache-rat.version" value="0.16" />
+  <property name="apache-rat.version" value="0.18" />
   <property name="apache-rat.home" value="${ivy.dir}/apache-rat-${apache-rat.version}" />
   <property name="apache-rat.jar" value="${apache-rat.home}/apache-rat-${apache-rat.version}.jar" />
 
@@ -1022,7 +1022,9 @@
       <fileset dir="src">
         <include name="**"/>
         <exclude name="plugin/language-identifier/src/java/org/apache/nutch/analysis/lang/langmappings.properties"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/da.test"/>
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/de.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/el.test"/>
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/en.test"/>
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/es.test"/>
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/fi.test"/>
@@ -1032,7 +1034,6 @@
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/pt.test"/>
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/sv.test"/>
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/test-referencial.txt"/>
-        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/da.test"/>
         <exclude name="plugin/parse-tika/sample/ootest.txt"/>
         <exclude name="plugin/parse-tika/sample/test.rtf"/>
         <exclude name="plugin/urlfilter-ignoreexempt/data/.donotdelete"/>
