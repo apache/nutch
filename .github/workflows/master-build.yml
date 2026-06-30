@@ -247,11 +247,14 @@ jobs:
       # run indexer integration tests when indexer plugin files change (Docker required, ubuntu-latest only)
       - name: test indexer integration
         if: ${{ steps.filter.outputs.indexer_plugins == 'true' && matrix.os == 'ubuntu-latest' }}
-        run: ant clean test-indexer-integration -buildfile build.xml
+        run: ant test-indexer-integration -buildfile build.xml
       # run protocol integration tests when protocol plugin files change (Docker required, ubuntu-latest only)
       - name: test protocol integration
         if: ${{ steps.filter.outputs.protocol_plugins == 'true' && matrix.os == 'ubuntu-latest' }}
-        run: ant clean test-protocol-integration -buildfile build.xml
+        run: ant test-protocol-integration -buildfile build.xml
+      - name: Generate JaCoCo XML report
+        run: ant jacoco-report -buildfile build.xml
+        continue-on-error: true
       - name: Check for test results
         id: check_tests
         if: always() && matrix.os == 'ubuntu-latest'
@@ -263,6 +266,20 @@ jobs:
           else
             echo "has_results=false" >> $GITHUB_OUTPUT
           fi
+      - name: Upload Build and Test Artifacts (Binaries)
+        uses: actions/upload-artifact@v7
+        if: always() && matrix.os == 'ubuntu-latest' && matrix.java == '17' && steps.check_tests.outputs.has_results == 'true'
+        with:
+          name: build-artifacts-${{ matrix.os }}-jdk${{ matrix.java }}
+          path: |
+            # core class files
+            ./build/classes/**/*.class
+            # plugin and test class files
+            ./build/**/classes/**/*.class
+            # dependencies
+            ./build/lib/*.jar
+            ./build/test/lib/*.jar
+          retention-days: 1
       - name: Upload Test Report
         uses: actions/upload-artifact@v7
         if: always() && matrix.os == 'ubuntu-latest' && matrix.java == '17' && steps.check_tests.outputs.has_results == 'true'
