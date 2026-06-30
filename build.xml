@@ -20,6 +20,7 @@
          xmlns:ivy="antlib:org.apache.ivy.ant"
          xmlns:artifact="antlib:org.apache.maven.artifact.ant"
          xmlns:rat="antlib:org.apache.rat.anttasks"
+         xmlns:fa="antlib:de.thetaphi.forbiddenapis"
          xmlns="antlib:org.apache.tools.ant">
 
   <!-- Load all the default properties, and any the user wants    -->
@@ -466,7 +467,9 @@
     </antcall>
   </target>
 
-  <target name="test-core" depends="compile-core-test, job, jacoco-download" description="--> run core JUnit tests">
+  <target name="test-core"
+          depends="compile-core-test, job, jacoco-download"
+          description="--> run core JUnit tests">
     <delete dir="${test.build.data}"/>
     <mkdir dir="${test.build.data}"/>
     <mkdir dir="${coverage.dir}"/>
@@ -475,7 +478,7 @@
     </copy>
     <copy file="${test.src.dir}/log4j.properties" todir="${test.build.classes}"/>
     <copy file="${test.src.dir}/crawl-tests.xml" todir="${test.build.classes}"/>
-    <copy file="${test.src.dir}/domain-urlfilter.txt" todir="${test.build.classes}"/>
+    <copy file="${test.src.dir}/host-protocol-mapping.txt" todir="${test.build.classes}"/>
     <copy file="${test.src.dir}/filter-all.txt" todir="${test.build.classes}"/>
     <junitlauncher printSummary="true" haltOnFailure="true" failureProperty="tests.failed">
       <classpath refid="test.classpath"/>
@@ -516,7 +519,9 @@
     <fail if="tests.failed">Tests failed!</fail>
   </target>
 
-  <target name="test-plugins" depends="resolve-test, compile, compile-core-test, jacoco-download" description="--> run JUnit tests for all plugins">
+  <target name="test-plugins"
+          depends="resolve-test, compile, compile-core-test, jacoco-download"
+          description="--> run JUnit tests for all plugins">
     <ant dir="src/plugin" target="test" inheritAll="false"/>
   </target>
 
@@ -1161,6 +1166,45 @@
       </structure>
       <xml destfile="${coverage.dir}/jacoco.xml"/>
     </jacoco:report>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Policeman's Forbidden API checker                                  -->
+  <!-- https://github.com/policeman-tools/forbidden-apis/wiki/AntUsage    -->
+  <!-- ================================================================== -->
+  <target name="forbidden-api-checks" depends="compile-core, compile-plugins">
+    <!-- Note: by default, when the target "forbidden-api-checks" is
+         launched from a clean project root (after "ant clean"), only
+         core and plugin classes are checked.  In order to check also
+         the test classes, run it together with "test-core" or
+         "test-plugins", or any target which depends on the two, e.g.
+           ant clean test-core forbidden-api-checks
+           ant clean test-plugins forbidden-api-checks
+           ant clean test forbidden-api-checks
+    -->
+    <ivy:cachepath organisation="de.thetaphi" module="forbiddenapis" revision="${forbiddenapis.version}"
+                   inline="true" pathid="forbiddenapis.classpath"/>
+    <taskdef uri="antlib:de.thetaphi.forbiddenapis" classpathref="forbiddenapis.classpath"/>
+    <path id="classpath.core-and-plugins">
+      <path refid="classpath"/>
+      <pathelement location="${test.build.classes}" />
+      <fileset dir="${test.build.lib.dir}">
+        <include name="*.jar" />
+      </fileset>
+      <fileset dir="${basedir}/${build.dir}/plugins">
+        <include name="**/*.jar"/>
+      </fileset>
+      <fileset dir="${basedir}/${build.dir}">
+        <include name="**/test/lib/*.jar"/>
+      </fileset>
+    </path>
+    <fa:forbiddenapis classpathref="classpath.core-and-plugins"
+                      dir="${build.dir}" targetVersion="${javac.version}">
+      <bundledsignatures name="jdk-unsafe"/>
+      <bundledsignatures name="jdk-deprecated"/>
+      <bundledsignatures name="jdk-non-portable"/>
+      <signaturesFileset file="src/testresources/forbidden-apis-signatures.txt"/>
+    </fa:forbiddenapis>
   </target>
 
   <!-- ================================================================== -->

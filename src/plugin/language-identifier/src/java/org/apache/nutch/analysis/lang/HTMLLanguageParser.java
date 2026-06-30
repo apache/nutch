@@ -19,6 +19,7 @@ package org.apache.nutch.analysis.lang;
 import java.lang.invoke.MethodHandles;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -66,7 +67,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
         String[] values = p.getProperty(key).split(",", -1);
         LANGUAGES_MAP.put(key, key);
         for (int i = 0; i < values.length; i++) {
-          LANGUAGES_MAP.put(values[i].trim().toLowerCase(), key);
+          LANGUAGES_MAP.put(values[i].trim().toLowerCase(Locale.ROOT), key);
         }
       }
     } catch (Exception e) {
@@ -261,7 +262,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
                 Node attrnode = attrs.item(i);
                 if ("http-equiv".equalsIgnoreCase(attrnode.getNodeName())) {
                   if ("content-language".equals(attrnode.getNodeValue()
-                      .toLowerCase())) {
+                      .toLowerCase(Locale.ROOT))) {
                     Node valueattr = attrs.getNamedItem("content");
                     if (valueattr != null) {
                       httpEquiv = parseLanguage(valueattr.getNodeValue());
@@ -302,7 +303,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
         code = langs[i].split("-")[0];
         code = code.split("_")[0];
         // Find the ISO 639 code
-        language = (String) LANGUAGES_MAP.get(code.toLowerCase());
+        language = LANGUAGES_MAP.get(code.toLowerCase(Locale.ROOT));
         i++;
       }
 

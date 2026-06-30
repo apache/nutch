@@ -19,19 +19,20 @@ package org.apache.nutch.util;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hadoop.conf.Configuration;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.io.Files;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestMimeUtil {
 
   public static String urlPrefix = "http://localhost/";
 
-  private static Charset defaultCharset = Charset.forName("UTF-8");
+  private static Charset defaultCharset = StandardCharsets.UTF_8;
 
   private File sampleDir = new File(System.getProperty("test.build.data", "."),
       "test-mime-util");

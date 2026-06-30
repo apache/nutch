@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Locale;
 
@@ -88,15 +89,15 @@ public class OkHttpResponse implements Response {
 
     if (okhttp.isCookieEnabled()) {
       String cookie = null;
-      
+
       if (datum.getMetaData().containsKey(HttpBase.COOKIE)) {
         cookie = ((Text)datum.getMetaData().get(HttpBase.COOKIE)).toString();
       }
-      
+
       if (cookie == null) {
         cookie = okhttp.getCookie(url);
       }
-      
+
       if (cookie != null) {
         rb.header("Cookie", cookie);
       }
@@ -123,7 +124,8 @@ public class OkHttpResponse implements Response {
         String value = httpHeaders.value(i);
 
         if (key.equals(REQUEST) || key.equals(RESPONSE_HEADERS)) {
-          value = new String(Base64.getDecoder().decode(value));
+          value = new String(Base64.getDecoder().decode(value),
+              StandardCharsets.ISO_8859_1);
         }
 
         responsemetadata.add(key, value);

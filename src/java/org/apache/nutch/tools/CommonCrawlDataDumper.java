@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -48,9 +49,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FilenameUtils;
-
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
@@ -73,15 +73,12 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.DumpFileUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchTool;
-
 import org.apache.tika.Tika;
-
-import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
-import com.fasterxml.jackson.dataformat.cbor.CBORGenerator;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
+import com.fasterxml.jackson.dataformat.cbor.CBORGenerator;
 import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.text.SimpleDateFormat;
 
@@ -181,7 +178,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
   private static final int MAX_INLINKS = 5000;
-  
+
   private CommonCrawlConfig config = null;
 
   // Gzip initialization
@@ -349,7 +346,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
                       md5Ofurl, !gzip);
               filename = DumpFileUtil
                   .createFileName(md5Ofurl, baseName, extensionName);
-              outputFullPath = String.format("%s/%s", fullDir, filename);
+              outputFullPath = String.format(Locale.ROOT, "%s/%s", fullDir, filename);
 
               String[] fullPathLevels = fullDir
                   .split(Pattern.quote(File.separator));

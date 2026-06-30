@@ -16,19 +16,22 @@
  */
 package org.apache.nutch.parse.js;
 
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.parse.Outlink;
@@ -36,20 +39,18 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseResult;
-import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.parse.ParseStatus;
+import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is a heuristic link extractor for JavaScript files and code
@@ -66,7 +67,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
 
   /**
    * Scan the JavaScript fragments of a HTML page looking for possible {@link Outlink}'s
-   * 
+   *
    * @param content
    *          page content
    * @param parseResult
@@ -144,7 +145,8 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
             links = getJSLinks(anode.getNodeValue(), "", base);
           } else if (anode.getNodeName().equalsIgnoreCase("href")) {
             String val = anode.getNodeValue();
-            if (val != null && val.toLowerCase().indexOf("javascript:") != -1) {
+            if (val != null
+                && val.toLowerCase(Locale.ROOT).indexOf("javascript:") != -1) {
               links = getJSLinks(val, "", base);
             }
           }
@@ -161,14 +163,14 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
 
   /**
    * Parse a JavaScript file and extract outlinks
-   * 
+   *
    * @param c
    *          page content
    * @return parse the actual {@link Parse} object
    */
   @Override
   public ParseResult getParse(Content c) {
-    String script = new String(c.getContent());
+    String script = new String(c.getContent(), StandardCharsets.UTF_8);
     Outlink[] outlinks = getJSLinks(script, "", c.getUrl());
     if (outlinks == null)
       outlinks = new Outlink[0];
@@ -267,7 +269,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
    * Main method which can be run from command line with the plugin option. The
    * method takes two arguments e.g. o.a.n.parse.js.JSParseFilter file.js
    * baseURL
-   * 
+   *
    * @param args run with no args to get help
    * @throws Exception if there is a fatal error running the class with the given input
    */
@@ -277,7 +279,8 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       return;
     }
     InputStream in = new FileInputStream(args[0]);
-    BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+    BufferedReader br = new BufferedReader(
+        new InputStreamReader(in, StandardCharsets.UTF_8));
     StringBuffer sb = new StringBuffer();
     String line = null;
     while ((line = br.readLine()) != null)

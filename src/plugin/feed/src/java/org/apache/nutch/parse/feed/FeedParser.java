@@ -16,17 +16,16 @@
  */
 package org.apache.nutch.parse.feed;
 
-import java.lang.invoke.MethodHandles;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.metadata.Feed;
@@ -46,6 +45,8 @@ import org.apache.nutch.parse.ParserNotFound;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.EncodingDetector;
 import org.apache.nutch.util.NutchConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 import com.rometools.rome.feed.synd.SyndCategory;
@@ -56,16 +57,10 @@ import com.rometools.rome.feed.synd.SyndPerson;
 import com.rometools.rome.io.SyndFeedInput;
 
 /**
- * 
- * @author dogacan
- * @author mattmann
+ * A RSS/ATOM Feed{@link Parser} that rapidly parses all referenced links and
+ * content present in the feed.
+ *
  * @since NUTCH-444
- * 
- *        <p>
- *        A new RSS/ATOM Feed{@link Parser} that rapidly parses all referenced
- *        links and content present in the feed.
- *        </p>
- * 
  */
 public class FeedParser implements Parser {
 
@@ -90,14 +85,14 @@ public class FeedParser implements Parser {
   /**
    * Parses the given feed and extracts out and parsers all linked items within
    * the feed, using the underlying ROME feed parsing library.
-   * 
+   *
    * @param content
    *          A {@link Content} object representing the feed that is being
    *          parsed by this {@link Parser}.
-   * 
+   *
    * @return A {@link ParseResult} containing all {@link Parse}d feeds that were
    *         present in the feed file that this {@link Parser} dealt with.
-   * 
+   *
    */
   @Override
   public ParseResult getParse(Content content) {
@@ -145,21 +140,21 @@ public class FeedParser implements Parser {
   }
 
   /**
-   * 
+   *
    * Sets the {@link Configuration} object for this {@link Parser}. This
    * {@link Parser} expects the following configuration properties to be set:
-   * 
+   *
    * <ul>
    * <li>URLNormalizers - properties in the configuration object to set up the
    * default url normalizers.</li>
    * <li>URLFilters - properties in the configuration object to set up the
    * default url filters.</li>
    * </ul>
-   * 
+   *
    * @param conf
    *          The Hadoop {@link Configuration} object to use to configure this
    *          {@link Parser}.
-   * 
+   *
    */
   @Override
   public void setConf(Configuration conf) {
@@ -172,7 +167,7 @@ public class FeedParser implements Parser {
   }
 
   /**
-   * 
+   *
    * @return The {@link Configuration} object used to configure this
    *         {@link Parser}.
    */
@@ -183,11 +178,11 @@ public class FeedParser implements Parser {
 
   /**
    * Runs a command line version of this {@link Parser}.
-   * 
+   *
    * @param args
    *          A single argument (expected at arg[0]) representing a path on the
    *          local filesystem that points to a feed file.
-   * 
+   *
    * @throws Exception
    *           If any error occurs.
    */
@@ -263,8 +258,9 @@ public class FeedParser implements Parser {
     try {
       Parser parser = parserFactory.getParsers(contentType, link)[0];
       parse = parser.getParse(
-          new Content(link, link, text.getBytes(), contentType, contentMeta,
-              conf)).get(link);
+          new Content(link, link, text.getBytes(StandardCharsets.UTF_8),
+              contentType, contentMeta, conf))
+          .get(link);
     } catch (ParserNotFound e) { /* ignore */
     }
 

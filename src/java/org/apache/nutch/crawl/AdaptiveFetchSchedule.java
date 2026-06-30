@@ -16,26 +16,27 @@
  */
 package org.apache.nutch.crawl;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.FloatWritable;
-import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.util.NutchConfiguration;
-import org.apache.commons.lang3.StringUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.Reader;
-import java.io.FileReader;
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.util.Map;
-import java.util.HashMap;
+import java.io.Reader;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.util.NutchConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class implements an adaptive re-fetch algorithm. This works as follows:
@@ -67,14 +68,12 @@ import java.time.Duration;
  * {@link #main(String[])} method to test the values before applying them in a
  * production system.
  * </p>
- * 
+ *
  * The class also allows specifying custom min. and max. re-fetch intervals per
  * hostname, in adaptive-host-specific-intervals.txt. If they are specified,
  * the calculated re-fetch interval for a URL matching the hostname will not be
  * allowed to fall outside of the corresponding range, instead of the default
  * range.
- *
- * @author Andrzej Bialecki
  */
 public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
 
@@ -97,7 +96,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
   private Configuration conf;
 
   private Map<String, Float> hostSpecificMaxInterval = new HashMap<>();
-  
+
   private Map<String, Float> hostSpecificMinInterval = new HashMap<>();
 
   @Override
@@ -115,7 +114,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
     SYNC_DELTA_RATE = conf.getFloat(
         "db.fetch.schedule.adaptive.sync_delta_rate", 0.2f);
     try {
-      setHostSpecificIntervals("adaptive-host-specific-intervals.txt", 
+      setHostSpecificIntervals("adaptive-host-specific-intervals.txt",
           MIN_INTERVAL, MAX_INTERVAL);
     } catch (IOException e) {
       LOG.error("Failed reading the configuration file:", e);
@@ -137,7 +136,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
     Reader configReader = null;
     configReader = conf.getConfResourceAsReader(fileName);
     if (configReader == null) {
-      configReader = new FileReader(fileName);
+      configReader = new FileReader(fileName, StandardCharsets.UTF_8);
     }
     BufferedReader reader = new BufferedReader(configReader);
     String line;
@@ -165,7 +164,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       }
 
       // Normalize the parts.
-      String host = parts[0].trim().toLowerCase();
+      String host = parts[0].trim().toLowerCase(Locale.ROOT);
       String minInt = parts[1].trim();
       String maxInt = parts[2].trim();
 
@@ -337,7 +336,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       // Ensure the interval does not fall outside of bounds
       float minInterval = (getCustomMinInterval(url) != null) ? getCustomMinInterval(url) : MIN_INTERVAL;
       float maxInterval = (getCustomMaxInterval(url) != null) ? getCustomMaxInterval(url) : MAX_INTERVAL;
-      
+
       if (SYNC_DELTA) {
         // try to synchronize with the time of change
         long delta = (fetchTime - modifiedTime);
@@ -347,7 +346,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
         long offset = Math.round(delta * SYNC_DELTA_RATE);
         long maxIntervalMillis = (long) maxInterval * 1000L;
         if (LOG.isTraceEnabled()) {
-          LOG.trace("delta (days): {}; offset (days): {}; maxInterval (days): {}", 
+          LOG.trace("delta (days): {}; offset (days): {}; maxInterval (days): {}",
               Duration.ofMillis(delta).toDays(), Duration.ofMillis(offset).toDays(), Duration.ofMillis(maxIntervalMillis).toDays());
         }
         // convert the offset to a ratio of max interval: avoid next fetchTime in the past, and mimic fetches within max interval

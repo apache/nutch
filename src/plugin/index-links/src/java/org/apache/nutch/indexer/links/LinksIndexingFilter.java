@@ -16,6 +16,14 @@
  */
 package org.apache.nutch.indexer.links;
 
+import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Set;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -26,16 +34,8 @@ import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 /**
  * An {@link org.apache.nutch.indexer.IndexingFilter} that adds
@@ -93,7 +93,7 @@ public class LinksIndexingFilter implements IndexingFilter {
       for (Outlink outlink : outlinks) {
         try {
           String linkUrl = outlink.getToUrl();
-          String outHost = new URL(linkUrl).getHost().toLowerCase();
+          String outHost = new URL(linkUrl).getHost().toLowerCase(Locale.ROOT);
 
           if (indexHost) {
             linkUrl = outHost;
@@ -121,7 +121,7 @@ public class LinksIndexingFilter implements IndexingFilter {
         try {
           Inlink link = iterator.next();
           String linkUrl = link.getFromUrl();
-          String inHost = new URL(linkUrl).getHost().toLowerCase();
+          String inHost = new URL(linkUrl).getHost().toLowerCase(Locale.ROOT);
 
           if (indexHost) {
             linkUrl = inHost;
@@ -146,7 +146,7 @@ public class LinksIndexingFilter implements IndexingFilter {
   private void addFilteredLink(String fieldName, String url, String linkUrl,
       String urlHost, boolean filter, NutchDocument doc) throws MalformedURLException {
       if (filter) {
-        String host = new URL(url.toString()).getHost().toLowerCase();
+        String host = new URL(url).getHost().toLowerCase(Locale.ROOT);
 
         if (!host.equalsIgnoreCase(urlHost)) {
           doc.add(fieldName, linkUrl);

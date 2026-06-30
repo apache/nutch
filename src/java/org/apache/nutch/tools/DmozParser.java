@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -33,8 +34,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.io.MD5Hash;
+import org.apache.nutch.util.NutchConfiguration;
 import org.apache.xerces.util.XMLChar;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -44,14 +48,10 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.io.MD5Hash;
-import org.apache.nutch.util.NutchConfiguration;
 
-/** 
- * Utility that converts <a href="http://www.dmoztools.net/">DMOZ</a> 
- * RDF into a flat file of URLs to be injected. 
+/**
+ * Utility that converts <a href="http://www.dmoztools.net/">DMOZ</a>
+ * RDF into a flat file of URLs to be injected.
  */
 public class DmozParser {
 
@@ -149,6 +149,7 @@ public class DmozParser {
     /**
      * Start of an XML elt
      */
+    @Override
     public void startElement(String namespaceURI, String localName,
         String qName, Attributes atts) throws SAXException {
       if ("Topic".equals(qName)) {
@@ -184,6 +185,7 @@ public class DmozParser {
     /**
      * The contents of an XML elt
      */
+    @Override
     public void characters(char ch[], int start, int length) {
       if (titlePending) {
         title.append(ch, start, length);
@@ -195,6 +197,7 @@ public class DmozParser {
     /**
      * Termination of XML elt
      */
+    @Override
     public void endElement(String namespaceURI, String localName, String qName)
         throws SAXException {
       if (curURL != null) {
@@ -230,6 +233,7 @@ public class DmozParser {
     /**
      * When parsing begins
      */
+    @Override
     public void startDocument() {
       LOG.info("Begin parse");
     }
@@ -237,6 +241,7 @@ public class DmozParser {
     /**
      * When parsing ends
      */
+    @Override
     public void endDocument() {
       LOG.info("Completed parse.  Found {} pages.", pages);
     }
@@ -245,6 +250,7 @@ public class DmozParser {
      * From time to time the Parser will set the "current location" by calling
      * this function. It's useful for emitting locations for error messages.
      */
+    @Override
     public void setDocumentLocator(Locator locator) {
       location = locator;
     }
@@ -256,6 +262,7 @@ public class DmozParser {
     /**
      * Emit the exception message
      */
+    @Override
     public void error(SAXParseException spe) {
       LOG.error("Error: {}: {}", spe.toString(), spe.getMessage());
     }
@@ -263,6 +270,7 @@ public class DmozParser {
     /**
      * Emit exception warning message
      */
+    @Override
     public void warning(SAXParseException spe) {
       LOG.warn("Warning: {}: {}", spe.toString(), spe.getMessage());
     }
@@ -276,16 +284,16 @@ public class DmozParser {
    * @param includeAdult To include adult content or not.
    * @param skew skew factor the the subset denominator filter.
    * Only emit with a chance of 1/denominator
-   * @param topicPattern a {@link java.util.regex.Pattern} which 
+   * @param topicPattern a {@link java.util.regex.Pattern} which
    * will match again "r:id" element
    * @throws IOException if there is a fatal error reading the input DMOZ file
-   * @throws SAXException can be thrown if there is an error configuring the 
+   * @throws SAXException can be thrown if there is an error configuring the
    * internal {@link SAXParser} or {@link XMLReader}
-   * @throws ParserConfigurationException can be thrown if there is an 
+   * @throws ParserConfigurationException can be thrown if there is an
    * error configuring the internal {@link SAXParserFactory}
    */
   public void parseDmozFile(File dmozFile, int subsetDenom,
-      boolean includeAdult, int skew, Pattern topicPattern) 
+      boolean includeAdult, int skew, Pattern topicPattern)
               throws IOException, SAXException, ParserConfigurationException {
 
     SAXParserFactory parserFactory = SAXParserFactory.newInstance();
@@ -309,7 +317,7 @@ public class DmozParser {
     //
     try (XMLCharFilter in = new XMLCharFilter(new BufferedReader(
         new InputStreamReader(new BufferedInputStream(new FileInputStream(
-            dmozFile)), "UTF-8")))) {
+            dmozFile)), StandardCharsets.UTF_8)))) {
       InputSource is = new InputSource(in);
       reader.parse(is);
     } catch (Exception e) {
@@ -320,8 +328,8 @@ public class DmozParser {
 
   private static void addTopicsFromFile(String topicFile, Vector<String> topics)
       throws IOException {
-    try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(
-        topicFile), "UTF-8"))) {
+    try (BufferedReader in = new BufferedReader(new InputStreamReader(
+        new FileInputStream(topicFile), StandardCharsets.UTF_8))) {
       String line = null;
       while ((line = in.readLine()) != null) {
         topics.addElement(line);
@@ -336,7 +344,7 @@ public class DmozParser {
    * Command-line access. User may add URLs via a flat text file or the
    * structured DMOZ file. By default, we ignore Adult material (as categorized
    * by DMOZ).
-   * @param argv input arguments for this tool. If less than one 
+   * @param argv input arguments for this tool. If less than one
    * argument is provided the tool will print help.
    * @throws Exception if there is a fatal error
    */

@@ -31,11 +31,11 @@ import org.apache.tika.Tika;
 /**
  * FileResponse.java mimics file replies as http response. It tries its best to
  * follow http's way for headers, response codes as well as exceptions.
- * 
+ *
  * Comments: (1) java.net.URL and java.net.URLConnection can handle file:
  * scheme. However they are not flexible enough, so not used in this
  * implementation.
- * 
+ *
  * (2) java.io.File is used for its abstractness across platforms. Warning:
  * java.io.File API (1.4.2) does not elaborate on how special files, such as
  * /dev/* in unix and /proc/* on linux, are treated. Tests show (a)
@@ -43,13 +43,11 @@ import org.apache.tika.Tika;
  * return true for /proc/* (c) java.io.File.length() return 0 for /proc/* We are
  * probably oaky for now. Could be buggy here. How about special files on
  * windows?
- * 
+ *
  * (3) java.io.File API (1.4.2) does not seem to know unix hard link files. They
  * are just treated as individual files.
- * 
+ *
  * (4) No funcy POSIX file attributes yet. May never need?
- * 
- * @author John Xing
  */
 public class FileResponse {
 
@@ -93,13 +91,13 @@ public class FileResponse {
 
   /**
    * Default public constructor
-   * 
+   *
    * @param url the canonical URL associated with the response
    * @param datum crawl information for the URL
    * @param file the actual File containing content for the url
    * @param conf a populated {@link Configuration}
    * @throws FileException if the input file does not use file protocol
-   * @throws IOException if there is a fatal I/O error obtaining the input file 
+   * @throws IOException if there is a fatal I/O error obtaining the input file
    */
   public FileResponse(URL url, CrawlDatum datum, File file, Configuration conf)
       throws FileException, IOException {
@@ -233,7 +231,7 @@ public class FileResponse {
 
   /**
    * get dir list as http response
-   * 
+   *
    * @param f
    * @throws IOException
    */
@@ -259,7 +257,7 @@ public class FileResponse {
 
   /**
    * generate html page from dir list
-   * 
+   *
    * @param list
    * @param path
    * @param includeDotDot
@@ -300,7 +298,7 @@ public class FileResponse {
 
     x.append("</pre></body></html>\n");
 
-    return new String(x).getBytes();
+    return new String(x).getBytes(StandardCharsets.UTF_8);
   }
 
 }

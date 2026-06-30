@@ -19,30 +19,29 @@ package org.apache.nutch.microformats.reltag;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.parse.HTMLMetaTags;
+import org.apache.nutch.parse.HtmlParseFilter;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseResult;
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseResult;
-import org.apache.nutch.parse.HtmlParseFilter;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.StringUtil;
-
-import org.apache.hadoop.conf.Configuration;
-
 /**
  * Adds microformat rel-tags of document if found.
- * 
+ *
  * @see <a href="http://www.microformats.org/wiki/rel-tag">
  *      http://www.microformats.org/wiki/rel-tag</a>
  */
@@ -127,7 +126,7 @@ public class RelTagParser implements HtmlParseFilter {
         URL u = new URL(url);
         String path = u.getPath();
         tag = URLDecoder.decode(path.substring(path.lastIndexOf('/') + 1),
-            "UTF-8");
+            StandardCharsets.UTF_8);
       } catch (Exception e) {
         // Malformed tag...
         tag = null;

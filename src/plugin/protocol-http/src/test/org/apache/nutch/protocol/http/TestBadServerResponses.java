@@ -16,16 +16,19 @@
  */
 package org.apache.nutch.protocol.http;
 
+import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
-import java.nio.charset.StandardCharsets;
-
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
@@ -180,11 +183,11 @@ public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {
     // 81920 bytes (80 chunks, 1024 bytes each)
     // > 65536 (http.content.limit defined in nutch-site-test.xml)
     for (int i = 0; i < 80; i++) {
-      response.append(String.format("\r\n400\r\n%02x\r\n", i));
+      response.append(String.format(Locale.ROOT, "\r\n400\r\n%02x\r\n", i));
       for (int j = 0; j < 1012; j++) {
         response.append('x');
       }
-      response.append(String.format("\r\n%02x\r\n", i));
+      response.append(String.format(Locale.ROOT, "\r\n%02x\r\n", i));
       response.append("\r\n");
     }
     response.append("\r\n0\r\n\r\n");

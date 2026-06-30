@@ -16,6 +16,12 @@
  */
 package org.apache.nutch.fetcher;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -30,16 +36,11 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.CancellationAwareTestUtils;
 import org.apache.nutch.util.CancellationAwareTestUtils.CancellationToken;
-import org.mockserver.integration.ClientAndServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.concurrent.TimeUnit;
+import org.mockserver.integration.ClientAndServer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,7 +48,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Basic fetcher test 1. generate seedlist 2. inject 3. generate 3. fetch 4.
  * Verify contents
- * 
+ *
  * <p>This test is cancellation-aware and will exit gracefully if the test
  * suite is stopped early (e.g., due to fail-fast mode).</p>
  */
@@ -148,12 +149,13 @@ public class TestFetcher {
       READ_CONTENT: do {
         // Check for cancellation periodically during I/O operations
         if (cancellationToken.isCancelled()) break READ_CONTENT;
-        
+
         Text key = new Text();
         Content value = new Content();
         if (!reader.next(key, value))
           break READ_CONTENT;
-        String contentString = new String(value.getContent());
+        String contentString = new String(value.getContent(),
+            StandardCharsets.UTF_8);
         if (contentString.indexOf("Nutch fetcher test page") != -1) {
           handledurls.add(key.toString());
         }
@@ -188,7 +190,7 @@ public class TestFetcher {
       READ_PARSE_DATA: do {
         // Check for cancellation periodically
         if (cancellationToken.isCancelled()) break READ_PARSE_DATA;
-        
+
         Text key = new Text();
         ParseData value = new ParseData();
         if (!reader.next(key, value))

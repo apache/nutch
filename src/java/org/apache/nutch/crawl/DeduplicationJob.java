@@ -73,7 +73,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
 
   public static class DBFilter extends
       Mapper<Text, CrawlDatum, BytesWritable, CrawlDatum> {
-      
+
     private String groupMode;
 
     @Override
@@ -100,14 +100,14 @@ public class DeduplicationJob extends NutchTool implements Tool {
             sig = new BytesWritable(signature);
             break;
           case "host":
-            byte[] host = URLUtil.getHost(url).getBytes();
+            byte[] host = URLUtil.getHost(url).getBytes(UTF_8);
             data = new byte[signature.length + host.length];
             System.arraycopy(signature, 0, data, 0, signature.length);
             System.arraycopy(host, 0, data, signature.length, host.length);
             sig = new BytesWritable(data);
             break;
           case "domain":
-            byte[] domain = URLUtil.getDomainName(url).getBytes();
+            byte[] domain = URLUtil.getDomainName(url).getBytes(UTF_8);
             data = new byte[signature.length + domain.length];
             System.arraycopy(signature, 0, data, 0, signature.length);
             System.arraycopy(domain, 0, data, signature.length, domain.length);
@@ -126,16 +126,16 @@ public class DeduplicationJob extends NutchTool implements Tool {
       extends Reducer<K, CrawlDatum, Text, CrawlDatum> {
 
     protected String[] compareOrder;
-    
+
     // Cached counter reference for performance
     private Counter documentsMarkedDuplicateCounter;
-    
+
     @Override
     public void setup(
         Reducer<K, CrawlDatum, Text, CrawlDatum>.Context context) {
       Configuration conf = context.getConfiguration();
       compareOrder = conf.get(DEDUPLICATION_COMPARE_ORDER).split(",");
-      
+
       // Initialize cached counter reference
       initCounters(context);
     }
@@ -296,7 +296,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
     String compareOrder = "score,fetchTime,urlLength";
 
     for (int i = 1; i < args.length; i++) {
-      if (args[i].equals("-group")) 
+      if (args[i].equals("-group"))
         group = args[++i];
       if (args[i].equals("-compareOrder")) {
         compareOrder = args[++i];

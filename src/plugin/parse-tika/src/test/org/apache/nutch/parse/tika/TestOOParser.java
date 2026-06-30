@@ -18,6 +18,7 @@ package org.apache.nutch.parse.tika;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
@@ -44,7 +45,7 @@ public class TestOOParser extends TikaParserTest {
     System.out.println("Expected : " + expectedText);
 
     for (int i = 0; i < sampleFiles.length; i++) {
- 
+
       if (sampleFiles[i].startsWith("ootest") == false)
         continue;
 
@@ -67,7 +68,8 @@ public class TestOOParser extends TikaParserTest {
           + sampleText);
       StringBuffer sb = new StringBuffer();
       int len = 0;
-      InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+      InputStreamReader isr = new InputStreamReader(fis,
+          StandardCharsets.UTF_8);
       char[] buf = new char[1024];
       while ((len = isr.read(buf)) > 0) {
         sb.append(buf, 0, len);

@@ -16,8 +16,8 @@
  */
 package org.apache.nutch.crawl;
 
-import java.lang.invoke.MethodHandles;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -27,40 +27,41 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
-
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.jspecify.annotations.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configuration.IntegerRanges;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
-import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.MapFile.Writer.Option;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.conf.Configuration.IntegerRanges;
 import org.apache.hadoop.io.RawComparator;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.OutputCommitter;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.mapreduce.Partitioner;
-import org.apache.hadoop.mapreduce.TaskAttemptID;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Reducer.Context;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.security.Credentials;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.jspecify.annotations.NonNull;
 import org.mockserver.configuration.ConfigurationProperties;
 import org.mockserver.integration.ClientAndServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 
 /**
  * Test utility for creating and manipulating CrawlDb instances.
@@ -389,7 +390,7 @@ public class CrawlDBTestUtil {
     Configuration conf = context.getConfiguration();
     conf.addResource("nutch-default.xml");
     conf.addResource("crawl-tests.xml");
-    return (Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context) context;
+    return context;
   }
 
   /** Container for URL and CrawlDatum pairs used in test data. */
@@ -444,14 +445,14 @@ public class CrawlDBTestUtil {
     while (urls_i.hasNext()) {
       url = urls_i.next();
 
-      out.writeBytes(url);
+      out.write(url.getBytes(UTF_8));
 
       if (metadata_i.hasNext()) {
         md = metadata_i.next();
-        out.writeBytes(md);
+        out.write(md.getBytes(UTF_8));
       }
 
-      out.writeBytes("\n");
+      out.write('\n');
     }
 
     out.flush();

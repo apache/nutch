@@ -21,30 +21,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-
 import java.net.InetAddress;
 import java.net.Socket;
-
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.net.MalformedServerReplyException;
-
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPCommand;
+import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPFileEntryParser;
 import org.apache.commons.net.ftp.FTPReply;
-
-import org.apache.commons.net.ftp.FTPConnectionClosedException;
 
 /**
  * Client.java encapsulates functionalities necessary for nutch to get dir list
  * and retrieve file from an FTP server. This class takes care of all low level
  * details of interacting with an FTP server and provides a convenient higher
  * level interface.
- * 
+ *
  * Modified from FtpClient.java in apache commons-net.
- * 
+ *
  * Notes by John Xing: ftp server implementations are hardly uniform and none
  * seems to follow RFCs whole-heartedly. We have no choice, but assume common
  * denominator as following: (1) Use stream mode for data transfer. Block mode
@@ -58,12 +55,10 @@ import org.apache.commons.net.ftp.FTPConnectionClosedException;
  * to obtain remote file attributes if possible. MDTM and SIZE would be nice, but
  * not as ubiquitously implemented as LIST. (5) Avoid using ABOR in single
  * thread? Do not use it at all.
- * 
+ *
  * About exceptions: Some specific exceptions are re-thrown as one of
  * FtpException*.java In fact, each function throws FtpException*.java or pass
  * IOException.
- * 
- * @author John Xing
  */
 
 public class Client extends FTP {
@@ -137,7 +132,7 @@ public class Client extends FTP {
 
   /**
    * Open a passive data connection socket
-   * 
+   *
    * @param command the FTP command to be sent to the FTP server
    * @param arg the argument associated with the command
    * @return a passive {@link Socket} connections
@@ -224,7 +219,7 @@ public class Client extends FTP {
    * Closes the connection to the FTP server and restores connection parameters
    * to the default values.
    * <p>
-   * 
+   *
    * @exception IOException
    *              If an error occurs while disconnecting.
    ***/
@@ -242,7 +237,7 @@ public class Client extends FTP {
    * attached. The default is for verification to be enabled. You may set this
    * value at any time, whether the FTPClient is currently connected or not.
    * <p>
-   * 
+   *
    * @param enable
    *          True to enable verification, false to disable verification.
    ***/
@@ -255,7 +250,7 @@ public class Client extends FTP {
    * connections is enabled. The default behavior is for verification to be
    * enabled.
    * <p>
-   * 
+   *
    * @return True if verification is enabled, false if not.
    ***/
   public boolean isRemoteVerificationEnabled() {
@@ -265,7 +260,7 @@ public class Client extends FTP {
   /***
    * Login to the FTP server using the provided username and password.
    * <p>
-   * 
+   *
    * @param username
    *          The username to login under.
    * @param password
@@ -297,7 +292,7 @@ public class Client extends FTP {
   /***
    * Logout of the FTP server by sending the QUIT command.
    * <p>
-   * 
+   *
    * @return True if successfully completed, false if not.
    * @exception FTPConnectionClosedException
    *              If the FTP server prematurely closes the connection as a
@@ -314,21 +309,21 @@ public class Client extends FTP {
 
   /**
    * Retrieve list reply for path
-   * 
+   *
    * @param path a path on the FTP server
-   * @param entries a initialized {@link List} of 
+   * @param entries a initialized {@link List} of
    * {@link FTPFile}'s to populate with entries found at the path
-   * @param limit optionally impose a download limit if this value 
+   * @param limit optionally impose a download limit if this value
    * is &gt;= 0, otherwise no limit
    * @param parser a configured {@link FTPFileEntryParser}
-   * @throws IOException if there is a fatal I/O error, could be related to 
+   * @throws IOException if there is a fatal I/O error, could be related to
    * opening a passive data connection or retrieving data from the specified path
-   * @throws FtpExceptionCanNotHaveDataConnection if an error occurs whilst 
+   * @throws FtpExceptionCanNotHaveDataConnection if an error occurs whilst
    * opening a passive data connection
    * @throws FtpExceptionUnknownForcedDataClose if there is a bad reply from the
    * FTP server
-   * @throws FtpExceptionControlClosedByForcedDataClose some ftp servers will 
-   * close control channel if data channel socket is closed by our end before 
+   * @throws FtpExceptionControlClosedByForcedDataClose some ftp servers will
+   * close control channel if data channel socket is closed by our end before
    * all data has been read out
    */
   public void retrieveList(String path, List<FTPFile> entries, int limit,
@@ -342,7 +337,7 @@ public class Client extends FTP {
           + ((path == null) ? "" : path));
 
     BufferedReader reader = new BufferedReader(new InputStreamReader(
-        socket.getInputStream()));
+        socket.getInputStream(), StandardCharsets.UTF_8));
 
     // force-close data channel socket, when download limit is reached
     // boolean mandatory_close = false;
@@ -396,19 +391,19 @@ public class Client extends FTP {
 
   /**
    * retrieve file for path
-   * 
+   *
    * @param path a path on the FTP server
    * @param os an {@link OutputStream} to write data to
-   * @param limit optionally impose a download limit if this value 
+   * @param limit optionally impose a download limit if this value
    * is &gt;= 0, otherwise no limit
-   * @throws IOException if there is a fatal I/O error, could be related to 
+   * @throws IOException if there is a fatal I/O error, could be related to
    * opening a passive data connection or retrieving data from the specified path
-   * @throws FtpExceptionCanNotHaveDataConnection if an error occurs whilst 
+   * @throws FtpExceptionCanNotHaveDataConnection if an error occurs whilst
    * opening a passive data connection
    * @throws FtpExceptionUnknownForcedDataClose if there is a bad reply from the
    * FTP server
-   * @throws FtpExceptionControlClosedByForcedDataClose some ftp servers will 
-   * close control channel if data channel socket is closed by our end before 
+   * @throws FtpExceptionControlClosedByForcedDataClose some ftp servers will
+   * close control channel if data channel socket is closed by our end before
    * all data has been read out
    */
   public void retrieveFile(String path, OutputStream os, int limit)
@@ -481,7 +476,7 @@ public class Client extends FTP {
 
   /**
    * reply check after closing data connection
-   * 
+   *
    * @param reply
    * @return
    */
@@ -520,7 +515,7 @@ public class Client extends FTP {
    * The default file type is <code> FTP.ASCII_FILE_TYPE </code> if this method
    * is never called.
    * <p>
-   * 
+   *
    * @param fileType
    *          The <code> _FILE_TYPE </code> constant indcating the type of file.
    * @return True if successfully completed, false if not.
@@ -550,7 +545,7 @@ public class Client extends FTP {
    * method will it issue a SYST command to the FTP server. FTPClient will
    * remember the value and return the cached value until a call to disconnect.
    * <p>
-   * 
+   *
    * @return The system type name obtained from the server. null if the
    *         information could not be obtained.
    * @exception FtpExceptionBadSystResponse indicating bad reply of SYST command
@@ -577,7 +572,7 @@ public class Client extends FTP {
    * Sends a NOOP command to the FTP server. This is useful for preventing
    * server timeouts.
    * <p>
-   * 
+   *
    * @return True if successfully completed, false if not.
    * @exception FTPConnectionClosedException
    *              If the FTP server prematurely closes the connection as a

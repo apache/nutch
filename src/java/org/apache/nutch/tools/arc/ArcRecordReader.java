@@ -19,10 +19,9 @@ package org.apache.nutch.tools.arc;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -30,24 +29,26 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
-import org.apache.hadoop.mapreduce.lib.input.FileSplit;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.RecordReader;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.util.ReflectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The <code>ArchRecordReader</code> class provides a record reader which reads
  * records from arc files.
- * 
+ *
  * Arc files are essentially tars of gzips. Each record in an arc file is a
  * compressed gzip. Multiple records are concatenated together to form a
  * complete arc.
- * 
- * For more information on the arc file format 
+ *
+ * For more information on the arc file format
  * @see <a href='http://www.archive.org/web/researcher/ArcFileFormat.php'>ArcFileFormat</a>.
 
  * Arc files are used by the Internet Archive and grub projects.
- * 
+ *
  * @see <a href='https://www.archive.org/'>archive.org</a>
  * @see <a href='http://www.grub.org/'>grub.org</a>
  */
@@ -70,10 +71,10 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
    * <p>
    * Returns true if the byte array passed matches the gzip header magic number.
    * </p>
-   * 
+   *
    * @param input
    *          The byte array to check.
-   * 
+   *
    * @return True if the byte array matches the gzip header magic number.
    */
   public static boolean isMagic(byte[] input) {
@@ -96,12 +97,12 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
 
   /**
    * Constructor that sets the configuration and file split.
-   * 
+   *
    * @param conf
    *          The job configuration.
    * @param split
    *          The file split to read from.
-   * 
+   *
    * @throws IOException
    *           If an IO error occurs while initializing file split.
    */
@@ -145,9 +146,9 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
 
   /**
    * Returns the current position in the file.
-   * 
+   *
    * @return The long of the current position in the file.
-   * @throws IOException if there is a fatal I/O error reading 
+   * @throws IOException if there is a fatal I/O error reading
    * the position within the {@link FSDataInputStream}
    */
   public long getPos() throws IOException {
@@ -157,7 +158,7 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
   /**
    * Returns the percentage of progress in processing the file. This will be
    * represented as a float from 0 to 1 with 1 being 100% completed.
-   * 
+   *
    * @return The percentage of progress as a float from 0 to 1.
    */
   @Override
@@ -186,10 +187,10 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
   public boolean nextKeyValue(){
     return false;
   }
-  
+
   @Override
   public void initialize(InputSplit split, TaskAttemptContext context){
-      
+
   }
 
   /**
@@ -198,14 +199,14 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
    * pair. The key will be the arc record header and the values will be the raw
    * content bytes of the arc record.
    * </p>
-   * 
+   *
    * @param key
    *          The record key
    * @param value
    *          The record value
-   * 
+   *
    * @return True if the next record is read.
-   * 
+   *
    * @throws IOException
    *           If an error occurs while reading the record value.
    */
@@ -293,7 +294,7 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
         }
 
         // create the header and the raw content minus the header
-        String header = new String(content, 0, eol).trim();
+        String header = new String(content, 0, eol, StandardCharsets.UTF_8).trim();
         byte[] raw = new byte[(content.length - eol) - 1];
         System.arraycopy(content, eol + 1, raw, 0, raw.length);
 

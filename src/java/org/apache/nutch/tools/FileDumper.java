@@ -16,15 +16,16 @@
  */
 package org.apache.nutch.tools;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.ByteArrayInputStream;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
-import com.google.common.base.Strings;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -32,10 +33,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.codec.digest.DigestUtils;
-
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -46,12 +46,12 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.DumpFileUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.TableUtil;
-
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 /**
  * The file dumper tool enables one to reverse generate the raw content from
  * Nutch segment data directories.
@@ -68,11 +68,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Upon successful completion the tool displays a very convenient JSON snippet
  * detailing the mimetype classifications and the counts of documents which fall
  * into those classifications. An example is as follows:
- * 
+ *
  * <pre>
  * {@code
- * INFO: File Types: 
- *   TOTAL Stats:    
+ * INFO: File Types:
+ *   TOTAL Stats:
  *    [
  *     {"mimeType":"application/xml","count":"19"}
  *     {"mimeType":"image/png","count":"47"}
@@ -85,8 +85,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *     {"mimeType":"application/octet-stream","count":"40"}
  *     {"mimeType":"text/html","count":"1863"}
  *   ]
- *   
- *   FILTER Stats: 
+ *
+ *   FILTER Stats:
  *   [
  *     {"mimeType":"image/png","count":"47"}
  *     {"mimeType":"image/jpeg","count":"141"}
@@ -111,7 +111,7 @@ public class FileDumper {
    * Dumps the reverse engineered raw content from the provided segment
    * directories if a parent directory contains more than one segment, otherwise
    * a single segment can be passed as an argument.
-   * 
+   *
    * @param outputDir
    *          the directory you wish to dump the raw content to. This directory
    *          will be created.
@@ -130,7 +130,7 @@ public class FileDumper {
    * @param reverseURLDump whether to reverse the URLs when they are written to disk
    * @throws Exception if there is a fatal error dumping files to disk
    */
-  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes, boolean 
+  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes, boolean
           flatDir, boolean mimeTypeStats, boolean reverseURLDump) throws Exception {
     if (mimeTypes == null) {
       LOG.info("Accepting all mimetypes.");
@@ -225,8 +225,10 @@ public class FileDumper {
                     String[] reversedURL = TableUtil.reverseUrl(url).split(":");
                     reversedURL[0] = reversedURL[0].replace('.', '/');
 
-                    String reversedURLPath = reversedURL[0] + "/" + DigestUtils.sha256Hex(url).toUpperCase();
-                    outputFullPath = String.format("%s/%s", fullDir, reversedURLPath);
+                    String reversedURLPath = reversedURL[0] + "/"
+                        + DigestUtils.sha256Hex(url).toUpperCase(Locale.ROOT);
+                    outputFullPath = String.format(Locale.ROOT, "%s/%s",
+                        fullDir, reversedURLPath);
 
                     // We'll drop the trailing file name and create the nested structure if it doesn't already exist.
                     String[] splitPath = outputFullPath.split("/");
@@ -235,10 +237,12 @@ public class FileDumper {
                     if (!fullOutputDir.exists()) {
                       if(!fullOutputDir.mkdirs());
                         throw new Exception("Unable to create: ["
-                              + fullOutputDir.getAbsolutePath() + "]"); 
+                              + fullOutputDir.getAbsolutePath() + "]");
                     }
                   } else {
-                    outputFullPath = String.format("%s/%s", fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName, extension));
+                    outputFullPath = String.format(Locale.ROOT, "%s/%s",
+                        fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName,
+                            extension));
                   }
                   filenameToUrl.put(outputFullPath, url);
                   File outputFile = new File(outputFullPath);
@@ -282,23 +286,25 @@ public class FileDumper {
           }
         }
       }
-      //save filenameToUrl in a json file for each segment there is one mapping file 
-      String filenameToUrlFilePath = String.format("%s/%s_filenameToUrl.json", outputDir.getAbsolutePath(), segment.getName() );
+      //save filenameToUrl in a json file for each segment there is one mapping file
+      String filenameToUrlFilePath = String.format(Locale.ROOT,
+          "%s/%s_filenameToUrl.json", outputDir.getAbsolutePath(),
+          segment.getName());
       new ObjectMapper().writeValue(new File(filenameToUrlFilePath), filenameToUrl);
-      
+
     }
     LOG.info("Dumper File Stats: {}",
         DumpFileUtil.displayFileTypes(typeCounts, filteredCounts));
 
     if (mimeTypeStats) {
-      System.out.println("Dumper File Stats: " 
+      System.out.println("Dumper File Stats: "
           + DumpFileUtil.displayFileTypes(typeCounts, filteredCounts));
     }
   }
 
   /**
    * Main method for invoking this tool
-   * 
+   *
    * @param args
    *          1) output directory (which will be created) to host the raw data
    *          and 2) a directory containing one or more segments.

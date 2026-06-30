@@ -32,7 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.ParseData;
-
 import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.protocol.Content;
 import org.archive.format.warc.WARCConstants;
@@ -43,6 +42,8 @@ import org.archive.io.warc.WARCWriterPoolSettingsData;
 import org.archive.uid.UUIDGenerator;
 import org.archive.util.DateUtils;
 import org.archive.util.anvl.ANVLRecord;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class CommonCrawlFormatWARC extends AbstractCommonCrawlFormat {
 
@@ -196,7 +197,7 @@ public class CommonCrawlFormatWARC extends AbstractCommonCrawlFormat {
     httpHeaders = WARCUtils.fixHttpHeaders(httpHeaders, content.getContent().length);
 
     if (StringUtils.isNotBlank(httpHeaders)) {
-      output.write(httpHeaders.getBytes());
+      output.write(httpHeaders.getBytes(UTF_8));
     } else {
       // change the record type to resource as we not have information about
       // the headers
@@ -204,7 +205,7 @@ public class CommonCrawlFormatWARC extends AbstractCommonCrawlFormat {
       record.setMimetype(content.getContentType());
     }
 
-    output.write(getResponseContent().getBytes());
+    output.write(getResponseContent().getBytes(UTF_8));
 
     record.setContentLength(output.size());
     record.setContentStream(new ByteArrayInputStream(output.toByteArray()));
@@ -237,7 +238,7 @@ public class CommonCrawlFormatWARC extends AbstractCommonCrawlFormat {
 
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-    output.write(metadata.get("_request_").getBytes());
+    output.write(metadata.get("_request_").getBytes(UTF_8));
     record.setContentLength(output.size());
     record.setContentStream(new ByteArrayInputStream(output.toByteArray()));
 

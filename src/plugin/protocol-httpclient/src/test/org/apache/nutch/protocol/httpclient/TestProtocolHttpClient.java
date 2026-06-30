@@ -22,14 +22,13 @@ import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import org.apache.commons.codec.binary.Base64;
-
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
-
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +49,7 @@ public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
 
   /**
    * Tests whether the client can remember cookies.
-   * 
+   *
    * @throws Exception
    *           If an error occurs or the test case fails.
    */
@@ -94,7 +93,7 @@ public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
 
   /**
    * Tests that no pre-emptive authorization headers are sent by the client.
-   * 
+   *
    * @throws Exception
    *           If an error occurs or the test case fails.
    */
@@ -146,14 +145,14 @@ public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
     boolean authenticated = false;
     String authReq = "Basic realm=\"realm" + id + "\"";
     if (authHeader != null) {
-      if (authHeader.toUpperCase().startsWith("BASIC")) {
+      if (authHeader.toUpperCase(Locale.ROOT).startsWith("BASIC")) {
         authenticationType = "BASIC";
         String creds[] = new String(Base64.decodeBase64(authHeader.substring(6)), UTF_8).split(":", 2);
         if (creds[0].equals("user" + id) && creds[1].equals("pass" + id)) {
           authenticated = true;
         }
 
-      } else if (authHeader.toUpperCase().startsWith("DIGEST")) {
+      } else if (authHeader.toUpperCase(Locale.ROOT).startsWith("DIGEST")) {
         authenticationType = "DIGEST";
         Map<String, String> map = new HashMap<>();
         StringTokenizer tokenizer = new StringTokenizer(
@@ -170,7 +169,7 @@ public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
           authenticated = true;
         }
 
-      } else if (authHeader.toUpperCase().startsWith("NTLM")) {
+      } else if (authHeader.toUpperCase(Locale.ROOT).startsWith("NTLM")) {
         authenticationType = "NTLM";
         String username = null;
         String domain = null;
@@ -194,17 +193,17 @@ public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
           // Get domain name
           length = msg[30] + msg[31] * 256;
           offset = msg[32] + msg[33] * 256;
-          domain = new String(msg, offset, length);
+          domain = new String(msg, offset, length, UTF_8);
 
           // Get user name
           length = msg[38] + msg[39] * 256;
           offset = msg[40] + msg[41] * 256;
-          username = new String(msg, offset, length);
+          username = new String(msg, offset, length, UTF_8);
 
           // Get password
           length = msg[46] + msg[47] * 256;
           offset = msg[48] + msg[49] * 256;
-          host = new String(msg, offset, length);
+          host = new String(msg, offset, length, UTF_8);
 
           if ("ntlm_user".equalsIgnoreCase(username)
               && "NUTCH".equalsIgnoreCase(domain)) {
@@ -230,7 +229,7 @@ public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
           authReq = "NTLM";
         }
       }
-      
+
       String requestAuthorization = "HTTP/1.1 401 Unauthorized\r\n" //
           + "WWW-Authenticate: " + authReq + "\r\n" //
           + "\r\n";
@@ -248,12 +247,12 @@ public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
         + "<p>Hi user" + id + ", you have been successfully authenticated.</p>" //
         + "</body>" //
         + "</html>";
-    return responseAuthenticated.getBytes(UTF_8);    
+    return responseAuthenticated.getBytes(UTF_8);
   }
-  
+
   /**
    * Tests default credentials.
-   * 
+   *
    * @throws Exception
    *           If an error occurs or the test case fails.
    */
@@ -269,7 +268,7 @@ public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
 
   /**
    * Tests basic authentication scheme for various realms.
-   * 
+   *
    * @throws Exception
    *           If an error occurs or the test case fails.
    */
@@ -286,7 +285,7 @@ public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
    * Tests that authentication happens for a defined realm and not for other
    * realms for a host:port when an extra <code>authscope</code> tag is not
    * defined to match all other realms.
-   * 
+   *
    * @throws Exception
    *           If an error occurs or the test case fails.
    */
@@ -301,7 +300,7 @@ public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
 
   /**
    * Tests Digest authentication scheme.
-   * 
+   *
    * @throws Exception
    *           If an error occurs or the test case fails.
    */
@@ -314,7 +313,7 @@ public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
 
   /**
    * Tests NTLM authentication scheme.
-   * 
+   *
    * @throws Exception
    *           If an error occurs or the test case fails.
    */

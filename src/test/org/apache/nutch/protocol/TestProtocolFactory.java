@@ -21,7 +21,12 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestProtocolFactory {
 
@@ -76,4 +81,27 @@ public class TestProtocolFactory {
     assertFalse(factory.contains("smb", "smbb"));
   }
 
+  @Test
+  public void testProtocolMapping() throws ProtocolNotFound {
+    // test mappings defined in src/test/host-protocol-mapping.txt
+    // (copied into and loaded from test classpath build/test/classes)
+    Protocol defaultHttpProtocol = factory.getProtocol("http://example.org/");
+    assertEquals("org.apache.nutch.protocol.http.Http",
+        defaultHttpProtocol.getClass().getCanonicalName());
+    Protocol defaultHttpsProtocol = factory.getProtocol("https://example.org/");
+    assertEquals("org.apache.nutch.protocol.okhttp.OkHttp",
+        defaultHttpsProtocol.getClass().getCanonicalName());
+    Protocol nutchProtocol = factory.getProtocol("https://nutch.apache.org/");
+    assertSame(defaultHttpProtocol, nutchProtocol);
+    Protocol squareProtocol = factory
+        .getProtocol("https://square.github.io/okhttp/");
+    assertSame(defaultHttpsProtocol, squareProtocol);
+    Protocol tikaProtocol = factory.getProtocol("https://tika.apache.org/");
+    assertEquals("org.apache.nutch.protocol.httpclient.Http",
+        tikaProtocol.getClass().getCanonicalName());
+    Protocol seleniumProtocol = factory
+        .getProtocol("https://www.selenium.dev/");
+    assertEquals("org.apache.nutch.protocol.selenium.Http",
+        seleniumProtocol.getClass().getCanonicalName());
+  }
 }
