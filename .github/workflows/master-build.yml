@@ -25,6 +25,10 @@ concurrency:
   group: master-build-${{ github.ref }}
   cancel-in-progress: true
 
+# Explicitly drop all permissions.
+# Permissions will be granted to individual jobs as needed.
+permissions: {}
+
 # Java Version Strategy:
 # - Requires Java 17+ to build, test, and run (Hadoop 3.5+ client + JUnit 6).
 # - Default bytecode: javac.version=17 (see default.properties).

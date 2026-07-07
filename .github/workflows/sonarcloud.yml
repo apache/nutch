@@ -40,6 +40,8 @@ jobs:
           repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          allow-unsafe-pr-checkout: true # explicitely allow (no code is compiled or run in this workflow)
+          persist-credentials: false
 
       - name: Fetch target branch for PR analysis
         if: github.event.workflow_run.event == 'pull_request'
