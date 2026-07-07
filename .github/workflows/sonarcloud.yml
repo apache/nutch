@@ -21,7 +21,7 @@ on:
 
 # Explicitly drop all permissions.
 # Permissions will be granted to individual jobs as needed.
-permissions: { }
+permissions: {}
 
 concurrency:
   group: sonarcloud-${{ github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.head_sha }}
