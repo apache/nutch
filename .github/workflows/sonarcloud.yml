@@ -19,20 +19,30 @@ on:
     workflows: [master pull request ci]
     types: [completed]
 
+# Explicitly drop all permissions.
+# Permissions will be granted to individual jobs as needed.
+permissions: {}
+
 concurrency:
   group: sonarcloud-${{ github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.head_sha }}
   cancel-in-progress: true
 
 jobs:
-  analysis:
-    if: github.event.workflow_run.conclusion == 'success'
+  # WARNING: this job runs with access to repository secrets: do not execute untrusted code here.
+  # It is triggered after the Build workflow completes; avoid running any code from the pull request itself.
+  sonarcloud-scan:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v7
         with:
           repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_sha }}
-          fetch-depth: 0
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          allow-unsafe-pr-checkout: true  # Explicitely allow (no code is compiled or run in this workflow)
+          persist-credentials: false
+
       - name: Fetch target branch for PR analysis
         if: github.event.workflow_run.event == 'pull_request'
         run: |
@@ -43,16 +53,17 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Cache Ivy dependencies
-        uses: actions/cache@v6
-        with:
-          path: ~/.ivy2/cache
-          key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-ivy-
-      - name: Compile (no tests)
-        run: ant compile compile-plugins resolve-test -buildfile build.xml
+
       # Coverage and JUnit XML come only from the master-build Ubuntu JDK 17 matrix job.
+      - name: Download Binary Artifacts (Ubuntu JDK 17)
+        uses: dawidd6/action-download-artifact@v21
+        with:
+          name: build-artifacts-ubuntu-latest-jdk17
+          workflow: master-build.yml
+          run_id: ${{ github.event.workflow_run.id }}
+          path: ./build/
+        continue-on-error: true
+
       - name: Download coverage data (Ubuntu JDK 17)
         uses: dawidd6/action-download-artifact@v21
         with:
@@ -61,22 +72,24 @@ jobs:
           run_id: ${{ github.event.workflow_run.id }}
           path: ./build/coverage/
         continue-on-error: true
+
       - name: Download test reports (Ubuntu JDK 17)
         uses: dawidd6/action-download-artifact@v21
         with:
           name: junit-test-results-ubuntu-latest-jdk17
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
-          path: ./build/test-jdk17/
+          path: |
+            ./build/test/TEST-*.xml
+            ./build/**/test/TEST-*.xml
         continue-on-error: true
+
       - name: Flatten test reports (JDK 17 only)
         run: |
           mkdir -p ./build/test-reports
-          find ./build/test-jdk17 -name 'TEST-*.xml' -exec cp {} ./build/test-reports/ \; 2>/dev/null || true
+          find ./build/test ./build/*/test/ -name 'TEST-*.xml' -exec cp {} ./build/test-reports/ \; 2>/dev/null || true
         continue-on-error: true
-      - name: Generate JaCoCo XML report
-        run: ant jacoco-report -buildfile build.xml
-        continue-on-error: true
+
       - name: Resolve PR number
         id: pr
         run: |
@@ -109,6 +122,7 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ github.token }}
+
       - name: SonarCloud Scan (PR)
         if: steps.pr.outputs.is_pr == 'true'
         uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e
@@ -120,6 +134,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
+
       - name: SonarCloud Scan (branch)
         if: steps.pr.outputs.is_pr == 'false' && steps.pr.outputs.skip != 'true'
         uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e
