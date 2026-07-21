@@ -125,7 +125,7 @@ jobs:
 
       - name: SonarCloud Scan (PR)
         if: steps.pr.outputs.is_pr == 'true'
-        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f
         with:
           args: >
             -Dsonar.pullrequest.key=${{ steps.pr.outputs.number }}
@@ -137,7 +137,7 @@ jobs:
 
       - name: SonarCloud Scan (branch)
         if: steps.pr.outputs.is_pr == 'false' && steps.pr.outputs.skip != 'true'
-        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f
         with:
           args: >
             -Dsonar.branch.name=${{ github.event.workflow_run.head_branch }}
