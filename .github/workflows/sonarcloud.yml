@@ -79,9 +79,9 @@ jobs:
           name: junit-test-results-ubuntu-latest-jdk17
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
-          path: |
-            ./build/test/TEST-*.xml
-            ./build/**/test/TEST-*.xml
+          # Artifact has build/ stripped (upload-artifact LCA); re-root under build/
+          # so paths match build/test/... and build/<plugin>/test/...
+          path: ./build/
         continue-on-error: true
 
       - name: Flatten test reports (JDK 17 only)

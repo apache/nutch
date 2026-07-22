@@ -151,12 +151,12 @@ public class StringUtil {
   }
 
   /**
-   * Simple character substitution which cleans/removes all � chars from a given String.
+   * Simple character substitution which cleans/removes all \uFFFD chars from a given String.
    * @param value the String to clean
    * @return substituted cleaned string
    */
   public static String cleanField(String value) {
-    return value.replaceAll("�", "");
+    return value.replaceAll("\uFFFD", "");
   }
 
   /**

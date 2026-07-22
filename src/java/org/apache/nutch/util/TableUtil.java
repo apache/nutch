@@ -146,7 +146,7 @@ public class TableUtil {
   }
 
   /**
-   * Convert given Utf8 instance to String and and cleans out any offending "�"
+   * Convert given Utf8 instance to String and and cleans out any offending "\uFFFD"
    * from the String.
    * 
    * 
