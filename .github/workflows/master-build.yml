@@ -280,6 +280,8 @@ jobs:
             ./build/classes/**/*.class
             # plugin and test class files
             ./build/**/classes/**/*.class
+            # plugin test class files (compiled into build/<plugin>/test/)
+            ./build/*/test/**/*.class
             # dependencies
             ./build/lib/*.jar
             ./build/test/lib/*.jar
@@ -298,6 +300,8 @@ jobs:
         if: always() && matrix.os == 'ubuntu-latest'
         with:
           name: coverage-data-ubuntu-jdk${{ matrix.java }}
-          path: ./build/coverage/*.exec
+          path: |
+            ./build/coverage/*.exec
+            ./build/coverage/jacoco.xml
           retention-days: 1
           if-no-files-found: ignore
