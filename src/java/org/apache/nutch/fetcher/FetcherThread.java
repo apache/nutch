@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -38,11 +39,11 @@ import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.fetcher.Fetcher.FetcherRun;
 import org.apache.nutch.fetcher.FetcherThreadEvent.PublishEventType;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.LatencyTracker;
 import org.apache.nutch.metrics.NutchMetrics;
-import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLExemptionFilters;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
@@ -65,7 +66,6 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
-import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
@@ -113,6 +113,7 @@ public class FetcherThread extends Thread {
   URLNormalizers normalizersForOutlinks;
 
   private boolean skipTruncated;
+  private boolean deleteFailedParse;
 
   private boolean halted = false;
 
@@ -141,15 +142,11 @@ public class FetcherThread extends Thread {
   private AtomicInteger pages;
 
   private AtomicLong bytes;
-  
+
   private List<Content> robotsTxtContent = null;
   private long robotsDeferVisitsDelay;
   private int robotsDeferVisitsRetries;
 
-  //Used by the REST service
-  private FetchNode fetchNode;
-  private boolean reportToNutchServer;
-  
   //Used for publishing events
   private FetcherThreadPublisher publisher;
   private boolean activatePublisher;
@@ -174,9 +171,9 @@ public class FetcherThread extends Thread {
   // Error tracker for categorized error metrics
   private ErrorTracker errorTracker;
 
-  public FetcherThread(Configuration conf, AtomicInteger activeThreads, FetchItemQueues fetchQueues, 
+  public FetcherThread(Configuration conf, AtomicInteger activeThreads, FetchItemQueues fetchQueues,
       QueueFeeder feeder, AtomicInteger spinWaiting, AtomicLong lastRequestStart, FetcherRun.Context context,
-      AtomicInteger errors, String segmentName, boolean parsing, boolean storingContent, 
+      AtomicInteger errors, String segmentName, boolean parsing, boolean storingContent,
       AtomicInteger pages, AtomicLong bytes) {
     this.setDaemon(true); // don't hang JVM on exit
     this.setName("FetcherThread"); // use an informative name
@@ -186,6 +183,7 @@ public class FetcherThread extends Thread {
     this.scfilters = new ScoringFilters(conf);
     this.parseUtil = new ParseUtil(conf);
     this.skipTruncated = conf.getBoolean(ParseSegment.SKIP_TRUNCATED, true);
+    this.deleteFailedParse = conf.getBoolean(ParseSegment.DELETE_FAILED_PARSE, false);
     this.signatureWithoutParsing = conf.getBoolean("fetcher.signature", false);
     this.protocolFactory = new ProtocolFactory(conf);
     this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
@@ -226,9 +224,9 @@ public class FetcherThread extends Thread {
           .getInt("http.robots.503.defer.visits.retries", 3);
     }
 
-    if((activatePublisher=conf.getBoolean("fetcher.publisher", false)))
+    if ((activatePublisher = conf.getBoolean("fetcher.publisher", false)))
       this.publisher = new FetcherThreadPublisher(conf);
-    
+
     queueMode = conf.get("fetcher.queue.mode",
         FetchItemQueues.QUEUE_MODE_HOST);
     queueMode = FetchItemQueues.checkQueueMode(queueMode);
@@ -292,11 +290,11 @@ public class FetcherThread extends Thread {
         NutchMetrics.GROUP_FETCHER_OUTLINKS, NutchMetrics.FETCHER_OUTLINKS_DETECTED_TOTAL);
     outlinksFollowingCounter = context.getCounter(
         NutchMetrics.GROUP_FETCHER_OUTLINKS, NutchMetrics.FETCHER_OUTLINKS_FOLLOWING_TOTAL);
-    
+
     // Initialize latency tracker for fetch timing
     fetchLatencyTracker = new LatencyTracker(
         NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_LATENCY);
-    
+
     // Initialize error tracker for categorized error metrics
     errorTracker = new ErrorTracker(NutchMetrics.GROUP_FETCHER);
   }
@@ -308,17 +306,7 @@ public class FetcherThread extends Thread {
 
     FetchItem fit = null;
     try {
-      // checking for the server to be running and fetcher.parse to be true
-      if (parsing && NutchServer.getInstance().isRunning())
-        reportToNutchServer = true;
-      
       while (true) {
-        // creating FetchNode for storing in FetchNodeDb
-        if (reportToNutchServer)
-          this.fetchNode = new FetchNode();
-        else
-          this.fetchNode = null;
-
         // check whether must be stopped
         if (isHalted()) {
           LOG.debug("{} set to halted", getName());
@@ -359,13 +347,13 @@ public class FetcherThread extends Thread {
           // fetch the page
           redirecting = false;
           redirectCount = 0;
-          
+
           //Publisher event
           if(activatePublisher) {
             FetcherThreadEvent startEvent = new FetcherThreadEvent(PublishEventType.START, fit.getUrl().toString());
             publisher.publish(startEvent, conf);
           }
-          
+
           do {
             LOG.info("{} {} fetching {} (queue crawl delay={}ms)", getName(),
                 Thread.currentThread().getId(), fit.url,
@@ -443,13 +431,6 @@ public class FetcherThread extends Thread {
             // unblock queue
             fetchQueues.finishFetchItem(fit);
 
-            // used for FetchNode
-            if (fetchNode != null) {
-              fetchNode.setStatus(status.getCode());
-              fetchNode.setFetchTime(System.currentTimeMillis());
-              fetchNode.setUrl(fit.url);
-            }
-            
             //Publish fetch finish event
             if(activatePublisher) {
               FetcherThreadEvent endEvent = new FetcherThreadEvent(PublishEventType.END, fit.getUrl().toString());
@@ -464,7 +445,7 @@ public class FetcherThread extends Thread {
             case ProtocolStatus.SUCCESS: // got a page
               pstatus = output(fit.url, fit.datum, content, status,
                   CrawlDatum.STATUS_FETCH_SUCCESS, fit.outlinkDepth);
-              updateStatus(content.getContent().length);
+              updateStatus(content.getContent() != null ? content.getContent().length : 0);
               if (pstatus != null && pstatus.isSuccess()
                   && pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
                 String newUrl = pstatus.getMessage();
@@ -559,6 +540,9 @@ public class FetcherThread extends Thread {
           output(fit.url, fit.datum, null, ProtocolStatus.STATUS_FAILED,
               CrawlDatum.STATUS_FETCH_RETRY);
         }
+
+        // done: unset reprUrl for reporting
+        setReprUrl(null);
       }
 
     } catch (Throwable e) {
@@ -606,12 +590,14 @@ public class FetcherThread extends Thread {
         if (ignoreExternalLinks) {
           String origHostOrDomain, newHostOrDomain;
           if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
-            origHostOrDomain = URLUtil.getDomainName(origUrl).toLowerCase();
-            newHostOrDomain = URLUtil.getDomainName(redirUrl).toLowerCase();
+            origHostOrDomain = URLUtil.getDomainName(origUrl)
+                .toLowerCase(Locale.ROOT);
+            newHostOrDomain = URLUtil.getDomainName(redirUrl)
+                .toLowerCase(Locale.ROOT);
           } else {
             // byHost
-            origHostOrDomain = origUrl.getHost().toLowerCase();
-            newHostOrDomain = redirUrl.getHost().toLowerCase();
+            origHostOrDomain = origUrl.getHost().toLowerCase(Locale.ROOT);
+            newHostOrDomain = redirUrl.getHost().toLowerCase(Locale.ROOT);
           }
           if (!origHostOrDomain.equals(newHostOrDomain)) {
             LOG.debug(
@@ -622,8 +608,8 @@ public class FetcherThread extends Thread {
         }
 
         if (ignoreInternalLinks) {
-          String origHost = origUrl.getHost().toLowerCase();
-          String newHost = redirUrl.getHost().toLowerCase();
+          String origHost = origUrl.getHost().toLowerCase(Locale.ROOT);
+          String newHost = redirUrl.getHost().toLowerCase(Locale.ROOT);
           if (origHost.equals(newHost)) {
             LOG.debug(
                 " - ignoring redirect {} from {} to {} because internal links are ignored",
@@ -759,14 +745,18 @@ public class FetcherThread extends Thread {
               .calculate(content, new ParseStatus().getEmptyParse(conf));
           datum.setSignature(signature);
         }
+
+        if (parseResult == null && parsing && deleteFailedParse) {
+          datum.setStatus(CrawlDatum.STATUS_PARSE_FAILED);
+          status = CrawlDatum.STATUS_PARSE_FAILED;
+        }
       }
 
       /*
        * Store status code in content So we can read this value during parsing
        * (as a separate job) and decide to parse or not.
        */
-      content.getMetadata().add(Nutch.FETCH_STATUS_KEY,
-          Integer.toString(status));
+      content.getMetadata().add(Nutch.FETCH_STATUS_KEY, Integer.toString(status));
     }
 
     try {
@@ -784,6 +774,10 @@ public class FetcherThread extends Thread {
             LOG.warn("{} {} Error parsing: {}: {}", getName(),
                 Thread.currentThread().getId(), key, parseStatus);
             parse = parseStatus.getEmptyParse(conf);
+            if (deleteFailedParse && content != null) {
+              // forward the failure status in the content
+              content.getMetadata().add(Nutch.FETCH_STATUS_KEY, Integer.toString(CrawlDatum.STATUS_PARSE_FAILED));
+            }
           }
 
           // Calculate page signature. For non-parsing fetchers this will
@@ -815,19 +809,12 @@ public class FetcherThread extends Thread {
             URL originURL = new URL(url.toString());
             // based on domain?
             if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
-              origin = URLUtil.getDomainName(originURL).toLowerCase();
-            } 
-            // use host 
-            else {
-              origin = originURL.getHost().toLowerCase();
+              origin = URLUtil.getDomainName(originURL);
             }
-          }
-          
-          //used by fetchNode         
-          if(fetchNode!=null){
-            fetchNode.setOutlinks(links);
-            fetchNode.setTitle(parseData.getTitle());
-            FetchNodeDb.getInstance().put(fetchNode.getUrl().toString(), fetchNode);
+            // use host
+            else {
+              origin = originURL.getHost().toLowerCase(Locale.ROOT);
+            }
           }
           int validCount = 0;
 
@@ -853,8 +840,8 @@ public class FetcherThread extends Thread {
             outlinkList.add(links[i]);
             outlinks.add(toUrl);
           }
-          
-          //Publish fetch report event 
+
+          //Publish fetch report event
           if(activatePublisher) {
             FetcherThreadEvent reportEvent = new FetcherThreadEvent(PublishEventType.REPORT, url.toString());
             reportEvent.addOutlinksToEventData(outlinkList);
@@ -899,14 +886,14 @@ public class FetcherThread extends Thread {
                 continue;
               }
               queue.alreadyFetched.add(urlHashCode);
-              
+
               // Create new FetchItem with depth incremented
               FetchItem fit = FetchItem.create(new Text(followUrl),
                   new CrawlDatum(CrawlDatum.STATUS_LINKED, interval),
                   queueMode, outlinkDepth + 1);
-              
+
               outlinksFollowingCounter.increment(1);
-              
+
               fetchQueues.addFetchItem(fit);
 
               outlinkCounter++;
@@ -939,7 +926,7 @@ public class FetcherThread extends Thread {
     }
     return null;
   }
-  
+
   private void outputRobotsTxt(List<Content> robotsTxtContent) throws InterruptedException {
     for (Content robotsTxt : robotsTxtContent) {
       LOG.debug("Fetched and stored robots.txt {}",
@@ -969,10 +956,10 @@ public class FetcherThread extends Thread {
   public String getReprUrl() {
     return reprUrl;
   }
-  
+
   private void setReprUrl(String urlString) {
     this.reprUrl = urlString;
-    
+
   }
 
 }

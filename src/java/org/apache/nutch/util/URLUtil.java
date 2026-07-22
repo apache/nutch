@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.util;
 
+import java.lang.invoke.MethodHandles;
 import java.net.IDN;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -23,15 +24,27 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import com.ibm.icu.util.ICUException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ibm.icu.text.IDNA;
+
 import crawlercommons.domains.EffectiveTldFinder;
 
 /** Utility class for URL analysis */
 public class URLUtil {
 
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
+
+  private static final IDNA idna = IDNA.getUTS46Instance(
+      IDNA.NONTRANSITIONAL_TO_ASCII | IDNA.NONTRANSITIONAL_TO_UNICODE);
+
   /**
    * Resolve relative URL-s and fix a java.net.URL error in handling of URLs
    * with pure query targets.
-   * 
+   *
    * @param base
    *          base url
    * @param target
@@ -91,14 +104,14 @@ public class URLUtil {
    *  </code><br>
    * will return <br>
    * <code>apache.org</code>
-   * 
+   *
    * Special cases:
    * <ul>
    * <li>if the hostname does not end in a valid domain suffix, the entire
    * hostname is returned.</li>
    * <li>for URLs without a hostname, an empty string is returned.</li>
    * </ul>
-   * 
+   *
    * Valid domain suffixes are taken from the
    * <a href= "https://publicsuffix.org/list/public_suffix_list.dat"
    * >https://publicsuffix.org/list/public_suffix_list.dat</a> and are compared
@@ -110,9 +123,11 @@ public class URLUtil {
    * a specific version of the public suffix list (e.g., the most recent one) by
    * placing the public suffix list with the name "effective_tld_names.dat" in
    * Nutch's <code>conf/</code> folder.
-   * 
+   *
+   * The returned domain names are always normalized to lowercase.
+   *
    * See {@link EffectiveTldFinder#getAssignedDomain(String, boolean, boolean)}
-   * 
+   *
    * @param url
    *          input {@link URL} to extract the domain from
    * @return the domain name string
@@ -135,9 +150,9 @@ public class URLUtil {
    *  </code><br>
    * will return <br>
    * <code>apache.org</code>
-   * 
+   *
    * See {@link #getDomainName(URL)} for more information.
-   * 
+   *
    * @param url
    *          input URL string to extract the domain from
    * @return the domain name
@@ -157,10 +172,10 @@ public class URLUtil {
    *  </code><br>
    * will return <br>
    * <code>uk</code>
-   * 
+   *
    * In case of internationalized top-level domains, the ASCII representation is
    * returned.
-   * 
+   *
    * @param url
    *          input {@link URL} to extract the top-level domain name from
    * @return the top-level domain name or null if there is none
@@ -187,10 +202,10 @@ public class URLUtil {
    *  </code><br>
    * will return <br>
    * <code>uk</code>
-   * 
+   *
    * In case of internationalized top-level domains, the ASCII representation is
    * returned.
-   * 
+   *
    * @param url
    *          input URL string to extract the top-level domain name from
    * @return the top-level domain name or null if there is none
@@ -208,12 +223,12 @@ public class URLUtil {
    * <code>isSameDomain(new URL("http://lucene.apache.org")
    * , new URL("http://people.apache.org/"))</code>
    * <br>will return true.
-   * 
+   *
    * @param url1
    *          first {@link URL} to compare domain name
    * @param url2
    *          second {@link URL} to compare domain name
-   * 
+   *
    * @return true if the domain names are equal
    */
   public static boolean isSameDomainName(URL url1, URL url2) {
@@ -226,7 +241,7 @@ public class URLUtil {
    * <code>isSameDomain("http://lucene.apache.org"
    * ,"http://people.apache.org/")</code>
    * <br>will return true.
-   * 
+   *
    * @param url1
    *          first URL string to compare domain name
    * @param url2
@@ -243,11 +258,11 @@ public class URLUtil {
   /**
    * Returns the public suffix corresponding to the last public part of the
    * hostname.
-   * 
+   *
    * In case of internationalized domain suffixes, the ASCII representation is
    * returned. For the URL <code>https://www.taiuru.māori.nz/</code> the suffix
    * <code>xn--mori-qsa.nz</code> is returned.
-   * 
+   *
    * @param url
    *          a {@link URL} to extract the domain suffix from
    * @return the domain suffix or null if there is none
@@ -271,11 +286,11 @@ public class URLUtil {
   /**
    * Returns the domain suffix corresponding to the last public part of the
    * hostname.
-   * 
+   *
    * In case of internationalized domain suffixes, the ASCII representation is
    * returned. For the URL <code>https://www.taiuru.māori.nz/</code> the suffix
    * <code>xn--mori-qsa.nz</code> is returned.
-   * 
+   *
    * @param url
    *          a {@link URL} to extract the domain suffix from
    * @return the domain suffix or null if there is none
@@ -358,14 +373,14 @@ public class URLUtil {
    * same) against their linkrank scores and the highest scoring one is kept as
    * the url and the lower scoring one is held as the orig url inside of the
    * index.
-   * 
+   *
    * @param src
    *          The source url.
    * @param dst
    *          The destination url.
    * @param temp
    *          Is the redirect a temporary redirect.
-   * 
+   *
    * @return String The representative url.
    */
   public static String chooseRepr(String src, String dst, boolean temp) {
@@ -464,7 +479,7 @@ public class URLUtil {
 
   /**
    * Returns the lowercased hostname for the URL or null if the URL is not well-formed.
-   * 
+   *
    * @param url
    *          The URL to check.
    * @return String the hostname for the URL.
@@ -479,7 +494,7 @@ public class URLUtil {
 
   /**
    * Returns the lowercased hostname for the URL.
-   * 
+   *
    * @param url
    *          The URL to check.
    * @return String the hostname for the URL.
@@ -492,7 +507,7 @@ public class URLUtil {
    * Returns the page for the url. The page consists of the protocol, host, and
    * path, but does not include the query string. The host is lowercased but the
    * path is not.
-   * 
+   *
    * @param url
    *          The url to check.
    * @return String The page for the url.
@@ -500,7 +515,7 @@ public class URLUtil {
   public static String getPage(String url) {
     try {
       // get the full url, and replace the query string with and empty string
-      url = url.toLowerCase();
+      url = url.toLowerCase(Locale.ROOT);
       String queryStr = new URL(url).getQuery();
       return (queryStr != null) ? url.replace("?" + queryStr, "") : url;
     } catch (MalformedURLException e) {
@@ -520,17 +535,39 @@ public class URLUtil {
     return url.getProtocol();
   }
 
+  public static boolean isAscii(String str) {
+    char[] chars = str.toCharArray();
+    for (char c : chars) {
+      if (c > 127) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Convert URL with IDN host/domain name into the ASCII representation.
+   *
+   * @param url
+   *          URL string to convert
+   * @return URL string with ASCII host/domain name or null if conversion fails.
+   */
   public static String toASCII(String url) {
     try {
       URL u = new URL(url);
       String host = u.getHost();
-      if (host == null || host.isEmpty()) {
-        // no host name => no punycoded domain name
-        // also do not add additional slashes for file: URLs (NUTCH-1880)
+      String hostLowerCase = host.toLowerCase(Locale.ROOT);
+      if (host == null || host.isEmpty()
+          || (isAscii(host) && host.equals(hostLowerCase))) {
+        // - no host name => no punycoded domain name
+        // - also do not add additional slashes for file: URLs (NUTCH-1880)
+        // - do nothing if host is already ASCII-only
+        // - not already in lowercase => conversion also lowercases host name
         return url;
       }
-      URI p = new URI(u.getProtocol(), u.getUserInfo(), IDN.toASCII(host),
-          u.getPort(), u.getPath(), u.getQuery(), u.getRef());
+      URI p = new URI(u.getProtocol(), u.getUserInfo(),
+          convertIDNA2008(hostLowerCase, true), u.getPort(), u.getPath(),
+          u.getQuery(), u.getRef());
 
       return p.toString();
     } catch (Exception e) {
@@ -538,13 +575,25 @@ public class URLUtil {
     }
   }
 
+  /**
+   * Convert URL with IDN host/domain name to the Unicode representation.
+   *
+   * @param url
+   *          URL string to convert
+   * @return URL string with Unicode host/domain name or null if conversion
+   *         fails.
+   */
   public static String toUNICODE(String url) {
     try {
       URL u = new URL(url);
       String host = u.getHost();
-      if (host == null || host.isEmpty()) {
-        // no host name => no punycoded domain name
-        // also do not add additional slashes for file: URLs (NUTCH-1880)
+      String hostLowerCase = host.toLowerCase(Locale.ROOT);
+      if (host == null || host.isEmpty()
+          || (!hostLowerCase.contains("xn--") && host.equals(hostLowerCase))) {
+        // - no host name => no punycoded domain name
+        // - also do not add additional slashes for file: URLs (NUTCH-1880)
+        // - contains 'xn--' => needs conversion
+        // - not already in lowercase => conversion also lowercases host name
         return url;
       }
       StringBuilder sb = new StringBuilder();
@@ -554,7 +603,7 @@ public class URLUtil {
         sb.append(u.getUserInfo());
         sb.append('@');
       }
-      sb.append(IDN.toUnicode(host));
+      sb.append(convertIDNA2008(hostLowerCase, false));
       if (u.getPort() != -1) {
         sb.append(':');
         sb.append(u.getPort());
@@ -572,22 +621,93 @@ public class URLUtil {
   }
 
   /**
-   * For testing
-   * @param args print with no args to get help
+   * Convert IDN host to ASCII or Unicode using Java's built-in {@link IDN}
+   * class.
+   *
+   * The conversion supports only IDNA2003, it does not support IDNA2008.
+   * However, unless the parameter <code>strictIDNA2003</code> is true, the
+   * methods {@link IDN#toASCII(String, int)} resp.
+   * {@link IDN#toUnicode(String, int)} are called passing the flag
+   * {@link IDN#ALLOW_UNASSIGNED} to avoid that the conversion fails on
+   * characters not in the repertoire of Unicode 3.2.
+   *
+   * @param host
+   *          host name to be converted (lowercase expected)
+   * @param toAscii
+   *          if true convert to ASCII, otherwise to Unicode
+   * @param strictIDNA2003
+   *          if true, do
+   * @return converted host name
+   * @throws MalformedURLException
+   *           if the conversion fails
    */
-  public static void main(String[] args) {
-
-    if (args.length != 1) {
-      System.err.println("Usage : URLUtil <url>");
-      return;
-    }
-
-    String url = args[0];
+  public static String convertIDNA2003(String host, boolean toAscii,
+      boolean strictIDNA2003) throws MalformedURLException {
     try {
-      System.out.println(URLUtil.getDomainName(new URL(url)));
-    } catch (MalformedURLException ex) {
-      ex.printStackTrace();
+      if (toAscii) {
+        return IDN.toASCII(host, strictIDNA2003 ? 0 : IDN.ALLOW_UNASSIGNED);
+      } else {
+        return IDN.toUnicode(host, strictIDNA2003 ? 0 : IDN.ALLOW_UNASSIGNED);
+      }
+    } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+      // IllegalArgumentException: thrown if the input string contains
+      // non-convertible Unicode codepoints
+      // IndexOutOfBoundsException: thrown (undocumented) if one "label"
+      // (non-ASCII dot-separated segment) is longer than 256 characters,
+      // cf. https://bugs.openjdk.java.net/browse/JDK-6806873
+      throw (MalformedURLException) new MalformedURLException(
+          "Invalid IDN " + host + ": " + e.getMessage()).initCause(e);
     }
+  }
+
+  /**
+   * Convert IDN host to ASCII or Unicode using ICU's {@link IDNA} class.
+   *
+   * The conversion supports IDNA2008 names.
+   *
+   * @param host
+   *          host name to be converted (lowercase expected)
+   * @param toAscii
+   *          if true convert to ASCII, otherwise to Unicode
+   * @return converted host name
+   * @throws MalformedURLException
+   *           if the conversion fails
+   */
+  public static String convertIDNA2008(String host, boolean toAscii)
+      throws MalformedURLException {
+    final IDNA.Info idnaInfo = new IDNA.Info();
+    final StringBuilder hostConverted = new StringBuilder();
+    try {
+      if (toAscii) {
+        idna.nameToASCII(host, hostConverted, idnaInfo);
+      } else {
+        idna.nameToUnicode(host, hostConverted, idnaInfo);
+      }
+    } catch (ICUException | IllegalStateException  e) {
+      // ICU's UTS46 + Punycode conversion throws these unchecked exceptions:
+      // ICUException (incl. ICUInputTooLongException from Punycode.encode on an
+      // over-long label), IllegalStateException (Punycode).
+      // Convert to MalformedURLException so callers (e.g. BasicURLNormalizer)
+      // reject the URL instead of crashing the task.
+      throw (MalformedURLException) new MalformedURLException(
+          "Invalid IDN host " + host + ": " + e.getMessage()).initCause(e);
+    }
+
+    if (idnaInfo.hasErrors()) {
+      StringBuilder msg = new StringBuilder();
+      for (IDNA.Error error : idnaInfo.getErrors()) {
+        if (msg.length() == 0) {
+          msg.append("Invalid IDNA2008 host").append(host).append(": ");
+        } else {
+          msg.append(", ");
+        }
+        msg.append(error.name());
+      }
+      String errorMsg = msg.toString();
+      LOG.debug("Failed to convert IDN host {}: {}", host, errorMsg);
+      throw new MalformedURLException(errorMsg);
+    }
+    return hostConverted.toString();
   }
 
   /**
@@ -595,7 +715,7 @@ public class URLUtil {
    * case if the URL path is <code>/</code> and query, port, fragment, userinfo
    * are empty resp. not given. In other words the URL is:
    * <code>protocol://hostName/</code>
-   * 
+   *
    * @param url
    *          the URL to test
    * @param hostName
@@ -609,5 +729,25 @@ public class URLUtil {
         && url.getPort() == -1 //
         && url.getRef() == null //
         && url.getUserInfo() == null;
+  }
+
+  /**
+   * For testing
+   * @param args print with no args to get help
+   */
+  public static void main(String[] args) {
+
+    if (args.length != 1) {
+      System.err.println("Usage : URLUtil <url>");
+      System.err.println("\nExtract and print pay-level domain names for the input URL");
+      return;
+    }
+
+    String url = args[0];
+    try {
+      System.out.println(URLUtil.getDomainName(new URL(url)));
+    } catch (MalformedURLException ex) {
+      ex.printStackTrace();
+    }
   }
 }

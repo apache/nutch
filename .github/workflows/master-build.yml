@@ -21,31 +21,35 @@ on:
     types: [opened, synchronize, reopened]
     branches: [master]
 
+concurrency:
+  group: master-build-${{ github.ref }}
+  cancel-in-progress: true
+
+# Explicitly drop all permissions.
+# Permissions will be granted to individual jobs as needed.
+permissions: {}
+
 # Java Version Strategy:
-# - BUILD: Requires Java 17+ (JUnit 6 dependency)
-# - RUNTIME: Supports Java 11+ (javac.version=11 produces Java 11 bytecode)
-#
-# The 'build' job verifies bytecode compilation for both Java 11 and 17 targets.
-# The 'runtime-java11' job verifies the built artifacts actually run on Java 11.
-# The 'tests' job runs on JDK 17 (required by JUnit 6) with the default
-# javac.version=11 bytecode target for backward compatibility.
+# - Requires Java 17+ to build, test, and run (Hadoop 3.5+ client + JUnit 6).
+# - Default bytecode: javac.version=17 (see default.properties).
+# - CI exercises Eclipse Temurin JDK 17 and JDK 21 on Ubuntu (and tests on macOS).
 
 jobs:
   javadoc:
     strategy:
       matrix:
-        java: ['17']
+        java: ['17', '21']
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: Cache Ivy dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.ivy2/cache
           key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
@@ -57,67 +61,90 @@ jobs:
   rat:
     strategy:
       matrix:
-        java: ['17']
+        java: ['17', '21']
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: Cache Ivy dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.ivy2/cache
           key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
           restore-keys: |
             ${{ runner.os }}-ivy-
       - name: Run Apache Rat
-        run: ant clean run-rat -buildfile build.xml
+        run: ant clean releaseaudit -buildfile build.xml
       - name: Cache unknown licenses
-        run: echo "UNKNOWN_LICENSES=$(sed -n 18p /home/runner/work/nutch/nutch/build/apache-rat-report.txt)" >> $GITHUB_ENV
+        # Note: Apache RAT 0.18 only reports unknown licenses as "Unknown license: N" (if there are any)
+        run: |
+          echo "UNKNOWN_LICENSES=$(grep -E '^Unknown license: [0-9]+' /home/runner/work/nutch/nutch/build/apache-rat-report.txt)" >> $GITHUB_ENV
       - name: Versions
         run: |
           echo $UNKNOWN_LICENSES
       - name: Fail if any unknown licenses
-        if: ${{ env.UNKNOWN_LICENSES != '0 Unknown Licenses' }}
+        if: ${{ env.UNKNOWN_LICENSES != '' }}
         run: exit 1
 
-  # Build verification with Java bytecode target matrix
-  # Verifies bytecode compatibility for both Java 11 and Java 17 targets
+  openapi-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706
+        id: filter
+        with:
+          filters: |
+            openapi:
+              - 'openapi.yaml'
+              - '.spectral.yaml'
+      - name: Set up Node.js
+        if: steps.filter.outputs.openapi == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version: '18'
+      - name: Install IBM OpenAPI Validator
+        if: steps.filter.outputs.openapi == 'true'
+        run: npm install --no-save ibm-openapi-validator
+      - name: Validate OpenAPI specification
+        if: steps.filter.outputs.openapi == 'true'
+        run: ./node_modules/.bin/lint-openapi openapi.yaml
+
+  # Build verification on JDK 17 and 21 (bytecode target Java 17)
   build:
     strategy:
       fail-fast: false
       matrix:
-        javac-version: ['11', '17']
+        java: ['17', '21']
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
-    name: build (javac.version=${{ matrix.javac-version }})
+    name: build (jdk ${{ matrix.java }}, javac.version=17)
     steps:
-      - uses: actions/checkout@v5
-      - name: Set up JDK 17
+      - uses: actions/checkout@v7
+      - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v5
         with:
-          java-version: '17'
+          java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: Cache Ivy dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.ivy2/cache
           key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
           restore-keys: |
             ${{ runner.os }}-ivy-
-      - name: Build with javac.version=${{ matrix.javac-version }}
-        run: ant clean runtime -Djavac.version=${{ matrix.javac-version }} -buildfile build.xml
+      - name: Build with javac.version=17
+        run: ant clean runtime -Djavac.version=17 -buildfile build.xml
       - name: Verify bytecode version
         run: |
-          # Extract and verify the bytecode version of compiled classes
-          # Java 11 = major version 55, Java 17 = major version 61
-          EXPECTED_VERSION=${{ matrix.javac-version == '11' && '55' || '61' }}
-          echo "Expected major version: $EXPECTED_VERSION (Java ${{ matrix.javac-version }})"
-          
+          # Java 17 = major version 61
+          EXPECTED_VERSION=61
+          echo "Expected major version: $EXPECTED_VERSION (Java 17 bytecode)"
+
           # Find a real class file (exclude package-info.class which may have different version)
           cd build/classes
           CLASS_FILE=$(find . -name "*.class" ! -name "package-info.class" | head -1)
@@ -135,66 +162,63 @@ jobs:
             exit 1
           fi
 
-  # Verify runtime compatibility on Java 11
-  # This ensures the built artifacts can actually run on Java 11
-  runtime-java11:
+  # Smoke-test runtime on the same JDK used to build (17 and 21)
+  runtime-smoke:
     needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ['17', '21']
     runs-on: ubuntu-latest
+    name: runtime-smoke (jdk ${{ matrix.java }})
     steps:
-      - uses: actions/checkout@v5
-      - name: Set up JDK 17 for building
+      - uses: actions/checkout@v7
+      - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v5
         with:
-          java-version: '17'
+          java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: Cache Ivy dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.ivy2/cache
           key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
           restore-keys: |
             ${{ runner.os }}-ivy-
-      - name: Build with Java 11 target
-        run: ant clean runtime -Djavac.version=11 -buildfile build.xml
-      - name: Set up JDK 11 for runtime verification
-        uses: actions/setup-java@v5
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-      - name: Verify runtime on Java 11
+      - name: Build with javac.version=17
+        run: ant clean runtime -Djavac.version=17 -buildfile build.xml
+      - name: Verify runtime on JDK ${{ matrix.java }}
         run: |
-          echo "Verifying Nutch can run on Java 11..."
+          echo "Verifying Nutch on JDK ${{ matrix.java }}..."
           java -version
           cd runtime/local
-          # Actually load Java classes by running showproperties
-          # This invokes org.apache.nutch.tools.ShowProperties and verifies the JAR loads
           bin/nutch showproperties | head -20
-          echo "Java 11 runtime verification complete"
+          echo "Runtime smoke test complete"
 
-  # Tests run on JDK 17 (required by JUnit 6) with default javac.version=11
-  # Java 11 runtime compatibility is verified by the runtime-java11 job
   tests:
     strategy:
       fail-fast: false
       matrix:
+        java: ['17', '21']
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    name: tests (jdk ${{ matrix.java }}, ${{ matrix.os }})
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v5
-      - name: Set up JDK 17
+      - uses: actions/checkout@v7
+      - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v5
         with:
-          java-version: '17'
+          java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: Cache Ivy dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.ivy2/cache
           key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
           restore-keys: |
             ${{ runner.os }}-ivy-
-      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
+      - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706
         id: filter
         with:
           filters: |
@@ -206,6 +230,8 @@ jobs:
               - 'src/plugin/**'
             indexer_plugins:
               - 'src/plugin/indexer-*/**'
+            protocol_plugins:
+              - 'src/plugin/protocol-*/**'
             buildconf:
               - 'build.xml'
               - 'ivy/ivy.xml'
@@ -213,19 +239,26 @@ jobs:
       # run if the build configuration or both 'core' and 'plugins' files were changed
       - name: test all
         if: ${{ steps.filter.outputs.buildconf == 'true' || ( steps.filter.outputs.core  == 'true' && steps.filter.outputs.plugins  == 'true' ) }}
-        run: ant clean test -buildfile build.xml
+        run: ant clean test forbidden-api-checks -buildfile build.xml
       # run only if 'core' files were changed
       - name: test core
         if: ${{ steps.filter.outputs.core == 'true' && steps.filter.outputs.plugins == 'false' && steps.filter.outputs.buildconf == 'false' }}
-        run: ant clean test-core -buildfile build.xml
+        run: ant clean test-core forbidden-api-checks -buildfile build.xml
       # run only if 'plugins' files were changed
       - name: test plugins
         if: ${{ steps.filter.outputs.plugins == 'true' && steps.filter.outputs.core == 'false' && steps.filter.outputs.buildconf == 'false' }}
-        run: ant clean test-plugins -buildfile build.xml
+        run: ant clean test-plugins forbidden-api-checks -buildfile build.xml
       # run indexer integration tests when indexer plugin files change (Docker required, ubuntu-latest only)
       - name: test indexer integration
         if: ${{ steps.filter.outputs.indexer_plugins == 'true' && matrix.os == 'ubuntu-latest' }}
-        run: ant clean test-indexer-integration -buildfile build.xml
+        run: ant test-indexer-integration -buildfile build.xml
+      # run protocol integration tests when protocol plugin files change (Docker required, ubuntu-latest only)
+      - name: test protocol integration
+        if: ${{ steps.filter.outputs.protocol_plugins == 'true' && matrix.os == 'ubuntu-latest' }}
+        run: ant test-protocol-integration -buildfile build.xml
+      - name: Generate JaCoCo XML report
+        run: ant jacoco-report -buildfile build.xml
+        continue-on-error: true
       - name: Check for test results
         id: check_tests
         if: always() && matrix.os == 'ubuntu-latest'
@@ -237,20 +270,34 @@ jobs:
           else
             echo "has_results=false" >> $GITHUB_OUTPUT
           fi
-      - name: Upload Test Report
-        uses: actions/upload-artifact@v4
-        if: always() && matrix.os == 'ubuntu-latest' && steps.check_tests.outputs.has_results == 'true'
+      - name: Upload Build and Test Artifacts (Binaries)
+        uses: actions/upload-artifact@v7
+        if: always() && matrix.os == 'ubuntu-latest' && matrix.java == '17' && steps.check_tests.outputs.has_results == 'true'
         with:
-          name: junit-test-results-${{ matrix.os }}
+          name: build-artifacts-${{ matrix.os }}-jdk${{ matrix.java }}
+          path: |
+            # core class files
+            ./build/classes/**/*.class
+            # plugin and test class files
+            ./build/**/classes/**/*.class
+            # dependencies
+            ./build/lib/*.jar
+            ./build/test/lib/*.jar
+          retention-days: 1
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v7
+        if: always() && matrix.os == 'ubuntu-latest' && matrix.java == '17' && steps.check_tests.outputs.has_results == 'true'
+        with:
+          name: junit-test-results-${{ matrix.os }}-jdk${{ matrix.java }}
           path: |
             ./build/test/TEST-*.xml
             ./build/**/test/TEST-*.xml
           retention-days: 1
       - name: Upload Coverage Data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always() && matrix.os == 'ubuntu-latest'
         with:
-          name: coverage-data
+          name: coverage-data-ubuntu-jdk${{ matrix.java }}
           path: ./build/coverage/*.exec
           retention-days: 1
           if-no-files-found: ignore

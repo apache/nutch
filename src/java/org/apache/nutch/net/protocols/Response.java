@@ -85,7 +85,7 @@ public interface Response extends HttpHeaders {
   };
 
   /**
-   * Get the URL used to retrieve this response.
+   * Get the URL the protocol actually used when requesting the Response.
    * @return {@link java.net.URL}
    */
   public URL getUrl();

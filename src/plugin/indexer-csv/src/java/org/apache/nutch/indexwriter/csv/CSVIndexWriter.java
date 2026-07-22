@@ -18,11 +18,13 @@ package org.apache.nutch.indexwriter.csv;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
@@ -44,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * index as CSV or tab-separated plain text table. Format (encoding, separators,
  * etc.) is configurable by a couple of options, see output of
  * {@link #describe()}.
- * 
+ *
  * <p>
  * Note: works only in local mode, to be used with index option
  * <code>-noCommit</code>.
@@ -61,7 +63,7 @@ public class CSVIndexWriter implements IndexWriter {
   private String[] fields;
 
   /** encoding of CSV file */
-  protected Charset encoding = Charset.forName("UTF-8");
+  protected Charset encoding = StandardCharsets.UTF_8;
 
   /**
    * represent separators (also quote and escape characters) as char(s) and
@@ -101,7 +103,7 @@ public class CSVIndexWriter implements IndexWriter {
         } else if (c == '\t') {
           sb.append("\\t");
         } else if (c >= 0x7f || c <= 0x20) {
-          sb.append(String.format("\\u%04x", (int) c));
+          sb.append(String.format(Locale.ROOT, "\\u%04x", (int) c));
         } else {
           sb.append(c);
         }
@@ -375,8 +377,8 @@ public class CSVIndexWriter implements IndexWriter {
   private void writeQuoted (String value) throws IOException {
     int nextQuoteChar;
     if (quoteCharacter.chars.length > 0
-        && (((nextQuoteChar = quoteCharacter.find(value, 0)) >= 0) 
-            || (fieldSeparator.find(value, 0) >= 0) 
+        && (((nextQuoteChar = quoteCharacter.find(value, 0)) >= 0)
+            || (fieldSeparator.find(value, 0) >= 0)
             || (recordSeparator.find(value, 0) >= 0))) {
       // need quotes
       csvout.write(quoteCharacter.bytes);

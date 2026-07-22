@@ -16,44 +16,52 @@
  */
 package org.apache.nutch.crawl;
 
-import java.lang.invoke.MethodHandles;
 import java.io.IOException;
-import java.net.UnknownHostException;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configuration.IntegerRanges;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
-import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.MapFile.Writer.Option;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.conf.Configuration.IntegerRanges;
 import org.apache.hadoop.io.RawComparator;
-import org.apache.hadoop.mapred.Counters;
-import org.apache.hadoop.mapred.Counters.Counter;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.OutputCommitter;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.mapreduce.Partitioner;
-import org.apache.hadoop.mapreduce.TaskAttemptID;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Reducer.Context;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.security.Credentials;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.jspecify.annotations.NonNull;
+import org.mockserver.configuration.ConfigurationProperties;
+import org.mockserver.integration.ClientAndServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 
 /**
  * Test utility for creating and manipulating CrawlDb instances.
@@ -67,7 +75,7 @@ public class CrawlDBTestUtil {
   private static CrawlDbReducer reducer = new CrawlDbReducer();
   /**
    * Creates synthetic crawldb
-   * 
+   *
    * @param conf
    *          configuration to use
    * @param fs
@@ -138,12 +146,12 @@ public class CrawlDBTestUtil {
 
     @Override
     public Counter getCounter(Enum<?> arg0) {
-      return dummyCounters.getGroup("dummy").getCounterForName("dummy");
+      return dummyCounters.findCounter(arg0);
     }
 
     @Override
     public Counter getCounter(String arg0, String arg1) {
-      return dummyCounters.getGroup("dummy").getCounterForName("dummy");
+      return dummyCounters.findCounter(arg0, arg1);
     }
 
     @Override
@@ -210,7 +218,7 @@ public class CrawlDBTestUtil {
     public RawComparator<?> getCombinerKeyGroupingComparator() {
       return null;
     }
-  
+
     @Override
     public Configuration getConfiguration() {
       return conf;
@@ -322,7 +330,7 @@ public class CrawlDBTestUtil {
     public Class<? extends Partitioner<?, ?>> getPartitionerClass() throws ClassNotFoundException {
       return null;
     }
-    
+
     @Override
     public boolean getProfileEnabled() {
       return false;
@@ -373,7 +381,7 @@ public class CrawlDBTestUtil {
    * For now we need to manually construct our Configuration, because we need to
    * override the default one and it is currently not possible to use
    * dynamically set values.
-   * 
+   *
    * @return a new Reducer Context with test configuration
    */
   @NonNull
@@ -382,7 +390,7 @@ public class CrawlDBTestUtil {
     Configuration conf = context.getConfiguration();
     conf.addResource("nutch-default.xml");
     conf.addResource("crawl-tests.xml");
-    return (Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context) context;
+    return context;
   }
 
   /** Container for URL and CrawlDatum pairs used in test data. */
@@ -402,7 +410,7 @@ public class CrawlDBTestUtil {
 
   /**
    * Generate seedlist
-   * 
+   *
    * @param fs filesystem to use
    * @param urlPath path where seed file will be created
    * @param urls list of URLs to write
@@ -415,7 +423,7 @@ public class CrawlDBTestUtil {
 
   /**
    * Generate seedlist with optional metadata
-   * 
+   *
    * @param fs filesystem to use
    * @param urlPath path where seed file will be created
    * @param urls list of URLs to write
@@ -437,14 +445,14 @@ public class CrawlDBTestUtil {
     while (urls_i.hasNext()) {
       url = urls_i.next();
 
-      out.writeBytes(url);
+      out.write(url.getBytes(UTF_8));
 
       if (metadata_i.hasNext()) {
         md = metadata_i.next();
-        out.writeBytes(md);
+        out.write(md.getBytes(UTF_8));
       }
 
-      out.writeBytes("\n");
+      out.write('\n');
     }
 
     out.flush();
@@ -452,17 +460,66 @@ public class CrawlDBTestUtil {
   }
 
   /**
-   * Creates a new JettyServer with one static root context
-   * 
+   * Starts a <a href="https://www.mock-server.com/">MockServer</a> instance that
+   * serves files from {@code staticContent} for GET requests (one expectation per
+   * file).
+   *
+   * @param port
+   *          port to listen on
+   * @param staticContent
+   *          directory of static files
+   * @return running mock server (already started); call {@link ClientAndServer#stop()} when done
+   */
+  @NonNull
+  public static ClientAndServer startMockServerForStaticContent(int port,
+      @NonNull String staticContent) throws IOException {
+    ConfigurationProperties.disableLogging(true);
+    java.nio.file.Path root = java.nio.file.Path.of(staticContent)
+        .toAbsolutePath().normalize();
+    ClientAndServer mockServer = ClientAndServer.startClientAndServer(port);
+    java.nio.file.Path indexPath = root.resolve("index.html");
+    if (Files.isRegularFile(indexPath)) {
+      byte[] data = Files.readAllBytes(indexPath);
+      mockServer.when(request().withMethod("GET").withPath("/"))
+          .respond(response().withStatusCode(200)
+              .withHeader("Content-Type", probeContentType(indexPath))
+              .withBody(data));
+    }
+    try (Stream<java.nio.file.Path> walk = Files.walk(root)) {
+      for (java.nio.file.Path file : walk.filter(Files::isRegularFile)
+          .collect(Collectors.toList())) {
+        String rel = root.relativize(file).toString().replace('\\', '/');
+        String mockPath = "/" + rel;
+        byte[] data = Files.readAllBytes(file);
+        mockServer.when(request().withMethod("GET").withPath(mockPath))
+            .respond(response().withStatusCode(200)
+                .withHeader("Content-Type", probeContentType(file))
+                .withBody(data));
+      }
+    }
+    return mockServer;
+  }
+
+  private static String probeContentType(java.nio.file.Path file)
+      throws IOException {
+    String ct = Files.probeContentType(file);
+    return ct != null ? ct : "application/octet-stream";
+  }
+
+  /**
+   * Creates a new JettyServer with one static root context and the provided resource handler.
+   *
    * @param port
    *          port to listen to
    * @param staticContent
    *          folder where static content lives
+   * @param resourceHandler
+   *          resource handler to override the default behavior if needed.
    * @return configured Jetty server instance
    * @throws UnknownHostException
    */
   @NonNull
-  public static Server getServer(int port, @NonNull String staticContent)
+  public static Server getServer(int port, @NonNull String staticContent, ResourceHandler resourceHandler)
       throws UnknownHostException {
     Server webServer = new Server();
 
@@ -473,7 +530,7 @@ public class CrawlDBTestUtil {
     ContextHandler staticContext = new ContextHandler();
     staticContext.setContextPath("/");
     staticContext.setResourceBase(staticContent);
-    staticContext.insertHandler(new ResourceHandler());
+    staticContext.insertHandler(resourceHandler);
     webServer.insertHandler(staticContext);
     return webServer;
   }

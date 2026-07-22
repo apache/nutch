@@ -28,6 +28,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Test;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -57,7 +58,7 @@ public class TestHTMLLanguageParser {
       for (int t = 0; t < docs.length; t++) {
         Content content = getContent(docs[t]);
         Parse parse = parser.parse(content).get(content.getUrl());
-        assertEquals(metalanguages[t], (String) parse.getData()
+        assertEquals(metalanguages[t], parse.getData()
             .getParseMeta().get(Metadata.LANGUAGE));
       }
     } catch (Exception e) {
@@ -99,8 +100,8 @@ public class TestHTMLLanguageParser {
   private Content getContent(String text) {
     Metadata meta = new Metadata();
     meta.add("Content-Type", "text/html");
-    return new Content(URL, BASE, text.getBytes(), "text/html", meta,
-        NutchConfiguration.create());
+    return new Content(URL, BASE, text.getBytes(UTF_8),
+        "text/html", meta, NutchConfiguration.create());
   }
 
   @Test
@@ -111,7 +112,7 @@ public class TestHTMLLanguageParser {
     conf.set("lang.extraction.policy", "identify");
     identifier.setConf(conf);
     BufferedReader in = new BufferedReader(new InputStreamReader(
-        this.getClass().getResourceAsStream("test-referencial.txt")));
+        this.getClass().getResourceAsStream("test-referencial.txt"), UTF_8));
     String line = null;
     while ((line = in.readLine()) != null) {
       String[] tokens = line.split(";");
@@ -119,7 +120,7 @@ public class TestHTMLLanguageParser {
         StringBuilder content = new StringBuilder();
         // Test each line of the file...
         BufferedReader testFile = new BufferedReader(new InputStreamReader(
-            this.getClass().getResourceAsStream(tokens[0]), "UTF-8"));
+            this.getClass().getResourceAsStream(tokens[0]), UTF_8));
         String testLine = null, lang = null;
         while ((testLine = testFile.readLine()) != null) {
           content.append(testLine + "\n");

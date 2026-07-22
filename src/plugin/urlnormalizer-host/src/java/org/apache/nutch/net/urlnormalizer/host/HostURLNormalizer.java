@@ -16,33 +16,34 @@
  */
 package org.apache.nutch.net.urlnormalizer.host;
 
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * URL normalizer for mapping hosts to their desired form. It takes a simple
  * text file as source in the format:
- * 
+ *
  * example.org www.example.org
- * 
+ *
  * mapping all URL's of example.org the the www sub-domain. It also allows for
  * wildcards to be used to map all sub-domains to another host:
- * 
+ *
  * *.example.org www.example.org
  */
 public class HostURLNormalizer implements URLNormalizer {
@@ -127,7 +128,7 @@ public class HostURLNormalizer implements URLNormalizer {
     }
     try {
       if (reader == null) {
-        reader = new FileReader(file);
+        reader = new FileReader(file, StandardCharsets.UTF_8);
       }
       readConfiguration(reader);
     } catch (IOException e) {

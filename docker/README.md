@@ -44,17 +44,16 @@ The easiest way to do this:
 
 2. Build from files in this directory:
 
-There are three build **modes** which can be activated using the `--build-arg BUILD_MODE=0` flag. All values used here are defaults.
- * 0 == Nutch master branch source install with `crawl` and `nutch` scripts on `$PATH`
- * 1 == Same as mode 0 with addition of **Nutch REST Server**; additional build args `--build-arg SERVER_PORT=8081` and `--build-arg SERVER_HOST=0.0.0.0`
- * 2 == Same as mode 1 with addition of **Nutch WebApp**; additional build args `--build-arg WEBAPP_PORT=8080`
-
-For example, if you wanted to install Nutch master branch and run both the Nutch REST server and webapp then run the following
-
 ```bash
 $(boot2docker shellinit | grep export) #may not be necessary
-docker build -t apache/nutch . --build-arg BUILD_MODE=2 --build-arg SERVER_PORT=8081 --build-arg SERVER_HOST=0.0.0.0 --build-arg WEBAPP_PORT=8080
+docker build -t apache/nutch .
 ```
+
+## Security and plugin directories
+
+Nutch loads executable code from the directories configured as `plugin.folders` (see `nutch-default.xml`). For production and shared images, treat those paths as **trusted**: mount them read-only where possible, rebuild images to change plugins, and run the crawl process under a dedicated low-privilege user so the filesystem cannot be abused to drop unexpected JARs or `plugin.xml` files into that tree.
+
+User-defined JEXL in configuration (for example `index.jexl.filter`, generator expressions, and `hostdb.filter.expression`) is evaluated in a **sandboxed** engine by default. The property `nutch.jexl.disable.sandbox` disables that protection and must not be set in untrusted environments.
 
 ## Usage
 
@@ -64,52 +63,19 @@ boot2docker up
 $(boot2docker shellinit | grep export)
 ```
 
-Run a container
+Run a container interactively (`nutch` and `crawl` are on `PATH`; default command is `bash`):
 
 ```bash
-docker run -t -i -d -p 8080:8080 -p 8081:8081 --name nutchcontainer apache/nutch
-c5401810e50a606f43256b4b24602443508bd9badcf2b7493bd97839834571fc
-
-docker logs c5401810e50a606f43256b4b24602443508bd9badcf2b7493bd97839834571fc
-2021-06-29 19:14:32,922 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
-2021-06-29 19:14:32,925 INFO supervisord started with pid 1
-2021-06-29 19:14:33,929 INFO spawned: 'nutchserver' with pid 8
-2021-06-29 19:14:33,932 INFO spawned: 'nutchwebapp' with pid 9
-2021-06-29 19:14:36,012 INFO success: nutchserver entered RUNNING state, process has stayed up for > than 2 seconds (startsecs)
-2021-06-29 19:14:36,012 INFO success: nutchwebapp entered RUNNING state, process has stayed up for > than 2 seconds (startsecs)
+docker run -t -i --name nutchcontainer apache/nutch
 ```
 
-You can now access the webapp at `http://localhost:8080` and you can interact with the REST API e.g.
+In another terminal, attach to a running container if needed:
 
 ```bash
-curl http://localhost:8080/admin
-{"startDate":1625118207995,"configuration":["default"],"jobs":[],"runningJobs":[]}
-```
-
-Attach to the container
-
-```bash
-docker exec -it c5401810e50a606f43256b4b24602443508bd9badcf2b7493bd97839834571fc /bin/bash
-```
-
-View supervisord logs
-```bash
-cat /tmp/supervisord.log
-2021-06-29 19:14:32,922 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
-2021-06-29 19:14:32,925 INFO supervisord started with pid 1
-2021-06-29 19:14:33,929 INFO spawned: 'nutchserver' with pid 8
-2021-06-29 19:14:33,932 INFO spawned: 'nutchwebapp' with pid 9
-2021-06-29 19:14:36,012 INFO success: nutchserver entered RUNNING state, process has stayed up for > than 2 seconds (startsecs)
-2021-06-29 19:14:36,012 INFO success: nutchwebapp entered RUNNING state, process has stayed up for > than 2 seconds (startsecs)
-```
-
-View supervisord subprocess logs
-
-```bash
-ls /var/log/supervisord/
-nutchserver_stderr.log  nutchserver_stdout.log  nutchwebapp_stderr.log  nutchwebapp_stdout.log
+docker exec -it nutchcontainer /bin/bash
 ```
 
 Nutch is located in `$NUTCH_HOME` and is almost ready to run.
 You will need to set seed URLs and update the `http.agent.name` configuration property in `$NUTCH_HOME/conf/nutch-site.xml` with your crawler's Agent Name.
 For additional "getting started" information checkout the [Nutch Tutorial](https://cwiki.apache.org/confluence/display/NUTCH/NutchTutorial).
+

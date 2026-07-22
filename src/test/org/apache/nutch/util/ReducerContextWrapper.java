@@ -17,75 +17,55 @@
 package org.apache.nutch.util;
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configuration.IntegerRanges;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.RawComparator;
-import org.apache.hadoop.mapred.Counters;
-import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.mapreduce.InputFormat;
-import org.apache.hadoop.mapreduce.JobID;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.OutputCommitter;
-import org.apache.hadoop.mapreduce.OutputFormat;
-import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.TaskAttemptID;
-import org.apache.hadoop.security.Credentials;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 /**
- * This class wraps an implementation of {@link Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT>.Context}, to be used in unit tests,
- *  for example: TestIndexerMapReduce, TestCrawlDbStates.testCrawlDbStatTransitionInject.
- *  
+ * Supplies a {@link Reducer.Context} for unit tests (e.g. {@code IndexerMapReduce},
+ * {@code Injector}) without subclassing Hadoop's abstract {@code Reducer.Context}.
+ * <p>
+ * Hadoop marks several {@code JobContext} methods as {@link Deprecated}; an
+ * anonymous subclass that {@code @Override}s them triggers javac deprecation
+ * warnings. A Mockito mock implements only behavior we stub here, so test code
+ * does not reference those deprecated APIs directly.
+ *
  * @param <KEYIN> Type of input keys
- * @param <VALUEIN> Type of input values 
+ * @param <VALUEIN> Type of input values
  * @param <KEYOUT> Type of output keys
  * @param <VALUEOUT> Type of output values
  */
 public class ReducerContextWrapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
-  
-  private Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> reducer;
-  private Configuration config;
-  private Counters counters;
-  private Map<KEYIN, VALUEIN> valuesIn;
-  private Map<KEYOUT, VALUEOUT> valuesOut;
-  
-  private int valuesIndex;
-  private KEYIN currentKey;
-  private VALUEIN currentValue;
+
+  private final Configuration config;
+  private final Counters counters = new Counters();
+  private final Map<KEYOUT, VALUEOUT> valuesOut;
 
   private Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT>.Context context;
-  
-  private String status;
-
-  public ReducerContextWrapper() {
-    counters = new Counters();
-    valuesIn = new HashMap<>();
-    valuesIndex = 0;
-  }
 
   /**
-   * Constructs a ReducerContextWrapper
-   * 
-   * @param reducer The reducer on which to implement the wrapped Reducer.Context
-   * @param config The configuration to inject in the wrapped Reducer.Context
-   * @param valuesOut The output values to fill (to fake the Hadoop process)
+   * @param reducer   reducer under test (retained for call-site clarity; not used by the mock)
+   * @param config    configuration exposed by {@link Reducer.Context#getConfiguration()}
+   * @param valuesOut map receiving {@link Reducer.Context#write(Object, Object)} calls
    */
-  public ReducerContextWrapper(Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> reducer, Configuration config, Map<KEYOUT, VALUEOUT> valuesOut) {
-    this();
-    this.config = config;
-    this.reducer = reducer;
-    this.valuesOut = valuesOut;
+  public ReducerContextWrapper(Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> reducer,
+      Configuration config, Map<KEYOUT, VALUEOUT> valuesOut) {
+    Objects.requireNonNull(reducer, "reducer");
+    this.config = Objects.requireNonNull(config, "config");
+    this.valuesOut = Objects.requireNonNull(valuesOut, "valuesOut");
     initContext();
   }
 
   /**
-   * Return the wrapped Reducer.Context to be used in calls to Reducer.setup and Reducer.reduce, in unit test
-   * @return
+   * @return context suitable for {@link Reducer#setup(Reducer.Context)} and
+   *         {@link Reducer#reduce(Object, Iterable, Reducer.Context)}
    */
   public Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT>.Context getContext() {
     return context;
@@ -93,7 +73,7 @@ public class ReducerContextWrapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
 
   /**
    * Return the underlying counters updated by the context, for assertions in tests.
-   * Uses the real Hadoop mapred Counters API (no mocks).
+   * Uses the real Hadoop Counters API (no mocks).
    *
    * @return the counters instance
    */
@@ -101,317 +81,34 @@ public class ReducerContextWrapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
     return counters;
   }
 
+  @SuppressWarnings("unchecked")
   private void initContext() {
-    // most methods are not used in Nutch unit tests.
-    context =  reducer.new Context() {
-      
-      @Override
-      public KEYIN getCurrentKey() throws IOException, InterruptedException {
-        return currentKey;
-      }
+    context = Mockito.mock(Reducer.Context.class,
+        Mockito.withSettings().defaultAnswer(Mockito.RETURNS_DEFAULTS));
 
-      @Override
-      public VALUEIN getCurrentValue() throws IOException, InterruptedException {
-        return currentValue;
-      }
+    Mockito.lenient().when(context.getConfiguration()).thenReturn(config);
 
-      @Override
-      public boolean nextKeyValue() throws IOException, InterruptedException {
-        return valuesIndex < valuesIn.size();
-      }
+    Mockito.lenient().when(context.getCounter(ArgumentMatchers.<Enum<?>>any()))
+        .thenAnswer(inv -> counters.findCounter(inv.getArgument(0, Enum.class)));
 
-      @SuppressWarnings("unchecked")
-      @Override
-      public void write(Object arg0, Object arg1)
-          throws IOException, InterruptedException {
-        valuesOut.put((KEYOUT) arg0, (VALUEOUT) arg1);
-        currentKey = (KEYIN) arg0;
-        currentValue = (VALUEIN) arg1;
-        valuesIndex++;
-      }
+    Mockito.lenient().when(context.getCounter(Mockito.anyString(), Mockito.anyString()))
+        .thenAnswer(inv -> counters.findCounter(
+            inv.getArgument(0, String.class), inv.getArgument(1, String.class)));
 
-      @Override
-      public Counter getCounter(Enum<?> arg0) {
-        return counters.findCounter(arg0);
-      }
-
-      @Override
-      public Counter getCounter(String arg0, String arg1) {
-        return counters.findCounter(arg0, arg1);
-      }
-
-      @Override
-      public float getProgress() {
-        return valuesIndex;
-      }
-
-      @Override
-      public String getStatus() {
-        return status;
-      }
-
-      @Override
-      public void setStatus(String arg0) {
-        status = arg0;
-      }
-
-      @Override
-      public Configuration getConfiguration() {
-        return config;
-      }
-
-      @Override
-      public Iterable<VALUEIN> getValues()
-      throws IOException, InterruptedException {
-        return valuesIn.values();
-      }
-
-      @Override
-      public boolean nextKey() throws IOException, InterruptedException {
-        return valuesIndex < valuesIn.size();
-      }   
-
-      @Override
-      public OutputCommitter getOutputCommitter() {
-        // Auto-generated
-        return null;
-      }
-
-      @Override
-      public TaskAttemptID getTaskAttemptID() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Path[] getArchiveClassPaths() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public String[] getArchiveTimestamps() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public URI[] getCacheArchives() throws IOException {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public URI[] getCacheFiles() throws IOException {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Class<? extends Reducer<?, ?, ?, ?>> getCombinerClass()
-          throws ClassNotFoundException {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public RawComparator<?> getCombinerKeyGroupingComparator() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Credentials getCredentials() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Path[] getFileClassPaths() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public String[] getFileTimestamps() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public RawComparator<?> getGroupingComparator() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Class<? extends InputFormat<?, ?>> getInputFormatClass()
-          throws ClassNotFoundException {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public String getJar() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public JobID getJobID() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public String getJobName() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public boolean getJobSetupCleanupNeeded() {
-        // Auto-generated  
-        return false;
-      }
-
-      @Override
-      public Path[] getLocalCacheArchives() throws IOException {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Path[] getLocalCacheFiles() throws IOException {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Class<?> getMapOutputKeyClass() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Class<?> getMapOutputValueClass() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Class<? extends Mapper<?, ?, ?, ?>> getMapperClass()
-          throws ClassNotFoundException {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public int getMaxMapAttempts() {
-        // Auto-generated  
-        return 0;
-      }
-
-      @Override
-      public int getMaxReduceAttempts() {
-        // Auto-generated  
-        return 0;
-      }
-
-      @Override
-      public int getNumReduceTasks() {
-        // Auto-generated  
-        return 0;
-      }
-
-      @Override
-      public Class<? extends OutputFormat<?, ?>> getOutputFormatClass() 
-          throws ClassNotFoundException {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Class<?> getOutputKeyClass() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Class<?> getOutputValueClass() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Class<? extends Partitioner<?, ?>> getPartitionerClass() 
-          throws ClassNotFoundException {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public boolean getProfileEnabled() {
-        // Auto-generated  
-        return false;
-      }
-
-      @Override
-      public String getProfileParams() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public IntegerRanges getProfileTaskRange(boolean arg0) {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Class<? extends Reducer<?, ?, ?, ?>> getReducerClass()
-      throws ClassNotFoundException {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public RawComparator<?> getSortComparator() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public boolean getSymlink() {
-        // Auto-generated  
-        return false;
-      }
-
-      @Override
-      public boolean getTaskCleanupNeeded() {
-        // Auto-generated  
-        return false;
-      }
-
-      @Override
-      public String getUser() {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public Path getWorkingDirectory() throws IOException {
-        // Auto-generated  
-        return null;
-      }
-
-      @Override
-      public void progress() {
-        // Auto-generated  
-      }   
-    };
-    
+    try {
+      Mockito.doAnswer(new Answer<Void>() {
+        @Override
+        @SuppressWarnings("unchecked")
+        public Void answer(InvocationOnMock inv) {
+          KEYOUT k = inv.getArgument(0);
+          VALUEOUT v = inv.getArgument(1);
+          valuesOut.put(k, v);
+          return null;
+        }
+      }).when(context).write(Mockito.any(), Mockito.any());
+    } catch (IOException | InterruptedException e) {
+      throw new IllegalStateException(e);
+    }
   }
-
 
 }

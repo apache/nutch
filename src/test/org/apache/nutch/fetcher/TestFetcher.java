@@ -16,6 +16,12 @@
  */
 package org.apache.nutch.fetcher;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -30,16 +36,11 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.CancellationAwareTestUtils;
 import org.apache.nutch.util.CancellationAwareTestUtils.CancellationToken;
-import org.eclipse.jetty.server.Server;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.concurrent.TimeUnit;
+import org.mockserver.integration.ClientAndServer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,7 +48,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Basic fetcher test 1. generate seedlist 2. inject 3. generate 3. fetch 4.
  * Verify contents
- * 
+ *
  * <p>This test is cancellation-aware and will exit gracefully if the test
  * suite is stopped early (e.g., due to fail-fast mode).</p>
  */
@@ -59,7 +60,7 @@ public class TestFetcher {
   Path crawldbPath;
   Path segmentsPath;
   Path urlPath;
-  Server server;
+  ClientAndServer mockServer;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -69,19 +70,15 @@ public class TestFetcher {
     urlPath = new Path(testdir, "urls");
     crawldbPath = new Path(testdir, "crawldb");
     segmentsPath = new Path(testdir, "segments");
-    server = CrawlDBTestUtil.getServer(
+    mockServer = CrawlDBTestUtil.startMockServerForStaticContent(
         conf.getInt("content.server.port", 50000),
         "build/test/data/fetch-test-site");
-    server.start();
   }
 
   @AfterEach
   public void tearDown() throws Exception {
-    server.stop();
-    for (int i = 0; i < 5; i++) {
-      if (!server.isStopped()) {
-       Thread.sleep(1000);
-      }
+    if (mockServer != null) {
+      mockServer.stop();
     }
     fs.delete(testdir, true);
   }
@@ -152,12 +149,13 @@ public class TestFetcher {
       READ_CONTENT: do {
         // Check for cancellation periodically during I/O operations
         if (cancellationToken.isCancelled()) break READ_CONTENT;
-        
+
         Text key = new Text();
         Content value = new Content();
         if (!reader.next(key, value))
           break READ_CONTENT;
-        String contentString = new String(value.getContent());
+        String contentString = new String(value.getContent(),
+            StandardCharsets.UTF_8);
         if (contentString.indexOf("Nutch fetcher test page") != -1) {
           handledurls.add(key.toString());
         }
@@ -192,7 +190,7 @@ public class TestFetcher {
       READ_PARSE_DATA: do {
         // Check for cancellation periodically
         if (cancellationToken.isCancelled()) break READ_PARSE_DATA;
-        
+
         Text key = new Text();
         ParseData value = new ParseData();
         if (!reader.next(key, value))
@@ -224,7 +222,7 @@ public class TestFetcher {
   }
 
   private void addUrl(ArrayList<String> urls, String page) {
-    urls.add("http://127.0.0.1:" + server.getURI().getPort() + "/" + page);
+    urls.add("http://127.0.0.1:" + mockServer.getLocalPort() + "/" + page);
   }
 
   @Test

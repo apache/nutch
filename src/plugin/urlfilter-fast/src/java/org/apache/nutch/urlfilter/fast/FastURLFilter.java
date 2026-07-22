@@ -16,27 +16,29 @@
  */
 package org.apache.nutch.urlfilter.fast;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.io.compress.CompressionCodecFactory;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.nutch.net.URLFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.io.compress.CompressionCodecFactory;
+import org.apache.nutch.net.URLFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 
 /**
  * Filters URLs based on a file of regular expressions using host/domains
@@ -44,7 +46,7 @@ import java.util.regex.PatternSyntaxException;
  * found.
  *
  * Rule Format:
- * 
+ *
  * <pre>
  * Host www.example.org
  *   DenyPath /path/to/be/excluded
@@ -57,7 +59,7 @@ import java.util.regex.PatternSyntaxException;
  * Domain example.org
  *   DenyPathQuery /resource/.*?action=exclude
  * </pre>
- * 
+ *
  * <code>Host</code> rules are evaluated before <code>Domain</code> rules. For
  * <code>Host</code> rules the entire host name of a URL must match while the
  * domain names in <code>Domain</code> rules are considered as matches if the
@@ -65,7 +67,7 @@ import java.util.regex.PatternSyntaxException;
  * Shorter domain suffixes are checked first, a single dot
  * &quot;<code>.</code>&quot; as &quot;domain name&quot; can be used to specify
  * global rules applied to every URL.
- * 
+ *
  * E.g., for "www.example.com" the rules given above are looked up in the
  * following order:
  * <ol>
@@ -80,22 +82,22 @@ import java.util.regex.PatternSyntaxException;
  * If no rule matches the URL is accepted. URLs without a host name (e.g.,
  * <code>file:/path/file.txt</code> are checked for global rules only. URLs
  * which fail to be parsed as {@link java.net.URL} are always rejected.
- * 
+ *
  * For rules either the URL path (<code>DenyPath</code>) or path and query
  * (<code>DenyPathQuery</code>) are checked whether the given
  * {@link java.util.regex Java Regular expression} is found (see
  * {@link java.util.regex.Matcher#find()}) in the URL path (and query).
- * 
+ *
  * Rules are applied in the order of their definition. For better performance,
  * regular expressions which are simpler/faster or match more URLs should be
  * defined earlier.
- * 
+ *
  * Comments in the rule file start with the <code>#</code> character and reach
  * until the end of the line.
- * 
+ *
  * The rules file is defined via the property <code>urlfilter.fast.file</code>,
  * the default name is <code>fast-urlfilter.txt</code>.
- * 
+ *
  * In addition, it can filter based on the length of the whole URL, its path element or
  * its query element. See <code>urlfilter.fast.url.*</code> configurations.
  */
@@ -109,7 +111,7 @@ public class FastURLFilter implements URLFilter {
   public static final String URLFILTER_FAST_MAX_LENGTH = "urlfilter.fast.url.max.length";
   public static final String URLFILTER_FAST_PATH_MAX_LENGTH = "urlfilter.fast.url.path.max.length";
   public static final String URLFILTER_FAST_QUERY_MAX_LENGTH = "urlfilter.fast.url.query.max.length";
-  
+
   private Multimap<String, Rule> hostRules = LinkedHashMultimap.create();
   private Multimap<String, Rule> domainRules = LinkedHashMultimap.create();
 
@@ -129,8 +131,8 @@ public class FastURLFilter implements URLFilter {
   FastURLFilter(Reader rules) throws IOException, PatternSyntaxException {
     reloadRules(rules);
   }
-  
-  /** Used by the tests so that the rules file doesn't have to be in the jar AND 
+
+  /** Used by the tests so that the rules file doesn't have to be in the jar AND
    * we can set the conf for the length-based filtering **/
   FastURLFilter(Reader rules, Configuration conf) throws IOException, PatternSyntaxException {
     maxLengthPath = conf.getInt(URLFILTER_FAST_PATH_MAX_LENGTH, -1);
@@ -166,7 +168,7 @@ public class FastURLFilter implements URLFilter {
           url.length(), maxLength);
       return null;
     }
-    
+
     URL u;
 
     try {
@@ -176,7 +178,7 @@ public class FastURLFilter implements URLFilter {
           e.getMessage());
       return null;
     }
-    
+
     final String path = u.getPath();
     if (maxLengthPath != -1 && path.length() > maxLengthPath)
     {
@@ -184,7 +186,7 @@ public class FastURLFilter implements URLFilter {
           path.length(), maxLengthPath);
       return null;
     }
-    
+
     final String query = u.getQuery();
     if (maxLengthQuery != -1 &&  query != null && query.length() > maxLengthQuery)
     {
@@ -254,7 +256,7 @@ public class FastURLFilter implements URLFilter {
     }
 
     try {
-      reloadRules(new InputStreamReader(is));
+      reloadRules(new InputStreamReader(is, StandardCharsets.UTF_8));
     } catch (Exception e) {
       String message = "Couldn't load the rules from " + fileRules;
       LOG.error(message);

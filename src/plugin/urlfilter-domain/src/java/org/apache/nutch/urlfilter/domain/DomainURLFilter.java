@@ -16,23 +16,24 @@
  */
 package org.apache.nutch.urlfilter.domain;
 
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.util.URLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -40,18 +41,18 @@ import org.apache.nutch.util.URLUtil;
  * hostnames. Only a URL that matches one of the suffixes, domains, or hosts
  * present in the file is allowed.
  * </p>
- * 
+ *
  * <p>
  * URLs are checked in order of domain suffix, domain name, and hostname against
  * entries in the domain file. The domain file would be setup as follows with
  * one entry per line:
- * 
+ *
  * <pre>
  * com
  * apache.org
  * www.apache.org
  * </pre>
- * 
+ *
  * <p>
  * The first line is an example of a filter that would allow all .com domains.
  * The second line allows all URLs from apache.org and all of its subdomains
@@ -60,10 +61,10 @@ import org.apache.nutch.util.URLUtil;
  * entries are from more general to more specific with the more general
  * overriding the more specific.
  * </p>
- * 
+ *
  * The domain file defaults to domain-urlfilter.txt in the classpath but can be
  * overridden using the:
- * 
+ *
  * <ul>
  * <li>
  * property "urlfilter.domain.file" in ./conf/nutch-*.xml, and
@@ -72,7 +73,7 @@ import org.apache.nutch.util.URLUtil;
  * attribute "file" in plugin.xml of this plugin
  * </li>
  * </ul>
- * 
+ *
  */
 public class DomainURLFilter implements URLFilter {
 
@@ -141,7 +142,7 @@ public class DomainURLFilter implements URLFilter {
     try {
       if (reader == null) {
         // read local file
-        reader = new FileReader(file);
+        reader = new FileReader(file, StandardCharsets.UTF_8);
       }
       readConfiguration(reader);
     } catch (IOException e) {
@@ -158,7 +159,7 @@ public class DomainURLFilter implements URLFilter {
   public String filter(String url) {
     // https://issues.apache.org/jira/browse/NUTCH-2189
     if (domainSet.size() == 0) return url;
-    
+
     try {
       // match for suffix, domain, and host in that order. more general will
       // override more specific

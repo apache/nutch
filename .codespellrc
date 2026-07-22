@@ -1,0 +1,5 @@
+[codespell]
+# JUnit 5 annotations incorrectly flagged as spelling errors
+ignore-words-list = AfterAll,BeforeAll
+# CHANGES.md is a historical changelog not maintained by this branch
+skip = CHANGES.md

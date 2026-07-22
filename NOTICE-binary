@@ -80,33 +80,6 @@ Apache Curator Framework
 # org.apache.curator:curator-recipes
 Apache Curator Recipes
 
-# org.apache.cxf:cxf-core
-Apache CXF Core (https://cxf.apache.org)
-# org.apache.cxf:cxf-rt-bindings-soap
-Apache CXF Runtime SOAP Binding (https://cxf.apache.org)
-# org.apache.cxf:cxf-rt-bindings-xml
-Apache CXF Runtime XML Binding (https://cxf.apache.org)
-# org.apache.cxf:cxf-rt-databinding-jaxb
-Apache CXF Runtime JAXB DataBinding (https://cxf.apache.org)
-# org.apache.cxf:cxf-rt-frontend-jaxrs
-Apache CXF Runtime JAX-RS Frontend (https://cxf.apache.org)
-# org.apache.cxf:cxf-rt-frontend-jaxws
-Apache CXF Runtime JAX-WS Frontend (https://cxf.apache.org)
-# org.apache.cxf:cxf-rt-frontend-simple
-Apache CXF Runtime Simple Frontend (https://cxf.apache.org)
-# org.apache.cxf:cxf-rt-security
-Apache CXF Runtime Security functionality (https://cxf.apache.org)
-# org.apache.cxf:cxf-rt-transports-http
-Apache CXF Runtime HTTP Transport (https://cxf.apache.org)
-# org.apache.cxf:cxf-rt-transports-http-jetty
-Apache CXF Runtime HTTP Jetty Transport (https://cxf.apache.org)
-# org.apache.cxf:cxf-rt-ws-addr
-Apache CXF Runtime WS Addressing (https://cxf.apache.org)
-# org.apache.cxf:cxf-rt-ws-policy
-Apache CXF Runtime WS Policy (https://cxf.apache.org)
-# org.apache.cxf:cxf-rt-wsdl
-Apache CXF Runtime Core for WSDL (https://cxf.apache.org)
-
 # org.apache.hadoop:hadoop-annotations
 Apache Hadoop Annotations
 # org.apache.hadoop:hadoop-auth
@@ -233,9 +206,6 @@ Apache Lucene Spatial 3D
 # org.apache.lucene:lucene-suggest
 Apache Lucene Suggest
 
-# org.apache.neethi:neethi
-Apache Neethi (https://ws.apache.org/neethi/)
-
 # org.apache.pdfbox:fontbox
 Apache FontBox (http://pdfbox.apache.org/)
 # org.apache.pdfbox:jbig2-imageio
@@ -255,8 +225,8 @@ Apache XmpBox
 Apache POI - Common (https://poi.apache.org/)
 # org.apache.poi:poi-ooxml
 Apache POI - API based on OPC and OOXML schemas (https://poi.apache.org/)
-# org.apache.poi:poi-ooxml-lite
-Apache POI (https://poi.apache.org/)
+# org.apache.poi:poi-ooxml-full
+Apache POI - OOXML schemas (full) (https://poi.apache.org/)
 # org.apache.poi:poi-scratchpad
 Apache POI (https://poi.apache.org/)
 
@@ -316,9 +286,6 @@ Apache Tika ZIP commons
 # org.apache.tika:tika-parsers-standard-package
 Apache Tika standard parser package
 
-# org.apache.ws.xmlschema:xmlschema-core
-Apache XmlSchema Core
-
 # org.apache.xmlbeans:xmlbeans
 Apache XmlBeans (https://xmlbeans.apache.org/)
 
@@ -367,7 +334,7 @@ HPPC Collections
 - license: The Apache Software License, Version 2.0
 
 # com.drewnoakes:metadata-extractor
-${project.groupId}:${project.artifactId} (https://drewnoakes.com/code/exif/)
+com.drewnoakes:metadata-extractor (https://drewnoakes.com/code/exif/)
 - license: The Apache Software License, Version 2.0
 
 # com.epam:parso
@@ -381,10 +348,10 @@ Jackson-annotations (http://github.com/FasterXML/jackson)
 Jackson-annotations (https://github.com/FasterXML/jackson)
 - license: The Apache Software License, Version 2.0
 # com.fasterxml.jackson.core:jackson-core
-Jackson-core (https://github.com/FasterXML/jackson-core)
+Jackson-core (https://github.com/FasterXML/jackson)
 - license: The Apache Software License, Version 2.0
 # com.fasterxml.jackson.core:jackson-core
-Jackson-core (https://github.com/FasterXML/jackson)
+Jackson-core (https://github.com/FasterXML/jackson-core)
 - license: The Apache Software License, Version 2.0
 # com.fasterxml.jackson.core:jackson-databind
 jackson-databind (http://github.com/FasterXML/jackson)
@@ -414,6 +381,9 @@ Jackson-dataformat-YAML (https://github.com/FasterXML/jackson-dataformats-text)
 
 # com.fasterxml.jackson.datatype:jackson-datatype-jdk8
 Jackson datatype: jdk8
+- license: The Apache Software License, Version 2.0
+# com.fasterxml.jackson.datatype:jackson-datatype-jsr310
+Jackson datatype: JSR310
 - license: The Apache Software License, Version 2.0
 
 # com.fasterxml.jackson.jaxrs:jackson-jaxrs-base
@@ -460,18 +430,9 @@ BSD 2-Clause License (https://github.com/luben/zstd-jni)
 - license: BSD 2-Clause License
   (licenses-binary/LICENSE-bsd-2-clause.txt)
 
-# com.github.pjfanning:jersey-json
-jersey-json (https://github.com/pjfanning/jersey-1.x)
-- license: CDDL 1.1
-  (licenses-binary/LICENSE-cddl-1.1.txt)
-
 # com.github.spullara.mustache.java:compiler
 compiler (http://github.com/spullara/mustache.java)
 - license: Apache License 2.0
-
-# com.github.stephenc.jcip:jcip-annotations
-JCIP Annotations under Apache License (http://stephenc.github.com/jcip-annotations)
-- license: Apache License, Version 2.0
 
 # com.github.virtuald:curvesapi
 curvesapi (https://github.com/virtuald/curvesapi)
@@ -541,7 +502,6 @@ J2ObjC Annotations (https://github.com/google/j2objc/)
 # com.google.re2j:re2j
 re2j (http://github.com/google/re2j)
 - license: The Go license
-  (licenses-binary/LICENSE-the-go-license.txt)
 
 # com.googlecode.juniversalchardet:juniversalchardet
 juniversalchardet (http://juniversalchardet.googlecode.com/)
@@ -563,7 +523,6 @@ Jackcess Encrypt (http://jackcessencrypt.sf.net)
 # com.ibm.icu:icu4j
 ICU4J (https://icu.unicode.org/)
 - license: Unicode-3.0
-  (licenses-binary/LICENSE-unicode-icu-license.txt)
 
 # com.jcraft:jsch
 JSch (http://www.jcraft.com/jsch/)
@@ -651,33 +610,6 @@ Jakarta Activation
 istack common utility code runtime
 - license: Eclipse Distribution License - v 1.0
   (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
-
-# com.sun.jersey:jersey-client
-jersey-client
-- license: CDDL 1.1
-  (licenses-binary/LICENSE-cddl-1.1.txt)
-# com.sun.jersey:jersey-core
-jersey-core
-- license: CDDL 1.1
-  (licenses-binary/LICENSE-cddl-1.1.txt)
-# com.sun.jersey:jersey-server
-jersey-server
-- license: CDDL 1.1
-  (licenses-binary/LICENSE-cddl-1.1.txt)
-# com.sun.jersey:jersey-servlet
-jersey-servlet
-- license: CDDL 1.1
-  (licenses-binary/LICENSE-cddl-1.1.txt)
-
-# com.sun.jersey.contribs:jersey-guice
-jersey-guice
-- license: CDDL 1.1
-  (licenses-binary/LICENSE-cddl-1.1.txt)
-
-# com.sun.xml.bind:jaxb-impl
-JAXB RI (http://jaxb.java.net/)
-- license: CDDL 1.1
-  (licenses-binary/LICENSE-cddl-1.1.txt)
 
 # com.tdunning:t-digest
 T-Digest (https://github.com/tdunning/t-digest)
@@ -771,7 +703,6 @@ Apache Commons Logging (https://commons.apache.org/proper/commons-logging/)
 # commons-net:commons-net
 Apache Commons Net (https://commons.apache.org/proper/commons-net/)
 - license: Apache License, Version 2.0
-# commons-net:commons-net
 
 # commons-validator:commons-validator
 Apache Commons Validator (http://commons.apache.org/proper/commons-validator/)
@@ -799,7 +730,7 @@ Failsafe
 - license: Apache License, Version 2.0
 
 # dk.brics:automaton
-dk.brics.automaton (https://www.brics.dk/automaton)
+dk.brics.automaton (http://www.brics.dk/automaton)
 - license: BSD
   (licenses-binary/LICENSE-bsd-2-clause.txt)
 
@@ -972,7 +903,7 @@ Google S2 geometry library (https://github.com/sgr-io/s2-geometry-library-java)
 - license: The Apache Software License, Version 2.0
 
 # jakarta.activation:jakarta.activation-api
-Jakarta Activation API jar
+JavaBeans Activation Framework API jar
 - license: EDL 1.0
   (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
 # jakarta.activation:jakarta.activation-api
@@ -985,10 +916,19 @@ Jakarta Annotations API (https://projects.eclipse.org/projects/ee4j.ca)
 - license: EPL 2.0
   (licenses-binary/LICENSE-epl-2.0.txt)
 
-# jakarta.jws:jakarta.jws-api
-Jakarta Web Services Metadata API (https://github.com/eclipse-ee4j/jws-api)
-- license: Eclipse Distribution License - v 1.0
-  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# jakarta.servlet:jakarta.servlet-api
+Jakarta Servlet (https://projects.eclipse.org/projects/ee4j.servlet)
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+
+# jakarta.servlet.jsp:jakarta.servlet.jsp-api
+Jakarta Server Pages API (https://projects.eclipse.org/projects/ee4j.jsp)
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+
+# jakarta.validation:jakarta.validation-api
+Jakarta Bean Validation API (https://beanvalidation.org)
+- license: Apache License 2.0
 
 # jakarta.ws.rs:jakarta.ws.rs-api
 jakarta.ws.rs-api (https://github.com/eclipse-ee4j/jaxrs-api)
@@ -997,16 +937,6 @@ jakarta.ws.rs-api (https://github.com/eclipse-ee4j/jaxrs-api)
 
 # jakarta.xml.bind:jakarta.xml.bind-api
 Jakarta XML Binding API
-- license: Eclipse Distribution License - v 1.0
-  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
-
-# jakarta.xml.soap:jakarta.xml.soap-api
-Jakarta SOAP with Attachments API (https://github.com/eclipse-ee4j/saaj-api)
-- license: Eclipse Distribution License - v 1.0
-  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
-
-# jakarta.xml.ws:jakarta.xml.ws-api
-Jakarta XML Web Services API (https://github.com/eclipse-ee4j/jax-ws-api)
 - license: Eclipse Distribution License - v 1.0
   (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
 
@@ -1019,16 +949,10 @@ Java Servlet API (http://servlet-spec.java.net)
 - license: CDDL + GPLv2 with classpath exception
   (licenses-binary/LICENSE-cddl-gplv2-ce.txt)
 
-# javax.servlet.jsp:jsp-api
-
 # javax.ws.rs:javax.ws.rs-api
 javax.ws.rs-api (https://github.com/eclipse-ee4j/jaxrs-api)
 - license: EPL 2.0
   (licenses-binary/LICENSE-epl-2.0.txt)
-# javax.ws.rs:jsr311-api
-jsr311-api (https://jsr311.dev.java.net)
-- license:                  CDDL License             
-  (licenses-binary/LICENSE-cddl-license.txt)
 
 # javax.xml.bind:jaxb-api
 Java Architecture for XML Binding (http://jaxb.java.net/)
@@ -1036,6 +960,8 @@ Java Architecture for XML Binding (http://jaxb.java.net/)
   (licenses-binary/LICENSE-cddl-1.1.txt)
 
 # jaxen:jaxen
+jaxen
+- license: BSD License 2.0
 
 # joda-time:joda-time
 Joda-Time (http://www.joda.org/joda-time/)
@@ -1055,6 +981,10 @@ Byte Buddy (without dependencies)
 # net.java.dev.jna:jna
 Java Native Access (https://github.com/java-native-access/jna)
 - license: LGPL, version 2.1
+
+# net.jodah:failsafe
+Failsafe (https://failsafe.dev)
+- license: Apache License, Version 2.0
 
 # net.sf.jopt-simple:jopt-simple
 JOpt Simple (http://pholser.github.io/jopt-simple)
@@ -1123,10 +1053,6 @@ Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (https://www.b
 - license: Bouncy Castle Licence
   (licenses-binary/LICENSE-bouncy-castle-licence.txt)
 # org.bouncycastle:bcprov-jdk18on
-Bouncy Castle Provider (https://www.bouncycastle.org/java.html)
-- license: Bouncy Castle Licence
-  (licenses-binary/LICENSE-bouncy-castle-licence.txt)
-# org.bouncycastle:bcprov-jdk18on
 Bouncy Castle Provider (https://www.bouncycastle.org/download/bouncy-castle-java/)
 - license: Bouncy Castle Licence
   (licenses-binary/LICENSE-bouncy-castle-licence.txt)
@@ -1161,10 +1087,6 @@ Jettison (https://github.com/jettison-json/jettison)
 Stax2 API (http://github.com/FasterXML/stax2-api)
 - license: The BSD License
   (licenses-binary/LICENSE-bsd-2-clause.txt)
-# org.codehaus.woodstox:stax2-api
-Stax2 API (http://github.com/FasterXML/stax2-api)
-- license: The BSD 2-Clause License
-  (licenses-binary/LICENSE-bsd-2-clause.txt)
 
 # org.codelibs:jhighlight
 JHighlight (https://github.com/codelibs/jhighlight)
@@ -1188,35 +1110,21 @@ Jetty :: Asynchronous HTTP Client
 # org.eclipse.jetty:jetty-http
 Jetty :: Http Utility
 - license: Apache Software License - Version 2.0
-# org.eclipse.jetty:jetty-http
-Jetty :: Http Utility
-- license: Eclipse Public License - Version 2.0
-  (licenses-binary/LICENSE-epl-2.0.txt)
 # org.eclipse.jetty:jetty-io
 Jetty :: IO Utility
 - license: Apache Software License - Version 2.0
-# org.eclipse.jetty:jetty-io
-Jetty :: IO Utility
-- license: Eclipse Public License - Version 2.0
-  (licenses-binary/LICENSE-epl-2.0.txt)
 # org.eclipse.jetty:jetty-security
 Jetty :: Security
-- license: Eclipse Public License - Version 2.0
-  (licenses-binary/LICENSE-epl-2.0.txt)
+- license: Apache Software License - Version 2.0
 # org.eclipse.jetty:jetty-server
 Jetty :: Server Core
-- license: Eclipse Public License - Version 2.0
-  (licenses-binary/LICENSE-epl-2.0.txt)
+- license: Apache Software License - Version 2.0
 # org.eclipse.jetty:jetty-servlet
 Jetty :: Servlet Handling
 - license: Apache Software License - Version 2.0
 # org.eclipse.jetty:jetty-util
 Jetty :: Utilities
 - license: Apache Software License - Version 2.0
-# org.eclipse.jetty:jetty-util
-Jetty :: Utilities
-- license: Eclipse Public License - Version 2.0
-  (licenses-binary/LICENSE-epl-2.0.txt)
 # org.eclipse.jetty:jetty-util-ajax
 Jetty :: Utilities :: Ajax(JSON)
 - license: Apache Software License - Version 2.0
@@ -1238,10 +1146,6 @@ Jetty :: HTTP2 :: HPACK
 - license: Apache Software License - Version 2.0
 # org.eclipse.jetty.http2:http2-http-client-transport
 Jetty :: HTTP2 :: HTTP Client Transport
-- license: Apache Software License - Version 2.0
-
-# org.eclipse.jetty.toolchain:jetty-servlet-api
-Jetty :: Servlet API and Schemas for JPMS and OSGi
 - license: Apache Software License - Version 2.0
 
 # org.eclipse.jetty.websocket:websocket-api
@@ -1311,6 +1215,32 @@ Ogg and Vorbis for Java, Core (https://github.com/Gagravarr/VorbisJava)
 Apache Tika plugin for Ogg, Vorbis and FLAC (https://github.com/Gagravarr/VorbisJava)
 - license: The Apache Software License, Version 2.0
 
+# org.glassfish.hk2:hk2-api
+HK2 API module
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+# org.glassfish.hk2:hk2-locator
+ServiceLocator Default Implementation
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+# org.glassfish.hk2:hk2-utils
+HK2 Implementation Utilities
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+# org.glassfish.hk2:osgi-resource-locator
+OSGi resource locator
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+
+# org.glassfish.hk2.external:aopalliance-repackaged
+aopalliance version ${aopalliance.version} repackaged as a module
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+# org.glassfish.hk2.external:jakarta.inject
+javax.inject:${javax-inject.version} as OSGi bundle
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+
 # org.glassfish.jaxb:jaxb-core
 JAXB Core (https://eclipse-ee4j.github.io/jaxb-ri/)
 - license: Eclipse Distribution License - v 1.0
@@ -1323,6 +1253,33 @@ JAXB Runtime (https://eclipse-ee4j.github.io/jaxb-ri/)
 TXW2 Runtime (https://eclipse-ee4j.github.io/jaxb-ri/)
 - license: Eclipse Distribution License - v 1.0
   (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# org.glassfish.jersey.containers:jersey-container-servlet
+jersey-container-servlet
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+# org.glassfish.jersey.containers:jersey-container-servlet-core
+jersey-container-servlet-core
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+
+# org.glassfish.jersey.core:jersey-client
+jersey-core-client
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+# org.glassfish.jersey.core:jersey-common
+jersey-core-common
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+# org.glassfish.jersey.core:jersey-server
+jersey-core-server
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+
+# org.glassfish.jersey.inject:jersey-hk2
+jersey-inject-hk2
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
 
 # org.hdrhistogram:HdrHistogram
 HdrHistogram (http://hdrhistogram.github.io/HdrHistogram/)
@@ -1338,10 +1295,13 @@ HTML Parser Jar (http://htmlparser.org)
 - license: Common Public License
   (licenses-binary/LICENSE-common-public-license.txt)
 
+# org.javassist:javassist
+Javassist (https://www.javassist.org/)
+- license: MPL 1.1
+
 # org.jdom:jdom
 JDOM (http://www.jdom.org)
 - license: Similar to Apache License but with the acknowledgment clause removed
-# org.jdom:jdom
 # org.jdom:jdom2
 JDOM (http://www.jdom.org)
 - license: Similar to Apache License but with the acknowledgment clause removed
@@ -1355,7 +1315,7 @@ IntelliJ IDEA Annotations (http://www.jetbrains.org)
 
 # org.jetbrains.kotlin:kotlin-stdlib
 Kotlin Stdlib (https://kotlinlang.org/)
-- license: Apache-2.0
+- license: The Apache License, Version 2.0
 
 # org.jline:jline
 JLine Bundle
@@ -1567,19 +1527,10 @@ SnakeYAML (http://www.snakeyaml.org)
 SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml)
 - license: Apache License, Version 2.0
 
-# wsdl4j:wsdl4j
-WSDL4J (http://sf.net/projects/wsdl4j)
-- license: CPL
-  (licenses-binary/LICENSE-cpl.txt)
-
 # xerces:xercesImpl
 Xerces2-j (https://xerces.apache.org/xerces2-j/)
 - license: The Apache Software License, Version 2.0
 
 # xml-apis:xml-apis
 XML Commons External Components XML APIs (http://xml.apache.org/commons/components/external/)
-- license: The Apache Software License, Version 2.0
-
-# xml-resolver:xml-resolver
-XML Commons Resolver Component (http://xml.apache.org/commons/components/resolver/)
 - license: The Apache Software License, Version 2.0

@@ -119,9 +119,6 @@ if [ $# = 0 ]; then
   echo "  commoncrawldump   exports crawled data from segments into common crawl data format encoded as CBOR"
   echo "  warc              exports crawled data from segments at the WARC format"
   echo ""
-  echo " (Nutch Server)"
-  echo "  startserver       runs the Nutch Server on localhost:8081"
-  echo ""
   echo " (or)"
   echo "  CLASSNAME         run the main of the class named CLASSNAME"
   echo ""
@@ -316,8 +313,6 @@ elif [ "$COMMAND" = "junit" ] ; then
     done
   fi
   CLASS=org.junit.runner.JUnitCore
-elif [ "$COMMAND" = "startserver" ] ; then
-  CLASS=org.apache.nutch.service.NutchServer
 elif [ "$COMMAND" = "warc" ] ; then
   CLASS=org.apache.nutch.tools.warc.WARCExporter
 elif [ "$COMMAND" = "updatehostdb" ] ; then

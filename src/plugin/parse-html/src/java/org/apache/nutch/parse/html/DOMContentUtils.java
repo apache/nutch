@@ -16,15 +16,19 @@
  */
 package org.apache.nutch.parse.html;
 
-import java.net.URL;
 import java.net.MalformedURLException;
-import java.util.Collection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.MapWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.util.NodeWalker;
 import org.apache.nutch.util.URLUtil;
@@ -32,16 +36,12 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.MapWritable;
-import org.apache.hadoop.io.Text;
-
 /**
  * A collection of methods for extracting content from DOM trees.
- * 
+ *
  * This class holds a few utility methods for pulling content out of DOM nodes,
  * such as getOutlinks, getText, etc.
- * 
+ *
  */
 public class DOMContentUtils {
 
@@ -102,7 +102,7 @@ public class DOMContentUtils {
       if (!forceTags.contains(ignoreTags[i]))
         linkParams.remove(ignoreTags[i]);
     }
-    
+
     //NUTCH-2433 - Should we keep the html node where the outlinks are found?
     srcTagMetaName = this.conf
         .get("parser.html.outlinks.htmlnode_metadata_name");
@@ -114,19 +114,19 @@ public class DOMContentUtils {
    * This method takes a {@link StringBuffer} and a DOM {@link Node}, and will
    * append all the content text found beneath the DOM node to the
    * <code>StringBuffer</code>.
-   * 
+   *
    * <p>
-   * 
+   *
    * If <code>abortOnNestedAnchors</code> is true, DOM traversal will be aborted
    * and the <code>StringBuffer</code> will not contain any text encountered
    * after a nested anchor is found.
-   * 
+   *
    * <p>
-   * 
-   * @param sb a {@link StringBuffer} used to store content text 
+   *
+   * @param sb a {@link StringBuffer} used to store content text
    * found beneath the DOM node... if any exists
    * @param node a DOM {@link Node} to check for content text
-   * @param abortOnNestedAnchors true to abort if nested anchors 
+   * @param abortOnNestedAnchors true to abort if nested anchors
    * are encountered, false otherwise
    * @return true if nested anchors were found
    */
@@ -141,7 +141,7 @@ public class DOMContentUtils {
   /**
    * This is a convinience method, equivalent to
    * {@link #getText(StringBuffer,Node,boolean) getText(sb, node, false)}.
-   * @param sb a {@link StringBuffer} used to store content text 
+   * @param sb a {@link StringBuffer} used to store content text
    * found beneath the DOM node... if any exists
    * @param node a DOM {@link Node} to check for content text
    */
@@ -162,10 +162,10 @@ public class DOMContentUtils {
       String nodeName = currentNode.getNodeName();
       short nodeType = currentNode.getNodeType();
       Node previousSibling = currentNode.getPreviousSibling();
-      if (previousSibling != null
-          && blockNodes.contains(previousSibling.getNodeName().toLowerCase())) {
+      if (previousSibling != null && blockNodes
+          .contains(previousSibling.getNodeName().toLowerCase(Locale.ROOT))) {
         appendParagraphSeparator(sb);
-      } else if (blockNodes.contains(nodeName.toLowerCase())) {
+      } else if (blockNodes.contains(nodeName.toLowerCase(Locale.ROOT))) {
         appendParagraphSeparator(sb);
       }
 
@@ -248,7 +248,7 @@ public class DOMContentUtils {
    * This method takes a {@link StringBuffer} and a DOM {@link Node}, and will
    * append the content text found beneath the first <code>title</code> node to
    * the <code>StringBuffer</code>.
-   * @param sb a {@link StringBuffer} used to store content text 
+   * @param sb a {@link StringBuffer} used to store content text
    * found beneath the DOM node... if any exists
    * @param node a DOM {@link Node} to check for content text
    * @return true if a title node was found, false otherwise
@@ -383,15 +383,15 @@ public class DOMContentUtils {
    * creates appropriate {@link Outlink} records for each (relative to the
    * supplied <code>base</code> URL), and adds them to the <code>outlinks</code>
    * {@link ArrayList}.
-   * 
+   *
    * <p>
-   * 
+   *
    * Links without inner structure (tags, text, etc) are discarded, as are links
    * which contain only single nested links and empty text nodes (this is a
    * common DOM-fixup artifact, at least with nekohtml).
-   * 
+   *
    * @param base the canonical {@link URL}
-   * @param outlinks the {@link ArrayList} of {@link Outlink}'s associated 
+   * @param outlinks the {@link ArrayList} of {@link Outlink}'s associated
    * with the base URL
    * @param node a {@link Node} under which to discover anchors
    */
@@ -408,8 +408,8 @@ public class DOMContentUtils {
 
       if (nodeType == Node.ELEMENT_NODE) {
 
-        nodeName = nodeName.toLowerCase();
-        LinkParams params = (LinkParams) linkParams.get(nodeName);
+        nodeName = nodeName.toLowerCase(Locale.ROOT);
+        LinkParams params = linkParams.get(nodeName);
         if (params != null) {
           if (!shouldThrowAwayLink(currentNode, children, childLen, params)) {
 
@@ -421,7 +421,8 @@ public class DOMContentUtils {
               while (subWalker.hasNext()) {
                 Node subNode = subWalker.nextNode();
                 if (subNode.getNodeType() == Node.ELEMENT_NODE) {
-                  if (subNode.getNodeName().toLowerCase().equals("img")) {
+                  if (subNode.getNodeName().toLowerCase(Locale.ROOT)
+                      .equals("img")) {
                     NamedNodeMap subAttrs = subNode.getAttributes();
                     Node alt = subAttrs.getNamedItem("alt");
                     if (alt != null) {

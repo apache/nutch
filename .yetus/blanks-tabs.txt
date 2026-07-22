@@ -1,0 +1,7 @@
+# Ignore tabs in Yetus-generated patch dir (not source files).
+# See --blanks-tabs-ignore-file in the blanks plugin.
+^out/
+CHANGES.md
+# some configuration files define key-value mappings using tabs
+^conf/.*\.txt\.template
+^src/test/host-protocol-mapping\.txt

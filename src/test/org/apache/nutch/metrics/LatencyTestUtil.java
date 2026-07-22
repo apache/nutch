@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.mapred.Counters;
+import org.apache.hadoop.mapreduce.Counters;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;

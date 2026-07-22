@@ -32,27 +32,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.JexlScript;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configurable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.commons.jexl3.JexlScript;
-import org.apache.commons.jexl3.JexlContext;
-import org.apache.commons.jexl3.MapContext;
-import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.util.ToolRunner;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
-import org.apache.hadoop.mapreduce.Partitioner;
-import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -65,6 +49,20 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.hostdb.HostDatum;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.metrics.ErrorTracker;
@@ -81,6 +79,8 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.SegmentReaderUtil;
 import org.apache.nutch.util.URLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generates a subset of a CrawlDb to fetch. This version allows to generate
@@ -227,7 +227,7 @@ public class Generator extends NutchTool implements Tool {
       if (!restrictStatusString.isEmpty()) {
         restrictStatus = CrawlDatum.getStatusByName(restrictStatusString);
       }
-      expr = JexlUtil.parseExpression(conf.get(GENERATOR_EXPR, null));
+      expr = JexlUtil.parseExpression(conf, conf.get(GENERATOR_EXPR, null));
       // Initialize error tracker with cached counters
       errorTracker = new ErrorTracker(NutchMetrics.GROUP_GENERATOR, context);
       // Initialize cached counter references
@@ -361,19 +361,19 @@ public class Generator extends NutchTool implements Tool {
     private JexlScript fetchDelayExpr = null;
     private Map<String, HostDatum> hostDatumCache = new HashMap<>();
     private ErrorTracker errorTracker;
-    
+
     // Cached counter references for performance
     private Counter hostsAffectedPerHostOverflowCounter;
     private Counter urlsSkippedPerHostOverflowCounter;
-    
+
     public void readHostDb() throws IOException {
       if (conf.get(GENERATOR_HOSTDB) == null) {
         return;
       }
-      
+
       Path path = new Path(conf.get(GENERATOR_HOSTDB), "current");
       hostdbReaders = SegmentReaderUtil.getReaders(path, conf);
-      
+
       try {
         Text key = new Text();
         HostDatum value = new HostDatum();
@@ -385,7 +385,7 @@ public class Generator extends NutchTool implements Tool {
       } catch (Exception e) {
         throw new IOException(e);
       }
-      
+
       for (int i = 0; i < hostdbReaders.length; i++) {
         hostdbReaders[i].close();
       }
@@ -453,16 +453,16 @@ public class Generator extends NutchTool implements Tool {
             URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
 
       if (conf.get(GENERATOR_HOSTDB) != null) {
-        maxCountExpr = JexlUtil
-            .parseExpression(conf.get(GENERATOR_MAX_COUNT_EXPR, null));
-        fetchDelayExpr = JexlUtil
-            .parseExpression(conf.get(GENERATOR_FETCH_DELAY_EXPR, null));
+        maxCountExpr = JexlUtil.parseExpression(conf,
+            conf.get(GENERATOR_MAX_COUNT_EXPR, null));
+        fetchDelayExpr = JexlUtil.parseExpression(conf,
+            conf.get(GENERATOR_FETCH_DELAY_EXPR, null));
       }
       // Initialize error tracker with cached counters
       errorTracker = new ErrorTracker(NutchMetrics.GROUP_GENERATOR, context);
       // Initialize cached counter references
       initReducerCounters(context);
-      
+
       readHostDb();
     }
 
@@ -573,7 +573,7 @@ public class Generator extends NutchTool implements Tool {
           continue;
         }
 
-        hostordomain = hostordomain.toLowerCase();
+        hostordomain = hostordomain.toLowerCase(Locale.ROOT);
 
         // only filter if we are counting hosts or domains
         if (maxCount > 0) {
@@ -800,7 +800,7 @@ public class Generator extends NutchTool implements Tool {
   /**
    * This is an old signature used for compatibility - does not specify whether
    * or not to normalise and set the number of segments to 1
-   * 
+   *
    * @param dbDir
    *          Crawl database directory
    * @param segments
@@ -847,7 +847,7 @@ public class Generator extends NutchTool implements Tool {
    * is read from the &quot;generate.filter&quot; property set for the job from
    * command-line. If the property is not found, the URLs are filtered. Same for
    * the normalisation.
-   * 
+   *
    * @param dbDir
    *          Crawl database directory
    * @param segments
@@ -871,7 +871,7 @@ public class Generator extends NutchTool implements Tool {
    *          maximum number of segments to generate
    * @param expr
    *          a Jexl expression to use in the Generator job.
-   * @see JexlUtil#parseExpression(String)
+   * @see JexlUtil#parseExpression(Configuration, String)
    * @throws IOException
    *           if an I/O exception occurs.
    * @see LockUtil#createLockFile(Configuration, Path, boolean)
@@ -895,7 +895,7 @@ public class Generator extends NutchTool implements Tool {
    * is read from the &quot;generate.filter&quot; property set for the job from
    * command-line. If the property is not found, the URLs are filtered. Same for
    * the normalisation.
-   * 
+   *
    * @param dbDir
    *          Crawl database directory
    * @param segments
@@ -922,7 +922,7 @@ public class Generator extends NutchTool implements Tool {
    * @param hostdb
    *          name of a hostdb from which to execute Jexl expressions in a bid
    *          to determine the maximum URL count and/or fetch delay per host.
-   * @see JexlUtil#parseExpression(String)
+   * @see JexlUtil#parseExpression(Configuration, String)
    * @throws IOException
    *           if an I/O exception occurs.
    * @see LockUtil#createLockFile(Configuration, Path, boolean)
@@ -964,7 +964,7 @@ public class Generator extends NutchTool implements Tool {
     Job job = Job.getInstance(getConf(), "Nutch Generator: generate from " + dbDir);
     Configuration conf = job.getConfiguration();
     if (numLists == -1) {
-      /* for politeness create exactly one partition per fetch task */ 
+      /* for politeness create exactly one partition per fetch task */
       numLists = Integer.parseInt(conf.get("mapreduce.job.maps"));
     }
     if ("local".equals(conf.get("mapreduce.framework.name")) && numLists != 1) {
@@ -1159,7 +1159,7 @@ public class Generator extends NutchTool implements Tool {
     return segment;
   }
 
-  private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+  private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ROOT);
 
   public static synchronized String generateSegmentName() {
     try {

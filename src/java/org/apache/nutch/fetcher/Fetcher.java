@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -98,8 +99,6 @@ import org.slf4j.LoggerFactory;
  * ready, FetcherThread-s will spin-wait until either some items become
  * available, or a timeout is reached (at which point the Fetcher will abort,
  * assuming the task is hung).
- *
- * @author Andrzej Bialecki
  */
 public class Fetcher extends NutchTool implements Tool {
 
@@ -190,7 +189,8 @@ public class Fetcher extends NutchTool implements Tool {
       }
       status.append(fetchQueues.getTotalSize()).append(" URLs queued, ");
       status.append(pages).append(" pages, ").append(errors).append(" errors, ");
-      status.append(String.format("%.2f", avgPagesSec)).append(" pages/s (");
+      status.append(String.format(Locale.ROOT, "%.2f", avgPagesSec))
+          .append(" pages/s (");
       status.append(pagesLastSec).append(" last sec), ");
       status.append(avgBytesSec).append(" kbits/s (")
       .append((bytesLastSec / 128)).append(" last sec)");
@@ -453,16 +453,21 @@ public class Fetcher extends NutchTool implements Tool {
            * fetcher.threads.timeout.divisor.
            */
           if ((System.currentTimeMillis() - lastRequestStart.get()) > timeout) {
-            LOG.warn("Timeout reached with no new requests since {} seconds.",
+            LOG.warn(
+                "Timeout reached with no new requests since {} milliseconds.",
                 timeout);
-            LOG.warn("Aborting with {} hung threads{}.", activeThreads,
+            LOG.warn("Aborting with {} hung or idle threads{}.", activeThreads,
                 feeder.isAlive() ? " (queue feeder still alive)" : "");
             hungThreadsCounter.increment(activeThreads.get());
             for (int i = 0; i < fetcherThreads.size(); i++) {
               FetcherThread thread = fetcherThreads.get(i);
               if (thread.isAlive()) {
-                LOG.warn("Thread #{} hung while processing {}", i,
-                    thread.getReprUrl());
+                if (thread.getReprUrl() != null) {
+                  LOG.warn("Thread #{} hung while processing {}", i,
+                      thread.getReprUrl());
+                } else {
+                  LOG.warn("Thread #{} idle", i);
+                }
                 StackTraceElement[] stack = thread.getStackTrace();
                 StringBuilder sb = new StringBuilder();
                 sb.append("Stack of thread #").append(i).append(":\n");
@@ -643,11 +648,11 @@ public class Fetcher extends NutchTool implements Tool {
     } catch (InterruptedException | ClassNotFoundException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
+    } finally {
+      stopWatch.stop();
+      LOG.info("Fetcher: finished, elapsed: {} ms", stopWatch.getTime(
+          TimeUnit.MILLISECONDS));
     }
-
-    stopWatch.stop();
-    LOG.info("Fetcher: finished, elapsed: {} ms", stopWatch.getTime(
-        TimeUnit.MILLISECONDS));
   }
 
   /**

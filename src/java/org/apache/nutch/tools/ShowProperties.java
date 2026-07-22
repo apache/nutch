@@ -19,14 +19,14 @@ package org.apache.nutch.tools;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
-
-import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * Tool to list properties and their values set by the current Nutch
@@ -42,8 +42,8 @@ public class ShowProperties extends Configured implements Tool {
     List<Entry<String, String>> list = new ArrayList<>();
     conf.iterator().forEachRemaining(list::add);
     Collections.sort(list, (a, b) -> a.getKey().compareTo(b.getKey()));
-    System.out.println(
-        String.format(format3cols, "conf.name", "conf.value", "substituted.value"));
+    System.out.println(String.format(Locale.ROOT, format3cols, "conf.name",
+        "conf.value", "substituted.value"));
     System.out.println(
         "================================================================================");
     for (Entry<String, String> e : list) {
@@ -51,14 +51,14 @@ public class ShowProperties extends Configured implements Tool {
       String val = e.getValue();
       String substitutedVal = conf.get(key);
       if (val.equals(substitutedVal)) {
-        String format = String.format("%%-%ds  %%%ds", key.length(),
-            (80 - 2 - key.length()));
-        System.out.println(String.format(format, key, val));
+        String format = String.format(Locale.ROOT, "%%-%ds  %%%ds",
+            key.length(), (80 - 2 - key.length()));
+        System.out.println(String.format(Locale.ROOT, format, key, val));
       } else {
-        String format = String.format("%%-%ds  %%%ds  %%18s", key.length(),
-            (60 - 2 - key.length()));
-        System.out
-            .println(String.format(format, key, val, substitutedVal));
+        String format = String.format(Locale.ROOT, "%%-%ds  %%%ds  %%18s",
+            key.length(), (60 - 2 - key.length()));
+        System.out.println(
+            String.format(Locale.ROOT, format, key, val, substitutedVal));
       }
     }
     return 0;

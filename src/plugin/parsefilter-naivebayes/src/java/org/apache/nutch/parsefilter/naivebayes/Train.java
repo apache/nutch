@@ -21,8 +21,10 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -97,7 +99,8 @@ public class Train {
 
       line = replacefirstoccuranceof(target + "\t", line);
 
-      linearray = line.replaceAll("[^a-zA-Z ]", "").toLowerCase().split(" ");
+      linearray = line.replaceAll("[^a-zA-Z ]", "").toLowerCase(Locale.ROOT)
+          .split(" ");
 
       // update the data structures
       if (target.equals("0")) {
@@ -126,7 +129,7 @@ public class Train {
     Path path = new Path("naivebayes-model");
 
     Writer writer = new BufferedWriter(new OutputStreamWriter(fs.create(path,
-        true)));
+        true), StandardCharsets.UTF_8));
 
     writer.write(String.valueOf(uniquewords.size()) + "\n");
     writer.write("0\n");

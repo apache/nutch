@@ -24,13 +24,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -38,8 +37,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
@@ -55,6 +54,8 @@ import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Maintains an inverted link map, listing incoming links for each url. */
 public class LinkDb extends NutchTool implements Tool {
@@ -76,7 +77,7 @@ public class LinkDb extends NutchTool implements Tool {
     setConf(conf);
   }
 
-  public static class LinkDbMapper extends 
+  public static class LinkDbMapper extends
   Mapper<Text, ParseData, Text, Inlinks> {
     private int maxAnchorLength;
     private boolean ignoreInternalLinks;
@@ -97,7 +98,7 @@ public class LinkDb extends NutchTool implements Tool {
       if (conf.getBoolean(LinkDbFilter.URL_NORMALIZING, false)) {
         urlNormalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_LINKDB);
       }
-    } 
+    }
 
     @Override
    public void map(Text key, ParseData parseData,
@@ -144,7 +145,7 @@ public class LinkDb extends NutchTool implements Tool {
         if (urlNormalizers != null) {
           try {
             // normalize the url
-            toUrl = urlNormalizers.normalize(toUrl, URLNormalizers.SCOPE_LINKDB); 
+            toUrl = urlNormalizers.normalize(toUrl, URLNormalizers.SCOPE_LINKDB);
           } catch (Exception e) {
             LOG.warn("Skipping {} :", toUrl, e);
             toUrl = null;
@@ -173,7 +174,7 @@ public class LinkDb extends NutchTool implements Tool {
 
   private static String getHost(String url) {
     try {
-      return new URL(url).getHost().toLowerCase();
+      return new URL(url).getHost().toLowerCase(Locale.ROOT);
     } catch (MalformedURLException e) {
       return null;
     }
@@ -371,8 +372,8 @@ public class LinkDb extends NutchTool implements Tool {
     }
   }
 
-  /*
-   * Used for Nutch REST service
+  /**
+   * Programmatic entry point for {@link org.apache.nutch.util.NutchTool} callers.
    */
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
@@ -400,10 +401,10 @@ public class LinkDb extends NutchTool implements Tool {
     boolean force = false;
     if (args.containsKey("noNormalize")) {
       normalize = false;
-    } 
+    }
     if (args.containsKey("noFilter")) {
       filter = false;
-    } 
+    }
     if (args.containsKey("force")) {
       force = true;
     }
@@ -424,7 +425,7 @@ public class LinkDb extends NutchTool implements Tool {
     }
     else if(args.containsKey(Nutch.ARG_SEGMENTS)) {
       Object segments = args.get(Nutch.ARG_SEGMENTS);
-      ArrayList<String> segmentList = new ArrayList<>(); 
+      ArrayList<String> segmentList = new ArrayList<>();
       if(segments instanceof ArrayList) {
         segmentList = (ArrayList<String>)segments; }
       else if(segments instanceof Path){
@@ -438,7 +439,7 @@ public class LinkDb extends NutchTool implements Tool {
     else {
       String segmentDir = crawlId+"/segments";
       File dir = new File(segmentDir);
-      File[] segmentsList = dir.listFiles();  
+      File[] segmentsList = dir.listFiles();
       Arrays.sort(segmentsList, (f1, f2) -> {
         if(f1.lastModified()>f2.lastModified())
           return -1;

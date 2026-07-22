@@ -17,9 +17,9 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +34,6 @@ import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.mapreduce.CounterGroup;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -70,11 +69,11 @@ public class DeduplicationJob extends NutchTool implements Tool {
   protected final static Text urlKey = new Text("_URLTEMPKEY_");
   protected final static String DEDUPLICATION_GROUP_MODE = "deduplication.group.mode";
   protected final static String DEDUPLICATION_COMPARE_ORDER = "deduplication.compare.order";
-  protected final static String UTF_8 = StandardCharsets.UTF_8.toString();
+  protected final static Charset UTF_8 = StandardCharsets.UTF_8;
 
   public static class DBFilter extends
       Mapper<Text, CrawlDatum, BytesWritable, CrawlDatum> {
-      
+
     private String groupMode;
 
     @Override
@@ -101,14 +100,14 @@ public class DeduplicationJob extends NutchTool implements Tool {
             sig = new BytesWritable(signature);
             break;
           case "host":
-            byte[] host = URLUtil.getHost(url).getBytes();
+            byte[] host = URLUtil.getHost(url).getBytes(UTF_8);
             data = new byte[signature.length + host.length];
             System.arraycopy(signature, 0, data, 0, signature.length);
             System.arraycopy(host, 0, data, signature.length, host.length);
             sig = new BytesWritable(data);
             break;
           case "domain":
-            byte[] domain = URLUtil.getDomainName(url).getBytes();
+            byte[] domain = URLUtil.getDomainName(url).getBytes(UTF_8);
             data = new byte[signature.length + domain.length];
             System.arraycopy(signature, 0, data, 0, signature.length);
             System.arraycopy(domain, 0, data, signature.length, domain.length);
@@ -127,16 +126,16 @@ public class DeduplicationJob extends NutchTool implements Tool {
       extends Reducer<K, CrawlDatum, Text, CrawlDatum> {
 
     protected String[] compareOrder;
-    
+
     // Cached counter reference for performance
     private Counter documentsMarkedDuplicateCounter;
-    
+
     @Override
     public void setup(
         Reducer<K, CrawlDatum, Text, CrawlDatum>.Context context) {
       Configuration conf = context.getConfiguration();
       compareOrder = conf.get(DEDUPLICATION_COMPARE_ORDER).split(",");
-      
+
       // Initialize cached counter reference
       initCounters(context);
     }
@@ -224,13 +223,13 @@ public class DeduplicationJob extends NutchTool implements Tool {
           String urlnewDoc = newDoc.getMetaData().get(urlKey).toString();
           try {
             urlExisting = URLDecoder.decode(urlExisting, UTF_8);
-          } catch (UnsupportedEncodingException | IllegalArgumentException e) {
+          } catch (IllegalArgumentException e) {
             LOG.error("Error decoding: {}", urlExisting, e);
             // use the encoded URL
           }
           try {
             urlnewDoc = URLDecoder.decode(urlnewDoc, UTF_8);
-          } catch (UnsupportedEncodingException | IllegalArgumentException e) {
+          } catch (IllegalArgumentException e) {
             LOG.error("Error decoding: {}", urlnewDoc, e);
             // use the encoded URL
           }
@@ -297,7 +296,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
     String compareOrder = "score,fetchTime,urlLength";
 
     for (int i = 1; i < args.length; i++) {
-      if (args[i].equals("-group")) 
+      if (args[i].equals("-group"))
         group = args[++i];
       if (args[i].equals("-compareOrder")) {
         compareOrder = args[++i];

@@ -21,10 +21,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -32,6 +31,8 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.RobotRulesParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import crawlercommons.robots.BaseRobotRules;
 
@@ -68,9 +69,8 @@ public class HttpRobotRulesParser extends RobotRulesParser {
    * @return the cached unique key
    */
   protected static String getCacheKey(URL url) {
-    String protocol = url.getProtocol().toLowerCase(); // normalize to lower
-                                                       // case
-    String host = url.getHost().toLowerCase(); // normalize to lower case
+    String protocol = url.getProtocol().toLowerCase(Locale.ROOT);
+    String host = url.getHost().toLowerCase(Locale.ROOT);
     int port = url.getPort();
     if (port == -1) {
       port = url.getDefaultPort();
@@ -89,14 +89,14 @@ public class HttpRobotRulesParser extends RobotRulesParser {
    * port. If no rules are found in the cache, a HTTP request is send to fetch
    * {{protocol://host:port/robots.txt}}. The robots.txt is then parsed and the
    * rules are cached to avoid re-fetching and re-parsing it again.
-   * 
+   *
    * <p>Following
    * <a href="https://www.rfc-editor.org/rfc/rfc9309.html#section-2.3.1.2">RFC
    * 9309, section 2.3.1.2. Redirects</a>, up to five consecutive HTTP redirects
    * are followed when fetching the robots.txt file. The max. number of
    * redirects followed is configurable by the property
    * <code>http.robots.redirect.max</code>.</p>
-   * 
+   *
    * @param http
    *          The {@link Protocol} object
    * @param url
@@ -170,7 +170,8 @@ public class HttpRobotRulesParser extends RobotRulesParser {
             LOG.debug("Following robots.txt redirect: {} -> {}", robotsUrlRedir,
                 redirectionLocation);
             try {
-              robotsUrlRedir = new URL(robotsUrlRedir, redirectionLocation);
+              robotsUrlRedir = http.resolveUrl(robotsUrlRedir,
+                  redirectionLocation);
             } catch (MalformedURLException e) {
               LOG.info(
                   "Failed to resolve redirect location for robots.txt: {} -> {} ({})",
@@ -244,7 +245,10 @@ public class HttpRobotRulesParser extends RobotRulesParser {
       } catch (Throwable t) {
         if (robotsUrl == null || robotsUrlRedir == null) {
           LOG.info("Couldn't get robots.txt for {}", url, t.getMessage());
-        } else if (robotsUrl.equals(robotsUrlRedir)) {
+        } else if (robotsUrl == robotsUrlRedir) { /*
+                                                   * without a redirect, both
+                                                   * URLs are the same object
+                                                   */
           LOG.info("Couldn't get robots.txt for {} ({}): {}", url, robotsUrl,
               t.getMessage());
         } else {
@@ -282,7 +286,7 @@ public class HttpRobotRulesParser extends RobotRulesParser {
 
   /**
    * Append {@link Content} of robots.txt to {@literal robotsTxtContent}
-   * 
+   *
    * @param robotsTxtContent
    *          container to store robots.txt response content
    * @param robotsUrl

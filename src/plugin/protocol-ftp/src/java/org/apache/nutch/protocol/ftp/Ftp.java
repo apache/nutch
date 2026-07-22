@@ -16,29 +16,28 @@
  */
 package org.apache.nutch.protocol.ftp;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.commons.net.ftp.FTPFileEntryParser;
-
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.net.protocols.Response;
-
-import org.apache.hadoop.conf.Configuration;
-
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.protocol.Protocol;
-import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.ProtocolStatus;
-import crawlercommons.robots.BaseRobotRules;
-
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import java.io.IOException;
+
+import org.apache.commons.net.ftp.FTPFileEntryParser;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.net.protocols.Response;
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.Protocol;
+import org.apache.nutch.protocol.ProtocolOutput;
+import org.apache.nutch.protocol.ProtocolStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.nimbusds.jose.util.StandardCharset;
+
+import crawlercommons.robots.BaseRobotRules;
 
 /**
  * This class is a protocol plugin used for ftp: scheme. It creates
@@ -132,12 +131,12 @@ public class Ftp implements Protocol {
   /**
    * Creates a {@link FtpResponse} object corresponding to the url and returns a
    * {@link ProtocolOutput} object as per the content received
-   * 
+   *
    * @param url
    *          Text containing the ftp url
    * @param datum
    *          The CrawlDatum object corresponding to the url
-   * 
+   *
    * @return {@link ProtocolOutput} object for the url
    */
   @Override
@@ -155,7 +154,7 @@ public class Ftp implements Protocol {
         int code = response.getCode();
         datum.getMetaData().put(Nutch.PROTOCOL_STATUS_CODE_KEY,
           new Text(Integer.toString(code)));
-        
+
 
         if (code == 200) { // got a good response
           return new ProtocolOutput(response.toContent()); // return it
@@ -163,7 +162,7 @@ public class Ftp implements Protocol {
         } else if (code >= 300 && code < 400) { // handle redirect
           if (redirects == MAX_REDIRECTS)
             throw new FtpException("Too many redirects: " + url);
-          
+
           String loc = response.getHeader("Location");
           try {
             u = new URL(u, loc);
@@ -171,7 +170,7 @@ public class Ftp implements Protocol {
             LOG.error("Could not create redirectURL for {} with {}", url, loc);
             return new ProtocolOutput(null, new ProtocolStatus(mue));
           }
-          
+
           redirects++;
           if (LOG.isTraceEnabled()) {
             LOG.trace("redirect to " + u);
@@ -183,6 +182,7 @@ public class Ftp implements Protocol {
     } catch (Exception e) {
       LOG.error("Could not get protocol output for {}: {}", url,
           e.getMessage());
+      datum.getMetaData().put(Nutch.PROTOCOL_STATUS_CODE_KEY, new Text("500"));
       return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
@@ -199,7 +199,7 @@ public class Ftp implements Protocol {
     }
   }
 
-  /** 
+  /**
    * For debugging.
    * @param args run with no args for help
    * @throws Exception if there is an error running this program
@@ -265,7 +265,7 @@ public class Ftp implements Protocol {
     System.err.println("Last-Modified: "
         + content.getMetadata().get(Response.LAST_MODIFIED));
     if (dumpContent) {
-      System.out.print(new String(content.getContent()));
+      System.out.print(new String(content.getContent(), StandardCharset.UTF_8));
     }
 
     ftp = null;

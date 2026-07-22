@@ -16,11 +16,11 @@
  */
 package org.apache.nutch.indexwriter.cloudsearch;
 
-import java.lang.invoke.MethodHandles;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -68,7 +69,7 @@ public class CloudSearchIndexWriter implements IndexWriter {
   private static final int MAX_SIZE_DOC_BYTES = 1048576;
 
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
-      "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+      "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ROOT);
 
   private AmazonCloudSearchDomainClient client;
 
@@ -377,7 +378,7 @@ public class CloudSearchIndexWriter implements IndexWriter {
    * @return
    */
   String cleanFieldName(String name) {
-    String lowercase = name.toLowerCase();
+    String lowercase = name.toLowerCase(Locale.ROOT);
     return lowercase.replaceAll("[^a-z_0-9]", "_");
   }
 

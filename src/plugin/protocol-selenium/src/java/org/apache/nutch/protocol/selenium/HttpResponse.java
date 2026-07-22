@@ -17,14 +17,15 @@
 package org.apache.nutch.protocol.selenium;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -45,8 +46,8 @@ import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
-import org.apache.nutch.protocol.http.api.HttpException;
 import org.apache.nutch.protocol.http.api.HttpBase;
+import org.apache.nutch.protocol.http.api.HttpException;
 
 /* Most of this code was borrowed from protocol-htmlunit; which in turn borrowed it from protocol-httpclient */
 
@@ -233,7 +234,7 @@ public class HttpResponse implements Response {
         headers.add("_request_", reqStr.toString());
       }
 
-      byte[] reqBytes = reqStr.toString().getBytes();
+      byte[] reqBytes = reqStr.toString().getBytes(StandardCharsets.UTF_8);
 
       req.write(reqBytes);
       req.flush();
@@ -358,7 +359,7 @@ public class HttpResponse implements Response {
   private void readPlainContent(URL url) throws IOException {
     String page = HttpWebClient.getHtmlPage(url.toString(), conf);
 
-    content = page.getBytes("UTF-8");
+    content = page.getBytes(StandardCharsets.UTF_8);
   }
 
   private int parseStatusLine(PushbackInputStream in, StringBuffer line)
@@ -422,7 +423,7 @@ public class HttpResponse implements Response {
           || ((pos = line.indexOf("<HTML")) != -1)
           || ((pos = line.indexOf("<html")) != -1)) {
 
-        in.unread(line.substring(pos).getBytes("UTF-8"));
+        in.unread(line.substring(pos).getBytes(StandardCharsets.UTF_8));
         line.setLength(pos);
 
         try {

@@ -16,13 +16,10 @@
  */
 package org.apache.nutch.protocol.okhttp;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.ByteArrayOutputStream;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.nutch.net.protocols.Response;
@@ -32,6 +29,12 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test cases for protocol-okhttp - robustness regarding bad server responses:
@@ -190,11 +193,11 @@ public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {
     // 81920 bytes (80 chunks, 1024 bytes each)
     // > 65536 (http.content.limit defined in nutch-site-test.xml)
     for (int i = 0; i < 80; i++) {
-      response.append(String.format("\r\n400\r\n%02x\r\n", i));
+      response.append(String.format(Locale.ROOT, "\r\n400\r\n%02x\r\n", i));
       for (int j = 0; j < 1012; j++) {
         response.append('x');
       }
-      response.append(String.format("\r\n%02x\r\n", i));
+      response.append(String.format(Locale.ROOT, "\r\n%02x\r\n", i));
       response.append("\r\n");
     }
     response.append("\r\n0\r\n\r\n");
@@ -206,8 +209,10 @@ public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {
         fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT),
         notNullValue());
     assertThat("Content truncation not marked",
-        fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT_REASON),
-        is(Response.TruncatedContentReason.LENGTH.toString().toLowerCase()));
+        fetched.getContent().getMetadata()
+            .get(Response.TRUNCATED_CONTENT_REASON),
+        is(Response.TruncatedContentReason.LENGTH.toString()
+            .toLowerCase(Locale.ROOT)));
   }
 
   /**
@@ -240,8 +245,10 @@ public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {
             fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT),
             notNullValue());
         assertThat("Content truncation not marked",
-            fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT_REASON),
-            is(Response.TruncatedContentReason.LENGTH.toString().toLowerCase()));
+            fetched.getContent().getMetadata()
+                .get(Response.TRUNCATED_CONTENT_REASON),
+            is(Response.TruncatedContentReason.LENGTH.toString()
+                .toLowerCase(Locale.ROOT)));
       }
       server.close(); // need to close server before next loop iteration
     }
@@ -286,8 +293,10 @@ public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {
             fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT),
             notNullValue());
         assertThat("Content truncation not marked",
-            fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT_REASON),
-            is(Response.TruncatedContentReason.LENGTH.toString().toLowerCase()));
+            fetched.getContent().getMetadata()
+                .get(Response.TRUNCATED_CONTENT_REASON),
+            is(Response.TruncatedContentReason.LENGTH.toString()
+                .toLowerCase(Locale.ROOT)));
       }
       server.close(); // need to close server before next loop iteration
     }

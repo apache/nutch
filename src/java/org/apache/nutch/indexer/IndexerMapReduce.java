@@ -18,50 +18,53 @@ package org.apache.nutch.indexer;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Locale;
 
-import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.io.NullWritable;
-import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
-import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.crawl.LinkDb;
 import org.apache.nutch.crawl.NutchWritable;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.LatencyTracker;
 import org.apache.nutch.metrics.NutchMetrics;
-import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.segment.SegmentReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.tdunning.math.stats.MergingDigest;
 
@@ -112,13 +115,13 @@ public class IndexerMapReduce extends Configured {
 
   /**
    * Normalizes and trims extra whitespace from the given url.
-   * 
+   *
    * @param url
    *          The url to normalize.
-   * 
+   *
    * @return The normalized url.
    */
-  private static String normalizeUrl(String url, boolean normalize, 
+  private static String normalizeUrl(String url, boolean normalize,
        URLNormalizers urlNormalizers) {
     if (!normalize) {
       return url;
@@ -143,13 +146,13 @@ public class IndexerMapReduce extends Configured {
 
   /**
    * Filters the given url.
-   * 
+   *
    * @param url
    *          The url to filter.
-   * 
+   *
    * @return The filtered url or null.
    */
-  private static String filterUrl(String url, boolean filter, 
+  private static String filterUrl(String url, boolean filter,
        URLFilters urlFilters) {
     if (!filter) {
       return url;
@@ -164,7 +167,7 @@ public class IndexerMapReduce extends Configured {
     return url;
   }
 
-  public static class IndexerMapper extends 
+  public static class IndexerMapper extends
      Mapper<Text, Writable, Text, NutchWritable> {
 
     // using normalizers and/or filters
@@ -178,25 +181,25 @@ public class IndexerMapReduce extends Configured {
     @Override
     public void setup(Mapper<Text, Writable, Text, NutchWritable>.Context context){
       Configuration conf = context.getConfiguration();
-      
+
       normalize = conf.getBoolean(URL_NORMALIZING, false);
       filter = conf.getBoolean(URL_FILTERING, false);
-      
+
       if (normalize) {
         urlNormalizers = new URLNormalizers(conf,
             URLNormalizers.SCOPE_INDEXER);
-      }   
+      }
 
       if (filter) {
         urlFilters = new URLFilters(conf);
-      }    
+      }
     }
 
     @Override
     public void map(Text key, Writable value,
         Context context) throws IOException, InterruptedException {
 
-      String urlString = filterUrl(normalizeUrl(key.toString(), normalize, 
+      String urlString = filterUrl(normalizeUrl(key.toString(), normalize,
                                      urlNormalizers), filter, urlFilters);
       if (urlString == null) {
         return;
@@ -215,6 +218,7 @@ public class IndexerMapReduce extends Configured {
     private boolean delete = false;
     private boolean deleteRobotsNoIndex = false;
     private boolean deleteSkippedByIndexingFilter = false;
+    private boolean deleteFailedParse = false;
     private boolean base64 = false;
     private IndexingFilters filters;
     private ScoringFilters scfilters;
@@ -235,11 +239,12 @@ public class IndexerMapReduce extends Configured {
     private Counter deletedGoneCounter;
     private Counter deletedRedirectsCounter;
     private Counter deletedDuplicatesCounter;
+    private Counter deletedFailedParseCounter;
     private Counter skippedNotModifiedCounter;
     private Counter deletedByIndexingFilterCounter;
     private Counter skippedByIndexingFilterCounter;
     private Counter indexedCounter;
-    
+
     // Error tracker with cached counters
     private ErrorTracker errorTracker;
 
@@ -253,6 +258,7 @@ public class IndexerMapReduce extends Configured {
           false);
       deleteSkippedByIndexingFilter = conf.getBoolean(INDEXER_DELETE_SKIPPED,
           false);
+      deleteFailedParse = conf.getBoolean(ParseSegment.DELETE_FAILED_PARSE, false);
       skip = conf.getBoolean(INDEXER_SKIP_NOTMODIFIED, false);
       base64 = conf.getBoolean(INDEXER_BINARY_AS_BASE64, false);
 
@@ -288,6 +294,8 @@ public class IndexerMapReduce extends Configured {
           NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_DELETED_REDIRECTS_TOTAL);
       deletedDuplicatesCounter = context.getCounter(
           NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_DELETED_DUPLICATES_TOTAL);
+      deletedFailedParseCounter = context.getCounter(
+          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_DELETED_FAILED_PARSE_TOTAL);
       skippedNotModifiedCounter = context.getCounter(
           NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_SKIPPED_NOT_MODIFIED_TOTAL);
       deletedByIndexingFilterCounter = context.getCounter(
@@ -376,6 +384,15 @@ public class IndexerMapReduce extends Configured {
         }
       }
 
+      // Whether to delete pages where parsing failed
+      if (deleteFailedParse && fetchDatum != null) {
+        if (fetchDatum.getStatus() == CrawlDatum.STATUS_PARSE_FAILED
+            || dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_PARSE_FAILED) {
+          deletedFailedParseCounter.increment(1);
+          context.write(key, DELETE_ACTION);
+          return;
+        }
+      }
       // Whether to delete GONE or REDIRECTS
       if (delete && fetchDatum != null) {
         if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_GONE
@@ -430,7 +447,7 @@ public class IndexerMapReduce extends Configured {
 
       // add digest, used by dedup
       doc.add("digest", metadata.get(Nutch.SIGNATURE_KEY));
-      
+
       final Parse parse = new ParseImpl(parseText, parseData);
       float boost = 1.0f;
       // run scoring filters
@@ -451,7 +468,7 @@ public class IndexerMapReduce extends Configured {
         if (dbDatum != null) {
           // Indexing filters may also be interested in the signature
           fetchDatum.setSignature(dbDatum.getSignature());
-          
+
           // extract information from dbDatum and pass it to
           // fetchDatum so that indexing filters can use it
           final Text url = (Text) dbDatum.getMetaData().get(
@@ -496,11 +513,13 @@ public class IndexerMapReduce extends Configured {
         if (base64) {
           // optionally encode as base64
           // Note: we need a form which works with many versions of commons-code (1.4, 1.11 and upwards),
-          // cf. NUTCH-2706.  The following returns a chunked string for commons-coded 1.4:
+          // cf. NUTCH-2706.  The following returns a chunked string for commons-code 1.4:
           //   binary = Base64.encodeBase64String(content.getContent());
           binary = StringUtils.newStringUtf8(Base64.encodeBase64(content.getContent(), false, false));
         } else {
-          binary = new String(content.getContent());
+          // try to decode, fall-back UTF-8
+          Charset charset = SegmentReader.getCharset(parseData.getParseMeta());
+          binary = content.toString(charset);
         }
         doc.add("binaryContent", binary);
       }

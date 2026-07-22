@@ -70,6 +70,12 @@ public class ParseSegment extends NutchTool implements Tool {
 
   public static final String SKIP_TRUNCATED = "parser.skip.truncated";
 
+  /**
+   * Configuration property to delete documents that failed to be parsed. Also used
+   * in Fetcher and Indexer.
+   */
+  public static final String DELETE_FAILED_PARSE = "parser.delete.failed.parse";
+
   public ParseSegment() {
     this(null);
   }
@@ -85,6 +91,7 @@ public class ParseSegment extends NutchTool implements Tool {
     private Text newKey = new Text();
     private ScoringFilters scfilters;
     private boolean skipTruncated;
+    private boolean deleteFailedParse;
     private LatencyTracker parseLatencyTracker;
     private ErrorTracker errorTracker;
 
@@ -93,6 +100,7 @@ public class ParseSegment extends NutchTool implements Tool {
       Configuration conf = context.getConfiguration();
       scfilters = new ScoringFilters(conf);
       skipTruncated = conf.getBoolean(SKIP_TRUNCATED, true);
+      deleteFailedParse = conf.getBoolean(DELETE_FAILED_PARSE, false);
       parseLatencyTracker = new LatencyTracker(
           NutchMetrics.GROUP_PARSER, NutchMetrics.PARSER_LATENCY);
       // Initialize error tracker with cached counters
@@ -124,6 +132,9 @@ public class ParseSegment extends NutchTool implements Tool {
         // no fetch status, skip document
         LOG.debug("Skipping {} as content has no fetch status", key);
         return;
+      } else if(deleteFailedParse && Integer.parseInt(fetchStatus) == CrawlDatum.STATUS_PARSE_FAILED) {
+        LOG.debug("Skipping {} as un-parseable content will be deleted", key);
+        return;
       } else if (Integer.parseInt(fetchStatus) != CrawlDatum.STATUS_FETCH_SUCCESS) {
         // content not fetched successfully, skip document
         LOG.debug("Skipping {} as content is not fetched successfully", key);
@@ -131,6 +142,7 @@ public class ParseSegment extends NutchTool implements Tool {
       }
 
       if (skipTruncated && isTruncated(content)) {
+        LOG.debug("Skipping {} as content is truncated", key);
         return;
       }
 
@@ -192,7 +204,7 @@ public class ParseSegment extends NutchTool implements Tool {
 
   /**
    * Checks if the page's content is truncated.
-   * 
+   *
    * @param content the response {@link org.apache.nutch.protocol.Content}
    * @return If the page is truncated <code>true</code>. When it is not, or when
    *         it couldn't be determined, <code>false</code>.
@@ -297,7 +309,7 @@ public class ParseSegment extends NutchTool implements Tool {
     }
   }
 
-  public void parse(Path segment) throws IOException, 
+  public void parse(Path segment) throws IOException,
       InterruptedException, ClassNotFoundException {
     if (SegmentChecker.isParsed(segment, segment.getFileSystem(getConf()))) {
       LOG.warn("Segment: {} already parsed!! Skipped parsing this segment!!", segment); // NUTCH-1854
@@ -377,8 +389,8 @@ public class ParseSegment extends NutchTool implements Tool {
     return 0;
   }
 
-  /*
-   * Used for Nutch REST service
+  /**
+   * Programmatic entry point for {@link org.apache.nutch.util.NutchTool} callers.
    */
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
@@ -396,7 +408,7 @@ public class ParseSegment extends NutchTool implements Tool {
     else {
     	String segment_dir = crawlId+"/segments";
         File segmentsDir = new File(segment_dir);
-        File[] segmentsList = segmentsDir.listFiles();  
+        File[] segmentsList = segmentsDir.listFiles();
         Arrays.sort(segmentsList, (f1, f2) -> {
           if(f1.lastModified()>f2.lastModified())
             return -1;
@@ -405,7 +417,7 @@ public class ParseSegment extends NutchTool implements Tool {
         });
         segment = new Path(segmentsList[0].getPath());
     }
-    
+
     if (args.containsKey("nofilter")) {
       getConf().setBoolean("parse.filter.urls", false);
     }

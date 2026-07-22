@@ -16,13 +16,14 @@
  */
 package org.apache.nutch.protocol.http.api;
 
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.invoke.MethodHandles;
 import java.net.Proxy;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,11 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+
 import javax.net.ssl.SSLSocketFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.HttpHeaders;
 import org.apache.nutch.metadata.Nutch;
@@ -46,14 +48,11 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
+import org.apache.nutch.util.DeflateUtils;
 import org.apache.nutch.util.GZIPUtils;
 import org.apache.nutch.util.MimeUtil;
-import org.apache.nutch.util.DeflateUtils;
-import org.apache.hadoop.util.StringUtils;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import crawlercommons.robots.BaseRobotRules;
 
@@ -223,6 +222,12 @@ public abstract class HttpBase implements Protocol {
     this.timeout = conf.getInt("http.timeout", 10000);
     this.maxContent = conf.getInt("http.content.limit", 1024 * 1024);
     this.maxDuration = conf.getInt("http.time.limit", -1);
+    if (maxDuration >= 0 && (maxDuration * 1000) < timeout) {
+      LOG.warn(
+          "The configuration property http.time.limit ({} seconds) is less than http.timeout ({} ms), "
+              + "the entire request will time out before individual reads are timed out.",
+          maxDuration, timeout);
+    }
     this.partialAsTruncated = conf.getBoolean("http.partial.truncated", false);
     this.userAgent = getAgentString(conf.get("http.agent.name"),
         conf.get("http.agent.version"), conf.get("http.agent.description"),
@@ -272,8 +277,8 @@ public abstract class HttpBase implements Protocol {
         }
 
       } catch (Exception e) {
-        this.logger.warn("Failed to read http.agent.rotate.file {}: {}", agentsFile,
-            StringUtils.stringifyException(e));
+        this.logger.warn("Failed to read http.agent.rotate.file {}:",
+            agentsFile, e);
         this.userAgentNames = null;
       } finally {
         if (br != null) {
@@ -314,8 +319,8 @@ public abstract class HttpBase implements Protocol {
           }
         }
       } catch (Exception e) {
-        this.logger.warn("Failed to read http.agent.host.cookie.file {}: {}",
-            cookieFile, StringUtils.stringifyException(e));
+        this.logger.warn("Failed to read http.agent.host.cookie.file {}:",
+            cookieFile, e);
         this.hostCookies = null;
       } finally {
         if (br != null) {
@@ -332,13 +337,13 @@ public abstract class HttpBase implements Protocol {
     String[] ciphers = conf.getStrings("http.tls.supported.cipher.suites");
     if (protocols == null){
       // use SSL3 or above by default
-      protocols = new String[] {"TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1", "SSLv3"}; 
+      protocols = new String[] {"TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1", "SSLv3"};
     }
     if (ciphers == null){
       // use default ciphers by default unless manually specified otherwise in the config
       ciphers = ((SSLSocketFactory) SSLSocketFactory.getDefault()).getDefaultCipherSuites();
     }
-    
+
     this.tlsPreferredProtocols = new HashSet<>(Arrays.asList(protocols));
     this.tlsPreferredCipherSuites = new HashSet<>(Arrays.asList(ciphers));
 
@@ -539,7 +544,7 @@ public abstract class HttpBase implements Protocol {
 
   /**
    * Value of "Accept-Language" request header sent by Nutch.
-   * 
+   *
    * @return The value of the header "Accept-Language" header.
    */
   public String getAcceptLanguage() {
@@ -614,8 +619,9 @@ public abstract class HttpBase implements Protocol {
       this.logger.info("http.proxy.host = {}", this.proxyHost);
       this.logger.info("http.proxy.port = {}", this.proxyPort);
       this.logger.info("http.proxy.exception.list = {}", this.useProxy);
-      this.logger.info("http.timeout = {}", this.timeout);
-      this.logger.info("http.content.limit = {}", this.maxContent);
+      this.logger.info("http.timeout = {} ms", this.timeout);
+      this.logger.info("http.time.limit = {} seconds", this.maxDuration);
+      this.logger.info("http.content.limit = {} bytes", this.maxContent);
       this.logger.info("http.agent = {}", this.userAgent);
       this.logger.info("http.accept.language = {}", this.acceptLanguage);
       this.logger.info("http.accept = {}", this.accept);
@@ -707,7 +713,7 @@ public abstract class HttpBase implements Protocol {
       System.out.println("Content Length: "
           + content.getMetadata().get(HttpHeaders.CONTENT_LENGTH));
       System.out.println("Content:");
-      String text = new String(content.getContent());
+      String text = new String(content.getContent(), StandardCharsets.UTF_8);
       System.out.println(text);
     }
   }
@@ -729,7 +735,7 @@ public abstract class HttpBase implements Protocol {
 
   /**
    * Transforming a String[] into a HashMap for faster searching
-   * 
+   *
    * @param input
    *          String[]
    * @return a new HashMap

@@ -37,7 +37,8 @@
   </publications>
 
   <dependencies>
-    <dependency org="commons-net" name="commons-net" rev="1.2.2" conf="*->master"/>
+    <dependency org="commons-net" name="commons-net" rev="3.9.0" conf="*->master"/>
+    <dependency org="org.mockftpserver" name="MockFtpServer" rev="3.2.0" conf="test->default"/>
   </dependencies>
   
 </ivy-module>

@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -34,10 +35,10 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.util.URLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple tool that will spin up multiple threads to resolve urls to ip
@@ -107,7 +108,7 @@ public class ResolveUrls {
 
       // read in the urls file and loop through each line, one url per line
       BufferedReader buffRead = new BufferedReader(new FileReader(new File(
-          urlsFile)));
+          urlsFile), StandardCharsets.UTF_8));
       String urlStr = null;
       while ((urlStr = buffRead.readLine()) != null) {
 
@@ -136,7 +137,7 @@ public class ResolveUrls {
 
   /**
    * Create a new ResolveUrls with a file from the local file system.
-   * 
+   *
    * @param urlsFile
    *          The local urls file, one url per line.
    */
@@ -147,7 +148,7 @@ public class ResolveUrls {
   /**
    * Create a new ResolveUrls with a urls file and a number of threads for the
    * Thread pool. Number of threads is 100 by default.
-   * 
+   *
    * @param urlsFile
    *          The local urls file, one url per line.
    * @param numThreads
@@ -160,7 +161,7 @@ public class ResolveUrls {
 
   /**
    * Runs the resolve urls tool.
-   * @param args the input arguments for this tool. Running 
+   * @param args the input arguments for this tool. Running
    * with 'help' will print parameter options.
    */
   public static void main(String[] args) {

@@ -20,6 +20,7 @@
          xmlns:ivy="antlib:org.apache.ivy.ant"
          xmlns:artifact="antlib:org.apache.maven.artifact.ant"
          xmlns:rat="antlib:org.apache.rat.anttasks"
+         xmlns:fa="antlib:de.thetaphi.forbiddenapis"
          xmlns="antlib:org.apache.tools.ant">
 
   <!-- Load all the default properties, and any the user wants    -->
@@ -49,24 +50,19 @@
   <property name="jacoco.ant.jar" value="${jacoco.home}/lib/jacocoant.jar" />
   <property name="coverage.dir" value="${build.dir}/coverage" />
 
-  <property name="apache-rat.version" value="0.16" />
+  <property name="apache-rat.version" value="0.18" />
   <property name="apache-rat.home" value="${ivy.dir}/apache-rat-${apache-rat.version}" />
   <property name="apache-rat.jar" value="${apache-rat.home}/apache-rat-${apache-rat.version}.jar" />
 
   <property name="ant-eclipse.jar" value="${ivy.dir}/lib/ant-eclipse-1.0-jvm1.2.jar" />
 
   <!--
-    Java Version Strategy (see HADOOP-18887 for similar approach):
-    
-    BUILD REQUIREMENT: Java 17+ is required to build Nutch and run unit tests
-    because JUnit 6 (Jupiter) requires Java 17+.
-    
-    RUNTIME COMPATIBILITY: The compiled bytecode targets Java 11 by default
-    (javac.version=11 in default.properties), allowing the binary package
-    to run on Java 11+ environments. This is important for Hadoop clusters
-    that may not yet support Java 17 runtime.
-    
-    To build with Java 17 bytecode target: ant -Djavac.version=17 ...
+    Java Version Strategy:
+
+    Java 17+ is required to build, run unit tests, and run Nutch with the
+    Ivy-resolved Hadoop 3.5+ client libraries (Java 17 bytecode).
+    Default bytecode level is javac.version=17 in default.properties.
+    Use an older Nutch release line if you must run on Java 11.
   -->
 
   <!-- the normal classpath -->
@@ -104,7 +100,7 @@
   </target>
 
   <target name="dependencytests" depends="resolve-test" description="Show unit tests dependency tree">
-	<ivy:dependencytree />
+    <ivy:dependencytree />
   </target>
 
   <!-- ====================================================== -->
@@ -383,30 +379,6 @@
   </target>
 
   <!-- ================================================================== -->
-  <!-- Generate REST API Documentation with Miredot                       -->
-  <!-- ================================================================== -->
-  <target name="restdocs" depends="makepom" description="--> generate REST API Documentation with Miredot">
-
-    <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
-      <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
-      <arg value="package"/>
-      <arg value="-DskipTests"/>
-      <arg value="-e"/>
-      <!--arg value="-o"/-->
-      <!-- run offline (-o): must not download dependencies as this is
-           done from http://repo1.maven.org/ hardwired in
-           maven-ant-tasks-2.1.3.jar, see NUTCH-2722.
-
-           Dependencies and plugins need to be resolved and cached locally beforehand
-           by running
-             `mvn dependency:resolve`
-           resp.
-             `mvn dependency:resolve-plugins`
-           after the pom.xml has been generated. -->
-    </artifact:mvn>
-  </target>
-
-  <!-- ================================================================== -->
   <!-- Make job jar                                                       -->
   <!-- ================================================================== -->
   <!--                                                                    -->
@@ -495,7 +467,9 @@
     </antcall>
   </target>
 
-  <target name="test-core" depends="compile-core-test, job, jacoco-download" description="--> run core JUnit tests">
+  <target name="test-core"
+          depends="compile-core-test, job, jacoco-download"
+          description="--> run core JUnit tests">
     <delete dir="${test.build.data}"/>
     <mkdir dir="${test.build.data}"/>
     <mkdir dir="${coverage.dir}"/>
@@ -504,7 +478,7 @@
     </copy>
     <copy file="${test.src.dir}/log4j.properties" todir="${test.build.classes}"/>
     <copy file="${test.src.dir}/crawl-tests.xml" todir="${test.build.classes}"/>
-    <copy file="${test.src.dir}/domain-urlfilter.txt" todir="${test.build.classes}"/>
+    <copy file="${test.src.dir}/host-protocol-mapping.txt" todir="${test.build.classes}"/>
     <copy file="${test.src.dir}/filter-all.txt" todir="${test.build.classes}"/>
     <junitlauncher printSummary="true" haltOnFailure="true" failureProperty="tests.failed">
       <classpath refid="test.classpath"/>
@@ -545,7 +519,9 @@
     <fail if="tests.failed">Tests failed!</fail>
   </target>
 
-  <target name="test-plugins" depends="resolve-test, compile, compile-core-test, jacoco-download" description="--> run JUnit tests for all plugins">
+  <target name="test-plugins"
+          depends="resolve-test, compile, compile-core-test, jacoco-download"
+          description="--> run JUnit tests for all plugins">
     <ant dir="src/plugin" target="test" inheritAll="false"/>
   </target>
 
@@ -555,6 +531,10 @@
 
   <target name="test-indexer-integration" depends="resolve-test, compile, compile-core-test, job" description="--> run indexer plugin integration tests (Testcontainers)">
     <ant dir="src/plugin" target="test-indexer-integration" inheritAll="false"/>
+  </target>
+
+  <target name="test-protocol-integration" depends="resolve-test, compile, compile-core-test, job" description="--> run protocol plugin integration tests (Testcontainers)">
+    <ant dir="src/plugin" target="test-protocol-integration" inheritAll="false"/>
   </target>
 
   <target name="nightly" depends="test, tar-src, zip-src" description="--> run the nightly target build">
@@ -1028,8 +1008,8 @@
     <delete file="${ivy.dir}/apache-rat-${apache-rat.version}-bin.tar.gz" />
   </target>
 
-  <target name="run-rat" depends="init, apache-rat-download"
-    description="--> runs Apache Rat on codebase">
+  <target name="releaseaudit" depends="init, apache-rat-download"
+    description="--> runs Apache Rat on codebase (releaseaudit for Yetus asflicense)">
     <taskdef
         uri="antlib:org.apache.rat.anttasks"
         resource="org/apache/rat/anttasks/antlib.xml">
@@ -1042,7 +1022,9 @@
       <fileset dir="src">
         <include name="**"/>
         <exclude name="plugin/language-identifier/src/java/org/apache/nutch/analysis/lang/langmappings.properties"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/da.test"/>
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/de.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/el.test"/>
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/en.test"/>
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/es.test"/>
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/fi.test"/>
@@ -1052,7 +1034,6 @@
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/pt.test"/>
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/sv.test"/>
         <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/test-referencial.txt"/>
-        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/da.test"/>
         <exclude name="plugin/parse-tika/sample/ootest.txt"/>
         <exclude name="plugin/parse-tika/sample/test.rtf"/>
         <exclude name="plugin/urlfilter-ignoreexempt/data/.donotdelete"/>
@@ -1108,7 +1089,7 @@
             projectName="Apache Nutch Spotbugs Analysis"
             stylesheet="fancy-hist.xsl" >
       <auxClasspath>
-        <!-- depency jars required for analysis but not analyzed (not our bugs) -->
+        <!-- dependency jars required for analysis but not analyzed (not our bugs) -->
         <pathelement path="${basedir}/${build.dir}/lib"/>
         <fileset dir="${basedir}/${build.dir}/plugins">
           <include name="**/*.jar"/>
@@ -1186,6 +1167,45 @@
       </structure>
       <xml destfile="${coverage.dir}/jacoco.xml"/>
     </jacoco:report>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Policeman's Forbidden API checker                                  -->
+  <!-- https://github.com/policeman-tools/forbidden-apis/wiki/AntUsage    -->
+  <!-- ================================================================== -->
+  <target name="forbidden-api-checks" depends="compile-core, compile-plugins">
+    <!-- Note: by default, when the target "forbidden-api-checks" is
+         launched from a clean project root (after "ant clean"), only
+         core and plugin classes are checked.  In order to check also
+         the test classes, run it together with "test-core" or
+         "test-plugins", or any target which depends on the two, e.g.
+           ant clean test-core forbidden-api-checks
+           ant clean test-plugins forbidden-api-checks
+           ant clean test forbidden-api-checks
+    -->
+    <ivy:cachepath organisation="de.thetaphi" module="forbiddenapis" revision="${forbiddenapis.version}"
+                   inline="true" pathid="forbiddenapis.classpath"/>
+    <taskdef uri="antlib:de.thetaphi.forbiddenapis" classpathref="forbiddenapis.classpath"/>
+    <path id="classpath.core-and-plugins">
+      <path refid="classpath"/>
+      <pathelement location="${test.build.classes}" />
+      <fileset dir="${test.build.lib.dir}">
+        <include name="*.jar" />
+      </fileset>
+      <fileset dir="${basedir}/${build.dir}/plugins">
+        <include name="**/*.jar"/>
+      </fileset>
+      <fileset dir="${basedir}/${build.dir}">
+        <include name="**/test/lib/*.jar"/>
+      </fileset>
+    </path>
+    <fa:forbiddenapis classpathref="classpath.core-and-plugins"
+                      dir="${build.dir}" targetVersion="${javac.version}">
+      <bundledsignatures name="jdk-unsafe"/>
+      <bundledsignatures name="jdk-deprecated"/>
+      <bundledsignatures name="jdk-non-portable"/>
+      <signaturesFileset file="src/testresources/forbidden-apis-signatures.txt"/>
+    </fa:forbiddenapis>
   </target>
 
   <!-- ================================================================== -->
