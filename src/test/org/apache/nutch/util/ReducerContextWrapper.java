@@ -71,6 +71,16 @@ public class ReducerContextWrapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
     return context;
   }
 
+  /**
+   * Return the underlying counters updated by the context, for assertions in tests.
+   * Uses the real Hadoop Counters API (no mocks).
+   *
+   * @return the counters instance
+   */
+  public Counters getCounters() {
+    return counters;
+  }
+
   @SuppressWarnings("unchecked")
   private void initContext() {
     context = Mockito.mock(Reducer.Context.class,
