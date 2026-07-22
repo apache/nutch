@@ -63,7 +63,7 @@ import org.apache.hadoop.mapreduce.TaskInputOutputContext;
  * Hadoop counters can only be written from within a task, so counts remain in-memory only.
  * This allows the same categorization and logging pattern (e.g. with LOG.error) as in
  * tasks, without emitting to job counters.
- * 
+ *
  * <p>Emits the following counters (when used inside a task and emitCounters is called):
  * <ul>
  *   <li>errors_total - total number of errors across all categories</li>
@@ -119,7 +119,7 @@ public class ErrorTracker {
    * {@link #initCounters(TaskInputOutputContext)} in setup() to cache counter
    * references, then {@link #emitCounters(TaskInputOutputContext)} in cleanup to
    * emit counts to the job.
-   * 
+   *
    * <p>Use in driver/client code (no task context): do not call initCounters or
    * emitCounters. Only {@link #recordError(Throwable)} and
    * {@link #recordError(ErrorTracker.ErrorType)} are used; counts stay in-memory
