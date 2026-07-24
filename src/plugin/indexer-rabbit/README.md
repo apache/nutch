@@ -47,7 +47,7 @@ Each parameter has the form `<param name="<name>" value="<value>"/>` and the par
 
 Parameter Name | Description | Default value
 --|--|--
-server.uri | URI with connection parameters in the form `amqp://<username>:<password>@<hostname>:<port>/<virtualHost>`<br>Where:<ul><li>`<username>` is the username for RabbitMQ server.</li><li>`<password>` is the password for RabbitMQ server.</li><li>`<hostname>` is where the RabbitMQ server is running.</li><li>`<port>` is where the RabbitMQ server is listening.</li><li>`<virtualHost>` is where the exchange is and the user has access.</li></ul> | amqp://guest:guest@localhost:5672/
+server.uri | URI with connection parameters in the form `amqp://<hostname>:<port>/<virtualHost>` or `amqp://<username>:<password>@<hostname>:<port>/<virtualHost>`<br>Where:<ul><li>`<username>` is the username for RabbitMQ server.</li><li>`<password>` is the password for RabbitMQ server.</li><li>`<hostname>` is where the RabbitMQ server is running.</li><li>`<port>` is where the RabbitMQ server is listening.</li><li>`<virtualHost>` is where the exchange is and the user has access.</li></ul>A typical local RabbitMQ broker uses the well-known `guest`/`guest` account; include `username:password@` in the URI when required. | amqp://localhost:5672/
 binding | Whether the relationship between an exchange and a queue is created automatically.<br>**NOTE:** Binding between exchanges is not supported. | false
 binding.arguments | Arguments used in binding. It must have the form `key1=value1,key2=value2`. This value is only used when the exchange's type is headers and the value of binding property is **true**. In other cases is ignored. | 
 exchange.name | Name for the exchange where the messages will be sent. | 
