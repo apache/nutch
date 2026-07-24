@@ -3011,9 +3011,10 @@ one publisher implementation for RabbitMQ (plugin publish-rabbitmq).
 
 <property>
   <name>rabbitmq.publisher.server.uri</name>
-  <value>amqp://guest:guest@localhost:5672/</value>
+  <value>amqp://localhost:5672/</value>
   <description>
     URI with connection parameters in the form
+    amqp://hostname:port/virtualHost or
     amqp://username:password@hostname:port/virtualHost
     where:
     username is the username for RabbitMQ server.
@@ -3021,6 +3022,8 @@ one publisher implementation for RabbitMQ (plugin publish-rabbitmq).
     hostname is where the RabbitMQ server is running.
     port is where the RabbitMQ server is listening.
     virtualHost is where where the exchange is and the user has access.
+    A typical local RabbitMQ broker uses the well-known guest/guest
+    account; include username:password@ in the URI when required.
   </description>
 </property>
 

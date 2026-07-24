@@ -2,12 +2,12 @@
 <!--
   This is the authentication configuration file for protocol-httpclient.
   Different credentials for different authentication scopes can be
-  configured in this file. If a set of credentials is configured for a 
+  configured in this file. If a set of credentials is configured for a
   particular authentication scope (i.e. particular host, port number,
   scheme and realm), then that set of credentials would be sent only to
   servers falling under the specified authentication scope. Apart from
   this at most one set of credentials can be configured as 'default'.
-  
+
   When authentication is required to fetch a resource from a web-server,
   the authentication-scope is determined from the host, port, scheme and
   realm (if present) obtained from the URL of the page and the
@@ -30,14 +30,15 @@
   the following example.
 
   Example:-
-    <credentials username="susam" password="masus">
+    <!-- Also set the password attribute on each credentials element. -->
+    <credentials username="YOUR_USERNAME">
       <default realm="sso"/>
       <authscope host="192.168.101.33" port="80" realm="login"/>
       <authscope host="example" port="8080" realm="blogs"/>
       <authscope host="example" port="8080" realm="wiki"/>
       <authscope host="example" port="80" realm="quiz" scheme="NTLM"/>
     </credentials>
-    <credentials username="admin" password="nimda">
+    <credentials username="YOUR_USERNAME">
       <authscope host="example" port="8080"/>
     </credentials>
 
@@ -59,8 +60,8 @@
  support can be located at https://cwiki.apache.org/confluence/display/NUTCH/HttpAuthenticationSchemes
 
  HTTP-POST Authentication Support
- Http Form-based Authentication is a very common used authentication 
- mechanism to protect web resources. We extend the 'auth-configuration' 
+ Http Form-based Authentication is a very common used authentication
+ mechanism to protect web resources. We extend the 'auth-configuration'
  to include information about http form authentication properties as shown
  in the following example:
 
@@ -71,9 +72,9 @@
                 loginRedirect="true">
      <loginPostData>
        <field name="ctl00$MainContent$LoginUser$UserName"
-              value="admin"/>
+              value="YOUR_USERNAME"/>
        <field name="ctl00$MainContent$LoginUser$Password"
-              value="admin123"/>
+              value="YOUR_PASSWORD"/>
      </loginPostData>
      <additionalPostHeaders>
        <field name="User-Agent"
@@ -86,25 +87,25 @@
        <policy>BROWSER_COMPATIBILITY</policy>
      </loginCookie>
    </credentials>
- 
+
  it is critical that the following fields are substituted:
   * loginUrl - the URL containing the actual <form>
   * loginFormId - the <form id="$formId" attribute value
     (or the 'name' attribute if no form is referenced by 'id' attribute)
   * loginRedirect - if http post login returns redirect code: 301 or 302,
     and value is true, Http Client will automatically follow the redirect.
-  * <field name="ctl00$MainContent$LoginUser$UserName" value="admin"
+  * <field name="ctl00$MainContent$LoginUser$UserName" value="YOUR_USERNAME"
     - the <input name"name" and user defined username value used to represent
     the field and username respectively
-  * <field name="ctl00$MainContent$LoginUser$Password" value="admin123"
+  * <field name="ctl00$MainContent$LoginUser$Password" value="YOUR_PASSWORD"
     - the <input name"name" and user defined password value used to represent
     the field and password respectively
   * <field name="ctl00$MainContent$LoginUser$RememberMe"/>
     - form element attributes for which we wish to skip fields
-  * <policy> value from <loginCookie> is a constant value symbol from 
+  * <policy> value from <loginCookie> is a constant value symbol from
     org.apache.commons.httpclient.cookie.CookiePolicy, like BROWSER_COMPATIBILITY,
     DEFAULT, RFC_2109, etc.
- 
+
  More information on HTTP POST can be located at
  https://cwiki.apache.org/confluence/display/NUTCH/HttpPostAuthentication
 

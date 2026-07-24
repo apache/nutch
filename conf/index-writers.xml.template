@@ -61,7 +61,7 @@
   </writer>
   <writer id="indexer_rabbit_1" class="org.apache.nutch.indexwriter.rabbit.RabbitIndexWriter">
     <parameters>
-      <param name="server.uri" value="amqp://guest:guest@localhost:5672/"/>
+      <param name="server.uri" value="amqp://localhost:5672/"/>
       <param name="binding" value="false"/>
       <param name="binding.arguments" value=""/>
       <param name="exchange.name" value=""/>
