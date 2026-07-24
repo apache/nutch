@@ -30,14 +30,15 @@
   the following example.
 
   Example:-
-    <credentials username="YOUR_USERNAME" password="YOUR_PASSWORD">
+    <!-- Also set the password attribute on each credentials element. -->
+    <credentials username="YOUR_USERNAME">
       <default realm="sso"/>
       <authscope host="192.168.101.33" port="80" realm="login"/>
       <authscope host="example" port="8080" realm="blogs"/>
       <authscope host="example" port="8080" realm="wiki"/>
       <authscope host="example" port="80" realm="quiz" scheme="NTLM"/>
     </credentials>
-    <credentials username="YOUR_USERNAME" password="YOUR_PASSWORD">
+    <credentials username="YOUR_USERNAME">
       <authscope host="example" port="8080"/>
     </credentials>
 
