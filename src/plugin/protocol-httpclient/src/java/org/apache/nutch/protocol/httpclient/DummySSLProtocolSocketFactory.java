@@ -59,7 +59,7 @@ public class DummySSLProtocolSocketFactory implements
 
   private static SSLContext createEasySSLContext() {
     try {
-      SSLContext context = SSLContext.getInstance("SSL");
+      SSLContext context = SSLContext.getInstance("TLS");
       context.init(null,
           new TrustManager[] { new DummyX509TrustManager(null) }, null);
       return context;

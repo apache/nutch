@@ -5,6 +5,7 @@ MD003: false
 MD012: false
 MD013:
   line_length: 200
+  tables: false
 MD022: false
 MD025: false
 MD033: false
