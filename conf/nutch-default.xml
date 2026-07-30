@@ -222,7 +222,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-1.23-SNAPSHOT</value>
+  <value>Nutch-1.24-SNAPSHOT</value>
   <description>
     A version string to advertise in the User-Agent
    header.
