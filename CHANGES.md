@@ -1,5 +1,80 @@
 # Nutch Change Log
 
+## Nutch 1.23 Release 30/07/2026 (dd/mm/yyyy)
+Release Report: <https://s.apache.org/c4qjb>
+
+### Breaking Changes
+
+- Nutch requires JDK 17 at build and runtime.
+- The minimum required Hadoop version is 3.5.0 if Nutch is run on a Hadoop cluster.
+- [NUTCH-1732](https://issues.apache.org/jira/browse/NUTCH-1732) introduced a new CrawlDatum status,
+  `db_parse_failed`. A CrawlDb written with Nutch 1.23 might fail to be read with older Nutch versions,
+  if it contains records with status `db_parse_failed`. As the name indicates, the status marks
+  documents which failed to parse. It is only set if the property `parser.delete.failed.parse` is
+  `true` (default: `false`). If your workflow requires that Nutch data can be read with Nutch 1.22
+  (or older), please keep the property set to `false`.
+
+### Sub-task
+
+- [NUTCH-2932](https://issues.apache.org/jira/browse/NUTCH-2932) - Create OpenAPI specification for Nutch 1.x REST API
+- [NUTCH-3053](https://issues.apache.org/jira/browse/NUTCH-3053) - Upgrade build and CI to JDK17
+
+### Bug
+
+- [NUTCH-1446](https://issues.apache.org/jira/browse/NUTCH-1446) - Port NUTCH-1444 to trunk (Indexing should not create temporary files)
+- [NUTCH-1732](https://issues.apache.org/jira/browse/NUTCH-1732) - IndexerMapReduce to delete explicitly not indexable documents
+- [NUTCH-3160](https://issues.apache.org/jira/browse/NUTCH-3160) - Leftover System.exit(..) in CommonCrawlDataDumper
+- [NUTCH-3162](https://issues.apache.org/jira/browse/NUTCH-3162) - Fetcher and Parser latency metrics to properly merge data from all threads and tasks
+- [NUTCH-3164](https://issues.apache.org/jira/browse/NUTCH-3164) - Generic exceptions in catch block may lead to deletion of links from crawldb
+- [NUTCH-3168](https://issues.apache.org/jira/browse/NUTCH-3168) - Sandbox Commons JEXL usage in crawl and index pipelines
+- [NUTCH-3174](https://issues.apache.org/jira/browse/NUTCH-3174) - protocol-okhttp: request may hang despite http.time.limit is set
+- [NUTCH-3177](https://issues.apache.org/jira/browse/NUTCH-3177) - Fetcher to report idle threads not as hung threads
+- [NUTCH-3180](https://issues.apache.org/jira/browse/NUTCH-3180) - BasicURLNormalizer missing catching ICUInputTooLongException
+- [NUTCH-3186](https://issues.apache.org/jira/browse/NUTCH-3186) - Split SonarQube workflow in unprivileged build and privileged analysis part
+- [NUTCH-3187](https://issues.apache.org/jira/browse/NUTCH-3187) - protocol-okhttp: IP address filter fails to compare first byte for /32 resp. /128 CIDRs
+- [NUTCH-3188](https://issues.apache.org/jira/browse/NUTCH-3188) - CI builds startup failure because of disallowed workflow actions
+- [NUTCH-3191](https://issues.apache.org/jira/browse/NUTCH-3191) - Fix SonarCloud PR analysis: missing JaCoCo XML, test binaries path, and source encoding warnings
+- [NUTCH-3193](https://issues.apache.org/jira/browse/NUTCH-3193) - Exclude Jacoco files from source release package
+
+### New Feature
+
+- [NUTCH-3085](https://issues.apache.org/jira/browse/NUTCH-3085) - Augment CI by adding code coverage and code quality reporting
+- [NUTCH-3154](https://issues.apache.org/jira/browse/NUTCH-3154) - Implement integration testing framework for Nutch IndexWriter plugins using Testcontainers
+- [NUTCH-3163](https://issues.apache.org/jira/browse/NUTCH-3163) - Integrate Apache Yetus' pre-commit patch testing into Nutch GitHub Continuous Integration
+- [NUTCH-3176](https://issues.apache.org/jira/browse/NUTCH-3176) - URLUtil and urlnormalizer-basic: add support for IDNA2008
+
+### Improvement
+
+- [NUTCH-2987](https://issues.apache.org/jira/browse/NUTCH-2987) - Upgrade to Java 17
+- [NUTCH-3138](https://issues.apache.org/jira/browse/NUTCH-3138) - Upgrade to Creadur RAT 0.17
+- [NUTCH-3145](https://issues.apache.org/jira/browse/NUTCH-3145) - Upgrade to JUnit 6
+- [NUTCH-3167](https://issues.apache.org/jira/browse/NUTCH-3167) - Upgrade to Hadoop 3.5.0
+- [NUTCH-3173](https://issues.apache.org/jira/browse/NUTCH-3173) - protocol-okhttp: store OkHttp's internal URL in response metadata
+- [NUTCH-3175](https://issues.apache.org/jira/browse/NUTCH-3175) - Implement integration testing framework for Nutch Protocol plugins using Testcontainers
+- [NUTCH-3178](https://issues.apache.org/jira/browse/NUTCH-3178) - Add AGENTS.md and SECURITY.md to the Nutch repository
+- [NUTCH-3182](https://issues.apache.org/jira/browse/NUTCH-3182) - Add GitHub Dependabot configuration to update GitHub workflows
+- [NUTCH-3183](https://issues.apache.org/jira/browse/NUTCH-3183) - Upgrade Tika to 3.3.1
+- [NUTCH-3184](https://issues.apache.org/jira/browse/NUTCH-3184) - Upgrade OkHttp to 3.4.0
+- [NUTCH-3185](https://issues.apache.org/jira/browse/NUTCH-3185) - Upgrade NekoHTML to 1.9.22
+- [NUTCH-3189](https://issues.apache.org/jira/browse/NUTCH-3189) - Upgrade core dependencies
+- [NUTCH-3192](https://issues.apache.org/jira/browse/NUTCH-3192) - Address Yetus detsecrets/blanks and SonarCloud security findings in config templates and DummySSL
+
+### Test
+
+- [NUTCH-3129](https://issues.apache.org/jira/browse/NUTCH-3129) - Investigate empty TEST-org.apache.nutch.util.TestMimeUtil.xml result
+
+### Wish
+
+- [NUTCH-3166](https://issues.apache.org/jira/browse/NUTCH-3166) - Create a security page
+
+### Task
+
+- [NUTCH-3064](https://issues.apache.org/jira/browse/NUTCH-3064) - Upgrade index-geoip to GeoIP2 5.0.2
+- [NUTCH-3104](https://issues.apache.org/jira/browse/NUTCH-3104) - [SECURITY] please replace use of org.codehaus.jackson
+- [NUTCH-3157](https://issues.apache.org/jira/browse/NUTCH-3157) - Add indexer plugin integration testing guidance to the Nutch wiki
+- [NUTCH-3165](https://issues.apache.org/jira/browse/NUTCH-3165) - Remove the Nutch web service
+
+
 ## Nutch 1.22 Release 12/02/2026 (dd/mm/yyyy)
 Release Report: https://s.apache.org/1ip89
 
