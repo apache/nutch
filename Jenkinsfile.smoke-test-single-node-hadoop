@@ -80,18 +80,18 @@ pipeline {
                 sh """
                     echo "Creating cache directory if it doesn't exist..."
                     mkdir -p ${CACHE_DIR}
-                    
+
                     # Restore cached files
                     if [ -f "${CACHE_DIR}/${HADOOP_TAR}" ]; then
                         echo "Restoring Hadoop tarball from cache..."
                         cp "${CACHE_DIR}/${HADOOP_TAR}" .
                     fi
-                    
+
                     if [ -f "${CACHE_DIR}/${HADOOP_CHECKSUM}" ]; then
                         echo "Restoring checksum from cache..."
                         cp "${CACHE_DIR}/${HADOOP_CHECKSUM}" .
                     fi
-                    
+
                     if [ -d "${CACHE_DIR}/${HADOOP_DIR}" ]; then
                         echo "Restoring Hadoop directory from cache..."
                         cp -r "${CACHE_DIR}/${HADOOP_DIR}" .
@@ -109,18 +109,18 @@ pipeline {
                             if [ ! -f "${HADOOP_TAR}" ]; then
                                 echo "Downloading Hadoop ${params.HADOOP_VERSION}..."
                                 wget ${DOWNLOAD_URL}/${HADOOP_TAR}
-                                
+
                                 echo "Downloading checksum file..."
                                 wget ${DOWNLOAD_URL}/${HADOOP_CHECKSUM}
                             else
                                 echo "Hadoop tarball already exists (restored from cache)"
-                                
+
                                 if [ ! -f "${HADOOP_CHECKSUM}" ]; then
                                     echo "Downloading checksum file..."
                                     wget ${DOWNLOAD_URL}/${HADOOP_CHECKSUM}
                                 fi
                             fi
-                            
+
                             # Verify checksum
                             echo "Verifying SHA-512 checksum..."
                             if sha512sum -c ${HADOOP_CHECKSUM}; then
@@ -133,22 +133,22 @@ pipeline {
                                 rm -f ${CACHE_DIR}/${HADOOP_TAR}
                                 exit 1
                             fi
-                            
+
                             # Update cache with latest files
                             echo "Updating cache..."
                             cp -u ${HADOOP_TAR} ${CACHE_DIR}/
                             cp -u ${HADOOP_CHECKSUM} ${CACHE_DIR}/
-                            
+
                             # Update Hadoop configuration (Ubuntu-compatible sed)
                             sed -i "s|^HADOOP_VERSION=.*|HADOOP_VERSION=${params.HADOOP_VERSION}|" hadoop_install_config.sh
                             sed -i "s|^HADOOP_HOME=.*|HADOOP_HOME=${HADOOP_HOME}|" hadoop_install_config.sh
-                            
+
                             # Comment out chown/sudo chown line before running install script
                             echo "Commenting out chown command in install_hadoop.sh..."
                             sed -i 's|^sudo chown|#sudo chown|' install_hadoop.sh
-                            
+
                             ./install_hadoop.sh
-                            
+
                             if [ ! -d "${CACHE_DIR}/${HADOOP_DIR}" ]; then
                                 echo "Caching extracted Hadoop directory..."
                                 cp -r ${HADOOP_HOME} ${CACHE_DIR}/
