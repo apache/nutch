@@ -114,6 +114,31 @@ jobs:
         if: steps.filter.outputs.openapi == 'true'
         run: ./node_modules/.bin/lint-openapi openapi.yaml
 
+  # Declarative Pipeline syntax check (jenkinsfilelint --local; Docker required).
+  # Path-filtered: only runs when Jenkinsfile* changes. Local mode validates
+  # vanilla Declarative syntax, not every plugin on ci-builds.apache.org.
+  jenkinsfile-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706
+        id: filter
+        with:
+          filters: |
+            jenkinsfile:
+              - 'Jenkinsfile*'
+      - name: Set up Python
+        if: steps.filter.outputs.jenkinsfile == 'true'
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Install jenkinsfilelint
+        if: steps.filter.outputs.jenkinsfile == 'true'
+        run: pip install jenkinsfilelint==1.5.1
+      - name: Validate Jenkinsfile Declarative Pipeline syntax
+        if: steps.filter.outputs.jenkinsfile == 'true'
+        run: jenkinsfilelint --local --include 'Jenkinsfile*' Jenkinsfile.smoke-test-single-node-hadoop
+
   # Build verification on JDK 17 and 21 (bytecode target Java 17)
   build:
     strategy:
