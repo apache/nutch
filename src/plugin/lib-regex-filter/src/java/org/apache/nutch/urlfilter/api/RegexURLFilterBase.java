@@ -177,7 +177,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
       try {
         domain = URLUtil.getDomainName(url);
       } catch (MalformedURLException e) {
-        // shouldnt happen here right?
+        // shouldn't happen here right?
       }
 
       LOG.debug("URL belongs to host {} and domain {}", host, domain);

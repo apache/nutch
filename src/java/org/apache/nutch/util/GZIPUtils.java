@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A collection of utility methods for working on GZIPed data.
+ * A collection of utility methods for working on gzipped data.
  */
 public class GZIPUtils {
 

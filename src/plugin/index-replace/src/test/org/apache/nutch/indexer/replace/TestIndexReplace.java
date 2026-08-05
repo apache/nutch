@@ -418,7 +418,7 @@ public class TestIndexReplace {
 
   /**
    * Test a replacement pattern that uses the target field feature.
-   * Check that the input is not modifid and that the taret field is added.
+   * Check that the input is not modified and that the target field is added.
    */
   @Test
   public void testReplacementsDifferentTarget() {

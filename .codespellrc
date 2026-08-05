@@ -1,5 +1,11 @@
 [codespell]
-# JUnit 5 annotations incorrectly flagged as spelling errors
-ignore-words-list = AfterAll,BeforeAll
-# CHANGES.md is a historical changelog not maintained by this branch
-skip = CHANGES.md
+# JUnit 5 annotations incorrectly flagged as spelling errors.
+# Loction: intentional misspelling in protocol-http/okhttp TestResponse fixtures
+# used to exercise SpellCheckedMetadata error-tolerant Location header matching.
+# uery: intentional query-string token in urlnormalizer-protocol TestProtocolURLNormalizer.
+ignore-words-list = AfterAll,BeforeAll,Loction,uery
+# CHANGES.md is a historical changelog not maintained by this branch.
+# Language-identifier corpora, binary license trees, and naivebayes training
+# sample are also listed in .yetus/excludes.txt for full-tree Yetus runs; skip
+# them here so local codespell matches CI.
+skip = CHANGES.md,src/plugin/language-identifier/src/test,LICENSE-binary,NOTICE-binary,licenses-binary,conf/naivebayes-train.txt.template

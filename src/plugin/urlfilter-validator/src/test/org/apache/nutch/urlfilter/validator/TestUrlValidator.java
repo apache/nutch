@@ -56,7 +56,7 @@ public class TestUrlValidator {
         "Invalid url: ftp:www.example.com/main.html");
     assertNull(
         url_validator.filter("http://999.000.456.32/nutch/trunk/README.txt"),
-        "Inalid url: http://999.000.456.32/nutch/trunk/README.txt");
+        "Invalid url: http://999.000.456.32/nutch/trunk/README.txt");
     assertNull(url_validator.filter(" http://www.example.com/ma|in\\toc.html"),
         "Invalid url: http://www.example.com/ma|in\\toc.html");
 
