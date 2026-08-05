@@ -398,30 +398,30 @@ public abstract class RobotRulesParser implements Tool {
       System.out.println("Testing robots.txt for agent names: "
           + (agentNames.isEmpty() ? "* (any other agent)" : agentNames));
 
-      LineNumberReader testsIn = new LineNumberReader(
-          new FileReader(urlFile, StandardCharsets.UTF_8));
-      String testPath;
-      testPath = testsIn.readLine();
-      while (testPath != null) {
-        testPath = testPath.trim();
-        try {
-          // testPath can be just a path or a complete URL
-          URL url = new URL(testPath);
-          String status;
-          if (isAllowListed(url)) {
-            status = "allowlisted";
-          } else if (rules.isAllowed(testPath)) {
-            status = "allowed";
-          } else {
-            status = "not allowed";
-          }
-          System.out.println(status + ":\t" + testPath);
-        } catch (MalformedURLException e) {
-          LOG.warn("Not a valid URL: {}", testPath);
-        }
+      try (LineNumberReader testsIn = new LineNumberReader(
+          new FileReader(urlFile, StandardCharsets.UTF_8))) {
+        String testPath;
         testPath = testsIn.readLine();
+        while (testPath != null) {
+          testPath = testPath.trim();
+          try {
+            // testPath can be just a path or a complete URL
+            URL url = new URL(testPath);
+            String status;
+            if (isAllowListed(url)) {
+              status = "allowlisted";
+            } else if (rules.isAllowed(testPath)) {
+              status = "allowed";
+            } else {
+              status = "not allowed";
+            }
+            System.out.println(status + ":\t" + testPath);
+          } catch (MalformedURLException e) {
+            LOG.warn("Not a valid URL: {}", testPath);
+          }
+          testPath = testsIn.readLine();
+        }
       }
-      testsIn.close();
     } catch (IOException e) {
       LOG.error("Failed to run:", e);
       return -1;
@@ -476,9 +476,9 @@ public abstract class RobotRulesParser implements Tool {
         try {
           int contentLength = url.openConnection().getContentLength();
           byte[] robotsBytes = new byte[contentLength];
-          InputStream openStream = url.openStream();
-          openStream.read(robotsBytes);
-          openStream.close();
+          try (InputStream openStream = url.openStream()) {
+            openStream.read(robotsBytes);
+          }
           rules = robotParser.parseContent(url.toString(), robotsBytes,
               "text/plain", agentNames);
         } catch (IOException e) {

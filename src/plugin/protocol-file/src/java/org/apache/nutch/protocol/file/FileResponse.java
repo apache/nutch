@@ -204,17 +204,17 @@ public class FileResponse {
 
     this.content = new byte[len];
 
-    java.io.InputStream is = new java.io.FileInputStream(f);
-    int offset = 0;
-    int n = 0;
-    while (offset < len
-        && (n = is.read(this.content, offset, len - offset)) >= 0) {
-      offset += n;
+    try (java.io.InputStream is = new java.io.FileInputStream(f)) {
+      int offset = 0;
+      int n = 0;
+      while (offset < len
+          && (n = is.read(this.content, offset, len - offset)) >= 0) {
+        offset += n;
+      }
+      if (offset < len) { // keep whatever already have, but issue a warning
+        File.LOG.warn("not enough bytes read from file: {}", f.getPath());
+      }
     }
-    if (offset < len) { // keep whatever already have, but issue a warning
-      File.LOG.warn("not enough bytes read from file: {}", f.getPath());
-    }
-    is.close();
 
     // set headers
     headers.set(Response.CONTENT_LENGTH, Long.valueOf(size).toString());

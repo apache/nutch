@@ -133,12 +133,11 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
   private void setHostSpecificIntervals(String fileName,
       float defaultMin, float defaultMax) throws IOException {
     // Setup for reading the config file.
-    Reader configReader = null;
-    configReader = conf.getConfResourceAsReader(fileName);
+    Reader configReader = conf.getConfResourceAsReader(fileName);
     if (configReader == null) {
       configReader = new FileReader(fileName, StandardCharsets.UTF_8);
     }
-    BufferedReader reader = new BufferedReader(configReader);
+    try (BufferedReader reader = new BufferedReader(configReader)) {
     String line;
     int lineNo = 0;
 
@@ -238,6 +237,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       hostSpecificMaxInterval.put(host, M);
       LOG.debug("Added custom max. interval {} for host {}.", M, host);
 
+    }
     }
   }
 

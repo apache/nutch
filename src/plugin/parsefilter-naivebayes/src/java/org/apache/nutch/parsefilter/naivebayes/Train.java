@@ -90,8 +90,8 @@ public class Train {
     Configuration configuration = new Configuration();
     FileSystem fs = FileSystem.get(configuration);
 
-    BufferedReader bufferedReader = new BufferedReader(
-        configuration.getConfResourceAsReader(filepath));
+    try (BufferedReader bufferedReader = new BufferedReader(
+        configuration.getConfResourceAsReader(filepath))) {
 
     while ((line = bufferedReader.readLine()) != null) {
 
@@ -124,26 +124,25 @@ public class Train {
 
     }
 
+    }
+
     // write the model file
 
     Path path = new Path("naivebayes-model");
 
-    Writer writer = new BufferedWriter(new OutputStreamWriter(fs.create(path,
-        true), StandardCharsets.UTF_8));
+    try (Writer writer = new BufferedWriter(new OutputStreamWriter(fs.create(
+        path, true), StandardCharsets.UTF_8))) {
 
-    writer.write(String.valueOf(uniquewords.size()) + "\n");
-    writer.write("0\n");
-    writer.write(String.valueOf(numof_ir) + "\n");
-    writer.write(String.valueOf(numwords_ir) + "\n");
-    writer.write(flattenHashMap(wordfreq_ir) + "\n");
-    writer.write("1\n");
-    writer.write(String.valueOf(numof_r) + "\n");
-    writer.write(String.valueOf(numwords_r) + "\n");
-    writer.write(flattenHashMap(wordfreq_r) + "\n");
-
-    writer.close();
-
-    bufferedReader.close();
+      writer.write(String.valueOf(uniquewords.size()) + "\n");
+      writer.write("0\n");
+      writer.write(String.valueOf(numof_ir) + "\n");
+      writer.write(String.valueOf(numwords_ir) + "\n");
+      writer.write(flattenHashMap(wordfreq_ir) + "\n");
+      writer.write("1\n");
+      writer.write(String.valueOf(numof_r) + "\n");
+      writer.write(String.valueOf(numwords_r) + "\n");
+      writer.write(flattenHashMap(wordfreq_r) + "\n");
+    }
 
   }
 

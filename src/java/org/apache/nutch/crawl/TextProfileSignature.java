@@ -195,17 +195,16 @@ public class TextProfileSignature extends Signature {
     HashMap<String, byte[]> res = new HashMap<>();
     File[] files = new File(args[0]).listFiles();
     for (int i = 0; i < files.length; i++) {
-      FileInputStream fis = new FileInputStream(files[i]);
-      BufferedReader br = new BufferedReader(
-          new InputStreamReader(fis, StandardCharsets.UTF_8));
       StringBuffer text = new StringBuffer();
-      String line = null;
-      while ((line = br.readLine()) != null) {
-        if (text.length() > 0)
-          text.append("\n");
-        text.append(line);
+      try (BufferedReader br = new BufferedReader(new InputStreamReader(
+          new FileInputStream(files[i]), StandardCharsets.UTF_8))) {
+        String line = null;
+        while ((line = br.readLine()) != null) {
+          if (text.length() > 0)
+            text.append("\n");
+          text.append(line);
+        }
       }
-      br.close();
       byte[] signature = sig.calculate(null, new ParseImpl(text.toString(),
           null));
       res.put(files[i].toString(), signature);

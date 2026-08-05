@@ -18,7 +18,6 @@ package org.apache.nutch.parse.js;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
@@ -278,14 +277,14 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       System.err.println(JSParseFilter.class.getName() + " file.js baseURL");
       return;
     }
-    InputStream in = new FileInputStream(args[0]);
-    BufferedReader br = new BufferedReader(
-        new InputStreamReader(in, StandardCharsets.UTF_8));
     StringBuffer sb = new StringBuffer();
-    String line = null;
-    while ((line = br.readLine()) != null)
-      sb.append(line + "\n");
-    br.close();
+    try (BufferedReader br = new BufferedReader(
+        new InputStreamReader(new FileInputStream(args[0]),
+            StandardCharsets.UTF_8))) {
+      String line = null;
+      while ((line = br.readLine()) != null)
+        sb.append(line + "\n");
+    }
 
     JSParseFilter parseFilter = new JSParseFilter();
     parseFilter.setConf(NutchConfiguration.create());

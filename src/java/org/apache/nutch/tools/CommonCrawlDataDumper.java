@@ -269,10 +269,9 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
       }
     }
 
-    LinkDbReader linkDbReader = null;
-    if (linkdb != null) {
-      linkDbReader = new LinkDbReader(nutchConfig, new Path(linkdb.toString()));
-    }
+    try (LinkDbReader linkDbReader = linkdb != null
+        ? new LinkDbReader(nutchConfig, new Path(linkdb.toString()))
+        : null) {
     if (parts == null || parts.size() == 0) {
       LOG.error( "No segment directories found in {} ",
           segmentRootDir.getAbsolutePath());
@@ -287,9 +286,8 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
 
     for (Path segmentPart : parts) {
       LOG.info("Processing segment Part : [ {} ]", segmentPart);
-      try {
-        SequenceFile.Reader reader = new SequenceFile.Reader(nutchConfig,
-            SequenceFile.Reader.file(segmentPart));
+      try (SequenceFile.Reader reader = new SequenceFile.Reader(nutchConfig,
+            SequenceFile.Reader.file(segmentPart))) {
 
         Writable key = (Writable) reader.getKeyClass().getConstructor().newInstance();
 
@@ -428,7 +426,6 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
             }
           }
         }
-        reader.close();
       } catch (Exception e){
         LOG.warn("SKIPPED: {} Because : {}", segmentPart, e.getMessage());
       } finally {
@@ -445,6 +442,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
           .displayFileTypes(typeCounts, filteredCounts));
     }
 
+    }
   }
 
   private void closeStream() {

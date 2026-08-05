@@ -169,7 +169,8 @@ public class FileDumper {
             continue;
           }
 
-          SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(file));
+          try (SequenceFile.Reader reader = new SequenceFile.Reader(conf,
+              SequenceFile.Reader.file(file))) {
 
           Writable key = (Writable) reader.getKeyClass().getConstructor().newInstance();
           Content content = null;
@@ -251,21 +252,13 @@ public class FileDumper {
                     LOG.info("Writing: [{}]", outputFullPath);
 
                     // Modified to prevent FileNotFoundException (Invalid Argument)
-                    FileOutputStream output = null;
-                    try {
-                      output = new FileOutputStream(outputFile);
+                    try (FileOutputStream output = new FileOutputStream(
+                        outputFile)) {
                       IOUtils.write(content.getContent(), output);
+                      output.flush();
                     } catch (Exception e) {
                       LOG.warn("Write Error: [{}]", outputFullPath);
                       e.printStackTrace();
-                    } finally {
-                      if (output != null) {
-                        output.flush();
-                        try {
-                          output.close();
-                        } catch (Exception ignore) {
-                        }
-                      }
                     }
                     fileCount++;
                   } else {
@@ -276,7 +269,7 @@ public class FileDumper {
               }
             }
           }
-          reader.close();
+          }
         } finally {
           if (doutputStream != null) {
             try {
