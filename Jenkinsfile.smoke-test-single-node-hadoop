@@ -205,7 +205,7 @@ pipeline {
                             <name>http.agent.name</name>\\
                             <value>Apache Nutch Single Node Smoke Test</value>\\
                           </property>' conf/nutch-site.xml.template
-                        ant runtime
+                        ant clean runtime
                     """
                 }
             }
