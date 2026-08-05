@@ -93,36 +93,36 @@ public class Train {
     try (BufferedReader bufferedReader = new BufferedReader(
         configuration.getConfResourceAsReader(filepath))) {
 
-    while ((line = bufferedReader.readLine()) != null) {
+      while ((line = bufferedReader.readLine()) != null) {
 
-      target = line.split("\t")[0];
+        target = line.split("\t")[0];
 
-      line = replacefirstoccuranceof(target + "\t", line);
+        line = replacefirstoccuranceof(target + "\t", line);
 
-      linearray = line.replaceAll("[^a-zA-Z ]", "").toLowerCase(Locale.ROOT)
-          .split(" ");
+        linearray = line.replaceAll("[^a-zA-Z ]", "").toLowerCase(Locale.ROOT)
+            .split(" ");
 
-      // update the data structures
-      if (target.equals("0")) {
+        // update the data structures
+        if (target.equals("0")) {
 
-        numof_ir += 1;
-        numwords_ir += linearray.length;
-        for (int i = 0; i < linearray.length; i++) {
-          uniquewords.add(linearray[i]);
-          updateHashMap(wordfreq_ir, linearray[i]);
-        }
-      } else {
+          numof_ir += 1;
+          numwords_ir += linearray.length;
+          for (int i = 0; i < linearray.length; i++) {
+            uniquewords.add(linearray[i]);
+            updateHashMap(wordfreq_ir, linearray[i]);
+          }
+        } else {
 
-        numof_r += 1;
-        numwords_r += linearray.length;
-        for (int i = 0; i < linearray.length; i++) {
-          uniquewords.add(linearray[i]);
-          updateHashMap(wordfreq_r, linearray[i]);
+          numof_r += 1;
+          numwords_r += linearray.length;
+          for (int i = 0; i < linearray.length; i++) {
+            uniquewords.add(linearray[i]);
+            updateHashMap(wordfreq_r, linearray[i]);
+          }
+
         }
 
       }
-
-    }
 
     }
 

@@ -172,103 +172,103 @@ public class FileDumper {
           try (SequenceFile.Reader reader = new SequenceFile.Reader(conf,
               SequenceFile.Reader.file(file))) {
 
-          Writable key = (Writable) reader.getKeyClass().getConstructor().newInstance();
-          Content content = null;
+            Writable key = (Writable) reader.getKeyClass().getConstructor().newInstance();
+            Content content = null;
 
-          while (reader.next(key)) {
-            content = new Content();
-            reader.getCurrentValue(content);
-            String url = key.toString();
-            String baseName = FilenameUtils.getBaseName(url);
-            String extension = FilenameUtils.getExtension(url);
-            if (extension == null || (extension != null && extension.equals(""))) {
-              extension = "html";
-            }
-
-            ByteArrayInputStream bas = null;
-            Boolean filter = false;
-            try {
-              bas = new ByteArrayInputStream(content.getContent());
-              String mimeType = new Tika().detect(content.getContent());
-              collectStats(typeCounts, mimeType);
-              if (mimeType != null) {
-                if (mimeTypes == null
-                    || Arrays.asList(mimeTypes).contains(mimeType)) {
-                  collectStats(filteredCounts, mimeType);
-                  filter = true;
-                }
+            while (reader.next(key)) {
+              content = new Content();
+              reader.getCurrentValue(content);
+              String url = key.toString();
+              String baseName = FilenameUtils.getBaseName(url);
+              String extension = FilenameUtils.getExtension(url);
+              if (extension == null || (extension != null && extension.equals(""))) {
+                extension = "html";
               }
-            } catch (Exception e) {
-              e.printStackTrace();
-              LOG.warn("Tika is unable to detect type for: [{}]", url);
-            } finally {
-              if (bas != null) {
-                try {
-                  bas.close();
-                } catch (Exception ignore) {
-                }
-              }
-            }
 
-            if (filter) {
-              if (!mimeTypeStats) {
-                String md5Ofurl = DumpFileUtil.getUrlMD5(url);
-
-                String fullDir = outputDir.getAbsolutePath();
-                if (!flatDir && !reverseURLDump) {
-                  fullDir = DumpFileUtil.createTwoLevelsDirectory(fullDir, md5Ofurl);
-                }
-
-                if (!Strings.isNullOrEmpty(fullDir)) {
-                  String outputFullPath;
-
-                  if (reverseURLDump) {
-                    String[] reversedURL = TableUtil.reverseUrl(url).split(":");
-                    reversedURL[0] = reversedURL[0].replace('.', '/');
-
-                    String reversedURLPath = reversedURL[0] + "/"
-                        + DigestUtils.sha256Hex(url).toUpperCase(Locale.ROOT);
-                    outputFullPath = String.format(Locale.ROOT, "%s/%s",
-                        fullDir, reversedURLPath);
-
-                    // We'll drop the trailing file name and create the nested structure if it doesn't already exist.
-                    String[] splitPath = outputFullPath.split("/");
-                    File fullOutputDir = new File(org.apache.commons.lang3.StringUtils.join(Arrays.copyOf(splitPath, splitPath.length - 1), "/"));
-
-                    if (!fullOutputDir.exists()) {
-                      if(!fullOutputDir.mkdirs());
-                        throw new Exception("Unable to create: ["
-                              + fullOutputDir.getAbsolutePath() + "]");
-                    }
-                  } else {
-                    outputFullPath = String.format(Locale.ROOT, "%s/%s",
-                        fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName,
-                            extension));
+              ByteArrayInputStream bas = null;
+              Boolean filter = false;
+              try {
+                bas = new ByteArrayInputStream(content.getContent());
+                String mimeType = new Tika().detect(content.getContent());
+                collectStats(typeCounts, mimeType);
+                if (mimeType != null) {
+                  if (mimeTypes == null
+                      || Arrays.asList(mimeTypes).contains(mimeType)) {
+                    collectStats(filteredCounts, mimeType);
+                    filter = true;
                   }
-                  filenameToUrl.put(outputFullPath, url);
-                  File outputFile = new File(outputFullPath);
-
-                  if (!outputFile.exists()) {
-                    LOG.info("Writing: [{}]", outputFullPath);
-
-                    // Modified to prevent FileNotFoundException (Invalid Argument)
-                    try (FileOutputStream output = new FileOutputStream(
-                        outputFile)) {
-                      IOUtils.write(content.getContent(), output);
-                      output.flush();
-                    } catch (Exception e) {
-                      LOG.warn("Write Error: [{}]", outputFullPath);
-                      e.printStackTrace();
-                    }
-                    fileCount++;
-                  } else {
-                    LOG.info("Skipping writing: [{}]: file already exists",
-                        outputFullPath);
+                }
+              } catch (Exception e) {
+                e.printStackTrace();
+                LOG.warn("Tika is unable to detect type for: [{}]", url);
+              } finally {
+                if (bas != null) {
+                  try {
+                    bas.close();
+                  } catch (Exception ignore) {
                   }
                 }
               }
+
+              if (filter) {
+                if (!mimeTypeStats) {
+                  String md5Ofurl = DumpFileUtil.getUrlMD5(url);
+
+                  String fullDir = outputDir.getAbsolutePath();
+                  if (!flatDir && !reverseURLDump) {
+                    fullDir = DumpFileUtil.createTwoLevelsDirectory(fullDir, md5Ofurl);
+                  }
+
+                  if (!Strings.isNullOrEmpty(fullDir)) {
+                    String outputFullPath;
+
+                    if (reverseURLDump) {
+                      String[] reversedURL = TableUtil.reverseUrl(url).split(":");
+                      reversedURL[0] = reversedURL[0].replace('.', '/');
+
+                      String reversedURLPath = reversedURL[0] + "/"
+                          + DigestUtils.sha256Hex(url).toUpperCase(Locale.ROOT);
+                      outputFullPath = String.format(Locale.ROOT, "%s/%s",
+                          fullDir, reversedURLPath);
+
+                      // We'll drop the trailing file name and create the nested structure if it doesn't already exist.
+                      String[] splitPath = outputFullPath.split("/");
+                      File fullOutputDir = new File(org.apache.commons.lang3.StringUtils.join(Arrays.copyOf(splitPath, splitPath.length - 1), "/"));
+
+                      if (!fullOutputDir.exists()) {
+                        if(!fullOutputDir.mkdirs());
+                          throw new Exception("Unable to create: ["
+                                + fullOutputDir.getAbsolutePath() + "]");
+                      }
+                    } else {
+                      outputFullPath = String.format(Locale.ROOT, "%s/%s",
+                          fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName,
+                              extension));
+                    }
+                    filenameToUrl.put(outputFullPath, url);
+                    File outputFile = new File(outputFullPath);
+
+                    if (!outputFile.exists()) {
+                      LOG.info("Writing: [{}]", outputFullPath);
+
+                      // Modified to prevent FileNotFoundException (Invalid Argument)
+                      try (FileOutputStream output = new FileOutputStream(
+                          outputFile)) {
+                        IOUtils.write(content.getContent(), output);
+                        output.flush();
+                      } catch (Exception e) {
+                        LOG.warn("Write Error: [{}]", outputFullPath);
+                        e.printStackTrace();
+                      }
+                      fileCount++;
+                    } else {
+                      LOG.info("Skipping writing: [{}]: file already exists",
+                          outputFullPath);
+                    }
+                  }
+                }
+              }
             }
-          }
           }
         } finally {
           if (doutputStream != null) {
