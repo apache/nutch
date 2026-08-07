@@ -1,6 +1,6 @@
 # Nutch Change Log
 
-## Nutch 1.23 Release 30/07/2026 (dd/mm/yyyy)
+## Nutch 1.23 Release 07/08/2026 (dd/mm/yyyy)
 Release Report: <https://s.apache.org/c4qjb>
 
 ### Breaking Changes
@@ -35,6 +35,7 @@ Release Report: <https://s.apache.org/c4qjb>
 - [NUTCH-3188](https://issues.apache.org/jira/browse/NUTCH-3188) - CI builds startup failure because of disallowed workflow actions
 - [NUTCH-3191](https://issues.apache.org/jira/browse/NUTCH-3191) - Fix SonarCloud PR analysis: missing JaCoCo XML, test binaries path, and source encoding warnings
 - [NUTCH-3193](https://issues.apache.org/jira/browse/NUTCH-3193) - Exclude Jacoco files from source release package
+- [NUTCH-3201](https://issues.apache.org/jira/browse/NUTCH-3201) - Fetcher launches only a single reduce task, ignoring the configuration
 
 ### New Feature
 
