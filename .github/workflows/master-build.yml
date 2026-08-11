@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d
         id: filter
         with:
           filters: |
@@ -121,7 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d
         id: filter
         with:
           filters: |
@@ -243,7 +243,7 @@ jobs:
           key: ${{ runner.os }}-ivy-${{ hashFiles('ivy/ivy.xml', 'src/plugin/**/ivy.xml') }}
           restore-keys: |
             ${{ runner.os }}-ivy-
-      - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d
         id: filter
         with:
           filters: |
