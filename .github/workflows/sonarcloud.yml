@@ -62,7 +62,6 @@ jobs:
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
           path: ./build/
-        continue-on-error: true
 
       - name: Download coverage data (Ubuntu JDK 17)
         uses: dawidd6/action-download-artifact@v21
@@ -71,7 +70,6 @@ jobs:
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
           path: ./build/coverage/
-        continue-on-error: true
 
       - name: Download test reports (Ubuntu JDK 17)
         uses: dawidd6/action-download-artifact@v21
@@ -82,13 +80,39 @@ jobs:
           # Artifact has build/ stripped (upload-artifact LCA); re-root under build/
           # so paths match build/test/... and build/<plugin>/test/...
           path: ./build/
-        continue-on-error: true
 
       - name: Flatten test reports (JDK 17 only)
         run: |
           mkdir -p ./build/test-reports
-          find ./build/test ./build/*/test/ -name 'TEST-*.xml' -exec cp {} ./build/test-reports/ \; 2>/dev/null || true
-        continue-on-error: true
+          find ./build/test ./build/*/test/ -name 'TEST-*.xml' -exec cp {} ./build/test-reports/ \;
+
+      - name: Verify Sonar inputs
+        run: |
+          set -euo pipefail
+          if ! find ./build -name '*.class' -print -quit | grep -q .; then
+            echo "::error::No compiled class files found under build/"
+            exit 1
+          fi
+          if [ ! -s ./build/coverage/jacoco.xml ]; then
+            echo "::error::Missing or empty build/coverage/jacoco.xml"
+            exit 1
+          fi
+          if ! ls ./build/test-reports/TEST-*.xml >/dev/null 2>&1; then
+            echo "::error::No JUnit TEST-*.xml reports in build/test-reports/"
+            exit 1
+          fi
+          echo "Sonar inputs OK: classes, jacoco.xml, and JUnit reports present."
+
+      - name: Set Sonar project version
+        id: version
+        run: |
+          NUTCH_VERSION=$(grep '^version=' default.properties | cut -d= -f2)
+          if [ -z "$NUTCH_VERSION" ]; then
+            echo "::error::Could not read version from default.properties"
+            exit 1
+          fi
+          echo "value=${NUTCH_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Sonar project version: ${NUTCH_VERSION}"
 
       - name: Resolve PR number
         id: pr
@@ -131,6 +155,7 @@ jobs:
             -Dsonar.pullrequest.key=${{ steps.pr.outputs.number }}
             -Dsonar.pullrequest.branch=${{ github.event.workflow_run.head_branch }}
             -Dsonar.pullrequest.base=master
+            -Dsonar.projectVersion=${{ steps.version.outputs.value }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
@@ -141,6 +166,7 @@ jobs:
         with:
           args: >
             -Dsonar.branch.name=${{ github.event.workflow_run.head_branch }}
+            -Dsonar.projectVersion=${{ steps.version.outputs.value }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
