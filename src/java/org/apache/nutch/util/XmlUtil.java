@@ -121,10 +121,15 @@ public final class XmlUtil {
    * @throws SAXException if a secure feature cannot be set
    */
   public static void configureSecure(DOMParser parser) throws SAXException {
-    parser.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     parser.setFeature(DISALLOW_DOCTYPE_DECL, true);
     parser.setFeature(EXTERNAL_GENERAL_ENTITIES, false);
     parser.setFeature(EXTERNAL_PARAMETER_ENTITIES, false);
     parser.setFeature(LOAD_EXTERNAL_DTD, false);
+    try {
+      parser.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    } catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+      // Xerces' DOMParser does not expose the JAXP secure-processing feature.
+      // DTDs and external entities are already disabled above.
+    }
   }
 }

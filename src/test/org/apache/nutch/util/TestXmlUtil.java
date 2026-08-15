@@ -69,6 +69,19 @@ public class TestXmlUtil {
   }
 
   @Test
+  public void testDomUtilParsesDocumentWithLeadingComment() {
+    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        + "<!-- just a comment -->"
+        + "<subcollections><subcollection><id>nutch</id></subcollection>"
+        + "</subcollections>";
+    Element element = DomUtil.getDom(
+        new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+    assertNotNull(element);
+    assertEquals("subcollections", element.getTagName());
+    assertEquals(1, element.getElementsByTagName("subcollection").getLength());
+  }
+
+  @Test
   public void testNamespaceAwareFactory() throws Exception {
     DocumentBuilderFactory factory = XmlUtil
         .newSecureDocumentBuilderFactory(true);
