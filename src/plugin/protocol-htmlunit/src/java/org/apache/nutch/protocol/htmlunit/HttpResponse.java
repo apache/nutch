@@ -450,7 +450,7 @@ public class HttpResponse implements Response {
               + " bytes in successful chunks" + " and " + chunkBytesRead
               + " in current chunk");
 
-        // DANGER!!! Will printed GZIPed stuff right to your
+        // DANGER!!! Will print gzipped stuff right to your
         // terminal!
         // if (LOG.isTraceEnabled()) { LOG.trace("read: " + new String(bytes, 0,
         // len)); }

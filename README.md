@@ -47,7 +47,8 @@ test-patch --basedir=/path/to/clean/repo --build-tool=nobuild \
   --plugins=all,-jira,-gitlab,-unit,-compile [patchfile]
 ```
 
-Exclude patterns can be added in `.yetus/excludes.txt` (regex, one per line).
+Exclude patterns and related Yetus baselines can be added under `.yetus/`
+(see `.yetus/excludes.txt`).
 
 IDE setup
 ---------

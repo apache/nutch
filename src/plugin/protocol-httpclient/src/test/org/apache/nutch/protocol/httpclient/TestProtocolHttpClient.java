@@ -92,7 +92,7 @@ public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
   }
 
   /**
-   * Tests that no pre-emptive authorization headers are sent by the client.
+   * Tests that no preemptive authorization headers are sent by the client.
    *
    * @throws Exception
    *           If an error occurs or the test case fails.

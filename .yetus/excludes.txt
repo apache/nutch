@@ -1,0 +1,16 @@
+# Regexes (one per line, no spaces) of paths Yetus should keep out of the
+# changed-file set passed to plugins. See --excludes / .yetus/excludes.txt.
+# Used especially by full-tree (master) runs so non-source noise does not drown
+# the report. Comments and blank lines are ignored.
+#
+# Language-identifier test corpora: non-English / sample text that codespell
+# treats as typos. Product Java under this plugin is not excluded.
+^src/plugin/language-identifier/src/test/
+#
+# Bundled third-party license/notice text (not Nutch prose to spell-check).
+^LICENSE-binary$
+^NOTICE-binary$
+^licenses-binary/
+#
+# Naive Bayes training sample (deliberately messy email/OCR-like text).
+^conf/naivebayes-train\.txt\.template$
