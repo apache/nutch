@@ -3,37 +3,21 @@ Apache Nutch README
 
 [![master pull request ci][ci-badge]][ci-link]
 [![Quality Gate Status][sonar-badge]][sonar-link]
-
-[ci-badge]: https://github.com/apache/nutch/actions/workflows/master-build.yml/badge.svg
-[ci-link]: https://github.com/apache/nutch/actions/workflows/master-build.yml
-[sonar-badge]: https://sonarcloud.io/api/project_badges/measure?project=apache_nutch&metric=alert_status
-[sonar-link]: https://sonarcloud.io/summary/new_code?id=apache_nutch
+[![Smoke Test][smoke-badge]][smoke-link]
 
 ![Nutch logo][logo]
 
-[logo]: https://nutch.apache.org/assets/img/nutch_logo_tm.png
-
-For the latest information about Nutch, please visit our website at:
-
-   <https://nutch.apache.org/>
-
-and our wiki, at:
-
-   <https://cwiki.apache.org/confluence/display/NUTCH/Home>
-
-To get started using Nutch read Tutorial:
-
-   <https://cwiki.apache.org/confluence/display/NUTCH/NutchTutorial>
+For the latest information about Nutch, please visit our [website][website]
+and [wiki][wiki]. To get started, see the [Nutch Tutorial][tutorial].
 
 Contributing
 ------------
 
 To contribute a patch, follow these instructions (note that installing
-[Hub](https://hub.github.com/) is not strictly required, but is recommended).
+[Hub][hub] is not strictly required, but is recommended).
 
-0. Download and install hub.github.com
-1. File JIRA issue for your fix at
-   <https://issues.apache.org/jira/projects/NUTCH/issues>
+0. Download and install [Hub][hub]
+1. File a [JIRA issue][jira] for your fix
    - you will get issue id NUTCH-xxxx where xxxx is the issue ID.
 2. `git clone https://github.com/apache/nutch.git`
 3. `cd nutch`
@@ -45,7 +29,7 @@ To contribute a patch, follow these instructions (note that installing
 8. `git add <files>`
 9. `git commit -m "fix for NUTCH-xxx contributed by <your username>"`
 10. `hub fork` (if hub is not installed, fork using the "fork" button on the
-    [Nutch Github project page](https://github.com/apache/nutch))
+    [Nutch GitHub project][github])
 11. `git push -u <your git username> NUTCH-xxxx`
 12. `hub pull-request` (if hub is not installed, please follow the
     instructions to [create a pull-request from a fork][pr-from-fork])
@@ -53,10 +37,9 @@ To contribute a patch, follow these instructions (note that installing
 Pre-commit / Apache Yetus
 -------------------------
 
-Pull requests run [Apache Yetus](https://yetus.apache.org/) test-patch for
-automated checks (style, reporting). See
-[Basic Precommit](https://yetus.apache.org/documentation/0.15.1/precommit/)
-and [Usage Introduction][yetus-usage]. CI uses Java 17. To run test-patch
+Pull requests run [Apache Yetus][yetus] test-patch for automated checks
+(style, reporting). See [Basic Precommit][yetus-precommit] and
+[Usage Introduction][yetus-usage]. CI uses Java 17. To run test-patch
 locally (e.g. before opening a PR):
 
 ```bash
@@ -141,9 +124,24 @@ Running in Intellij
 updated changes when running, because the ant build system is separate from
 the Intellij one.
 
-[eclipse-import]: https://help.eclipse.org/2019-06/topic/org.eclipse.platform.doc.user/tasks/tasks-importproject.htm
+[ci-badge]: https://github.com/apache/nutch/actions/workflows/master-build.yml/badge.svg
+[ci-link]: https://github.com/apache/nutch/actions/workflows/master-build.yml
 [eclipse-format]: https://raw.githubusercontent.com/apache/nutch/master/eclipse-codeformat.xml
+[eclipse-import]: https://help.eclipse.org/2019-06/topic/org.eclipse.platform.doc.user/tasks/tasks-importproject.htm
+[github]: https://github.com/apache/nutch
+[hub]: https://hub.github.com/
+[ivyidea]: https://plugins.jetbrains.com/plugin/3612-ivyidea
+[jira]: https://issues.apache.org/jira/projects/NUTCH/issues
+[logo]: https://nutch.apache.org/assets/img/nutch_logo_tm.png
 [pr-from-fork]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork
 [runnutch]: https://cwiki.apache.org/confluence/display/NUTCH/RunNutchInEclipse
-[ivyidea]: https://plugins.jetbrains.com/plugin/3612-ivyidea
+[smoke-badge]: https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fci-builds.apache.org%2Fjob%2FNutch%2Fjob%2FNutch-Smoke-Test-Single-Node-Hadoop-Cluster%2F&style=plastic&label=Smoke%20Test
+[smoke-link]: https://ci-builds.apache.org/job/Nutch/job/Nutch-Smoke-Test-Single-Node-Hadoop-Cluster/
+[sonar-badge]: https://sonarcloud.io/api/project_badges/measure?project=apache_nutch&metric=alert_status
+[sonar-link]: https://sonarcloud.io/summary/new_code?id=apache_nutch
+[tutorial]: https://cwiki.apache.org/confluence/display/NUTCH/NutchTutorial
+[website]: https://nutch.apache.org/
+[wiki]: https://cwiki.apache.org/confluence/display/NUTCH/Home
+[yetus]: https://yetus.apache.org/
+[yetus-precommit]: https://yetus.apache.org/documentation/0.15.1/precommit/
 [yetus-usage]: https://yetus.apache.org/documentation/0.15.1/precommit/usage-intro/
