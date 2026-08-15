@@ -107,19 +107,19 @@ public class ResolveUrls {
       pool = Executors.newFixedThreadPool(numThreads);
 
       // read in the urls file and loop through each line, one url per line
-      BufferedReader buffRead = new BufferedReader(new FileReader(new File(
-          urlsFile), StandardCharsets.UTF_8));
-      String urlStr = null;
-      while ((urlStr = buffRead.readLine()) != null) {
+      try (BufferedReader buffRead = new BufferedReader(new FileReader(
+          new File(urlsFile), StandardCharsets.UTF_8))) {
+        String urlStr = null;
+        while ((urlStr = buffRead.readLine()) != null) {
 
-        // spin up a resolver thread per url
-        LOG.info("Starting: {}", urlStr);
-        pool.execute(new ResolverThread(urlStr));
+          // spin up a resolver thread per url
+          LOG.info("Starting: {}", urlStr);
+          pool.execute(new ResolverThread(urlStr));
+        }
       }
 
-      // close the file and wait for up to 60 seconds before shutting down
-      // the thread pool to give urls time to finish resolving
-      buffRead.close();
+      // wait for up to 60 seconds before shutting down the thread pool to
+      // give urls time to finish resolving
       pool.awaitTermination(60, TimeUnit.SECONDS);
     } catch (Exception e) {
 

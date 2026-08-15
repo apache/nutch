@@ -198,9 +198,9 @@ public class FeedParser implements Parser {
     parser.setConf(conf);
     File file = new File(name);
     byte[] bytes = new byte[(int) file.length()];
-    DataInputStream in = new DataInputStream(new FileInputStream(file));
-    in.readFully(bytes);
-    in.close();
+    try (DataInputStream in = new DataInputStream(new FileInputStream(file))) {
+      in.readFully(bytes);
+    }
     ParseResult parseResult = parser.getParse(new Content(url, url, bytes,
         "application/rss+xml", new Metadata(), conf));
     for (Entry<Text, Parse> entry : parseResult) {

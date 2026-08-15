@@ -141,25 +141,26 @@ public class LinkRank extends Configured implements Tool {
     }
     Path numLinksFile = numLinksFiles[0].getPath();
     LOG.info("Reading numlinks temp file {}", numLinksFile);
-    FSDataInputStream readLinks = fs.open(numLinksFile);
     CompressionCodecFactory cf = new CompressionCodecFactory(conf);
     CompressionCodec codec = cf.getCodec(numLinksFiles[0].getPath());
-    InputStream streamLinks;
-    if (codec == null) {
-      LOG.debug("No compression codec found for {}, trying uncompressed",
-          numLinksFile);
-      streamLinks = readLinks;
-    } else {
-      LOG.info("Compression codec of numlinks temp file: {}",
-          codec.getDefaultExtension());
-      readLinks.seek(0);
-      streamLinks = codec.createInputStream(readLinks);
+    String numLinksLine;
+    try (FSDataInputStream readLinks = fs.open(numLinksFile)) {
+      InputStream streamLinks;
+      if (codec == null) {
+        LOG.debug("No compression codec found for {}, trying uncompressed",
+            numLinksFile);
+        streamLinks = readLinks;
+      } else {
+        LOG.info("Compression codec of numlinks temp file: {}",
+            codec.getDefaultExtension());
+        readLinks.seek(0);
+        streamLinks = codec.createInputStream(readLinks);
+      }
+      try (BufferedReader buffer = new BufferedReader(
+          new InputStreamReader(streamLinks, StandardCharsets.UTF_8))) {
+        numLinksLine = buffer.readLine();
+      }
     }
-    BufferedReader buffer = new BufferedReader(
-        new InputStreamReader(streamLinks, StandardCharsets.UTF_8));
-
-    String numLinksLine = buffer.readLine();
-    readLinks.close();
 
     // check if there are links to process, if none, webgraph might be empty
     if (numLinksLine == null || numLinksLine.length() == 0) {

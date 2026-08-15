@@ -124,10 +124,11 @@ public class ZipParser implements Parser {
     }
     File file = new File(args[0]);
     String url = "file:"+file.getCanonicalPath();
-    FileInputStream in = new FileInputStream(file);
-    byte[] bytes = new byte[in.available()];
-    in.read(bytes);
-    in.close();
+    byte[] bytes;
+    try (FileInputStream in = new FileInputStream(file)) {
+      bytes = new byte[in.available()];
+      in.read(bytes);
+    }
     Configuration conf = NutchConfiguration.create();
     ZipParser parser = new ZipParser();
     parser.setConf(conf);
