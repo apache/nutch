@@ -26,6 +26,7 @@ import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.XmlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -121,7 +122,7 @@ public class IndexWriters {
     InputSource inputSource = new InputSource(ssInputStream);
 
     try {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilderFactory factory = XmlUtil.newSecureDocumentBuilderFactory();
       DocumentBuilder builder = factory.newDocumentBuilder();
       Document document = builder.parse(inputSource);
       Element rootElement = document.getDocumentElement();

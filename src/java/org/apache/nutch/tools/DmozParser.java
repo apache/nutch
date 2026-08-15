@@ -38,6 +38,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.MD5Hash;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.XmlUtil;
 import org.apache.xerces.util.XMLChar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -296,9 +297,7 @@ public class DmozParser {
       boolean includeAdult, int skew, Pattern topicPattern)
               throws IOException, SAXException, ParserConfigurationException {
 
-    SAXParserFactory parserFactory = SAXParserFactory.newInstance();
-    parserFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-    parserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    SAXParserFactory parserFactory = XmlUtil.newSecureSAXParserFactory();
     SAXParser parser = parserFactory.newSAXParser();
     XMLReader reader = parser.getXMLReader();
     reader.setFeature("http://xml.org/sax/features/external-general-entities", false);

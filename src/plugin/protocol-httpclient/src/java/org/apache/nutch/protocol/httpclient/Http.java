@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
@@ -55,6 +54,7 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.XmlUtil;
 
 /**
  * <p>
@@ -275,7 +275,7 @@ public class Http extends HttpBase {
 
     InputStream is = conf.getConfResourceAsInputStream(authFile);
     if (is != null) {
-      Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+      Document doc = XmlUtil.newSecureDocumentBuilderFactory().newDocumentBuilder()
           .parse(is);
 
       Element rootElement = doc.getDocumentElement();

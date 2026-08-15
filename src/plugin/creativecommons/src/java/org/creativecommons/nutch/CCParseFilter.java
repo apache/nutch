@@ -26,6 +26,7 @@ import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseText;
+import org.apache.nutch.util.XmlUtil;
 import org.apache.hadoop.conf.Configuration;
 
 import org.slf4j.Logger;
@@ -45,6 +46,7 @@ import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.InputSource;
 
@@ -167,11 +169,14 @@ public class CCParseFilter implements HtmlParseFilter {
       }
     }
 
-    /** Configure a namespace aware XML parser. */
-    private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory
-        .newInstance();
+    /** Configure a namespace aware XML parser hardened against XXE. */
+    private static final DocumentBuilderFactory FACTORY;
     static {
-      FACTORY.setNamespaceAware(true);
+      try {
+        FACTORY = XmlUtil.newSecureDocumentBuilderFactory(true);
+      } catch (ParserConfigurationException e) {
+        throw new ExceptionInInitializerError(e);
+      }
     }
 
     /** Creative Commons' namespace URI. */

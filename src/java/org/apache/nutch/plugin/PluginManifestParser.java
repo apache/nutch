@@ -31,6 +31,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.XmlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -158,7 +159,7 @@ public class PluginManifestParser {
    */
   private Document parseXML(URL url)
           throws SAXException, IOException, ParserConfigurationException {
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilderFactory factory = XmlUtil.newSecureDocumentBuilderFactory();
     DocumentBuilder builder = factory.newDocumentBuilder();
     return builder.parse(url.openStream());
   }
