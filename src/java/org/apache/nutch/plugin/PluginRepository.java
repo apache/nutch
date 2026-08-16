@@ -231,7 +231,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
   }
 
   /**
-   * Returns all registed plugin descriptors.
+   * Returns all registered plugin descriptors.
    * 
    * @return PluginDescriptor[]
    */

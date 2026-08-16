@@ -103,7 +103,7 @@ public class ExtensionPoint {
   }
 
   /**
-   * Install a coresponding extension to this extension point.
+   * Install a corresponding extension to this extension point.
    * 
    * @param extension the new {@link org.apache.nutch.plugin.Extension}
    * to install

@@ -62,7 +62,7 @@
   <description>If true, no file content will be saved during fetch.
   And it is probably what we want to set most of time, since file:// URLs
   are meant to be local and we can always use them directly at parsing
-  and indexing stages. Otherwise file contents will be saved.
+  and indexing stags. Otherwise file contents will be saved.
   !! NOT IMPLEMENTED YET !!
   </description>
 </property>
@@ -1361,7 +1361,7 @@
   <value>-1</value>
   <description>
     The maximum time in seconds fetcher will cache redirects for
-    deduplication.  If the same redirect URL is seen again withing
+    deduplication.  If the same redirect URL is seen again within
     this time it is skipped. This allows to avoid pathological cases
     where many or most of the URLs of a host are redirected to the
     same URL, eg. a page to login, accept cookies, indicating an
@@ -1453,7 +1453,7 @@
 <property>
   <name>indexer.score.power</name>
   <value>0.5</value>
-  <description>Determines the power of link analyis scores. The boost
+  <description>Determines the power of link analysis scores. The boost
   of each page is set to <i>score<sup>scorePower</sup></i> where
   <i>score</i> is its link analysis score and <i>scorePower</i> is the
   value of this parameter.  This is compiled into indexes, so, when
@@ -1745,7 +1745,7 @@
   <name>parser.html.line.separators</name>
   <value>article,aside,blockquote,canvas,dd,div,dl,dt,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hr,li,main,nav,noscript,ol,output,p,pre,section,table,tfoot,ul,video</value>
  <description>Comma separated list of HTML tags. Newline will be added to the
-  parsed text after these tages.
+  parsed text after these tags.
   The default list above are the block-level HTML elements.
   Tags must be in lower case.
   To disable this feature, leave the list empty.</description>

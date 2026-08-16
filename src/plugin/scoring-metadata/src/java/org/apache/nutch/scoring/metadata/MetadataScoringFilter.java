@@ -80,7 +80,7 @@ public class MetadataScoringFilter extends AbstractScoringFilter  {
 
   /**
    * Takes the metadata, specified in your "scoring.db.md" property, from the
-   * datum object and injects it into the content. This is transfered to the
+   * datum object and injects it into the content. This is transferred to the
    * parseData object.
    * 
    * @see ScoringFilter#passScoreBeforeParsing

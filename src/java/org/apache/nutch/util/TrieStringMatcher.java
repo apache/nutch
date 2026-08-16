@@ -202,7 +202,7 @@ public abstract class TrieStringMatcher {
    * Returns true if the given <code>String</code> is matched by a pattern in
    * the trie
    * @param input A String to be matched by a pattern
-   * @return true if there is a match, flase otherwise
+   * @return true if there is a match, false otherwise
    */
   public abstract boolean matches(String input);
 

@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * This class represents a natural ordering for which parsing plugin should get
  * called for a particular mimeType. It provides methods to store the
- * parse-plugins.xml data, and methods to retreive the name of the appropriate
+ * parse-plugins.xml data, and methods to retrieve the name of the appropriate
  * parsing plugin for a contentType.
  * 
  * @author mattmann

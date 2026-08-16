@@ -156,7 +156,7 @@ public class KafkaIndexWriter implements IndexWriter {
       }
       inputDocs.clear();
     } catch (NullPointerException e) {
-      LOG.info("All records have been sent to Kakfa on topic {}", topic);
+      LOG.info("All records have been sent to Kafka on topic {}", topic);
     }
   }
 
