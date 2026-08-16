@@ -147,17 +147,18 @@ fi
 
 local=true
 
-# NUTCH_JOB 
-if [ -f "${NUTCH_HOME}"/*nutch*.job ]; then
-  local=false
-  for f in "$NUTCH_HOME"/*nutch*.job; do
+# NUTCH_JOB
+for f in "${NUTCH_HOME}"/*nutch*.job; do
+  if [ -f "$f" ]; then
+    local=false
     NUTCH_JOB="$f"
-  done
-  # cygwin path translation
-  if $cygwin; then
-	NUTCH_JOB="`cygpath -p -w "$NUTCH_JOB"`"
+    # cygwin path translation
+    if $cygwin; then
+      NUTCH_JOB="`cygpath -p -w "$NUTCH_JOB"`"
+    fi
+    break
   fi
-fi
+done
 
 JAVA="$JAVA_HOME/bin/java"
 JAVA_HEAP_MAX=-Xmx4096m
@@ -238,7 +239,7 @@ fi
 # figure out which class to run
 if [ "$COMMAND" = "crawl" ] ; then
   echo "Command $COMMAND is deprecated, please use bin/crawl instead"
-  exit -1
+  exit 1
 elif [ "$COMMAND" = "inject" ] ; then
   CLASS=org.apache.nutch.crawl.Injector
 elif [ "$COMMAND" = "generate" ] ; then
@@ -272,7 +273,7 @@ elif [ "$COMMAND" = "commoncrawldump" ] ; then
 elif [ "$COMMAND" = "solrindex" ] || [ "$COMMAND" = "solrdedup" ] || [ "$COMMAND" = "solrclean" ]; then
   REPLACEMENT="${COMMAND#solr}"
   echo "The command $COMMAND was replaced by the command $REPLACEMENT"
-  exit -1
+  exit 1
 elif [ "$COMMAND" = "index" ] ; then
   CLASS=org.apache.nutch.indexer.IndexingJob
 elif [ "$COMMAND" = "dedup" ] ; then
@@ -336,7 +337,7 @@ else
  # check that hadoop can be found on the path
  if [ $(which hadoop | wc -l ) -eq 0 ]; then
     echo "Can't find Hadoop executable. Add HADOOP_COMMON_HOME/bin to the path or run in local mode."
-    exit -1;
+    exit 1;
  fi
 fi
 
