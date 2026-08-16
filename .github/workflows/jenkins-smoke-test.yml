@@ -1,0 +1,161 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Remotely trigger the ASF Jenkins single-node Hadoop smoke job.
+# - PR comment (created only): a line that is exactly "/smoke-test" or
+#   "/smoke-test hadoop=<ver>" from a user with write/maintain/admin.
+# - Tag push: release-<major>.<minor> or release-<major>.<minor>.<patch>
+# Jenkins posts/updates the PR ACK comment; this workflow only triggers.
+# Operator setup (secrets, Jenkins remote trigger): Nutch wiki.
+
+name: Jenkins smoke test trigger
+
+on:
+  issue_comment:
+    types: [created]
+  push:
+    tags:
+      - 'release-*'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  trigger-smoke-test:
+    runs-on: ubuntu-latest
+    # GitHub cannot filter issue_comment events by body under "on:", so it records
+    # a (skipped) workflow run for every comment. This job-level guard ensures a
+    # runner only starts for tag pushes or PR comments that mention /smoke-test;
+    # the step below still enforces the strict whole-line command grammar.
+    # Plain issues and unrelated comments are ignored.
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       contains(github.event.comment.body, '/smoke-test'))
+    steps:
+      - name: Resolve trigger parameters
+        id: params
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          TAG_NAME: ${{ github.ref_name }}
+          ACTOR: ${{ github.actor }}
+          REPOSITORY: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          should_trigger=false
+          git_ref=""
+          hadoop_version=""
+
+          if [ "${EVENT_NAME}" = "push" ]; then
+            if [[ "${TAG_NAME}" =~ ^release-[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+              should_trigger=true
+              git_ref="${TAG_NAME}"
+              echo "Tag push matched release version pattern: ${TAG_NAME}"
+            else
+              echo "Skipping tag '${TAG_NAME}' (not release-X.Y or release-X.Y.Z)."
+            fi
+          else
+            # Case-sensitive whole-line command match.
+            while IFS= read -r line || [ -n "${line}" ]; do
+              if [[ "${line}" =~ ^/smoke-test$ ]]; then
+                should_trigger=true
+                git_ref="pr/${ISSUE_NUMBER}"
+                break
+              elif [[ "${line}" =~ ^/smoke-test[[:space:]]+hadoop=([A-Za-z0-9._-]+)$ ]]; then
+                should_trigger=true
+                git_ref="pr/${ISSUE_NUMBER}"
+                hadoop_version="${BASH_REMATCH[1]}"
+                break
+              fi
+            done <<< "${COMMENT_BODY}"
+
+            if [ "${should_trigger}" != true ]; then
+              echo "Comment is not a /smoke-test command; nothing to do."
+            else
+              echo "Checking write permission for ${ACTOR} on ${REPOSITORY}..."
+              perm="$(gh api "repos/${REPOSITORY}/collaborators/${ACTOR}/permission" --jq .permission)"
+              case "${perm}" in
+                admin|maintain|write)
+                  echo "Actor permission=${perm}; allowed."
+                  ;;
+                *)
+                  echo "Actor permission=${perm}; refusing /smoke-test (need write, maintain, or admin)."
+                  should_trigger=false
+                  git_ref=""
+                  hadoop_version=""
+                  ;;
+              esac
+            fi
+          fi
+
+          echo "should_trigger=${should_trigger}" >> "${GITHUB_OUTPUT}"
+          echo "git_ref=${git_ref}" >> "${GITHUB_OUTPUT}"
+          echo "hadoop_version=${hadoop_version}" >> "${GITHUB_OUTPUT}"
+
+      - name: Trigger Jenkins smoke job
+        if: steps.params.outputs.should_trigger == 'true'
+        env:
+          JENKINS_SMOKE_USER: ${{ secrets.JENKINS_SMOKE_USER }}
+          JENKINS_SMOKE_TOKEN: ${{ secrets.JENKINS_SMOKE_TOKEN }}
+          GIT_REF: ${{ steps.params.outputs.git_ref }}
+          HADOOP_VERSION: ${{ steps.params.outputs.hadoop_version }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${JENKINS_SMOKE_USER}" ] || [ -z "${JENKINS_SMOKE_TOKEN}" ]; then
+            echo "Missing secrets JENKINS_SMOKE_USER and/or JENKINS_SMOKE_TOKEN."
+            exit 1
+          fi
+
+          JENKINS_URL="https://ci-builds.apache.org"
+          JOB_URL="${JENKINS_URL}/job/Nutch/job/Nutch-Smoke-Test-Single-Node-Hadoop-Cluster"
+
+          echo "Requesting Jenkins crumb..."
+          crumb_json="$(curl -sS -u "${JENKINS_SMOKE_USER}:${JENKINS_SMOKE_TOKEN}" \
+            "${JENKINS_URL}/crumbIssuer/api/json")"
+          crumb_field="$(jq -r '.crumbRequestField' <<<"${crumb_json}")"
+          crumb="$(jq -r '.crumb' <<<"${crumb_json}")"
+          if [ -z "${crumb_field}" ] || [ "${crumb_field}" = "null" ] \
+            || [ -z "${crumb}" ] || [ "${crumb}" = "null" ]; then
+            echo "Failed to obtain Jenkins crumb: ${crumb_json}"
+            exit 1
+          fi
+
+          echo "Triggering ${JOB_URL}/buildWithParameters GIT_REF=${GIT_REF}" \
+            "${HADOOP_VERSION:+HADOOP_VERSION=${HADOOP_VERSION}}"
+
+          curl_args=(
+            -sS -f
+            -u "${JENKINS_SMOKE_USER}:${JENKINS_SMOKE_TOKEN}"
+            -H "${crumb_field}:${crumb}"
+            -X POST
+            "${JOB_URL}/buildWithParameters"
+            --data-urlencode "GIT_REF=${GIT_REF}"
+            --data-urlencode "EMAIL_RECIPIENT="
+          )
+          if [ -n "${HADOOP_VERSION}" ]; then
+            curl_args+=(--data-urlencode "HADOOP_VERSION=${HADOOP_VERSION}")
+          fi
+
+          curl "${curl_args[@]}"
+          echo
+          echo "Jenkins build queued successfully."
+          echo "Job: ${JOB_URL}/"

@@ -24,10 +24,132 @@
 //     PRs:       pr/866       (fetches pull/866/head; do not pass a bare number)
 //     Blank/whitespace GIT_REF is treated as master.
 //   EMAIL_RECIPIENT — optional job-result notification address
-//   HADOOP_VERSION  — Hadoop tarball version to download (default: 3.4.2)
+//   HADOOP_VERSION  — Hadoop tarball version to download (default: 3.5.0)
 //
-// Paste this script into the ASF Jenkins job configure page when updating the live job.
-// Landing Jenkinsfile(s) in the apache/nutch git repo is tracked separately.
+// Also triggered remotely by GitHub Actions (.github/workflows/jenkins-smoke-test.yml):
+//   - PR comment "/smoke-test" or "/smoke-test hadoop=<ver>" (write access; created only)
+//     → GIT_REF=pr/<n>, optional HADOOP_VERSION; EMAIL_RECIPIENT left empty
+//   - Tag push matching release-X.Y or release-X.Y.Z → GIT_REF=<tag>
+// Enable remote/API triggering on the live job and configure GHA secrets
+// JENKINS_SMOKE_USER / JENKINS_SMOKE_TOKEN (operator details: Nutch wiki).
+//
+// When GIT_REF is pr/<n>, this pipeline creates one GitHub PR comment (ACK) and
+// updates that same comment with the final result. Requires Jenkins credential
+// id "nutch-github-pr-comment" (secret text: GitHub token with PR comment rights).
+//
+// The ASF Jenkins job loads this file from SCM (apache/nutch). Merging changes
+// to this Jenkinsfile on the configured branch is enough; do not paste the
+// script into the job configure page.
+
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+/** Build the markdown body for the GitHub PR ACK / result comment. */
+String nutchSmokePrCommentBody(String statusEmoji, String statusText, String durationText) {
+    def gitRef = env.RESOLVED_GIT_REF ?: params.GIT_REF ?: 'master'
+    def lines = [
+        "🧪 Nutch smoke test — ${statusEmoji} ${statusText}",
+        "🌿 GIT_REF: `${gitRef}`",
+        "🐘 Hadoop: `${params.HADOOP_VERSION}`",
+        "🏷️ Build: #${env.BUILD_NUMBER}",
+    ]
+    if (durationText) {
+        lines.add("⏱️ ${durationText}")
+    }
+    lines.add("🔗 ${env.BUILD_URL}")
+    return lines.join('\n')
+}
+
+@NonCPS
+String nutchSmokeParseGithubCommentId(String response) {
+    def json = new JsonSlurper().parseText(response)
+    return json?.id?.toString()
+}
+
+/**
+ * Create or update a GitHub issue/PR comment via REST.
+ * credentialsId nutch-github-pr-comment must be a secret-text GitHub token.
+ * Returns the comment id as String, or null on failure (non-fatal).
+ */
+String nutchSmokeGithubPrComment(String method, String urlPath, String body) {
+    try {
+        def commentId = null
+        withCredentials([string(credentialsId: 'nutch-github-pr-comment', variable: 'GITHUB_TOKEN')]) {
+            def payload = JsonOutput.toJson([body: body])
+            writeFile file: 'nutch-smoke-github-comment.json', text: payload
+            def response = sh(
+                script: """#!/bin/bash
+                    set -euo pipefail
+                    curl -sS -X '${method}' \\
+                      -H "Authorization: Bearer \${GITHUB_TOKEN}" \\
+                      -H "Accept: application/vnd.github+json" \\
+                      -H "X-GitHub-Api-Version: 2022-11-28" \\
+                      -H "Content-Type: application/json" \\
+                      --data @nutch-smoke-github-comment.json \\
+                      "https://api.github.com/repos/apache/nutch${urlPath}"
+                """,
+                returnStdout: true
+            ).trim()
+            commentId = nutchSmokeParseGithubCommentId(response)
+            if (!commentId) {
+                echo "GitHub PR comment ${method} did not return an id: ${response}"
+            }
+        }
+        return commentId
+    } catch (Exception e) {
+        echo "GitHub PR comment ${method} failed (continuing job): ${e}"
+        return null
+    }
+}
+
+void nutchSmokePostPrAckComment() {
+    def gitRef = env.RESOLVED_GIT_REF ?: ''
+    if (!(gitRef ==~ /^pr\/[0-9]+$/)) {
+        return
+    }
+    env.GITHUB_PR_ID = gitRef.substring(3)
+    def body = nutchSmokePrCommentBody('🚀', 'running', null)
+    def commentId = nutchSmokeGithubPrComment(
+        'POST',
+        "/issues/${env.GITHUB_PR_ID}/comments",
+        body
+    )
+    if (commentId) {
+        env.GITHUB_PR_COMMENT_ID = commentId
+        echo "Posted GitHub PR ACK comment id=${commentId} on PR #${env.GITHUB_PR_ID}"
+    }
+}
+
+void nutchSmokeUpdatePrResultComment() {
+    if (!env.GITHUB_PR_COMMENT_ID) {
+        return
+    }
+    def result = currentBuild.currentResult ?: 'SUCCESS'
+    def statusEmoji
+    def statusText
+    switch (result) {
+        case 'SUCCESS':
+            statusEmoji = '✅'
+            statusText = 'SUCCESS'
+            break
+        case 'ABORTED':
+            statusEmoji = '⏹️'
+            statusText = 'ABORTED'
+            break
+        default:
+            statusEmoji = '❌'
+            statusText = result
+            break
+    }
+    def durationText = currentBuild.durationString?.replace(' and counting', '')?.trim()
+    def body = nutchSmokePrCommentBody(statusEmoji, statusText, durationText)
+    nutchSmokeGithubPrComment(
+        'PATCH',
+        "/issues/comments/${env.GITHUB_PR_COMMENT_ID}",
+        body
+    )
+    echo "Updated GitHub PR comment id=${env.GITHUB_PR_COMMENT_ID} with result=${result}"
+}
 
 pipeline {
     agent { label 'ubuntu' }
@@ -66,6 +188,7 @@ pipeline {
                     currentBuild.displayName = "#${env.BUILD_NUMBER} · ${gitRef}"
                     currentBuild.description = "Git Ref: ${gitRef}"
                     echo "Resolved GIT_REF=${gitRef}"
+                    nutchSmokePostPrAckComment()
                 }
             }
         }
@@ -301,6 +424,7 @@ pipeline {
     post {
         always {
             script {
+                nutchSmokeUpdatePrResultComment()
                 if (params.EMAIL_RECIPIENT != '') {
                     emailext (
                         to: params.EMAIL_RECIPIENT,
