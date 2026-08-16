@@ -154,7 +154,7 @@ for f in "${NUTCH_HOME}"/*nutch*.job; do
     NUTCH_JOB="$f"
     # cygwin path translation
     if $cygwin; then
-      NUTCH_JOB="`cygpath -p -w "$NUTCH_JOB"`"
+      NUTCH_JOB="$(cygpath -p -w "$NUTCH_JOB")"
     fi
     break
   fi
