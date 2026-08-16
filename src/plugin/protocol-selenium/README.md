@@ -58,7 +58,9 @@ sudo export DISPLAY=:11
 ```
 ### B) Setting up a Selenium Grid
 
-Using the Selenium Grid will allow you to parallelize the job by facilitating access of several instances of browsers whether on one machine or on several machines. Note that grid facilitates heterogeneity with regards to browser types used. However, these steps have been tested using a homogeneous Selenium Grid with Firefox and PhantomJS browsers.
+Using the Selenium Grid will allow you to parallelize the job by facilitating access of several instances of browsers whether on one machine or on several machines.
+
+Note that grid facilitates heterogeneity with regards to browser types used. However, these steps have been tested using a homogeneous Selenium Grid with Firefox and PhantomJS browsers.
 
  * Download the [Selenium Standalone Server](https://selenium.dev/downloads/) and follow the installation instructions.
 
