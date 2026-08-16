@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.XmlUtil;
 
 /**
  * A reader to load the information stored in the
@@ -102,7 +103,7 @@ class ParsePluginsReader {
     inputSource = new InputSource(ppInputStream);
 
     try {
-      factory = DocumentBuilderFactory.newInstance();
+      factory = XmlUtil.newSecureDocumentBuilderFactory();
       parser = factory.newDocumentBuilder();
       document = parser.parse(inputSource);
     } catch (Exception e) {

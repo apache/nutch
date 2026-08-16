@@ -32,13 +32,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.XmlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -224,7 +223,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
     try {
 
       // borrowed heavily from code in Configuration.java
-      Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+      Document doc = XmlUtil.newSecureDocumentBuilderFactory().newDocumentBuilder()
           .parse(new InputSource(reader));
       Element root = doc.getDocumentElement();
       if (!"regex-normalize".equals(root.getTagName())) {
