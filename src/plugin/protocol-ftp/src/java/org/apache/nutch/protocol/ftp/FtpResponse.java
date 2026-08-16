@@ -350,7 +350,7 @@ public class FtpResponse {
       // in case this FtpExceptionControlClosedByForcedDataClose is
       // thrown by retrieveList() (not retrieveFile()) above,
       if (os == null) { // indicating throwing by retrieveList()
-        // throw new FtpException("fail to get attibutes: "+path);
+        // throw new FtpException("fail to get attributes: "+path);
         Ftp.LOG.warn(
             "Please try larger maxContentLength for ftp.client.retrieveList(). ",
             e);

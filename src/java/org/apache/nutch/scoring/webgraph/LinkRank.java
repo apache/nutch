@@ -632,7 +632,7 @@ public class LinkRank extends Configured implements Tool {
   }
 
   /**
-   * Runs the complete link analysis job. The complete job determins rank one
+   * Runs the complete link analysis job. The complete job determines rank one
    * score. Then runs through a given number of invert and analyze iterations,
    * by default 10. And finally replaces the NodeDb in the WebGraph with the
    * link rank output.
@@ -654,7 +654,7 @@ public class LinkRank extends Configured implements Tool {
     LOG.info("LinkRank Analysis: starting");
 
     // store the link rank under the webgraphdb temporarily, final scores get
-    // upddated into the nodedb
+    // updated into the nodedb
     Path linkRank = new Path(webGraphDb, "linkrank");
     Configuration conf = getConf();
     FileSystem fs = linkRank.getFileSystem(conf);
@@ -670,7 +670,7 @@ public class LinkRank extends Configured implements Tool {
     Path nodeDb = new Path(linkRank, WebGraph.NODE_DIR);
 
     // get the number of total nodes in the webgraph, used for rank one, then
-    // initialze all urls with a default score
+    // initialize all urls with a default score
     int numLinks = runCounter(fs, webGraphDb);
     runInitializer(wgNodeDb, nodeDb);
     float rankOneScore = (1f / numLinks);

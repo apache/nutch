@@ -361,7 +361,7 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    */
   public void setIDAttribute(String id, Element elem) {
 
-    // Do nothing. This method is meant to be overiden.
+    // Do nothing. This method is meant to be overridden.
   }
 
   /**
@@ -648,7 +648,7 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
 
     String s = new String(ch, start, length);
 
-    // XXX ab@apache.org: modified from the original, to accomodate TagSoup.
+    // XXX ab@apache.org: modified from the original, to accommodate TagSoup.
     Node n = m_currentNode.getLastChild();
     if (n instanceof CDATASection)
       ((CDATASection) n).appendData(s);

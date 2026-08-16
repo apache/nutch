@@ -19,7 +19,7 @@
  * Html Parse filter that classifies the outlinks from the parseresult as
  * relevant or irrelevant based on the parseText's relevancy (using a training
  * file where you can give positive and negative example texts see the
- * description of parsefilter.naivebayes.trainfile) and if found irrelevent
+ * description of parsefilter.naivebayes.trainfile) and if found irrelevant
  * it gives the link a second chance if it contains any of the words from the
  * list given in parsefilter.naivebayes.wordlist. CAUTION: Set the
  * parser.timeout to -1 or a bigger value than 30, when using this classifier.

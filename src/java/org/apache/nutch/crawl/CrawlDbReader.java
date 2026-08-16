@@ -115,7 +115,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     synchronized (this) {
       if (readers != null) {
         if (this.lastModified == lastModified) {
-          // CrawlDB not modified, re-use readers
+          // CrawlDB not modified, reuse readers
           return;
         } else {
           // CrawlDB modified, close and re-open readers

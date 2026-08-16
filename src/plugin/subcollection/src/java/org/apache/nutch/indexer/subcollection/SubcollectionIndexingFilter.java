@@ -95,7 +95,7 @@ public class SubcollectionIndexingFilter extends Configured implements
   @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
-    // Check for subcollection overrride in HTML metadata
+    // Check for subcollection override in HTML metadata
     String subcollection = parse.getData().getMeta(metadataSource);
     if (subcollection != null) {
       subcollection = subcollection.trim();

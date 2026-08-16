@@ -67,7 +67,7 @@ public class Extension {
 
   /**
    * Returns a attribute value, that is setuped in the manifest file and is
-   * definied by the extension point xml schema.
+   * defined by the extension point xml schema.
    * 
    * @param pKey
    *          a key
@@ -109,7 +109,7 @@ public class Extension {
   }
 
   /**
-   * Sets the Class that implement the concret extension and is only used until
+   * Sets the Class that implement the concrete extension and is only used until
    * model creation at system start up.
    * 
    * @param extensionClazz

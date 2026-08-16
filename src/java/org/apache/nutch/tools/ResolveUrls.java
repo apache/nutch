@@ -130,7 +130,7 @@ public class ResolveUrls {
 
     // shutdown the thread pool and log totals
     pool.shutdown();
-    LOG.info("Total: {}, Resovled: {}, Errored: {}, Average Time: {}",
+    LOG.info("Total: {}, Resolved: {}, Errored: {}, Average Time: {}",
         numTotal.get(), numResolved.get(), numErrored.get(),
         totalTime.get() / numTotal.get());
   }

@@ -75,7 +75,7 @@ public class URLMetaScoringFilter extends AbstractScoringFilter {
 
   /**
    * Takes the metadata, specified in your "urlmeta.tags" property, from the
-   * datum object and injects it into the content. This is transfered to the
+   * datum object and injects it into the content. This is transferred to the
    * parseData object.
    * 
    * @see ScoringFilter#passScoreBeforeParsing
