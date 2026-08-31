@@ -324,7 +324,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
 
               reverseKey = reverseUrl(url);
               config.setReverseKeyValue(
-                  reverseKey.replace("/", "_") + "_" + DigestUtils.sha1Hex(url)
+                  reverseKey.replace("/", "_") + "_" + DigestUtils.sha256Hex(url)
                       + "_" + timestamp);
             }
 
