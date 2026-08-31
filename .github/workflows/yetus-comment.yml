@@ -1,0 +1,110 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Companion to yetus.yml. Posts a sticky PR comment using the base-repo
+# GITHUB_TOKEN. Does not check out pull request head.
+
+name: yetus comment
+on:
+  workflow_run:
+    workflows: [Apache Yetus]
+    types: [completed]
+
+concurrency:
+  group: yetus-comment-${{ github.event.workflow_run.pull_requests[0].number || github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
+permissions:
+  actions: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  comment:
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      (github.event.workflow_run.conclusion == 'success' ||
+       github.event.workflow_run.conclusion == 'failure')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Yetus PR comment artifacts
+        continue-on-error: true
+        uses: dawidd6/action-download-artifact@v24
+        with:
+          name: yetus-pr-comment
+          workflow: yetus.yml
+          run_id: ${{ github.event.workflow_run.id }}
+          path: ./yetus-pr-comment
+      - name: Resolve and validate PR number
+        id: pr
+        run: |
+          set -euo pipefail
+          REPO="${{ github.repository }}"
+          PR_NUMBER=""
+          if [ -f ./yetus-pr-comment/pr-number ]; then
+            PR_NUMBER=$(tr -d '[:space:]' < ./yetus-pr-comment/pr-number)
+          fi
+          if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "::notice::No valid pr-number artifact. Skipping comment."
+            echo "has_pr=false" >> "$GITHUB_OUTPUT"
+            echo "number=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          BASE=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '.base.repo.full_name // empty')
+          if [ "$BASE" != "$REPO" ]; then
+            echo "::notice::PR ${PR_NUMBER} is not in ${REPO} (base=${BASE}). Skipping comment."
+            echo "has_pr=false" >> "$GITHUB_OUTPUT"
+            echo "number=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ ! -f ./yetus-pr-comment/yetus-report.md ]; then
+            echo "::notice::yetus-report.md missing. Skipping comment."
+            echo "has_pr=false" >> "$GITHUB_OUTPUT"
+            echo "number=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "has_pr=true" >> "$GITHUB_OUTPUT"
+          echo "Resolved PR number=${PR_NUMBER} repo=${REPO}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      # peter-evans/find-comment is not on ASF approved_patterns.yml; use gh instead.
+      - name: Find sticky Yetus comment
+        if: steps.pr.outputs.has_pr == 'true'
+        id: find
+        run: |
+          set -euo pipefail
+          REPO="${{ github.repository }}"
+          PR_NUMBER="${{ steps.pr.outputs.number }}"
+          COMMENT_ID=""
+          while IFS= read -r line; do
+            COMMENT_ID="$line"
+            break
+          done < <(gh api --paginate "repos/${REPO}/issues/${PR_NUMBER}/comments" \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- nutch-yetus-report -->"))) | .id')
+          echo "comment-id=${COMMENT_ID:-}" >> "$GITHUB_OUTPUT"
+          echo "Found sticky comment id='${COMMENT_ID:-}'"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Upsert sticky Yetus comment
+        if: steps.pr.outputs.has_pr == 'true'
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          issue-number: ${{ steps.pr.outputs.number }}
+          comment-id: ${{ steps.find.outputs.comment-id }}
+          edit-mode: replace
+          body-path: ./yetus-pr-comment/yetus-report.md
