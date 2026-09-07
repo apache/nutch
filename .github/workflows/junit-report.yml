@@ -31,7 +31,10 @@ permissions:
   pull-requests: write
 jobs:
   checks:
-    if: github.event.workflow_run.conclusion == 'success'
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      (github.event.workflow_run.conclusion == 'success' ||
+       github.event.workflow_run.conclusion == 'failure')
     runs-on: ubuntu-latest
     steps:
       - name: Set up JDK 17
@@ -40,6 +43,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Download Test Report (Ubuntu JDK 17)
+        continue-on-error: true
         uses: dawidd6/action-download-artifact@v24
         with:
           name: junit-test-results-ubuntu-latest-jdk17
@@ -47,41 +51,59 @@ jobs:
           run_id: ${{ github.event.workflow_run.id }}
           path: ./junit-ubuntu-jdk17
       - name: Verify JUnit XML layout
+        id: xml
         run: |
           set -euo pipefail
           shopt -s globstar nullglob
           root="./junit-ubuntu-jdk17"
           if [ ! -d "$root" ]; then
-            echo "::error::Download path $root is missing."
-            exit 1
+            echo "::notice::No JUnit artifact directory (tests may have been path-filtered). Skipping PR comment."
+            echo "has_xml=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
           # upload-artifact strips the common 'build/' prefix from the uploaded
           # paths, so reports land as $root/test/... and $root/<plugin>/test/...
           files=("$root"/**/TEST-*.xml)
           if [ ${#files[@]} -eq 0 ] || [ ! -e "${files[0]}" ]; then
-            echo "::error::No TEST-*.xml under $root/ (artifact missing, wrong layout, or download failed)."
+            echo "::notice::No TEST-*.xml under $root/ (artifact missing, wrong layout, or download failed). Skipping PR comment."
             find "$root" -maxdepth 5 -type d -print 2>/dev/null | head -80 || true
-            exit 1
+            echo "has_xml=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
           echo "Found ${#files[@]} JUnit report file(s) under $root/."
+          echo "has_xml=true" >> "$GITHUB_OUTPUT"
       - name: Resolve PR number
+        if: steps.xml.outputs.has_xml == 'true'
         id: pr
         run: |
-          PR_NUMBER="${{ github.event.workflow_run.pull_requests[0].number }}"
+          set -euo pipefail
+          REPO="${{ github.repository }}"
+          HEAD_SHA="${{ github.event.workflow_run.head_sha }}"
+          EVENT_PR="${{ github.event.workflow_run.pull_requests[0].number }}"
+          EVENT_PR_URL="${{ github.event.workflow_run.pull_requests[0].url }}"
+          PR_NUMBER=""
+
+          if [ -n "$EVENT_PR" ] && [ -n "$EVENT_PR_URL" ] && [[ "$EVENT_PR_URL" == *"/repos/${REPO}/pulls/"* ]]; then
+            PR_NUMBER="$EVENT_PR"
+          fi
+
           if [ -z "$PR_NUMBER" ]; then
             PR_NUMBER=$(gh api \
-              "repos/${{ github.repository }}/commits/${{ github.event.workflow_run.head_sha }}/pulls" \
-              --jq '.[0].number // empty')
+              "repos/${REPO}/commits/${HEAD_SHA}/pulls" \
+              --jq "[.[] | select(.base.repo.full_name == \"${REPO}\")] | first | .number // empty")
           fi
+
           echo "number=${PR_NUMBER:-}" >> "$GITHUB_OUTPUT"
-          if [ -n "$PR_NUMBER" ]; then
+          if [ -n "${PR_NUMBER:-}" ]; then
             echo "has_pr=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_pr=false" >> "$GITHUB_OUTPUT"
           fi
+          echo "Resolved PR number='${PR_NUMBER:-}' has_pr='${PR_NUMBER:+true}' repo='${REPO}' sha='${HEAD_SHA}'"
         env:
           GH_TOKEN: ${{ github.token }}
       - name: Publish Test Report
+        if: steps.xml.outputs.has_xml == 'true'
         uses: mikepenz/action-junit-report@v6
         with:
           report_paths: ./junit-ubuntu-jdk17/**/TEST-*.xml
@@ -98,7 +120,7 @@ jobs:
           job_summary: true
           detailed_summary: true
           flaky_summary: true
-          skip_success_summary: true
+          skip_success_summary: false
           include_time_in_summary: true
           group_suite: true
           comment: ${{ steps.pr.outputs.has_pr == 'true' }}
