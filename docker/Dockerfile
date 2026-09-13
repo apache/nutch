@@ -30,26 +30,25 @@ LABEL org.opencontainers.image.vendor="Apache Nutch https://nutch.apache.org"
 
 WORKDIR /root/
 
-# Install dependencies
-RUN apk update
-RUN apk --no-cache add apache-ant bash git openjdk17
+# Install dependencies and shell init for JAVA_HOME
+RUN apk update && \
+    apk --no-cache add apache-ant bash git openjdk17 && \
+    echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk' >> "$HOME/.bashrc" && \
+    echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk' >> "$HOME/.ashrc"
 
-# Establish environment variables
-RUN echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk' >> $HOME/.bashrc
-RUN echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk' >> $HOME/.ashrc
 ENV JAVA_HOME='/usr/lib/jvm/java-17-openjdk'
 ENV NUTCH_HOME='/root/nutch_source/runtime/local'
 
 # Checkout and build the Nutch master branch (1.x)
 RUN git clone https://github.com/apache/nutch.git nutch_source && \
-     cd nutch_source && \
-     ant runtime && \
-     rm -rf build/ && \
-     rm -rf /root/.ivy2/
+    cd nutch_source && \
+    ant runtime && \
+    rm -rf build/ && \
+    rm -rf /root/.ivy2/
 
 # Create symlinks for runtime/local/bin/nutch and runtime/local/bin/crawl
-RUN ln -sf $NUTCH_HOME/bin/nutch /usr/local/bin/
-RUN ln -sf $NUTCH_HOME/bin/crawl /usr/local/bin/
+RUN ln -sf "$NUTCH_HOME/bin/nutch" /usr/local/bin/ && \
+    ln -sf "$NUTCH_HOME/bin/crawl" /usr/local/bin/
 
 RUN echo "Successfully built image, see https://s.apache.org/m5933 for guidance on running a container instance."
 

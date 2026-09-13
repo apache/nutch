@@ -23,7 +23,7 @@
 #
 # Options:
 #   -i|--index                            Indexes crawl results into a configured indexer
-#   -D <propery>=<value>                  A Nutch or Hadoop property to pass to Nutch calls overwriting
+#   -D <property>=<value>                 A Nutch or Hadoop property to pass to Nutch calls overwriting
 #                                         properties defined in configuration files, e.g.
 #                                           increase content limit to 2MB:
 #                                             -D http.content.limit=2097152
@@ -51,6 +51,8 @@
 #   --dedup-group <none|host|domain>       Deduplication group method [default: none]
 #
 
+## @audience private
+## @stability stable
 function __to_seconds() {
   NUMBER=$(echo $1 | tr -dc '0-9')
   MODIFIER=$(echo $1 | tr -dc '[^s|h|m|d]]')
@@ -73,6 +75,8 @@ function __to_seconds() {
   echo $SECONDS
 }
 
+## @audience private
+## @stability stable
 function __print_usage {
   echo "Usage: crawl [options] <crawl_dir> <num_rounds>"
   echo -e ""
@@ -129,7 +133,7 @@ NUM_THREADS=50
 SITEMAPS_FROM_HOSTDB_FREQUENCY=never
 DEDUP_GROUP=none
 
-while [[ $# > 0 ]]
+while [[ $# -gt 0 ]]
 do
     case $1 in
         -i|--index)
@@ -229,9 +233,12 @@ bin="`cd "$bin"; pwd`"
 
 # determines whether mode based on presence of job file
 mode=local
-if [ -f "${bin}"/../*nutch*.job ]; then
-  mode=distributed
-fi
+for f in "${bin}"/../*nutch*.job; do
+  if [ -f "$f" ]; then
+    mode=distributed
+    break
+  fi
+done
 if [[ "$mode" = "local" ]]; then
   if [[ "$NUM_FETCHERS" -ne 1 ]]; then
     echo "Ignoring configured number of fetchers (--num_fetchers): a single fetcher task is used when running in local mode."
@@ -247,28 +254,32 @@ commonOptions=("${HADOOP_PROPERTIES[@]}" -Dmapreduce.job.reduces=$NUM_TASKS -Dma
 if [ $mode = "distributed" ]; then
  if [ $(which hadoop | wc -l ) -eq 0 ]; then
     echo "Can't find Hadoop executable. Add HADOOP_COMMON_HOME/bin to the path or run in local mode."
-    exit -1;
+    exit 1;
  fi
 fi
 
 
+## @audience private
+## @stability stable
 function __bin_nutch {
     # run $bin/nutch, exit if exit value indicates error
 
-    echo "$bin/nutch $@" ;# echo command and arguments
+    echo "$bin/nutch" "$@" ;# echo command and arguments
     "$bin/nutch" "$@"
 
     RETCODE=$?
     if [ $RETCODE -ne 0 ]
     then
         echo "Error running:"
-        echo "  $bin/nutch $@"
+        echo "  $bin/nutch" "$@"
         echo "Failed with exit value $RETCODE."
         exit $RETCODE
     fi
 }
 
 # check if directory exists locally or on hdfs
+## @audience private
+## @stability stable
 function __directory_exists {
   if [[ "$mode" == local  &&  -d "$1" ]]; then
     return 0
@@ -279,6 +290,8 @@ function __directory_exists {
   fi
 }
 
+## @audience private
+## @stability stable
 function __update_hostdb {
   if __directory_exists "$CRAWL_PATH"/crawldb; then
     echo "Updating HostDB"
@@ -334,7 +347,7 @@ do
    generate_args=("${commonOptions[@]}" "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_FETCHERS -noFilter)
   fi
 
-  echo "$bin/nutch generate ${generate_args[@]}"
+  echo "$bin/nutch generate" "${generate_args[@]}"
   $bin/nutch generate "${generate_args[@]}"
   RETCODE=$?
   if [ $RETCODE -eq 0 ]; then
@@ -352,7 +365,7 @@ do
     fi
   else
     echo "Error running:"
-    echo "  $bin/nutch generate ${generate_args[@]}"
+    echo "  $bin/nutch generate" "${generate_args[@]}"
     echo "Failed with exit value $RETCODE."
     exit $RETCODE
   fi

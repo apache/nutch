@@ -14,3 +14,6 @@
 #
 # Naive Bayes training sample (deliberately messy email/OCR-like text).
 ^conf/naivebayes-train\.txt\.template$
+#
+# parse-js sample: test fixture for link extraction, not production JS
+^src/plugin/parse-js/sample/

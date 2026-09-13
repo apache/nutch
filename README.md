@@ -48,7 +48,7 @@ test-patch --basedir=/path/to/clean/repo --build-tool=nobuild \
 ```
 
 Exclude patterns and related Yetus baselines can be added under `.yetus/`
-(see `.yetus/excludes.txt`).
+(see `.yetus/excludes.txt`, `.yetus/detsecrets-ignored-hashes.txt`).
 
 IDE setup
 ---------
