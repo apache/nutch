@@ -337,7 +337,8 @@ else
  # check that hadoop can be found on the path
  if [ $(which hadoop | wc -l ) -eq 0 ]; then
     echo "Can't find Hadoop executable. Add HADOOP_COMMON_HOME/bin to the path or run in local mode."
-    exit 1;
+    # POSIX: 127 = utility not found (hadoop not on PATH)
+    exit 127;
  fi
 fi
 
