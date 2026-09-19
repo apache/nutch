@@ -264,15 +264,15 @@ jobs:
       # run if the build configuration or both 'core' and 'plugins' files were changed
       - name: test all
         if: ${{ steps.filter.outputs.buildconf == 'true' || ( steps.filter.outputs.core  == 'true' && steps.filter.outputs.plugins  == 'true' ) }}
-        run: ant clean test forbidden-api-checks -buildfile build.xml
+        run: ant clean test forbidden-api-checks -buildfile build.xml | tee build.log
       # run only if 'core' files were changed
       - name: test core
         if: ${{ steps.filter.outputs.core == 'true' && steps.filter.outputs.plugins == 'false' && steps.filter.outputs.buildconf == 'false' }}
-        run: ant clean test-core forbidden-api-checks -buildfile build.xml
+        run: ant clean test-core forbidden-api-checks -buildfile build.xml | tee build.log
       # run only if 'plugins' files were changed
       - name: test plugins
         if: ${{ steps.filter.outputs.plugins == 'true' && steps.filter.outputs.core == 'false' && steps.filter.outputs.buildconf == 'false' }}
-        run: ant clean test-plugins forbidden-api-checks -buildfile build.xml
+        run: ant clean test-plugins forbidden-api-checks -buildfile build.xml | tee build.log
       # run indexer integration tests when indexer plugin files change (Docker required, ubuntu-latest only)
       - name: test indexer integration
         if: ${{ steps.filter.outputs.indexer_plugins == 'true' && matrix.os == 'ubuntu-latest' }}
@@ -295,6 +295,32 @@ jobs:
           else
             echo "has_results=false" >> $GITHUB_OUTPUT
           fi
+      # Scenario 1: Approved deprecations are allowlisted and do not fail the build.
+      # Scenario 2: Any other deprecation in the Nutch codebase fails the build.
+      - name: Check for deprecation warnings
+        # Skip the step entirely when no test compile ran (path filter). hashFiles
+        # is empty if build.log was never created; the job then shows skipped,
+        # not a green success. always() still runs this after a failed ant test
+        # so deprecation failures are not hidden by an earlier test failure.
+        if: always() && hashFiles('build.log') != ''
+        run: |
+          deprecations=$(grep -iE "warning: \[deprecation\]" build.log || true)
+          if [ -z "$deprecations" ]; then
+            echo ":white_check_mark: No Java deprecation warnings found."
+            exit 0
+          fi
+          # Allowlist is rebuilt from remaining javac warnings after NUTCH-3130
+          # (NutchServer is gone). Commons-cli HelpFormatter/Option.Builder,
+          # Hadoop Job subclassing, deferred finalize(), and test helpers.
+          APPROVED_PATTERN="SpellCheckedMetadata\.java|CrawlDBTestUtil\.java|CrawlDbUpdateUtil\.java|WebGraph\.java|ScoreUpdater\.java|NodeReader\.java|NodeDumper\.java|LinkRank\.java|LinkDumper\.java|ResolveUrls\.java|CrawlCompletionStats\.java|FileDumper\.java|CommonCrawlDataDumper\.java|MimeTypeIndexingFilter\.java|NutchJob\.java|Plugin\.java|PluginRepository\.java|Ftp\.java|ReducerContextWrapper\.java"
+          unapproved=$(echo "$deprecations" | grep -v -E "$APPROVED_PATTERN" || true)
+          if [ -n "$unapproved" ]; then
+            echo ":x: Unapproved Java deprecation warnings detected! Failing the build."
+            echo "$unapproved"
+            exit 1
+          fi
+          echo ":white_check_mark: Deprecation warnings only in approved deprecated code."
+          exit 0
       - name: Upload Build and Test Artifacts (Binaries)
         uses: actions/upload-artifact@v7
         if: always() && matrix.os == 'ubuntu-latest' && matrix.java == '17' && steps.check_tests.outputs.has_results == 'true'

@@ -79,6 +79,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -265,8 +266,8 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
       public LineRecordWriter(DataOutputStream out) {
         this.out = out;
-        jsonMapper.getFactory()
-            .configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
+        jsonMapper.getFactory().configure(
+            JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature(), true);
         SimpleModule module = new SimpleModule();
         module.addSerializer(Writable.class, new WritableSerializer());
         jsonMapper.registerModule(module);
