@@ -55,9 +55,9 @@ jobs:
           test "$(docker run --rm apache/nutch:ci printenv NUTCH_HOME)" \
             = /opt/nutch/runtime/local
           docker run --rm -i apache/nutch:ci bash -ic 'test -n "$JAVA_HOME"'
-          # nutch with no args prints usage and exits 1
-          docker run --rm apache/nutch:ci command -v nutch
-          docker run --rm apache/nutch:ci command -v crawl
+          # nutch with no args exits 1, so only check the launchers are on PATH
+          docker run --rm apache/nutch:ci bash -c \
+            'command -v nutch && command -v crawl'
       - name: Inject seed URL
         run: |
           set -euo pipefail
