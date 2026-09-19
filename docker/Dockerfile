@@ -32,13 +32,16 @@ ENV JAVA_HOME='/usr/lib/jvm/java-17-openjdk'
 ENV NUTCH_HOME='/opt/nutch/runtime/local'
 
 # Install dependencies, build Nutch, and drop privileges for runtime
-RUN apk --no-cache add apache-ant bash git openjdk17 \
+RUN apk --no-cache add \
+        apache-ant=1.10.14-r0 \
+        bash=5.2.21-r0 \
+        git=2.43.7-r0 \
+        openjdk17=17.0.14_p7-r0 \
     && addgroup -S nutch \
     && adduser -S -D -H -G nutch -h /opt/nutch nutch \
     && git clone https://github.com/apache/nutch.git /opt/nutch \
-    && cd /opt/nutch \
-    && ant runtime \
-    && rm -rf build/ \
+    && ant -f /opt/nutch/build.xml runtime \
+    && rm -rf /opt/nutch/build/ \
     && rm -rf /root/.ivy2/ \
     && ln -sf "${NUTCH_HOME}/bin/nutch" /usr/local/bin/ \
     && ln -sf "${NUTCH_HOME}/bin/crawl" /usr/local/bin/ \
