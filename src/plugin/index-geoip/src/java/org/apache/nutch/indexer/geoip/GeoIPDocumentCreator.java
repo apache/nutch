@@ -100,6 +100,15 @@ public class GeoIPDocumentCreator {
   }
 
   /**
+   * geoip2 5.x {@code ipAddress()} returns {@link InetAddress}; city/insights
+   * paths store the lookup IP as a String. Normalize so addIfNotDuplicate works
+   * across databases.
+   */
+  private static String ipString(InetAddress address) {
+    return address == null ? null : address.getHostAddress();
+  }
+
+  /**
    * Populate a {@link org.apache.nutch.indexer.NutchDocument} based on lookup
    * of IP in Anonymous IP database.
    * @param serverIp the server IP address to lookup
@@ -114,7 +123,7 @@ public class GeoIPDocumentCreator {
     Optional<AnonymousIpResponse> opt = reader.tryAnonymousIp(InetAddress.getByName(serverIp));
     if (opt.isPresent()) {
       AnonymousIpResponse response = opt.get();
-      addIfNotDuplicate(doc, "ip", response.ipAddress());
+      addIfNotDuplicate(doc, "ip", ipString(response.ipAddress()));
       addIfNotNull(doc, ANONYMOUS_NETWORK_ADDRESS, response.network().toString());
       addIfNotNull(doc, "isAnonymous", response.isAnonymous());
       addIfNotNull(doc, "isAnonymousVpn", response.isAnonymousVpn());
@@ -143,7 +152,7 @@ public class GeoIPDocumentCreator {
     Optional<AsnResponse> opt = reader.tryAsn(InetAddress.getByName(serverIp));
     if (opt.isPresent()) {
       AsnResponse response = opt.get();
-      addIfNotDuplicate(doc, "ip", response.ipAddress());
+      addIfNotDuplicate(doc, "ip", ipString(response.ipAddress()));
       addIfNotNull(doc, ASN_NETWORK_ADDRESS, response.network().toString());
       addIfNotNull(doc, "autonomousSystemNumber", response.autonomousSystemNumber());
       addIfNotNull(doc, "autonomousSystemOrganization", response.autonomousSystemOrganization());
@@ -264,7 +273,7 @@ public class GeoIPDocumentCreator {
         .getByName(serverIp));
     if (opt.isPresent()) {
       ConnectionTypeResponse response = opt.get();
-      addIfNotDuplicate(doc, "ip", response.ipAddress());
+      addIfNotDuplicate(doc, "ip", ipString(response.ipAddress()));
       if (response.connectionType() != null) {
         addIfNotNull(doc, "connectionType", response.connectionType().toString());
       }
@@ -343,7 +352,7 @@ public class GeoIPDocumentCreator {
     Optional<DomainResponse> opt = reader.tryDomain(InetAddress.getByName(serverIp));
     if (opt.isPresent()) {
       DomainResponse response = opt.get();
-      addIfNotDuplicate(doc, "ip", response.ipAddress());
+      addIfNotDuplicate(doc, "ip", ipString(response.ipAddress()));
       addIfNotNull(doc, "domain", response.domain());
       addIfNotNull(doc, DOMAIN_NETWORK_ADDRESS, response.network().toString());
     } else {
@@ -456,7 +465,7 @@ public class GeoIPDocumentCreator {
     Optional<IspResponse> opt = reader.tryIsp(InetAddress.getByName(serverIp));
     if (opt.isPresent()) {
       IspResponse response = opt.get();
-      addIfNotDuplicate(doc, "ip", response.ipAddress());
+      addIfNotDuplicate(doc, "ip", ipString(response.ipAddress()));
       addIfNotNull(doc, "autonSystemNum", response.autonomousSystemNumber());
       addIfNotNull(doc, "autonSystemOrg", response.autonomousSystemOrganization());
       addIfNotNull(doc, "isp", response.isp());
