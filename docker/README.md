@@ -51,6 +51,11 @@ $(boot2docker shellinit | grep export) #may not be necessary
 docker build -t apache/nutch .
 ```
 
+Pull requests that change `docker/Dockerfile` (or the
+[docker image smoke](../.github/workflows/docker-smoke.yml) workflow) build
+this image and inject `https://nutch.apache.org/` into a CrawlDb. They do not
+run fetch.
+
 ## Security and plugin directories
 
 Nutch loads executable code from the directories configured as `plugin.folders`

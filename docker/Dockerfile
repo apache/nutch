@@ -45,6 +45,8 @@ RUN apk --no-cache add \
     && rm -rf /root/.ivy2/ \
     && ln -sf "${NUTCH_HOME}/bin/nutch" /usr/local/bin/ \
     && ln -sf "${NUTCH_HOME}/bin/crawl" /usr/local/bin/ \
+    && echo "export JAVA_HOME=${JAVA_HOME}" >> /opt/nutch/.bashrc \
+    && echo "export JAVA_HOME=${JAVA_HOME}" >> /opt/nutch/.ashrc \
     && chown -R nutch:nutch /opt/nutch \
     && echo "Successfully built image, see https://s.apache.org/m5933 for guidance on running a container instance."
 
