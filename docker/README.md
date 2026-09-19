@@ -21,6 +21,8 @@ Nutch can run on a single machine, but gains a lot of its strength from running 
 Current configuration of this image consists of components:
 
 *	Nutch 1.x (branch "master")
+*	Default runtime user `nutch` (not root)
+*	`NUTCH_HOME=/opt/nutch/runtime/local` (sources under `/opt/nutch`)
 
 ##  Base Image
 
@@ -51,7 +53,7 @@ docker build -t apache/nutch .
 
 ## Security and plugin directories
 
-Nutch loads executable code from the directories configured as `plugin.folders` (see `nutch-default.xml`). For production and shared images, treat those paths as **trusted**: mount them read-only where possible, rebuild images to change plugins, and run the crawl process under a dedicated low-privilege user so the filesystem cannot be abused to drop unexpected JARs or `plugin.xml` files into that tree.
+Nutch loads executable code from the directories configured as `plugin.folders` (see `nutch-default.xml`). For production and shared images, treat those paths as **trusted**: mount them read-only where possible, rebuild images to change plugins, and keep the crawl process on the image default user `nutch` so the filesystem cannot be abused to drop unexpected JARs or `plugin.xml` files into that tree. Use `docker run --user root ...` only for privileged debugging.
 
 User-defined JEXL in configuration (for example `index.jexl.filter`, generator expressions, and `hostdb.filter.expression`) is evaluated in a **sandboxed** engine by default. The property `nutch.jexl.disable.sandbox` disables that protection and must not be set in untrusted environments.
 
@@ -63,11 +65,13 @@ boot2docker up
 $(boot2docker shellinit | grep export)
 ```
 
-Run a container interactively (`nutch` and `crawl` are on `PATH`; default command is `bash`):
+Run a container interactively (`nutch` and `crawl` are on `PATH`; default command is `bash`; process user is `nutch`):
 
 ```bash
 docker run -t -i --name nutchcontainer apache/nutch
 ```
+
+The previous image layout used `/root/nutch_source`. Bind mounts that pointed at that path must be updated to `/opt/nutch`.
 
 In another terminal, attach to a running container if needed:
 
