@@ -312,7 +312,28 @@ jobs:
           # Allowlist is rebuilt from remaining javac warnings after NUTCH-3130
           # (NutchServer is gone). Commons-cli HelpFormatter/Option.Builder,
           # Hadoop Job subclassing, deferred finalize(), and test helpers.
-          APPROVED_PATTERN="SpellCheckedMetadata\.java|CrawlDBTestUtil\.java|CrawlDbUpdateUtil\.java|WebGraph\.java|ScoreUpdater\.java|NodeReader\.java|NodeDumper\.java|LinkRank\.java|LinkDumper\.java|ResolveUrls\.java|CrawlCompletionStats\.java|FileDumper\.java|CommonCrawlDataDumper\.java|MimeTypeIndexingFilter\.java|NutchJob\.java|Plugin\.java|PluginRepository\.java|Ftp\.java|ReducerContextWrapper\.java"
+          APPROVED_FILES=(
+            'CommonCrawlDataDumper\.java'
+            'CrawlCompletionStats\.java'
+            'CrawlDBTestUtil\.java'
+            'CrawlDbUpdateUtil\.java'
+            'FileDumper\.java'
+            'Ftp\.java'
+            'LinkDumper\.java'
+            'LinkRank\.java'
+            'MimeTypeIndexingFilter\.java'
+            'NodeDumper\.java'
+            'NodeReader\.java'
+            'NutchJob\.java'
+            'Plugin\.java'
+            'PluginRepository\.java'
+            'ReducerContextWrapper\.java'
+            'ResolveUrls\.java'
+            'ScoreUpdater\.java'
+            'SpellCheckedMetadata\.java'
+            'WebGraph\.java'
+          )
+          APPROVED_PATTERN=$(IFS='|'; printf '%s' "${APPROVED_FILES[*]}")
           unapproved=$(echo "$deprecations" | grep -v -E "$APPROVED_PATTERN" || true)
           if [ -n "$unapproved" ]; then
             echo ":x: Unapproved Java deprecation warnings detected! Failing the build."
