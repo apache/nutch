@@ -39,7 +39,7 @@ jobs:
     strategy:
       matrix:
         java: ['17', '21']
-        os: [ubuntu-latest]
+        os: [ubuntu-24.04]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -62,7 +62,7 @@ jobs:
     strategy:
       matrix:
         java: ['17', '21']
-        os: [ubuntu-latest]
+        os: [ubuntu-24.04]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -92,7 +92,7 @@ jobs:
         run: exit 1
 
   openapi-lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d
@@ -118,7 +118,7 @@ jobs:
   # Path-filtered: only runs when Jenkinsfile* changes. Local mode validates
   # vanilla Declarative syntax, not every plugin on ci-builds.apache.org.
   jenkinsfile-lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d
@@ -145,7 +145,7 @@ jobs:
       fail-fast: false
       matrix:
         java: ['17', '21']
-        os: [ubuntu-latest]
+        os: [ubuntu-24.04]
     runs-on: ${{ matrix.os }}
     name: build (jdk ${{ matrix.java }}, javac.version=17)
     steps:
@@ -194,7 +194,7 @@ jobs:
       fail-fast: false
       matrix:
         java: ['17', '21']
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: runtime-smoke (jdk ${{ matrix.java }})
     steps:
       - uses: actions/checkout@v7
@@ -225,7 +225,7 @@ jobs:
       fail-fast: false
       matrix:
         java: ['17', '21']
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-24.04, macos-latest]
     runs-on: ${{ matrix.os }}
     name: tests (jdk ${{ matrix.java }}, ${{ matrix.os }})
     timeout-minutes: 45
@@ -263,30 +263,57 @@ jobs:
               - '.github/workflows/*'
       # run if the build configuration or both 'core' and 'plugins' files were changed
       - name: test all
+        id: test_all
         if: ${{ steps.filter.outputs.buildconf == 'true' || ( steps.filter.outputs.core  == 'true' && steps.filter.outputs.plugins  == 'true' ) }}
         run: ant clean test forbidden-api-checks -buildfile build.xml | tee build.log
       # run only if 'core' files were changed
       - name: test core
+        id: test_core
         if: ${{ steps.filter.outputs.core == 'true' && steps.filter.outputs.plugins == 'false' && steps.filter.outputs.buildconf == 'false' }}
         run: ant clean test-core forbidden-api-checks -buildfile build.xml | tee build.log
       # run only if 'plugins' files were changed
       - name: test plugins
+        id: test_plugins
         if: ${{ steps.filter.outputs.plugins == 'true' && steps.filter.outputs.core == 'false' && steps.filter.outputs.buildconf == 'false' }}
         run: ant clean test-plugins forbidden-api-checks -buildfile build.xml | tee build.log
-      # run indexer integration tests when indexer plugin files change (Docker required, ubuntu-latest only)
+      # run indexer integration tests when indexer plugin files change (Docker required, ubuntu-24.04 only)
       - name: test indexer integration
-        if: ${{ steps.filter.outputs.indexer_plugins == 'true' && matrix.os == 'ubuntu-latest' }}
+        id: test_indexer
+        if: ${{ steps.filter.outputs.indexer_plugins == 'true' && matrix.os == 'ubuntu-24.04' }}
         run: ant test-indexer-integration -buildfile build.xml
-      # run protocol integration tests when protocol plugin files change (Docker required, ubuntu-latest only)
+      # run protocol integration tests when protocol plugin files change (Docker required, ubuntu-24.04 only)
       - name: test protocol integration
-        if: ${{ steps.filter.outputs.protocol_plugins == 'true' && matrix.os == 'ubuntu-latest' }}
+        id: test_protocol
+        if: ${{ steps.filter.outputs.protocol_plugins == 'true' && matrix.os == 'ubuntu-24.04' }}
         run: ant test-protocol-integration -buildfile build.xml
+      - name: Record whether tests ran
+        id: ran
+        if: always()
+        env:
+          TEST_ALL: ${{ steps.test_all.outcome }}
+          TEST_CORE: ${{ steps.test_core.outcome }}
+          TEST_PLUGINS: ${{ steps.test_plugins.outcome }}
+          TEST_INDEXER: ${{ steps.test_indexer.outcome }}
+          TEST_PROTOCOL: ${{ steps.test_protocol.outcome }}
+        run: |
+          ran=false
+          for o in "$TEST_ALL" "$TEST_CORE" "$TEST_PLUGINS" "$TEST_INDEXER" "$TEST_PROTOCOL"; do
+            if [ "$o" = "success" ] || [ "$o" = "failure" ]; then
+              ran=true
+              break
+            fi
+          done
+          echo "value=$ran" >> "$GITHUB_OUTPUT"
+          if [ "$ran" != true ]; then
+            echo "::notice::No test steps ran (path-filtered). Skipping JaCoCo and artifact uploads."
+          fi
       - name: Generate JaCoCo XML report
+        if: always() && steps.ran.outputs.value == 'true'
         run: ant jacoco-report -buildfile build.xml
         continue-on-error: true
       - name: Check for test results
         id: check_tests
-        if: always() && matrix.os == 'ubuntu-latest'
+        if: always() && matrix.os == 'ubuntu-24.04' && steps.ran.outputs.value == 'true'
         run: |
           shopt -s globstar nullglob
           files=(./build/test/TEST-*.xml ./build/**/test/TEST-*.xml)
@@ -332,9 +359,9 @@ jobs:
           exit 0
       - name: Upload Build and Test Artifacts (Binaries)
         uses: actions/upload-artifact@v7
-        if: always() && matrix.os == 'ubuntu-latest' && matrix.java == '17' && steps.check_tests.outputs.has_results == 'true'
+        if: always() && matrix.os == 'ubuntu-24.04' && matrix.java == '17' && steps.ran.outputs.value == 'true' && steps.check_tests.outputs.has_results == 'true'
         with:
-          name: build-artifacts-${{ matrix.os }}-jdk${{ matrix.java }}
+          name: build-artifacts-linux-jdk${{ matrix.java }}
           path: |
             # core class files
             ./build/classes/**/*.class
@@ -348,18 +375,18 @@ jobs:
           retention-days: 1
       - name: Upload Test Report
         uses: actions/upload-artifact@v7
-        if: always() && matrix.os == 'ubuntu-latest' && matrix.java == '17' && steps.check_tests.outputs.has_results == 'true'
+        if: always() && matrix.os == 'ubuntu-24.04' && matrix.java == '17' && steps.ran.outputs.value == 'true' && steps.check_tests.outputs.has_results == 'true'
         with:
-          name: junit-test-results-${{ matrix.os }}-jdk${{ matrix.java }}
+          name: junit-test-results-linux-jdk${{ matrix.java }}
           path: |
             ./build/test/TEST-*.xml
             ./build/**/test/TEST-*.xml
           retention-days: 1
       - name: Upload Coverage Data
         uses: actions/upload-artifact@v7
-        if: always() && matrix.os == 'ubuntu-latest'
+        if: always() && matrix.os == 'ubuntu-24.04' && steps.ran.outputs.value == 'true'
         with:
-          name: coverage-data-ubuntu-jdk${{ matrix.java }}
+          name: coverage-data-linux-jdk${{ matrix.java }}
           path: |
             ./build/coverage/*.exec
             ./build/coverage/jacoco.xml
