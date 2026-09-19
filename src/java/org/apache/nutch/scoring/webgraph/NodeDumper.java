@@ -405,7 +405,7 @@ public class NodeDumper extends Configured implements Tool {
 
     Option topNOpts = Option.builder("topn")
         .argName("topn")
-        .hasOptionalArg()
+        .optionalArg(true)
         .desc("show topN scores")
         .build();
     options.addOption(topNOpts);
@@ -424,7 +424,7 @@ public class NodeDumper extends Configured implements Tool {
     options.addOption(effOpts);
 
     Option groupOpts = Option.builder("group")
-        .hasArgs(2)
+        .numberOfArgs(2)
         .desc("group <host|domain> <sum|max>")
         .build();
     options.addOption(groupOpts);

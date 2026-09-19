@@ -302,36 +302,24 @@ jobs:
         # is empty if build.log was never created; the job then shows skipped,
         # not a green success. always() still runs this after a failed ant test
         # so deprecation failures are not hidden by an earlier test failure.
-        if: always() && hashFiles('build.log') != ''
+        # JDK 17 only: JDK 21 javac emits java.net.URL constructor (and similar
+        # platform) deprecations that are out of scope for this Nutch API gate.
+        if: always() && matrix.java == '17' && hashFiles('build.log') != ''
         run: |
           deprecations=$(grep -iE "warning: \[deprecation\]" build.log || true)
           if [ -z "$deprecations" ]; then
             echo ":white_check_mark: No Java deprecation warnings found."
             exit 0
           fi
-          # Allowlist is rebuilt from remaining javac warnings after NUTCH-3130
-          # (NutchServer is gone). Commons-cli HelpFormatter/Option.Builder,
-          # Hadoop Job subclassing, deferred finalize(), and test helpers.
+          # Remaining Nutch-owned deprecations after NUTCH-3130: deferred
+          # finalize() (Plugin, PluginRepository, Ftp) and Hadoop JobContext
+          # DistributedCache stubs in test helpers.
           APPROVED_FILES=(
-            'CommonCrawlDataDumper\.java'
-            'CrawlCompletionStats\.java'
             'CrawlDBTestUtil\.java'
             'CrawlDbUpdateUtil\.java'
-            'FileDumper\.java'
             'Ftp\.java'
-            'LinkDumper\.java'
-            'LinkRank\.java'
-            'MimeTypeIndexingFilter\.java'
-            'NodeDumper\.java'
-            'NodeReader\.java'
-            'NutchJob\.java'
             'Plugin\.java'
             'PluginRepository\.java'
-            'ReducerContextWrapper\.java'
-            'ResolveUrls\.java'
-            'ScoreUpdater\.java'
-            'SpellCheckedMetadata\.java'
-            'WebGraph\.java'
           )
           APPROVED_PATTERN=$(IFS='|'; printf '%s' "${APPROVED_FILES[*]}")
           unapproved=$(echo "$deprecations" | grep -v -E "$APPROVED_PATTERN" || true)

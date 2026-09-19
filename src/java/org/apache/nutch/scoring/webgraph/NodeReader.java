@@ -105,7 +105,7 @@ public class NodeReader extends Configured {
 
     Option urlOpts = Option.builder("url")
         .argName("url")
-        .hasOptionalArg()
+        .optionalArg(true)
         .desc("the url to dump")
         .build();
     options.addOption(urlOpts);
