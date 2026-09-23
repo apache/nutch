@@ -67,7 +67,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
-   * Class which holds a compiled pattern and its corresponding substition
+   * Class which holds a compiled pattern and its corresponding substitution
    * string.
    */
   private static class Rule {

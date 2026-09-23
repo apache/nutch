@@ -139,7 +139,7 @@ public class DOMContentUtils {
   }
 
   /**
-   * This is a convinience method, equivalent to
+   * This is a convenience method, equivalent to
    * {@link #getText(StringBuffer,Node,boolean) getText(sb, node, false)}.
    * @param sb a {@link StringBuffer} used to store content text
    * found beneath the DOM node... if any exists

@@ -285,7 +285,7 @@ public class PluginDescriptor {
   /**
    * Returns a cached classloader for a plugin. Until classloader creation all
    * needed libraries are collected. A classloader use as first the plugins own
-   * libraries and add then all exported libraries of dependend plugins.
+   * libraries and add then all exported libraries of dependent plugins.
    * 
    * @return PluginClassLoader the classloader for the plugin
    */

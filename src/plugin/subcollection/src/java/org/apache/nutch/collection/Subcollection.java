@@ -235,7 +235,7 @@ public class Subcollection extends Configured implements URLFilter {
    * with a newline
    * 
    * @param list An initialized {@link List} to insert String patterns.
-   * @param text A chunkl fo text (hopefully) containing patterns.
+   * @param text A chunk of text (hopefully) containing patterns.
    */
   protected void parseList(List<String> list, String text) {
     list.clear();

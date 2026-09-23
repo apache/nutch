@@ -22,7 +22,7 @@
  !  Author     : Chris Mattmann, Jerome Charron
  !  Description: Nutch plug-in manifest DTD
  !
- !  PUBLIC ID  : -//Apache Software Fundation//DTD Nutch Plugin Manifest 1.0//EN
+ !  PUBLIC ID  : -//Apache Software Foundation//DTD Nutch Plugin Manifest 1.0//EN
  !  SYSTEM ID  : http://lucene.apache.org/nutch/plugin.dtd
 -->
 

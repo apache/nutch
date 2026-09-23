@@ -134,7 +134,7 @@ public class CCParseFilter implements HtmlParseFilter {
     }
 
     /**
-     * Extract license url from element, if any. Thse are the href attribute of
+     * Extract license url from element, if any. These are the href attribute of
      * anchor elements with rel="license". These must also point to
      * http://creativecommons.org/licenses/.
      */

@@ -85,7 +85,7 @@ public class RabbitMQPublisherImpl implements NutchPublisher {
       message.setHeaders(headersStatic);
       client.publish(exchange, routingKey, message);
     } catch (Exception e) {
-      LOG.error("Error occured while publishing - {}",
+      LOG.error("Error occurred while publishing - {}",
           StringUtils.stringifyException(e));
     }
   }

@@ -419,7 +419,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
    * @param that an existing {@link CrawlDatum}
    * @return 1 if any one field (score, status, fetchTime, retries,
    * fetchInterval or modifiedTime) of the new {@link CrawlDatum}
-   * minus the correspoinding field of the existing {@link CrawlDatum}
+   * minus the corresponding field of the existing {@link CrawlDatum}
    * is greater than 0, otherwise return -1.
    */
   @Override

@@ -63,7 +63,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
     try {
       return classify(text);
     } catch (IOException e) {
-      LOG.error("Error occured while classifying:: {} ::", text, e);
+      LOG.error("Error occurred while classifying:: {} ::", text, e);
     }
 
     return false;
@@ -139,7 +139,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
       train();
     } catch (Exception e) {
 
-      LOG.error("Error occured while training::", e);
+      LOG.error("Error occurred while training::", e);
 
     }
 

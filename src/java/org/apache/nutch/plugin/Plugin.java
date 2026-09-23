@@ -58,7 +58,7 @@ public class Plugin {
    * used.
    * 
    * @throws PluginRuntimeException
-   *           If the startup was without successs.
+   *           If the startup was without success.
    */
   public void startUp() throws PluginRuntimeException {
   }

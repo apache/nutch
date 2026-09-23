@@ -45,7 +45,7 @@ public class HTMLMetaProcessor {
    * @param metaTags a {@link HTMLMetaTags} to populate with tags discovered in the 
    * given Node
    * @param node a DOM {@link Node} to process and extract metadata from
-   * @param currURL the cononical URL associated with the metatags and Node
+   * @param currURL the canonical URL associated with the metatags and Node
    */
   public static final void getMetaTags(HTMLMetaTags metaTags, Node node,
       URL currURL) {
@@ -69,7 +69,7 @@ public class HTMLMetaProcessor {
         Node nameNode = null;
         Node equivNode = null;
         Node contentNode = null;
-        // Retrieves name, http-equiv and content attribues
+        // Retrieves name, http-equiv and content attributes
         for (int i = 0; i < attrs.getLength(); i++) {
           Node attr = attrs.item(i);
           String attrName = attr.getNodeName().toLowerCase(Locale.ROOT);

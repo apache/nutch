@@ -228,7 +228,7 @@ public class Client extends FTP {
     __initDefaults();
     super.disconnect();
     // no worry for data connection, since we always close it
-    // in every ftp command that invloves data connection
+    // in every ftp command that involves data connection
   }
 
   /***
@@ -517,7 +517,7 @@ public class Client extends FTP {
    * <p>
    *
    * @param fileType
-   *          The <code> _FILE_TYPE </code> constant indcating the type of file.
+   *          The <code> _FILE_TYPE </code> constant indicating the type of file.
    * @return True if successfully completed, false if not.
    * @exception FTPConnectionClosedException
    *              If the FTP server prematurely closes the connection as a

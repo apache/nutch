@@ -3,9 +3,10 @@
 # Loction: intentional misspelling in protocol-http/okhttp TestResponse fixtures
 # used to exercise SpellCheckedMetadata error-tolerant Location header matching.
 # uery: intentional query-string token in urlnormalizer-protocol TestProtocolURLNormalizer.
-ignore-words-list = AfterAll,BeforeAll,Loction,uery
+# fo: intentional trie matcher test prefix in PrefixStringMatcher/SuffixStringMatcher demo mains.
+ignore-words-list = AfterAll,BeforeAll,Loction,uery,fo
 # CHANGES.md is a historical changelog not maintained by this branch.
 # Language-identifier corpora, binary license trees, and naivebayes training
 # sample are also listed in .yetus/excludes.txt for full-tree Yetus runs; skip
 # them here so local codespell matches CI.
-skip = CHANGES.md,src/plugin/language-identifier/src/test,LICENSE-binary,NOTICE-binary,licenses-binary,conf/naivebayes-train.txt.template
+skip = CHANGES.md,src/plugin/language-identifier/src/test,LICENSE-binary,NOTICE-binary,licenses-binary,conf/naivebayes-train.txt.template,src/plugin/language-identifier/src/java/org/apache/nutch/analysis/lang/langmappings.properties,**/naivebayes-model,**/sample/**

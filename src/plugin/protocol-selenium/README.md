@@ -42,7 +42,7 @@ sudo apt-get install firefox
 
  * Install Xvfb and its associates
 
-This step is not necessary for the PhantomJs broswer and may not be needed for all browsers.
+This step is not necessary for the PhantomJs browser and may not be needed for all browsers.
 
 ```
 sudo apt-get install xorg synaptic xvfb gtk2-engines-pixbuf xfonts-cyrillic xfonts-100dpi \
@@ -58,7 +58,9 @@ sudo export DISPLAY=:11
 ```
 ### B) Setting up a Selenium Grid
 
-Using the Selenium Grid will allow you to parallelize the job by facilitating access of several instances of browsers whether on one machine or on several machines. Note that grid facilitates heterogeneity with regards to browser types used. However, these steps have been tested using a homogenous Selenium Grid with Firefox and PhantomJS browsers.
+Using the Selenium Grid will allow you to parallelize the job by facilitating access of several instances of browsers whether on one machine or on several machines.
+
+Note that grid facilitates heterogeneity with regards to browser types used. However, these steps have been tested using a homogeneous Selenium Grid with Firefox and PhantomJS browsers.
 
  * Download the [Selenium Standalone Server](https://selenium.dev/downloads/) and follow the installation instructions.
 
@@ -143,7 +145,7 @@ Using the Selenium Grid will allow you to parallelize the job by facilitating ac
   <value></value>
   <description>
     The location on disk where a URL screenshot should be saved
-    to if the 'selenium.take.screenshot' proerty is set to true.
+    to if the 'selenium.take.screenshot' property is set to true.
     By default this is null, in this case screenshots held in memory
     are simply discarded.
   </description>
@@ -215,7 +217,7 @@ ant runtime
 * Be sure your browser version and selenium version are compatible (See list in 'Tested configurations' section below)
 * Be sure to start the Xvfb window then start selenium (not a necessary step for PhantomJS)
 * Disconnecting and reconnect nodes after a hub config change has proven useful in our tests.
-* Be sure that each browser session deallocates its webdriver resource independently of any other tests running on other broswers (check out driver.quit() and driver.close()).
+* Be sure that each browser session deallocates its webdriver resource independently of any other tests running on other browsers (check out driver.quit() and driver.close()).
 
 ### Tested configurations
 

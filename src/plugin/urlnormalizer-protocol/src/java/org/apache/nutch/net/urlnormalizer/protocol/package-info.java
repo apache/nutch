@@ -27,7 +27,7 @@
  * The configuration of rules follows the schema:
  * 
  * <pre>
- * &lt;host&gt; \t &lt;protcol&gt;
+ * &lt;host&gt; \t &lt;protocol&gt;
  * </pre>
  * 
  * for example

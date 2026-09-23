@@ -78,7 +78,7 @@ public class CollectionManager extends Configured {
           getConf().get("subcollections.config", DEFAULT_FILE_NAME));
       parse(input);
     } catch (Exception e) {
-      LOG.warn("Error occured:", e);
+      LOG.warn("Error occurred:", e);
     }
   }
 
@@ -121,7 +121,7 @@ public class CollectionManager extends Configured {
   /**
    * Get the named subcollection
    * 
-   * @param id the id of a subcollection ot retrieve
+   * @param id the id of a subcollection to retrieve
    * @return Named SubCollection (or null if not existing)
    */
   public Subcollection getSubColection(final String id) {
@@ -150,7 +150,7 @@ public class CollectionManager extends Configured {
    *          Id of SubCollection to create
    * @param name
    *          Name of SubCollection to create
-   * @return Created SubCollection or null if allready existed
+   * @return Created SubCollection or null if already existed
    */
   public Subcollection createSubCollection(final String id, final String name) {
     Subcollection subCol = null;

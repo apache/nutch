@@ -61,7 +61,7 @@ public class OutlinkExtractor {
    * cases (postscript is a known example).
    * 
    * @param plainText
-   *          the plain text from wich URLs should be extracted.
+   *          the plain text from which URLs should be extracted.
    * @param conf a populated {@link Configuration}
    * @return Array of <code>Outlink</code>s within found in plainText
    */
@@ -75,7 +75,7 @@ public class OutlinkExtractor {
    * extracted <code>Outlink</code>s
    * 
    * @param plainText
-   *          the plain text from wich URLs should be extracted.
+   *          the plain text from which URLs should be extracted.
    * @param anchor
    *          the anchor of the url
    * @param conf a populated {@link Configuration}

@@ -99,7 +99,7 @@ public class RelTagParser implements HtmlParseFilter {
             Node relNode = attrs.getNamedItem("rel");
             // Checks that it contains a rel attribute too
             if (relNode != null) {
-              // Finaly checks that rel=tag
+              // Finally checks that rel=tag
               if ("tag".equalsIgnoreCase(relNode.getNodeValue())) {
                 String tag = parseTag(hrefNode.getNodeValue());
                 if (!StringUtil.isEmpty(tag)) {

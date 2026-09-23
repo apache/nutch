@@ -101,7 +101,7 @@ public class ZipParser implements Parser {
     final ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
         resultTitle, outlinks, content.getMetadata());
 
-    LOG.trace("Zip file parsed sucessfully.");
+    LOG.trace("Zip file parsed successfully.");
 
     return ParseResult.createParseResult(content.getUrl(), new ParseImpl(
         resultText, parseData));

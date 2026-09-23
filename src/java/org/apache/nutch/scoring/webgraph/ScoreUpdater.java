@@ -138,7 +138,7 @@ public class ScoreUpdater extends Configured implements Tool{
 
 
   /**
-   * Updates the inlink score in the web graph node databsae into the crawl
+   * Updates the inlink score in the web graph node database into the crawl
    * database.
    * 
    * @param crawlDb

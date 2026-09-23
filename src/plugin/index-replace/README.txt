@@ -86,7 +86,7 @@ Testing your match patterns
         bin/nutch parse crawl/segments/[segment]
         bin/nutch invertlinks crawl/linkdb -dir crawl/segments
         ...index your document, for example with SOLR...
-        bin/nutch solrindex http://localhost:8983/solr crawl/crawldb/ -linkdb crawl/linkdb/ crawl/segement[segment] -filter -normalize
+        bin/nutch solrindex http://localhost:8983/solr crawl/crawldb/ -linkdb crawl/linkdb/ crawl/segment[segment] -filter -normalize
 
     Inspect hadoop.log for info about pattern parsing and compilation..
         grep replace logs/hadoop.log

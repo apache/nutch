@@ -116,7 +116,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
    * @param url
    *          The url we are parsing.
    * @param t
-   *          The error that occured.
+   *          The error that occurred.
    */
   private static void logError(Text url, Throwable t) {
     LOG.info("Conversion of {} failed with: {}", url, StringUtils.stringifyException(t));
