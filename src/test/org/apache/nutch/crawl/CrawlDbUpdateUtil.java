@@ -230,12 +230,14 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
 
     @Override
     @Deprecated
+    // Implements deprecated Hadoop DistributedCache API; required by JobContext.
     public Path[] getLocalCacheArchives() throws IOException {
       return null;
     }
 
     @Override
     @Deprecated
+    // Implements deprecated Hadoop DistributedCache API; required by JobContext.
     public Path[] getLocalCacheFiles() throws IOException {
       return null;
     }
@@ -317,6 +319,7 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
 
     @Override
     @Deprecated
+    // Implements deprecated Hadoop DistributedCache API; required by JobContext.
     public boolean getSymlink() {
       return false;
     }

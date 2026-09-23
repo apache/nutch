@@ -37,8 +37,10 @@ public class NutchJob extends Job {
   private static final String JOB_FAILURE_LOG_FORMAT = "%s job did not succeed, job id: %s, job status: %s, reason: %s";
 
   /**
-   * @deprecated, use instead {@link #getInstance(Configuration)} or
-   * {@link Job#getInstance(Configuration, String)}.
+   * @deprecated Use {@link Job#getInstance(Configuration)} or
+   *             {@link Job#getInstance(Configuration, String)} instead. This
+   *             constructor still initializes {@link PluginRepository} so
+   *             custom URL stream handlers are registered.
    *
    * @param conf
    *          configuration for the job
