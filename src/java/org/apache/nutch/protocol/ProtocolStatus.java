@@ -67,10 +67,16 @@ public class ProtocolStatus implements Writable {
    * Request was refused by protocol plugins, because it would block. The
    * expected number of milliseconds to wait before retry may be provided in
    * args.
+   * @deprecated unused internally; retained for CrawlDatum / ProtocolStatus
+   *             compatibility. Do not introduce new uses.
    */
   @Deprecated
   public static final int WOULDBLOCK = 22;
-  /** Thread was blocked http.max.delays times during fetching. */
+  /**
+   * Thread was blocked http.max.delays times during fetching.
+   * @deprecated unused internally; retained for CrawlDatum / ProtocolStatus
+   *             compatibility. Do not introduce new uses.
+   */
   @Deprecated
   public static final int BLOCKED = 23;
 

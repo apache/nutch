@@ -35,7 +35,7 @@ permissions:
 
 jobs:
   trigger-smoke-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # GitHub cannot filter issue_comment events by body under "on:", so it records
     # a (skipped) workflow run for every comment. This job-level guard ensures a
     # runner only starts for tag pushes or PR comments that mention /smoke-test;

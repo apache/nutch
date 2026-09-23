@@ -32,7 +32,7 @@ jobs:
   # It is triggered after the Build workflow completes; avoid running any code from the pull request itself.
   sonarcloud-scan:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v7
@@ -49,32 +49,41 @@ jobs:
           git remote add upstream https://github.com/${{ github.repository }}.git || true
           git fetch upstream master:refs/remotes/upstream/master
       - name: Set up JDK 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           java-version: '17'
           distribution: 'temurin'
 
       # Coverage and JUnit XML come only from the master-build Ubuntu JDK 17 matrix job.
       - name: Download Binary Artifacts (Ubuntu JDK 17)
-        uses: dawidd6/action-download-artifact@v21
+        id: bins
+        uses: dawidd6/action-download-artifact@v24
         with:
-          name: build-artifacts-ubuntu-latest-jdk17
+          name: build-artifacts-linux-jdk17
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
           path: ./build/
+          if_no_artifact_found: ignore
+
+      - name: Skip SonarCloud when test artifacts are absent
+        if: steps.bins.outputs.found_artifact != 'true'
+        run: |
+          echo "::notice::No Ubuntu JDK 17 build artifacts (tests may have been path-filtered). Skipping SonarCloud scan."
 
       - name: Download coverage data (Ubuntu JDK 17)
-        uses: dawidd6/action-download-artifact@v21
+        if: steps.bins.outputs.found_artifact == 'true'
+        uses: dawidd6/action-download-artifact@v24
         with:
-          name: coverage-data-ubuntu-jdk17
+          name: coverage-data-linux-jdk17
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
           path: ./build/coverage/
 
       - name: Download test reports (Ubuntu JDK 17)
-        uses: dawidd6/action-download-artifact@v21
+        if: steps.bins.outputs.found_artifact == 'true'
+        uses: dawidd6/action-download-artifact@v24
         with:
-          name: junit-test-results-ubuntu-latest-jdk17
+          name: junit-test-results-linux-jdk17
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
           # Artifact has build/ stripped (upload-artifact LCA); re-root under build/
@@ -82,11 +91,13 @@ jobs:
           path: ./build/
 
       - name: Flatten test reports (JDK 17 only)
+        if: steps.bins.outputs.found_artifact == 'true'
         run: |
           mkdir -p ./build/test-reports
           find ./build/test ./build/*/test/ -name 'TEST-*.xml' -exec cp {} ./build/test-reports/ \;
 
       - name: Verify Sonar inputs
+        if: steps.bins.outputs.found_artifact == 'true'
         run: |
           set -euo pipefail
           if ! find ./build -name '*.class' -print -quit | grep -q .; then
@@ -104,6 +115,7 @@ jobs:
           echo "Sonar inputs OK: classes, jacoco.xml, and JUnit reports present."
 
       - name: Set Sonar project version
+        if: steps.bins.outputs.found_artifact == 'true'
         id: version
         run: |
           NUTCH_VERSION=$(grep '^version=' default.properties | cut -d= -f2)
@@ -115,6 +127,7 @@ jobs:
           echo "Sonar project version: ${NUTCH_VERSION}"
 
       - name: Resolve PR number
+        if: steps.bins.outputs.found_artifact == 'true'
         id: pr
         run: |
           if [ "${{ github.event.workflow_run.event }}" != "pull_request" ]; then
@@ -148,8 +161,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: SonarCloud Scan (PR)
-        if: steps.pr.outputs.is_pr == 'true'
-        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f
+        if: steps.bins.outputs.found_artifact == 'true' && steps.pr.outputs.is_pr == 'true'
+        uses: SonarSource/sonarqube-scan-action@ba9859eae8dd6bd29e412f25ddbbef3d032000f4
         with:
           args: >
             -Dsonar.pullrequest.key=${{ steps.pr.outputs.number }}
@@ -161,8 +174,8 @@ jobs:
           SONAR_HOST_URL: https://sonarcloud.io
 
       - name: SonarCloud Scan (branch)
-        if: steps.pr.outputs.is_pr == 'false' && steps.pr.outputs.skip != 'true'
-        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f
+        if: steps.bins.outputs.found_artifact == 'true' && steps.pr.outputs.is_pr == 'false' && steps.pr.outputs.skip != 'true'
+        uses: SonarSource/sonarqube-scan-action@ba9859eae8dd6bd29e412f25ddbbef3d032000f4
         with:
           args: >
             -Dsonar.branch.name=${{ github.event.workflow_run.head_branch }}

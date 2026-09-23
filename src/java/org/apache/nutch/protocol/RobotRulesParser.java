@@ -212,6 +212,8 @@ public abstract class RobotRulesParser implements Tool {
    * @param robotName
    *          A string containing all the robots agent names used by parser for
    *          matching
+   * @deprecated since 1.15 use {@link #parseRules(String, byte[], String, java.util.Collection)}
+   *             instead.
    * @return BaseRobotRules object
    */
   @Deprecated

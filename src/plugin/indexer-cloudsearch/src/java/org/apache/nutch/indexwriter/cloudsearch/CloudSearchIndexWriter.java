@@ -89,11 +89,6 @@ public class CloudSearchIndexWriter implements IndexWriter {
   private String regionName;
 
   @Override
-  public void open(Configuration conf, String name) throws IOException {
-    //Implementation not required
-  }
-
-  @Override
   public void open(IndexWriterParams parameters) throws IOException {
     //    LOG.debug("CloudSearchIndexWriter.open() name={} ", name);
 

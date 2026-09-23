@@ -67,11 +67,6 @@ public class KafkaIndexWriter implements IndexWriter {
   private List<ProducerRecord<String, JsonNode>> inputDocs = null;
 
   @Override
-  public void open(Configuration job, String name) throws IOException {
-    //Implementation not required
-  }
-  
-  @Override
   public void open(IndexWriterParams params) throws IOException {
     host = params.get(KafkaConstants.HOST);
     port = params.getInt(KafkaConstants.PORT, 9092);

@@ -75,11 +75,6 @@ public class SolrIndexWriter implements IndexWriter {
   private String authHeaderName;
   private String authHeaderValue;
 
-  @Override
-  public void open(Configuration conf, String name) {
-    // Implementation not required
-  }
-
   /**
    * Initializes the internal variables from a given index writer configuration.
    *

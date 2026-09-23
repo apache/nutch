@@ -28,7 +28,7 @@ import java.util.List;
 
 import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPCommand;
+import org.apache.commons.net.ftp.FTPCmd;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPFileEntryParser;
@@ -140,7 +140,7 @@ public class Client extends FTP {
    * @throws FtpExceptionCanNotHaveDataConnection can occur if there is a
    * malformed server reply
    */
-  protected Socket __openPassiveDataConnection(int command, String arg)
+  protected Socket __openPassiveDataConnection(FTPCmd command, String arg)
       throws IOException, FtpExceptionCanNotHaveDataConnection {
     Socket socket;
 
@@ -330,7 +330,7 @@ public class Client extends FTP {
       FTPFileEntryParser parser) throws IOException,
       FtpExceptionCanNotHaveDataConnection, FtpExceptionUnknownForcedDataClose,
       FtpExceptionControlClosedByForcedDataClose {
-    Socket socket = __openPassiveDataConnection(FTPCommand.LIST, path);
+    Socket socket = __openPassiveDataConnection(FTPCmd.LIST, path);
 
     if (socket == null)
       throw new FtpExceptionCanNotHaveDataConnection("LIST "
@@ -411,7 +411,7 @@ public class Client extends FTP {
       FtpExceptionUnknownForcedDataClose,
       FtpExceptionControlClosedByForcedDataClose {
 
-    Socket socket = __openPassiveDataConnection(FTPCommand.RETR, path);
+    Socket socket = __openPassiveDataConnection(FTPCmd.RETR, path);
 
     if (socket == null)
       throw new FtpExceptionCanNotHaveDataConnection("RETR "
