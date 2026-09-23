@@ -26,7 +26,7 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.conf.Configuration;
 
 public class SegmentReaderUtil{
-  
+
   public static SequenceFile.Reader[] getReaders(Path dir, Configuration conf) throws IOException{
     FileSystem fs = dir.getFileSystem(conf);
     Path[] names = FileUtil.stat2Paths(fs.listStatus(dir));

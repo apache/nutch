@@ -28,7 +28,7 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 /**
- * This class provides methods to map crawled data on JSON using Jettinson APIs. 
+ * This class provides methods to map crawled data on JSON using Jettinson APIs.
  *
  */
 public class CommonCrawlFormatJettinson extends AbstractCommonCrawlFormat {

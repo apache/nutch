@@ -33,7 +33,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * A Utility class containing methods to simply perform parsing utilities such
  * as iterating through a preferred list of {@link Parser}s to obtain
  * {@link Parse} objects.
- * 
+ *
  */
 public class ParseUtil {
 
@@ -61,7 +61,7 @@ public class ParseUtil {
    * until a successful parse is performed and a {@link Parse} object is
    * returned. If the parse is unsuccessful, a message is logged to the
    * <code>WARNING</code> level, and an empty parse is returned.
-   * 
+   *
    * @param content
    *          The content to try and parse.
    * @return &lt;key, {@link Parse}&gt; pairs.
@@ -122,17 +122,17 @@ public class ParseUtil {
    * message is logged, and a ParseException is thrown. If the parse is
    * uncessful for any other reason, then a <code>WARNING</code> level message
    * is logged, and a <code>ParseStatus.getEmptyParse()</code> is returned.
-   * 
+   *
    * @param extId
    *          The extension implementation ID of the {@link Parser} to use to
    *          parse the specified content.
    * @param content
    *          The content to parse.
-   * 
+   *
    * @return &lt;key, {@link Parse}&gt; pairs if the parse is successful,
    *         otherwise, a single &lt;key,
    *         <code>ParseStatus.getEmptyParse()</code>&gt; pair.
-   * 
+   *
    * @throws ParseException
    *           If there is no suitable {@link Parser} found to perform the
    *           parse.

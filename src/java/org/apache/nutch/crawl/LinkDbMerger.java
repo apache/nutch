@@ -46,7 +46,7 @@ import org.apache.nutch.util.NutchJob;
 /**
  * This tool merges several LinkDb-s into one, optionally filtering URLs through
  * the current URLFilters, to skip prohibited URLs and links.
- * 
+ *
  * <p>
  * It's possible to use this tool just for filtering - in that case only one
  * LinkDb should be specified in arguments.
@@ -62,7 +62,7 @@ import org.apache.nutch.util.NutchJob;
  * will be removed, including the target URL. If some of incoming links are
  * prohibited, only they will be removed, and they won't count when checking the
  * above-mentioned maximum limit.
- * 
+ *
  */
 public class LinkDbMerger extends Configured implements Tool {
   private static final Logger LOG = LoggerFactory
@@ -76,7 +76,7 @@ public class LinkDbMerger extends Configured implements Tool {
     setConf(conf);
   }
 
-  public static class LinkDbMergeReducer extends 
+  public static class LinkDbMergeReducer extends
       Reducer<Text, Inlinks, Text, Inlinks> {
 
     private int maxInlinks;

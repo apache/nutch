@@ -32,11 +32,11 @@ import org.apache.nutch.parse.ParseData;
 
 /**
  * @since NUTCH-444
- * 
+ *
  *        An {@link IndexingFilter} implementation to pull out the relevant
  *        extracted {@link Metadata} fields from the RSS feeds and into the
  *        index.
- * 
+ *
  */
 public class FeedIndexingFilter implements IndexingFilter {
 
@@ -50,7 +50,7 @@ public class FeedIndexingFilter implements IndexingFilter {
 
   /**
    * Extracts out the relevant fields:
-   * 
+   *
    * <ul>
    * <li>FEED_AUTHOR</li>
    * <li>FEED_TAGS</li>
@@ -58,9 +58,9 @@ public class FeedIndexingFilter implements IndexingFilter {
    * <li>FEED_UPDATED</li>
    * <li>FEED</li>
    * </ul>
-   * 
+   *
    * And sends them to the {@link org.apache.nutch.indexer Indexer} for indexing within the Nutch index.
-   * 
+   *
    */
   @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
@@ -114,7 +114,7 @@ public class FeedIndexingFilter implements IndexingFilter {
   /**
    * Sets the {@link Configuration} object used to configure this
    * {@link IndexingFilter}.
-   * 
+   *
    * @param conf
    *          The {@link Configuration} object used to configure this
    *          {@link IndexingFilter}.

@@ -17,15 +17,15 @@
 
 /**
  * Metrics infrastructure for Apache Nutch.
- * 
+ *
  * <p>This package provides centralized constants and utilities for Hadoop
  * MapReduce metrics/counters following
  * <a href="https://prometheus.io/docs/practices/naming/">Prometheus naming
  * conventions</a>.
- * 
+ *
  * <p>The main class is {@link org.apache.nutch.metrics.NutchMetrics} which
  * defines all counter group names and counter names as constants.
- * 
+ *
  * @since 1.22
  */
 package org.apache.nutch.metrics;

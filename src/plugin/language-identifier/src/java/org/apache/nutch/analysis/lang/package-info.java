@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-/** 
+/**
  * <p>Text document language identifier.</p>
  * <p>Language profiles are based on material from
  * <a href="http://www.homepages.inf.ed.ac.uk/pkoehn/publications/europarl.ps">

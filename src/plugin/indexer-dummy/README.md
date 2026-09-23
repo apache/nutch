@@ -15,7 +15,7 @@
  limitations under the License.
 -->
 
-indexer-dummy plugin for Nutch 
+indexer-dummy plugin for Nutch
 ==============================
 
 **indexer-dummy plugin** is used for writing "action"\t"url"\n lines to a plain text file for debugging purposes. It does not work in distributed mode, the output is written to the local filesystem, not to HDFS. The configuration for the index writers is on **conf/index-writers.xml** file, included in the official Nutch distribution and it's as follow:
@@ -27,7 +27,7 @@ indexer-dummy plugin for Nutch
   </mapping>
   <parameters>
     ...
-  </parameters>   
+  </parameters>
 </writer>
 ```
 

@@ -46,7 +46,7 @@ public class StaticFieldIndexer implements IndexingFilter {
   /**
    * The {@link StaticFieldIndexer} filter object which adds fields as per
    * configuration setting. See {@code index.static} in nutch-default.xml.
-   * 
+   *
    * @param doc
    *          The {@link NutchDocument} object
    * @param parse
@@ -76,7 +76,7 @@ public class StaticFieldIndexer implements IndexingFilter {
   /**
    * Populate a HashMap from a list of fieldname:fieldcontent. See
    * {@index.static} in nutch-default.xml.
-   * 
+   *
    * @param fieldsString
    *          string containing field:value pairs
    * @return HashMap of fields and their corresponding values
@@ -126,7 +126,7 @@ public class StaticFieldIndexer implements IndexingFilter {
 
   /**
    * Escapes any character that needs escaping so it can be used in a regexp.
-   * @param in input string to escape-process 
+   * @param in input string to escape-process
    * @return the escaped string which can be used un regex operations
    */
   protected String regexEscape(String in) {

@@ -73,7 +73,7 @@ public class CCParseFilter implements HtmlParseFilter {
      * @param base canonical url
      * @param metadata url {@link org.apache.nutch.metadata.Metadata}
      * @param conf a populated {@link org.apache.hadoop.conf.Configuration}
-     * @throws ParseException if there is a fatal error or if 
+     * @throws ParseException if there is a fatal error or if
      * <code>creativecommons.exclude.unlicensed</code> is set to true
      */
     public static void walk(Node doc, URL base, Metadata metadata,

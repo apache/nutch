@@ -20,7 +20,7 @@ public interface ElasticConstants {
   String HOSTS = "host";
   String PORT = "port";
   String SCHEME = "scheme";
-  
+
   String USER = "username";
   String PASSWORD = "password";
   String USE_AUTH = "auth";

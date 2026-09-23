@@ -16,11 +16,11 @@
  limitations under the License.
 -->
 <!--
- ! NekoHTML is a simple HTML scanner and tag balancer that enables 
- ! application programmers to parse HTML documents and access the 
+ ! NekoHTML is a simple HTML scanner and tag balancer that enables
+ ! application programmers to parse HTML documents and access the
  ! information using standard XML interfaces.
  ! (http://sourceforge.net/projects/nekohtml/)
- ! 
+ !
  ! License : https://nekohtml.svn.sourceforge.net/svnroot/nekohtml/trunk/LICENSE.txt
  !-->
 <plugin

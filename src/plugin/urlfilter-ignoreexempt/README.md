@@ -50,7 +50,7 @@ To exempt urls ending with image extensions, use this rule
 ## Testing the Rules :
 
 After enabling the plugin and adding your rules to `conf/db-ignore-external-exemptions.txt`, run:
-   
+
 `bin/nutch plugin urlfilter-ignoreexempt  org.apache.nutch.urlfilter.ignoreexempt.ExemptionUrlFilter http://yoururl.here`
 
 This should print `true` for urls which are accepted by configured rules.

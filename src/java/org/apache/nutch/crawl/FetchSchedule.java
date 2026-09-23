@@ -22,7 +22,7 @@ import org.apache.hadoop.io.Text;
 /**
  * This interface defines the contract for implementations that manipulate fetch
  * times and re-fetch intervals.
- * 
+ *
  */
 public interface FetchSchedule extends Configurable {
 
@@ -40,13 +40,13 @@ public interface FetchSchedule extends Configurable {
    * the <code>fetchTime</code> and <code>fetchInterval</code>. The default
    * implementation set the <code>fetchTime</code> to now, using the default
    * <code>fetchInterval</code>.
-   * 
+   *
    * @param url
    *          URL of the page.
-   * 
+   *
    * @param datum
    *          datum instance to be initialized.
-   * 
+   *
    * @return adjusted page information, including all original information.
    *         NOTE: this may be a different instance than @see CrawlDatum, but
    *         implementations should make sure that it contains at least all
@@ -58,31 +58,31 @@ public interface FetchSchedule extends Configurable {
    * Sets the <code>fetchInterval</code> and <code>fetchTime</code> on a
    * successfully fetched page. Implementations may use supplied arguments to
    * support different re-fetching schedules.
-   * 
+   *
    * @param url
    *          url of the page
-   * 
+   *
    * @param datum
    *          page description to be adjusted. NOTE: this instance, passed by
    *          reference, may be modified inside the method.
-   * 
+   *
    * @param prevFetchTime
    *          previous value of fetch time, or 0 if not available.
-   * 
+   *
    * @param prevModifiedTime
    *          previous value of modifiedTime, or 0 if not available.
-   * 
+   *
    * @param fetchTime
    *          the latest time, when the page was recently re-fetched. Most
    *          FetchSchedule implementations should update the value in @see
    *          CrawlDatum to something greater than this value.
-   * 
+   *
    * @param modifiedTime
    *          last time the content was modified. This information comes from
    *          the protocol implementations, or is set to &lt; 0 if not available.
    *          Most FetchSchedule implementations should update the value in @see
    *          CrawlDatum to this value.
-   * 
+   *
    * @param state
    *          if {@link #STATUS_MODIFIED}, then the content is considered to be
    *          "changed" before the <code>fetchTime</code>, if
@@ -92,7 +92,7 @@ public interface FetchSchedule extends Configurable {
    *          {@link #STATUS_UNKNOWN}, then it is unknown whether the page was
    *          changed; implementations are free to follow a sensible default
    *          behavior.
-   * 
+   *
    * @return adjusted page information, including all original information.
    *         NOTE: this may be a different instance than @see CrawlDatum, but
    *         implementations should make sure that it contains at least all
@@ -107,10 +107,10 @@ public interface FetchSchedule extends Configurable {
    * Default implementation increases fetchInterval by 50%, and if it exceeds
    * the <code>maxInterval</code> it calls
    * {@link #forceRefetch(Text, CrawlDatum, boolean)}.
-   * 
+   *
    * @param url
    *          URL of the page
-   * 
+   *
    * @param datum
    *          datum instance to be adjusted.
    * @param prevFetchTime previous fetch time.
@@ -128,22 +128,22 @@ public interface FetchSchedule extends Configurable {
    * This method adjusts the fetch schedule if fetching needs to be re-tried due
    * to transient errors. The default implementation sets the next fetch time 1
    * day in the future and increases the retry counter.
-   * 
+   *
    * @param url
    *          URL of the page.
-   * 
+   *
    * @param datum
    *          page information.
-   * 
+   *
    * @param prevFetchTime
    *          previous fetch time.
-   * 
+   *
    * @param prevModifiedTime
    *          previous modified time.
-   * 
+   *
    * @param fetchTime
    *          current fetch time.
-   * 
+   *
    * @return adjusted page information, including all original information.
    *         NOTE: this may be a different instance than @see CrawlDatum, but
    *         implementations should make sure that it contains at least all
@@ -168,17 +168,17 @@ public interface FetchSchedule extends Configurable {
    * and true otherwise. It will also check that fetchTime is not too remote
    * (more than <code>maxInterval</code>), in which case it lowers the interval
    * and returns true.
-   * 
+   *
    * @param url
    *          URL of the page.
-   * 
+   *
    * @param datum
    *          datum instance.
-   * 
+   *
    * @param curTime
    *          reference time (usually set to the time when the fetchlist
    *          generation process was started).
-   * 
+   *
    * @return true, if the page should be considered for inclusion in the current
    *         fetchlist, otherwise false.
    */
@@ -187,18 +187,18 @@ public interface FetchSchedule extends Configurable {
   /**
    * This method resets fetchTime, fetchInterval, modifiedTime and page
    * signature, so that it forces refetching.
-   * 
+   *
    * @param url
    *          URL of the page.
-   * 
+   *
    * @param datum
    *          datum instance.
-   * 
+   *
    * @param asap
    *          if true, force refetch as soon as possible - this sets the
    *          fetchTime to now. If false, force refetch whenever the next fetch
    *          time is set.
-   * 
+   *
    * @return adjusted page information, including all original information.
    *         NOTE: this may be a different instance than @see CrawlDatum, but
    *         implementations should make sure that it contains at least all

@@ -29,9 +29,9 @@ import org.apache.nutch.protocol.Content;
 public interface SimilarityModel {
 
   public void setConf(Configuration conf);
-  
+
   public float setURLScoreAfterParsing(Text url, Content content, Parse parse);
-  
+
   public CrawlDatum distributeScoreToOutlinks(Text fromUrl,
       ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets,
       CrawlDatum adjust, int allCount);

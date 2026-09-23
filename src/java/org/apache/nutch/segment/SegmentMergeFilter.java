@@ -28,7 +28,7 @@ import org.apache.nutch.protocol.Content;
  * Interface used to filter segments during segment merge. It allows filtering
  * on more sophisticated criteria than just URLs. In particular it allows
  * filtering based on metadata collected while parsing page.
- * 
+ *
  */
 public interface SegmentMergeFilter {
   /** The name of the extension point. */

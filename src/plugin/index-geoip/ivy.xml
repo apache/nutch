@@ -16,8 +16,8 @@
    limitations under the License.
 -->
 
-<ivy-module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd" 
+<ivy-module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd"
   xmlns:ns0="http://ant.apache.org/ivy/maven" version="2.0">
   <info organisation="org.apache.nutch" module="${ant.project.name}">
     <license name="Apache 2.0"/>
@@ -44,5 +44,5 @@
       <exclude org="com.fasterxml.jackson.core" name="jackson-core" />
     </dependency>
   </dependencies>
-  
+
 </ivy-module>

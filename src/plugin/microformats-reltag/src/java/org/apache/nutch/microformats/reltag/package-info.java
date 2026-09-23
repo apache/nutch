@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-/** 
+/**
  * A microformats <a href="http://www.microformats.org/wiki/Rel-Tag">Rel-Tag</a>
  * Parser/Indexer/Querier plugin.
  */

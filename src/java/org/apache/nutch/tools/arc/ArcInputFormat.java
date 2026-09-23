@@ -34,23 +34,23 @@ import org.apache.hadoop.mapreduce.Mapper.Context;
  * A input format the reads arc files.
  */
 public class ArcInputFormat extends FileInputFormat<Text, BytesWritable> {
-  
+
   @Override
-  public RecordReader<Text, BytesWritable> createRecordReader(InputSplit split, 
+  public RecordReader<Text, BytesWritable> createRecordReader(InputSplit split,
       TaskAttemptContext context){
     return new SequenceFileRecordReader<Text, BytesWritable>();
-  } 
+  }
   /**
    * Get the <code>RecordReader</code> for reading the arc file.
-   * 
+   *
    * @param split
    *          The InputSplit of the arc file to process.
    * @param job
    *          The job configuration.
    * @param context
    *          The task context.
-   * @return A configured {@link ArcRecordReader} 
-   * @throws IOException if there is a fatal I/O error reading 
+   * @return A configured {@link ArcRecordReader}
+   * @throws IOException if there is a fatal I/O error reading
    * the {@link InputSplit}
    */
   public RecordReader<Text, BytesWritable> getRecordReader(InputSplit split,

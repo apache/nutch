@@ -16,8 +16,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-  <property name="oss.sonatype.org" 
-    value="https://oss.sonatype.org/content/repositories/releases/" 
+  <property name="oss.sonatype.org"
+    value="https://oss.sonatype.org/content/repositories/releases/"
     override="false"/>
   <property name="repo.maven.org"
     value="https://repo1.maven.org/maven2/"
@@ -47,9 +47,9 @@
       />
     <ibiblio name="apache-snapshot"
       root="${repository.apache.org}"
-      m2compatible="true" 
+      m2compatible="true"
       changingMatcher="regexp"
-      changingPattern=".*SNAPSHOT.*" 
+      changingPattern=".*SNAPSHOT.*"
       checkmodified="true"
       />
     <ibiblio name="sonatype"

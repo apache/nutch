@@ -44,7 +44,7 @@ public class Extension {
    *          an unique id of the plugin
    * @param pExtensionClass the class extending the extension point
    * @param conf a populated {@link org.apache.hadoop.conf.Configuration}
-   * @param pluginRepository a {@link PluginRepository} containing 
+   * @param pluginRepository a {@link PluginRepository} containing
    * all plugin artifacts
    */
   public Extension(PluginDescriptor pDescriptor, String pExtensionPoint,
@@ -68,7 +68,7 @@ public class Extension {
   /**
    * Returns a attribute value, that is setuped in the manifest file and is
    * defined by the extension point xml schema.
-   * 
+   *
    * @param pKey
    *          a key
    * @return String a value
@@ -79,7 +79,7 @@ public class Extension {
 
   /**
    * Returns the full class name of the extension point implementation
-   * 
+   *
    * @return String
    */
   public String getClazz() {
@@ -88,7 +88,7 @@ public class Extension {
 
   /**
    * Return the unique id of the extension.
-   * 
+   *
    * @return String
    */
   public String getId() {
@@ -98,7 +98,7 @@ public class Extension {
   /**
    * Adds a attribute and is only used until model creation at plugin system
    * start up.
-   * 
+   *
    * @param pKey
    *          a key
    * @param pValue
@@ -111,7 +111,7 @@ public class Extension {
   /**
    * Sets the Class that implement the concrete extension and is only used until
    * model creation at system start up.
-   * 
+   *
    * @param extensionClazz
    *          The extensionClasname to set
    */
@@ -122,7 +122,7 @@ public class Extension {
   /**
    * Sets the unique extension Id and is only used until model creation at
    * system start up.
-   * 
+   *
    * @param extensionID
    *          The extensionID to set
    */
@@ -148,7 +148,7 @@ public class Extension {
    * only its own <i>plugin runtime libraries</i> defined in the
    * <code>plugin.xml</code> manifest file and exported libraries of the
    * dependent plugins.
-   * 
+   *
    * @return Object An instance of the extension implementation
    * @throws PluginRuntimeException
    *           if there is a fatal runtime error
@@ -189,7 +189,7 @@ public class Extension {
 
   /**
    * Get the plugin descriptor.
-   * 
+   *
    * @return PluginDescriptor
    */
   public PluginDescriptor getDescriptor() {
@@ -199,7 +199,7 @@ public class Extension {
   /**
    * Sets the plugin descriptor and is only used until model creation at system
    * start up.
-   * 
+   *
    * @param pDescriptor a instantiated {@link org.apache.nutch.plugin.PluginDescriptor}
    */
   public void setDescriptor(PluginDescriptor pDescriptor) {

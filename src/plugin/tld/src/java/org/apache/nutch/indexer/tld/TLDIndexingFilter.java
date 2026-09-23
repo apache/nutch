@@ -34,7 +34,7 @@ import org.apache.nutch.util.URLUtil;
 /**
  * Adds the public suffix (aka. effective top-level domain) to the index using
  * the field name "tld".
- * 
+ *
  * <p>
  * For the URL <code>https://www.example.co.uk/</code> the public suffix is
  * <code>co.uk</code>. See also {@link URLUtil#getDomainSuffix(URL)}.

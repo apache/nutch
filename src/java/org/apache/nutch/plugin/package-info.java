@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-/** 
+/**
  * The Nutch {@link org.apache.nutch.plugin.Pluggable Plugin} System.
  * <p><b>The Nutch Plugin System provides a way to extend nutch functionality</b>.
  * A large part of the functionality of Nutch are provided by plugins:
- * All of the parsing, indexing and searching that nutch does is actually 
+ * All of the parsing, indexing and searching that nutch does is actually
  * accomplished by various plugins.</p>
- * <p>In writing a plugin, you're actually providing one or more extensions 
- * of the existing extension-points (<i>hooks</i>). The core Nutch extension-points 
+ * <p>In writing a plugin, you're actually providing one or more extensions
+ * of the existing extension-points (<i>hooks</i>). The core Nutch extension-points
  * are themselves defined in a plugin, the <code>nutch-extensionpoints</code> plugin.
- * Each extension-point defines an interface that must be implemented by the 
+ * Each extension-point defines an interface that must be implemented by the
  * extension. The core extension-points and extensions available in Nutch are
  * listed in the {@link org.apache.nutch.plugin.Pluggable} interface.</p>
  * @see <a href="./doc-files/plugin.dtd">Nutch plugin manifest DTD</a>

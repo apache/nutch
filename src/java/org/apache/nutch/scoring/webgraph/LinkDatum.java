@@ -47,7 +47,7 @@ public class LinkDatum implements Writable {
 
   /**
    * Creates a LinkDatum with a given url. Timestamp is set to current time.
-   * 
+   *
    * @param url
    *          The link url.
    */
@@ -58,7 +58,7 @@ public class LinkDatum implements Writable {
   /**
    * Creates a LinkDatum with a url and an anchor text. Timestamp is set to
    * current time.
-   * 
+   *
    * @param url
    *          The link url.
    * @param anchor

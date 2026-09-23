@@ -21,7 +21,7 @@ import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * Factory class that creates new {@link org.apache.nutch.tools.CommonCrawlFormat CommonCrawlFormat} objects (a.k.a. formatter) that map crawled files to CommonCrawl format.   
+ * Factory class that creates new {@link org.apache.nutch.tools.CommonCrawlFormat CommonCrawlFormat} objects (a.k.a. formatter) that map crawled files to CommonCrawl format.
  *
  */
 public class CommonCrawlFormatFactory {

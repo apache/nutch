@@ -21,7 +21,7 @@ import org.apache.nutch.protocol.ProtocolException;
 /***
  * Superclass for important exceptions thrown during FTP talk, that must be
  * handled with care.
- * 
+ *
  */
 public class FtpException extends ProtocolException {
 

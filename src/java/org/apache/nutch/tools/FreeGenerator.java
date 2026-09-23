@@ -65,7 +65,7 @@ public class FreeGenerator extends Configured implements Tool {
 
     public static class FGMapper extends
         Mapper<WritableComparable<?>, Text, Text, Generator.SelectorEntry> {
-      
+
       private URLNormalizers normalizers = null;
       private URLFilters filters = null;
       private ScoringFilters scfilters;

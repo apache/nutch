@@ -75,7 +75,7 @@ import org.apache.nutch.util.XmlUtil;
  * HttpPostAuthentication development is documented at the
  * <a href="https://issues.apache.org/jira/browse/NUTCH-827">NUTCH-827</a> Jira
  * issue.
- * 
+ *
  */
 public class Http extends HttpBase {
 
@@ -106,7 +106,7 @@ public class Http extends HttpBase {
 
   /**
    * Returns the configured HTTP client.
-   * 
+   *
    * @return HTTP client
    */
   static synchronized HttpClient getClient() {
@@ -123,7 +123,7 @@ public class Http extends HttpBase {
   /**
    * Reads the configuration from the Nutch configuration files and sets the
    * configuration.
-   * 
+   *
    * @param conf
    *          Configuration
    */
@@ -148,7 +148,7 @@ public class Http extends HttpBase {
 
   /**
    * Main method.
-   * 
+   *
    * @param args
    *          Command line arguments
    * @throws Exception if a fatal error is encountered whilst running
@@ -163,7 +163,7 @@ public class Http extends HttpBase {
   /**
    * Fetches the <code>url</code> with a configured HTTP client and gets the
    * response.
-   * 
+   *
    * @param url
    *          URL to be fetched
    * @param datum
@@ -257,7 +257,7 @@ public class Http extends HttpBase {
    * Reads authentication configuration file (defined as 'http.auth.file' in
    * Nutch configuration file) and sets the credentials for the configured
    * authentication scopes in the HTTP client object.
-   * 
+   *
    * @throws ParserConfigurationException
    *           If a document builder can not be created.
    * @throws SAXException
@@ -483,7 +483,7 @@ public class Http extends HttpBase {
    * sets the default credentials to fetch the specified <code>url</code>. If
    * credentials are found for the authentication scope, the method returns
    * without altering the client.
-   * 
+   *
    * @param url
    *          URL to be fetched
    */
@@ -540,7 +540,7 @@ public class Http extends HttpBase {
   /**
    * Returns an authentication scope for the specified <code>host</code>,
    * <code>port</code>, <code>realm</code> and <code>scheme</code>.
-   * 
+   *
    * @param host
    *          Host name or address.
    * @param port
@@ -571,7 +571,7 @@ public class Http extends HttpBase {
   /**
    * Returns an authentication scope for the specified <code>host</code>,
    * <code>port</code> and <code>realm</code>.
-   * 
+   *
    * @param host
    *          Host name or address.
    * @param port

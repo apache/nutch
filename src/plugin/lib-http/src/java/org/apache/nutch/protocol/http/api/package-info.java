@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-/** 
+/**
  * Common API used by HTTP plugins ({@link org.apache.nutch.protocol.http http},
  * {@link org.apache.nutch.protocol.httpclient httpclient}, etc.)
  */

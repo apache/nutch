@@ -70,7 +70,7 @@ public class UpdateHostDbReducer
   protected static Text[] numericFieldWritables;
   protected static Text[] stringFieldWritables;
   protected static CrawlDatumProcessor[] crawlDatumProcessors;
-  
+
   protected BlockingQueue<Runnable> queue = new SynchronousQueue<>();
   protected ThreadPoolExecutor executor = null;
 
@@ -128,7 +128,7 @@ public class UpdateHostDbReducer
         }
       }
     }
-    
+
     // What fields do we need to collect metadata from
     if (numericFields != null) {
       numericFieldWritables = new Text[numericFields.length];
@@ -136,7 +136,7 @@ public class UpdateHostDbReducer
         numericFieldWritables[i] = new Text(numericFields[i]);
       }
     }
-    
+
     if (stringFields != null) {
       stringFieldWritables = new Text[stringFields.length];
       for (int i = 0; i < stringFields.length; i++) {
@@ -182,25 +182,25 @@ public class UpdateHostDbReducer
     Map<String,Long> counts = new HashMap<>(); // used to calc averages
     Map<String,Float> minimums = new HashMap<>();
     Map<String,TDigest> tdigests = new HashMap<String,TDigest>();
-    
+
     HostDatum hostDatum = new HostDatum();
     float score = 0;
-    
+
     if (stringFields != null) {
       for (int i = 0; i < stringFields.length; i++) {
         stringCounts.put(stringFields[i], new HashMap<>());
       }
     }
-    
+
     // Loop through all values until we find a non-empty HostDatum or use
     // an empty if this is a new host for the host db
     for (NutchWritable val : values) {
       final Writable value = val.get(); // unwrap
-      
+
       // Count crawl datum status's and collect metadata from fields
       if (value instanceof CrawlDatum) {
         CrawlDatum buffer = (CrawlDatum)value;
-        
+
         // Set the correct status field
         switch (buffer.getStatus()) {
           case CrawlDatum.STATUS_DB_UNFETCHED:
@@ -227,14 +227,14 @@ public class UpdateHostDbReducer
             hostDatum.setNotModified(hostDatum.getNotModified() + 1l);
             break;
         }
-        
+
         // Record connection failures
         if (buffer.getRetriesSinceFetch() != 0) {
           hostDatum.incConnectionFailures();
         }
-        
+
         // Only gather metadata statistics for proper fetched pages
-        if (buffer.getStatus() == CrawlDatum.STATUS_DB_FETCHED || buffer.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {            
+        if (buffer.getStatus() == CrawlDatum.STATUS_DB_FETCHED || buffer.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
           // Deal with the string fields
           if (stringFields != null) {
             for (int i = 0; i < stringFields.length; i++) {
@@ -247,7 +247,7 @@ public class UpdateHostDbReducer
                 } catch (Exception e) {
                   LOG.error("Metadata field {} is probably not a numeric value", stringFields[i]);
                 }
-              
+
                 // Does the value exist?
                 if (stringCounts.get(stringFields[i]).containsKey(metadataValue)) {
                   // Yes, increment it
@@ -259,7 +259,7 @@ public class UpdateHostDbReducer
               }
             }
           }
-          
+
           // Deal with the numeric fields
           if (numericFields != null) {
             for (int i = 0; i < numericFields.length; i++) {
@@ -268,7 +268,7 @@ public class UpdateHostDbReducer
                 try {
                   // Get it!
                   Float metadataValue = Float.parseFloat(buffer.getMetaData().get(numericFieldWritables[i]).toString());
-                  
+
                   // Does the median value exist?
                   if (tdigests.containsKey(numericFields[i])) {
                     tdigests.get(numericFields[i]).add(metadataValue);
@@ -278,7 +278,7 @@ public class UpdateHostDbReducer
                     tdigest.add((double)metadataValue);
                     tdigests.put(numericFields[i], tdigest);
                   }
-                
+
                   // Does the minimum value exist?
                   if (minimums.containsKey(numericFields[i])) {
                     // Write if this is lower than existing value
@@ -289,7 +289,7 @@ public class UpdateHostDbReducer
                     // Create it!
                     minimums.put(numericFields[i], metadataValue);
                   }
-                  
+
                   // Does the maximum value exist?
                   if (maximums.containsKey(numericFields[i])) {
                     // Write if this is lower than existing value
@@ -300,7 +300,7 @@ public class UpdateHostDbReducer
                     // Create it!
                     maximums.put(numericFields[i], metadataValue);
                   }
-                  
+
                   // Sum it up!
                   if (sums.containsKey(numericFields[i])) {
                     // Increment
@@ -327,7 +327,7 @@ public class UpdateHostDbReducer
         }
       }
 
-      // 
+      //
       else if (value instanceof HostDatum) {
         HostDatum buffer = (HostDatum)value;
 
@@ -350,7 +350,7 @@ public class UpdateHostDbReducer
         if (buffer.getConnectionFailures() > 0) {
           hostDatum.setConnectionFailures(buffer.getConnectionFailures());
         }
-        
+
         // Check metadata
         if (buffer.hasMetaData()) {
           hostDatum.setMetaData(buffer.getMetaData());
@@ -375,7 +375,7 @@ public class UpdateHostDbReducer
     if (score > 0) {
       hostDatum.setScore(score);
     }
-    
+
     // Set metadata
     for (Map.Entry<String, Map<String,Long>> entry : stringCounts.entrySet()) {
       for (Map.Entry<String,Long> subEntry : entry.getValue().entrySet()) {
@@ -393,11 +393,11 @@ public class UpdateHostDbReducer
       for (int i = 0; i < percentiles.length; i++) {
         hostDatum.getMetaData().put(new Text("pct" + Long.toString(percentiles[i]) + "." + entry.getKey()), new FloatWritable((float)entry.getValue().quantile(0.5)));
       }
-    }      
+    }
     for (Map.Entry<String, Float> entry : minimums.entrySet()) {
       hostDatum.getMetaData().put(new Text("min." + entry.getKey()), new FloatWritable(entry.getValue()));
     }
-    
+
     // Impose limits on minimum number of URLs?
     if (urlLimit > -1l) {
       if (hostDatum.numRecords() < urlLimit) {
@@ -405,7 +405,7 @@ public class UpdateHostDbReducer
         return;
       }
     }
-    
+
     totalHostsCounter.increment(1);
 
     // See if this record is to be checked

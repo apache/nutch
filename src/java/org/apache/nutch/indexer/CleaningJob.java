@@ -103,7 +103,7 @@ public class CleaningJob implements Tool {
         throw new RuntimeException(e);
       }
       noCommit = conf.getBoolean("noCommit", false);
-      
+
       // Initialize cached counter reference
       initCounters(context);
     }
@@ -139,7 +139,7 @@ public class CleaningJob implements Tool {
     }
   }
 
-  public void delete(String crawldb, boolean noCommit) 
+  public void delete(String crawldb, boolean noCommit)
     throws IOException, InterruptedException, ClassNotFoundException {
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();

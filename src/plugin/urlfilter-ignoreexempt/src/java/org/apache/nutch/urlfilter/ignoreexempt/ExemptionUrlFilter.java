@@ -26,19 +26,19 @@ import java.util.regex.Pattern;
 import java.util.List;
 
 /**
- * This implementation of {@link org.apache.nutch.net.URLExemptionFilter} 
- * uses regex configuration to check if URL is eligible for exemption from 
+ * This implementation of {@link org.apache.nutch.net.URLExemptionFilter}
+ * uses regex configuration to check if URL is eligible for exemption from
  * the <code>db.ignore.external.links</code> configuration property.
- * When this filter is enabled, the external urls will be checked 
+ * When this filter is enabled, the external urls will be checked
  * against configured sequence of regex rules.
  *<p>
- * The exemption rule file defaults to 
- * <code>db-ignore-external-exemptions.txt</code> in the classpath but 
- * can be overridden using the configuration property 
+ * The exemption rule file defaults to
+ * <code>db-ignore-external-exemptions.txt</code> in the classpath but
+ * can be overridden using the configuration property
  * <code>db.ignore.external.exemptions.file</code>.
  *</p>
  *
- * The exemption rules are specified in plain text file where each line 
+ * The exemption rules are specified in plain text file where each line
  * is a rule.
  * The format is same same as <code>regex-urlfilter.txt</code>.
  * Each non-comment, non-blank line contains a regular expression

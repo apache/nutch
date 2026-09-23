@@ -70,7 +70,7 @@ public class Subcollection extends Configured implements URLFilter {
    * SubCollection blacklist as String
    */
   String blString;
-  
+
   /**
    * Whether the white and black lists are case sensitive
    */
@@ -78,7 +78,7 @@ public class Subcollection extends Configured implements URLFilter {
 
   /**
    * public Constructor
-   * 
+   *
    * @param id
    *          Id of SubCollection
    * @param name
@@ -91,7 +91,7 @@ public class Subcollection extends Configured implements URLFilter {
 
   /**
    * public Constructor
-   * 
+   *
    * @param id
    *          Id of SubCollection
    * @param name
@@ -135,7 +135,7 @@ public class Subcollection extends Configured implements URLFilter {
 
   /**
    * Returns whitelist
-   * 
+   *
    * @return Whitelist entries
    */
   public List<String> getWhiteList() {
@@ -144,7 +144,7 @@ public class Subcollection extends Configured implements URLFilter {
 
   /**
    * Returns whitelist String
-   * 
+   *
    * @return Whitelist String
    */
   public String getWhiteListString() {
@@ -153,7 +153,7 @@ public class Subcollection extends Configured implements URLFilter {
 
   /**
    * Returns blacklist String
-   * 
+   *
    * @return Blacklist String
    */
   public String getBlackListString() {
@@ -170,14 +170,14 @@ public class Subcollection extends Configured implements URLFilter {
 
   /**
    * Simple "indexOf" currentFilter for matching patterns.
-   * 
+   *
    * <pre>
    *  rules for evaluation are as follows:
    *  1. if pattern matches in blacklist then url is rejected
    *  2. if pattern matches in whitelist then url is allowed
    *  3. url is rejected
    * </pre>
-   * 
+   *
    * @see org.apache.nutch.net.URLFilter#filter(java.lang.String)
    */
   @Override
@@ -202,8 +202,8 @@ public class Subcollection extends Configured implements URLFilter {
 
   /**
    * Initialize Subcollection from dom element
-   * 
-   * @param collection A DOM {@link org.w3c.dom.Element} for use 
+   *
+   * @param collection A DOM {@link org.w3c.dom.Element} for use
    * in creating the {@link Subcollection}
    */
   public void initialize(Element collection) {
@@ -231,9 +231,9 @@ public class Subcollection extends Configured implements URLFilter {
   }
 
   /**
-   * Create a list of patterns from a chunk of text, patterns are separated 
+   * Create a list of patterns from a chunk of text, patterns are separated
    * with a newline
-   * 
+   *
    * @param list An initialized {@link List} to insert String patterns.
    * @param text A chunk of text (hopefully) containing patterns.
    */
@@ -256,7 +256,7 @@ public class Subcollection extends Configured implements URLFilter {
 
   /**
    * Set contents of blacklist from String
-   * 
+   *
    * @param list
    *          the blacklist contents
    */
@@ -267,7 +267,7 @@ public class Subcollection extends Configured implements URLFilter {
 
   /**
    * Set contents of whitelist from String
-   * 
+   *
    * @param list
    *          the whitelist contents
    */

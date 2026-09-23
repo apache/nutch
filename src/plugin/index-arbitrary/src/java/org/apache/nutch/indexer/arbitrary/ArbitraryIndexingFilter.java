@@ -39,7 +39,7 @@ import org.apache.hadoop.conf.Configuration;
  * Adds arbitrary searchable fields to a document from the class and method
  * the user identifies in the config. The user supplies the name of the field
  * to add with the class and method names that supply the value.
- * 
+ *
  * Example:<br><br>
  * &lt;property&gt;<br>
  *   &lt;name&gt;index.arbitrary.function.count&lt;/name&gt;<br>
@@ -83,37 +83,37 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
 
   /** How many arbitrary field definitions to set. */
   private int arbitraryAddsCount = 0;
-  
+
   /** The name of the field to insert/overwrite in the NutchDocument */
   private String fieldName;
-  
+
   /** The fully-qualified class name of the custom class to use for the
    *  new field. This class must be in the Nutch runtime classpath,
    *  e.g., nutch/lib/ dierctory. */
   private String className;
-  
+
   /** The String values to pass to the custom class constructor. The plugin
    *  will add the document url as the first argument in className's
    *  String[] args. */
   private String[] userConstrArgs;
-  
+
   /** The array where the plugin copies the url &amp; the userConstrArgs
    *  to create the instance of className. */
   private String[] constrArgs;
-  
+
   /** The name of the method in the custom class to call. Its return value
    *  will become the value of fieldName in the NutchDocument. */
   private String methodName;
-  
+
   /** The String values of the arguments to methodName. It's up to the
    *  developer of className to do any casts/conversions from String to
    *  another class in the code of className. */
   private String[] methodArgs;
-  
+
   /** The result that returns from methodName. The plugin will set the value
    *  of fieldName to this. */
   private Object result;
-  
+
   /** Optional flag to determine whether to overwrite the existing value in the
    *  NutchDocument fieldName if this is set to true. Default behavior is to
    *  add the value from calling methodName to existing values for fieldName. */
@@ -142,7 +142,7 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
    * {@code index.arbitrary.methodArgs}.<em>index</em>
    * in nutch-default.xml or nutch-site.xml where <em>index</em> ranges from 0
    * to {@code index.arbitrary.function.count} - 1.
-   * 
+   *
    * @param doc
    *          The {@link NutchDocument} object
    * @param parse
@@ -244,7 +244,7 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
 
       LOG.debug("{}.{}() returned {} for field {}.", className,
 		methodName, String.valueOf(result), String.valueOf(fieldName));
-      
+
       // If user chose to overwrite, remove existing value
       if (overwrite) {
 	LOG.debug("overwrite == true for fieldName == {} ", fieldName);

@@ -37,9 +37,9 @@ public class TestMetadata {
   /**
    * Test to ensure that only non-null values get written when the
    * {@link Metadata} object is written using a Writeable.
-   * 
+   *
    * @since NUTCH-406
-   * 
+   *
    */
   @Test
   public void testWriteNonNull() {

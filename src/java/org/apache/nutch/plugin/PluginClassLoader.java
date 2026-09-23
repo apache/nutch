@@ -34,7 +34,7 @@ import java.util.List;
  * exported or not. Not exported libraries are only used in the plugin own
  * <code>PluginClassLoader</code>. Exported libraries are available for
  * <code>PluginClassLoader</code> of plugins that depends on these plugins.
- * 
+ *
  */
 public class PluginClassLoader extends URLClassLoader {
 
@@ -44,11 +44,11 @@ public class PluginClassLoader extends URLClassLoader {
 
   /**
    * Overloaded constructor
-   * 
+   *
    * @param urls
    *          Array of urls with own libraries and all exported libraries of
    *          plugins that are required for this plugin
-   * @param parent the parent {@link java.lang.ClassLoader} responsible for 
+   * @param parent the parent {@link java.lang.ClassLoader} responsible for
    * loading classes defined in urls.
    */
   public PluginClassLoader(URL[] urls, ClassLoader parent) {

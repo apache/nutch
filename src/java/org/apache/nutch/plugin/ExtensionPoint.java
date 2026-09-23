@@ -21,7 +21,7 @@ import java.util.ArrayList;
 /**
  * The <code>ExtensionPoint</code> provide meta information of a extension
  * point.
- * 
+ *
  */
 public class ExtensionPoint {
   private String ftId;
@@ -31,7 +31,7 @@ public class ExtensionPoint {
 
   /**
    * Constructor
-   * 
+   *
    * @param pId
    *          unique extension point Id
    * @param pName
@@ -48,7 +48,7 @@ public class ExtensionPoint {
 
   /**
    * Returns the unique id of the extension point.
-   * 
+   *
    * @return String
    */
   public String getId() {
@@ -57,7 +57,7 @@ public class ExtensionPoint {
 
   /**
    * Returns the name of the extension point.
-   * 
+   *
    * @return String
    */
   public String getName() {
@@ -66,7 +66,7 @@ public class ExtensionPoint {
 
   /**
    * Returns a path to the xml schema of a extension point.
-   * 
+   *
    * @return String
    */
   public String getSchema() {
@@ -75,7 +75,7 @@ public class ExtensionPoint {
 
   /**
    * Sets the extensionPointId.
-   * 
+   *
    * @param pId
    *          extension point id
    */
@@ -85,7 +85,7 @@ public class ExtensionPoint {
 
   /**
    * Sets the extension point name.
-   * 
+   *
    * @param pName
    */
   private void setName(String pName) {
@@ -94,7 +94,7 @@ public class ExtensionPoint {
 
   /**
    * Sets the schema.
-   * 
+   *
    * @param pSchema
    */
   private void setSchema(String pSchema) {
@@ -103,7 +103,7 @@ public class ExtensionPoint {
 
   /**
    * Install a corresponding extension to this extension point.
-   * 
+   *
    * @param extension the new {@link org.apache.nutch.plugin.Extension}
    * to install
    */
@@ -113,7 +113,7 @@ public class ExtensionPoint {
 
   /**
    * Returns a array of extensions that lsiten to this extension point
-   * 
+   *
    * @return Extension[]
    */
   public Extension[] getExtensions() {

@@ -26,7 +26,7 @@ import java.util.Map;
  * called for a particular mimeType. It provides methods to store the
  * parse-plugins.xml data, and methods to retrieve the name of the appropriate
  * parsing plugin for a contentType.
- * 
+ *
  * @version 1.0
  */
 class ParsePluginList {

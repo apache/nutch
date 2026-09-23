@@ -21,7 +21,7 @@ package org.apache.nutch.protocol.httpclient;
  * In the future it may be used as a method of collecting authentication
  * failures during Http protocol transfer in order to present the user with
  * credentials required during a future fetch.
- * 
+ *
  */
 public class HttpAuthenticationException extends Exception {
 
@@ -34,7 +34,7 @@ public class HttpAuthenticationException extends Exception {
 
   /**
    * Constructs a new exception with the specified detail message.
-   * 
+   *
    * @param message
    *          the detail message. The detail message is saved for later
    *          retrieval by the {@link Throwable#getMessage()} method.
@@ -45,7 +45,7 @@ public class HttpAuthenticationException extends Exception {
 
   /**
    * Constructs a new exception with the specified message and cause.
-   * 
+   *
    * @param message
    *          the detail message. The detail message is saved for later
    *          retrieval by the {@link Throwable#getMessage()} method.
@@ -59,7 +59,7 @@ public class HttpAuthenticationException extends Exception {
   /**
    * Constructs a new exception with the specified cause and detail message from
    * given clause if it is not null.
-   * 
+   *
    * @param cause
    *          the cause (use {@link #getCause()} to retrieve the cause)
    */

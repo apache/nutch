@@ -24,7 +24,7 @@
 <!-- WATCH OUT: an xml parser reads this file an ampersands must be
      expanded to &amp; -->
 
-<!-- The following rules show how to strip out session IDs, default pages, 
+<!-- The following rules show how to strip out session IDs, default pages,
      interpage anchors, etc. Order does matter!  -->
 <regex-normalize>
 

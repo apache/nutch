@@ -27,7 +27,7 @@ import java.lang.invoke.MethodHandles;
 /**
  * This class provides common methods for implementations of
  * <code>FetchSchedule</code>.
- * 
+ *
  */
 public abstract class AbstractFetchSchedule extends Configured implements
     FetchSchedule {
@@ -61,10 +61,10 @@ public abstract class AbstractFetchSchedule extends Configured implements
    * the <code>fetchTime</code> and <code>fetchInterval</code>. The default
    * implementation sets the <code>fetchTime</code> to now, using the default
    * <code>fetchInterval</code>.
-   * 
+   *
    * @param url
    *          URL of the page.
-   * 
+   *
    * @param datum
    *          datum instance to be initialized (modified in place).
    */
@@ -94,13 +94,13 @@ public abstract class AbstractFetchSchedule extends Configured implements
    * This method specifies how to schedule refetching of pages marked as GONE.
    * Default implementation increases fetchInterval by 50% but the value may
    * never exceed <code>maxInterval</code>.
-   * 
+   *
    * @param url
    *          URL of the page.
-   * 
+   *
    * @param datum
    *          datum instance to be adjusted.
-   * 
+   *
    * @return adjusted page information, including all original information.
    *         NOTE: this may be a different instance than @see CrawlDatum, but
    *         implementations should make sure that it contains at least all
@@ -123,22 +123,22 @@ public abstract class AbstractFetchSchedule extends Configured implements
    * This method adjusts the fetch schedule if fetching needs to be re-tried due
    * to transient errors. The default implementation sets the next fetch time 1
    * day in the future and increases the retry counter.
-   * 
+   *
    * @param url
    *          URL of the page.
-   * 
+   *
    * @param datum
    *          page information.
-   * 
+   *
    * @param prevFetchTime
    *          previous fetch time.
-   * 
+   *
    * @param prevModifiedTime
    *          previous modified time.
-   * 
+   *
    * @param fetchTime
    *          current fetch time.
-   * 
+   *
    * @return adjusted page information, including all original information.
    *         NOTE: this may be a different instance than @see CrawlDatum, but
    *         implementations should make sure that it contains at least all
@@ -154,7 +154,7 @@ public abstract class AbstractFetchSchedule extends Configured implements
 
   /**
    * This method return the last fetch time of the CrawlDatum
-   * 
+   *
    * @return the date as a long.
    */
   @Override
@@ -175,17 +175,17 @@ public abstract class AbstractFetchSchedule extends Configured implements
    * returns false, and true otherwise. It will also check that fetchTime is not
    * too remote (more than <code>maxInterval</code>, in which case it lowers the
    * interval and returns true.
-   * 
+   *
    * @param url
    *          URL of the page.
-   * 
+   *
    * @param datum
    *          datum instance.
-   * 
+   *
    * @param curTime
    *          reference time (usually set to the time when the fetchlist
    *          generation process was started).
-   * 
+   *
    * @return true, if the page should be considered for inclusion in the current
    *         fetchlist, otherwise false.
    */
@@ -209,13 +209,13 @@ public abstract class AbstractFetchSchedule extends Configured implements
   /**
    * This method resets fetchTime, fetchInterval, modifiedTime,
    * retriesSinceFetch and page signature, so that it forces refetching.
-   * 
+   *
    * @param url
    *          URL of the page.
-   * 
+   *
    * @param datum
    *          datum instance.
-   * 
+   *
    * @param asap
    *          if true, force refetch as soon as possible - this sets the
    *          fetchTime to now. If false, force refetch whenever the next fetch

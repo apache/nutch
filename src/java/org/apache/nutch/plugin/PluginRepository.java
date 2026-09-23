@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>The plugin repository is a registry of all plugins.</p>
- * 
+ *
  * <p>At system boot up a repository is built by parsing the manifest files of
  * all plugins. Plugins that require other plugins which do not exist are not
  * registered. For each plugin a plugin descriptor instance will be created. The
@@ -72,7 +72,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
   /**
    * @param conf a populated {@link Configuration}
-   * @throws RuntimeException if a fatal runtime error is encountered 
+   * @throws RuntimeException if a fatal runtime error is encountered
    */
   public PluginRepository(Configuration conf) throws RuntimeException {
     this.fActivatedPlugins = new HashMap<>();
@@ -232,7 +232,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
   /**
    * Returns all registered plugin descriptors.
-   * 
+   *
    * @return PluginDescriptor[]
    */
   public PluginDescriptor[] getPluginDescriptors() {
@@ -242,7 +242,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
   /**
    * Returns the descriptor of one plugin identified by a plugin id.
-   * 
+   *
    * @param pPluginId a pluginId for which the descriptor will be retrieved
    * @return PluginDescriptor
    */
@@ -257,7 +257,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
   /**
    * Returns a extension point identified by a extension point id.
-   * 
+   *
    * @param pXpId an extension point id
    * @return a extentsion point
    */
@@ -269,13 +269,13 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * <p>Returns an instance of a plugin. Plugin instances are cached. So a plugin
    * exist only as one instance. This allow a central management of plugin's own
    * resources.</p>
-   * 
+   *
    * <p>After creating the plugin instance the startUp() method is invoked. The
    * plugin use a own classloader that is used as well by all instance of
    * extensions of the same plugin. This class loader use all exported libraries
    * from the dependent plugins and all plugin libraries.</p>
-   * 
-   * @param pDescriptor a {@link PluginDescriptor} for which to retrieve a 
+   *
+   * @param pDescriptor a {@link PluginDescriptor} for which to retrieve a
    * {@link Plugin} instance
    * @return a {@link Plugin} instance
    * @throws PluginRuntimeException if there is a fatal runtime plugin error
@@ -328,7 +328,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
   /**
    * Shuts down all plugins
-   * 
+   *
    * @throws PluginRuntimeException
    */
   private void shutDownActivatedPlugins() throws PluginRuntimeException {
@@ -379,7 +379,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * Filters a list of plugins. The list of plugins is filtered regarding the
    * configuration properties <code>plugin.excludes</code> and
    * <code>plugin.includes</code>.
-   * 
+   *
    * @param excludes
    * @param includes
    * @param plugins
@@ -424,7 +424,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * output of another plugin. This method loads the plugins in the order
    * defined by orderProperty. If orderProperty is empty or unset, all active
    * plugins of the given interface and extension point are loaded.
-   * 
+   *
    * @param clazz
    *          interface class implemented by required plugins
    * @param xPointId
@@ -469,7 +469,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
           Object f = filterMap.get(orderedFilter);
           if (f == null) {
             LOG.error("{} : {} declared in configuration property {} "
-                    + "but not found in an active plugin - ignoring.", 
+                    + "but not found in an active plugin - ignoring.",
                     clazz.getSimpleName(), orderedFilter, orderProperty);
             continue;
           }
@@ -494,7 +494,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
   /**
    * Loads all necessary dependencies for a selected plugin, and then runs one
    * of the classes' main() method.
-   * 
+   *
    * @param args
    *          plugin ID (needs to be activated in the configuration), and the
    *          class name. The rest of arguments is passed to the main method of
@@ -549,16 +549,16 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
   /**
    * <p>Invoked whenever a {@link java.net.URL} needs to be instantiated. Tries to find a
-   * suitable extension and allows it to provide a {@link java.net.URLStreamHandler}.</p> 
+   * suitable extension and allows it to provide a {@link java.net.URLStreamHandler}.</p>
    * This is done by several attempts:
    * <ul>
    * <li>Find a protocol plugin that implements the desired protocol. If found,
    * instantiate it so eventually the plugin can install a {@link java.net.URLStreamHandler}
    * through a static hook.</li>
-   * <li>If the plugin specifies a {@link java.net.URLStreamHandler} in its 
-   * <code>plugin.xml</code> manifest, return an instance of this 
+   * <li>If the plugin specifies a {@link java.net.URLStreamHandler} in its
+   * <code>plugin.xml</code> manifest, return an instance of this
    * {@link java.net.URLStreamHandler}. Example:
-   * 
+   *
    * <pre>
    *  ...
    *  &lt;implementation id="org.apache.nutch.protocol.foo.Foo" class="org.apache.nutch.protocol.foo.Foo"&gt;
@@ -571,7 +571,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * <li>If all else fails, return null. This will fallback to the JVM's method
    * of evaluating the system property <code>java.protocol.handler.pkgs</code>.</li>
    * </ul>
-   * 
+   *
    * @return the URLStreamHandler found, or null.
    * @see java.net.URL
    * @see <a href="https://issues.apache.org/jira/browse/NUTCH-2429">NUTCH-2429</a>
@@ -617,7 +617,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
                 Class<?> clazz = cl.loadClass(handlerClass);
                 return (URLStreamHandler) clazz.getDeclaredConstructor().newInstance();
               } catch (Exception e) {
-                LOG.error("Could not instantiate protocol {} handler class {} defined by extension {}", 
+                LOG.error("Could not instantiate protocol {} handler class {} defined by extension {}",
                         protocol, handlerClass, extension.getId(), e);
                 return null;
               }

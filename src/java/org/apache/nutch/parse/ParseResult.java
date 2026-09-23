@@ -47,7 +47,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
 
   /**
    * Create a container for parse results.
-   * 
+   *
    * @param originalUrl
    *          the original url from which all parse results have been obtained.
    */
@@ -59,7 +59,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
   /**
    * Convenience method for obtaining {@link ParseResult} from a single
    * {@link Parse} output.
-   * 
+   *
    * @param url
    *          canonical url.
    * @param parse
@@ -75,7 +75,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
 
   /**
    * Checks whether the result is empty.
-   * 
+   *
    * @return true if empty, false otherwise
    */
   public boolean isEmpty() {
@@ -92,7 +92,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
 
   /**
    * Retrieve a single parse output.
-   * 
+   *
    * @param key
    *          sub-url under which the parse output is stored.
    * @return parse output corresponding to this sub-url, or null.
@@ -103,7 +103,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
 
   /**
    * Retrieve a single parse output.
-   * 
+   *
    * @param key
    *          sub-url under which the parse output is stored.
    * @return parse output corresponding to this sub-url, or null.
@@ -114,7 +114,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
 
   /**
    * Store a result of parsing.
-   * 
+   *
    * @param key
    *          URL or sub-url of this parse result
    * @param text
@@ -128,7 +128,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
 
   /**
    * Store a result of parsing.
-   * 
+   *
    * @param key
    *          URL or sub-url of this parse result
    * @param text

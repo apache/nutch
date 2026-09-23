@@ -55,7 +55,7 @@ public class BasicIndexingFilter implements IndexingFilter {
    * configuration settings for adding basic searchable fields. See
    * {@code indexer.add.domain}, {@code indexer.max.title.length},
    * {@code indexer.max.content.length} in nutch-default.xml.
-   * 
+   *
    * @param doc
    *          The {@link NutchDocument} object
    * @param parse

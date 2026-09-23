@@ -33,7 +33,7 @@
 
    <extension id="org.apache.nutch.htmlparsefilter.debug"
         name="Nutch Debug Parser Filter" point="org.apache.nutch.parse.HtmlParseFilter">
-      <implementation id="DebugParseFilter" 
+      <implementation id="DebugParseFilter"
                       class="org.apache.nutch.parsefilter.debug.DebugParseFilter">
       </implementation>
    </extension>

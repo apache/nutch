@@ -23,7 +23,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * Checks one given filter or all filters.
- * 
+ *
  */
 public class URLFilterChecker extends AbstractChecker {
 

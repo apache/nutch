@@ -43,7 +43,7 @@ import org.apache.nutch.scoring.ScoringFilterException;
  * (OPIC) score, described in this <a href="https://www2003.org/cdrom/papers/refereed/p007/p7-abiteboul.html">paper</a>:
  * Abiteboul, Serge and Preda, Mihai and Cobena, Gregory (2003), Adaptive
  * On-Line Page Importance Computation.
- * 
+ *
  */
 public class OPICScoringFilter implements ScoringFilter {
 

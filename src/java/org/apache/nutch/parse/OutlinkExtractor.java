@@ -31,13 +31,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Extractor to extract {@link org.apache.nutch.parse.Outlink}s / URLs from
  * plain text using Regular Expressions.
- * 
+ *
  * @see <a
  *      href="http://wiki.java.net/bin/view/Javapedia/RegularExpressions">Comparison
  *      of different regexp-Implementations </a>
  * @see <a href="http://regex.info/java.html">Overview about Java Regexp APIs
  *      </a>
- * 
+ *
  * @version 1.0
  * @since 0.7
  */
@@ -47,7 +47,7 @@ public class OutlinkExtractor {
 
   /**
    * Regex pattern to get URLs within a plain text.
-   * 
+   *
    * @see documentation on <a href="http://web.archive.org/web/20190220011657/http://www.truerwords.net/articles/ut/urlactivation.html">
    * urlactivation</a>
    */
@@ -58,7 +58,7 @@ public class OutlinkExtractor {
    * Extracts <code>Outlink</code> from given plain text. Applying this method
    * to non-plain-text can result in extremely lengthy runtimes for parasitic
    * cases (postscript is a known example).
-   * 
+   *
    * @param plainText
    *          the plain text from which URLs should be extracted.
    * @param conf a populated {@link Configuration}
@@ -72,7 +72,7 @@ public class OutlinkExtractor {
   /**
    * Extracts <code>Outlink</code> from given plain text and adds anchor to the
    * extracted <code>Outlink</code>s
-   * 
+   *
    * @param plainText
    *          the plain text from which URLs should be extracted.
    * @param anchor

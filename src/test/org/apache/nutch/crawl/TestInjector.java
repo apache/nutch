@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Basic injector test: 1. Creates a text file with urls 2. Injects them into
  * crawldb 3. Reads crawldb entries and verifies contents 4. Injects more urls
  * into webdb 5. Reads crawldb entries and verifies contents
- * 
+ *
  */
 public class TestInjector {
 

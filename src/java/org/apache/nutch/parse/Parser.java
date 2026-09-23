@@ -45,7 +45,7 @@ public interface Parser extends Pluggable, Configurable {
    * of the form &lt;"foo.bar.com/redirect.html", {@link Parse} with a
    * {@link ParseStatus} indicating the redirect&gt;.
    * </p>
-   * 
+   *
    * @param c
    *          Content to be parsed
    * @return a map containing &lt;key, parse&gt; pairs

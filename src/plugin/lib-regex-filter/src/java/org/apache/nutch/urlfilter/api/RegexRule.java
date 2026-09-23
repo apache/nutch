@@ -18,19 +18,19 @@ package org.apache.nutch.urlfilter.api;
 
 /**
  * A generic regular expression rule.
- * 
+ *
  */
 public abstract class RegexRule {
 
   private final boolean sign;
-  
+
   private final String hostOrDomain;
-  
+
   private final String regex;
 
   /**
    * Constructs a new regular expression rule.
-   * 
+   *
    * @param sign
    *          specifies if this rule must filter-in or filter-out. A
    *          <code>true</code> value means that any url matching this rule must
@@ -43,10 +43,10 @@ public abstract class RegexRule {
   protected RegexRule(boolean sign, String regex) {
     this(sign, regex, null);
   }
-  
+
   /**
    * Constructs a new regular expression rule.
-   * 
+   *
    * @param sign
    *          specifies if this rule must filter-in or filter-out. A
    *          <code>true</code> value means that any url matching this rule must
@@ -66,7 +66,7 @@ public abstract class RegexRule {
 
   /**
    * Return if this rule is used for filtering-in or out.
-   * 
+   *
    * @return <code>true</code> if any url matching this rule must be accepted,
    *         otherwise <code>false</code>.
    */
@@ -80,7 +80,7 @@ public abstract class RegexRule {
    * @return host or domain this regex rule belongs to
    */
   protected String hostOrDomain() { return hostOrDomain; }
-  
+
   /**
    * Return if this rule's regex.
    *
@@ -90,7 +90,7 @@ public abstract class RegexRule {
 
   /**
    * Checks if a url matches this rule.
-   * 
+   *
    * @param url
    *          is the url to check.
    * @return <code>true</code> if the specified url matches this rule, otherwise

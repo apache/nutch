@@ -16,7 +16,7 @@
  */
 
 /**
- * RegexParseFilter. If a regular expression matches either HTML or 
+ * RegexParseFilter. If a regular expression matches either HTML or
  * extracted text, a configurable field is set to true.
  */
 package org.apache.nutch.parsefilter.regex;

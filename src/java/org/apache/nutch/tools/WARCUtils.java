@@ -173,13 +173,13 @@ public class WARCUtils {
 
     return record;
   }
-  
+
   /**
    * Modify verbatim HTTP response headers: fix, remove or replace headers
    * <code>Content-Length</code>, <code>Content-Encoding</code> and
    * <code>Transfer-Encoding</code> which may confuse WARC readers. Ensure that
    * returned header end with a single empty line (<code>\r\n\r\n</code>).
-   * 
+   *
    * @param headers
    *          HTTP 1.1 or 1.0 response header string, CR-LF-separated lines,
    *          first line is status line
@@ -279,5 +279,5 @@ public class WARCUtils {
     return headers;
   }
 
-  
+
 }

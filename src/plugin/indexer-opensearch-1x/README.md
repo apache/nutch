@@ -15,7 +15,7 @@
  limitations under the License.
 -->
 
-indexer-opensearch1x plugin for Nutch 
+indexer-opensearch1x plugin for Nutch
 ================================
 
 **indexer-opensearch1x plugin** is used for sending documents from one or more segments to an OpenSearch server. The configuration for the index writers is on **conf/index-writers.xml** file, included in the official Nutch distribution and it's as follow:
@@ -27,7 +27,7 @@ indexer-opensearch1x plugin for Nutch
   </mapping>
   <parameters>
     ...
-  </parameters>   
+  </parameters>
 </writer>
 ```
 
@@ -47,7 +47,7 @@ Each parameter has the form `<param name="<name>" value="<value>"/>` and the par
 
 Parameter Name | Description | Default value
 --|--|--
-host | Comma-separated list of hostnames to send documents to using [TransportClient](https://static.javadoc.io/org.opensearch/opensearch/1.3.8/org/opensearch/client/transport/TransportClient.html). Either host and port must be defined. | 
+host | Comma-separated list of hostnames to send documents to using [TransportClient](https://static.javadoc.io/org.opensearch/opensearch/1.3.8/org/opensearch/client/transport/TransportClient.html). Either host and port must be defined. |
 port | The port to connect to using [TransportClient](https://static.javadoc.io/org.opensearch/opensearch/1.3.8/org/opensearch/client/transport/TransportClient.html). | 9300
 scheme | The scheme (http or https) to connect to OpenSearch server. | https
 index | Default index to send documents to. | nutch
@@ -71,7 +71,7 @@ It is highly recommended that users use at least basic authentication (modify th
 For a "getting started" level introduction to setting up a trust store, see: [Connecting java-high-level-rest-client](https://opensearch.org/blog/connecting-java-high-level-rest-client-with-opensearch-over-https/).
 For a more in depth treatment, see: [Configuring TLS certificates](https://opensearch.org/docs/latest/security/configuration/tls/).
 
-Users may opt for 2-way TLS and skip basic authentication (`username` and `password`).  
+Users may opt for 2-way TLS and skip basic authentication (`username` and `password`).
 To do this, specify both the `trust.store.*` parameters and the `key.store.*` parameters.
 
 If users do not specify at least 1-way TLS (trust-store), this indexer logs a warning that this is a bad idea(TM), and it will proceed by completely ignoring all the SSL security.
