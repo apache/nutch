@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
  * by adding "Content-Type" to the db.parsemeta.to.crawldb configuration setting
  * to force MIME-types of newly discovered URL's to be added to the CrawlDB.
  * 
- * @author markus
  */
 public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
   // Loggg

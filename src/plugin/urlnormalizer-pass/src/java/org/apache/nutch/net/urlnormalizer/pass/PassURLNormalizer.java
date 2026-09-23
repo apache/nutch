@@ -26,7 +26,6 @@ import org.apache.nutch.net.URLNormalizer;
  * scope at least one normalizer must be defined but no transformations are
  * required.
  * 
- * @author Andrzej Bialecki
  */
 public class PassURLNormalizer implements URLNormalizer {
 

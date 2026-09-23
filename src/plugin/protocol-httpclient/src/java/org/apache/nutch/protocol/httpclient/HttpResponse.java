@@ -41,7 +41,6 @@ import org.apache.hadoop.io.Text;
 /**
  * An HTTP response.
  * 
- * @author Susam Pal
  */
 public class HttpResponse implements Response {
 

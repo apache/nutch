@@ -26,7 +26,6 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 
 /**
- * @author Andrzej Bialecki
  */
 public class ProtocolStatus implements Writable {
 

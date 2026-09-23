@@ -28,7 +28,6 @@ import java.lang.invoke.MethodHandles;
  * This class provides common methods for implementations of
  * <code>FetchSchedule</code>.
  * 
- * @author Andrzej Bialecki
  */
 public abstract class AbstractFetchSchedule extends Configured implements
     FetchSchedule {

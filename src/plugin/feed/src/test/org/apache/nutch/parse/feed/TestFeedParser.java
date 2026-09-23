@@ -38,7 +38,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 
- * @author mattmann
  * 
  *         Test Suite for the {@link FeedParser}.
  * 

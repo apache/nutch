@@ -74,7 +74,6 @@ import java.nio.charset.StandardCharsets;
  *
  * Still need to make content-length searchable!
  *
- * @author John Xing
  */
 
 public class MoreIndexingFilter implements IndexingFilter {

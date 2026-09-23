@@ -22,7 +22,6 @@ import java.util.ArrayList;
  * The <code>ExtensionPoint</code> provide meta information of a extension
  * point.
  * 
- * @author joa23
  */
 public class ExtensionPoint {
   private String ftId;

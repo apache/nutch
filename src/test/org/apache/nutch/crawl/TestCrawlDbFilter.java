@@ -42,7 +42,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * when the CrawlDB includes urls with <code>DB GONE</code> status and
  * <code>CRAWLDB_PURGE_404</code> is set to true.
  * 
- * @author lufeng
  */
 public class TestCrawlDbFilter {
   Configuration conf;

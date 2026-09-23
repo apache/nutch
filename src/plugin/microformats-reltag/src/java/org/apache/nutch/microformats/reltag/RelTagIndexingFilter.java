@@ -32,7 +32,6 @@ import org.apache.hadoop.conf.Configuration;
  * 
  * @see <a href="http://www.microformats.org/wiki/rel-tag">
  *      http://www.microformats.org/wiki/rel-tag</a>
- * @author J&eacute;r&ocirc;me Charron
  */
 public class RelTagIndexingFilter implements IndexingFilter {
 

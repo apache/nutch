@@ -63,7 +63,6 @@ import org.apache.nutch.util.NutchJob;
  * prohibited, only they will be removed, and they won't count when checking the
  * above-mentioned maximum limit.
  * 
- * @author Andrzej Bialecki
  */
 public class LinkDbMerger extends Configured implements Tool {
   private static final Logger LOG = LoggerFactory

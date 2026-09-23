@@ -28,7 +28,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 
 /**
- * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class ParseStatus implements Writable {
 

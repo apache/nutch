@@ -34,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Based on Unit tests for MSWordParser by John Xing
  * 
- * @author Rohit Kulkarni & Ashish Vaidya
  */
 public class TestZipParser {
 

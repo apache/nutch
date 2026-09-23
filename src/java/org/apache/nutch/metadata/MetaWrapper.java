@@ -30,7 +30,6 @@ import org.apache.nutch.crawl.NutchWritable;
  * temporarily enriched during processing, but this temporary metadata doesn't
  * need to be permanently stored after the job is done.
  * 
- * @author Andrzej Bialecki
  */
 public class MetaWrapper extends NutchWritable {
   private Metadata metadata;

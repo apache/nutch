@@ -31,8 +31,6 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 
 /**
- * @author dogacan
- * @author mattmann
  * @since NUTCH-444
  * 
  *        An {@link IndexingFilter} implementation to pull out the relevant

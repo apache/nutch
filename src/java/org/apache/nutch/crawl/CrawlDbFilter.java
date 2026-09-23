@@ -36,7 +36,6 @@ import org.apache.nutch.net.URLNormalizers;
  * This class provides a way to separate the URL normalization and filtering
  * steps from the rest of CrawlDb manipulation code.
  * 
- * @author Andrzej Bialecki
  */
 public class CrawlDbFilter extends
     Mapper<Text, CrawlDatum, Text, CrawlDatum> {

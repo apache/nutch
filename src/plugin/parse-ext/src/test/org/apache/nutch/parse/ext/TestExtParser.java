@@ -46,7 +46,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 
  * Warning: currently only do test on linux platform.
  * 
- * @author John Xing
  */
 public class TestExtParser {
   private File tempFile = null;

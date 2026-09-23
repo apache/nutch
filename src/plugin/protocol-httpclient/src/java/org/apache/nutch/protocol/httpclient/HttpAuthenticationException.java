@@ -22,7 +22,6 @@ package org.apache.nutch.protocol.httpclient;
  * failures during Http protocol transfer in order to present the user with
  * credentials required during a future fetch.
  * 
- * @author Matt Tencati
  */
 public class HttpAuthenticationException extends Exception {
 

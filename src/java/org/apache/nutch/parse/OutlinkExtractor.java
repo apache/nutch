@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
  * @see <a href="http://regex.info/java.html">Overview about Java Regexp APIs
  *      </a>
  * 
- * @author Stephan Strittmatter - http://www.sybit.de
  * @version 1.0
  * @since 0.7
  */

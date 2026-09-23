@@ -28,7 +28,6 @@ import java.util.List;
  * Interface for all CommonCrawl formatter. It provides the signature for the
  * method used to get JSON data.
  *
- * @author gtotaro
  *
  */
 public interface CommonCrawlFormat extends Closeable {

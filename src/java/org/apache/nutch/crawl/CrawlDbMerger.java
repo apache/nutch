@@ -60,7 +60,6 @@ import org.apache.nutch.util.NutchJob;
  * metadata information from all versions is accumulated, with newer values
  * taking precedence over older values.
  * 
- * @author Andrzej Bialecki
  */
 public class CrawlDbMerger extends Configured implements Tool {
   private static final Logger LOG = LoggerFactory

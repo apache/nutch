@@ -27,7 +27,6 @@ import java.util.Map;
  * parse-plugins.xml data, and methods to retrieve the name of the appropriate
  * parsing plugin for a contentType.
  * 
- * @author mattmann
  * @version 1.0
  */
 class ParsePluginList {

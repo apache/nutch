@@ -23,7 +23,6 @@ import java.util.List;
  * 
  * @see HttpAuthenticationFactory
  * 
- * @author Matt Tencati
  */
 public interface HttpAuthentication {
 

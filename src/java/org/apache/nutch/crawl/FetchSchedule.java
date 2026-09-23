@@ -23,7 +23,6 @@ import org.apache.hadoop.io.Text;
  * This interface defines the contract for implementations that manipulate fetch
  * times and re-fetch intervals.
  * 
- * @author Andrzej Bialecki
  */
 public interface FetchSchedule extends Configurable {
 

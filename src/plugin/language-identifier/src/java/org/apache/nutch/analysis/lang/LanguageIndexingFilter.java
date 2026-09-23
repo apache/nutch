@@ -44,8 +44,6 @@ import org.apache.hadoop.conf.Configuration;
  * <li>Finally by analyzing the document content</li>
  * </ul>
  * 
- * @author Sami Siren
- * @author Jerome Charron
  */
 public class LanguageIndexingFilter implements IndexingFilter {
 

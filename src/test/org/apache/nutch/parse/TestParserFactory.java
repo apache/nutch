@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * Unit test for new parse plugin selection.
  * 
- * @author Sebastien Le Callonnec
  * @version 1.0
  */
 public class TestParserFactory {

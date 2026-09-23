@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * JUnit based test of class <code>RegexURLFilter</code>.
  * 
- * @author J&eacute;r&ocirc;me Charron
  */
 public class TestRegexURLFilter extends RegexURLFilterBaseTest {
 

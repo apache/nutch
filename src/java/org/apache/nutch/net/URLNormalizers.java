@@ -86,7 +86,6 @@ import org.apache.nutch.util.ObjectCache;
  * As soon as the url is unchanged the loop will stop and return the result.
  * </p>
  * 
- * @author Andrzej Bialecki
  */
 public final class URLNormalizers {
 

@@ -33,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * JUnit test case which tests 1. that anchor text is obtained 2. that anchor
  * deduplication functionality is working
  * 
- * @author lewismc
  * 
  */
 public class TestAnchorIndexingFilter {
