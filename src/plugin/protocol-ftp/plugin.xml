@@ -25,7 +25,7 @@
       <library name="protocol-ftp.jar">
          <export name="*"/>
       </library>
-      <library name="commons-net-1.2.0-dev.jar"/>
+      <library name="commons-net-3.9.0.jar"/>
    </runtime>
 
    <requires>

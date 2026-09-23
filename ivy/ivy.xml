@@ -44,6 +44,7 @@
     <dependency org="org.slf4j" name="slf4j-api" rev="2.0.18" conf="*->master" />
 
     <dependency org="org.apache.commons" name="commons-lang3" rev="3.20.0" conf="*->default" />
+    <dependency org="org.apache.commons" name="commons-text" rev="1.10.0" conf="*->default" />
     <dependency org="org.apache.commons" name="commons-collections4" rev="4.5.0" conf="*->master" />
     <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.14" conf="*->master" />
     <!-- commons-httpclient is still required -->
@@ -54,6 +55,11 @@
     <dependency org="org.apache.commons" name="commons-compress" rev="1.28.0" conf="*->default" />
     <dependency org="org.apache.commons" name="commons-jexl3" rev="3.6.0" conf="*->default" />
     <dependency org="com.tdunning" name="t-digest" rev="3.3" />
+
+    <!-- Pin to Hadoop 3.5.0's commons-cli so a newer transitive cannot
+         win at compile time and flag HelpFormatter / Option.Builder.build(). -->
+    <dependency org="commons-cli" name="commons-cli" rev="1.9.0" force="true"
+      conf="*->default" />
 
     <!-- Hadoop Dependencies -->
     <dependency org="org.apache.hadoop" name="hadoop-common" rev="${hadoop.version}" conf="*->default">

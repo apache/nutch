@@ -21,7 +21,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 
 /**
  * A decorator to Metadata that adds spellchecking capabilities to property
@@ -115,7 +115,8 @@ public class SpellCheckedMetadata extends CaseInsensitiveMetadata {
     if ((value == null) && (normalized != null)) {
       int threshold = Math.min(3, searched.length() / TRESHOLD_DIVIDER);
       for (int i = 0; i < normalized.length && value == null; i++) {
-        if (StringUtils.getLevenshteinDistance(searched, normalized[i]) < threshold) {
+        if (LevenshteinDistance.getDefaultInstance().apply(searched,
+            normalized[i]) < threshold) {
           value = NAMES_IDX.get(normalized[i]);
         }
       }

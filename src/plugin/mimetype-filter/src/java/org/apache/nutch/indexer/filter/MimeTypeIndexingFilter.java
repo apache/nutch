@@ -27,10 +27,9 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.hadoop.conf.Configuration;
@@ -192,34 +191,31 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
    */
   public static void main(String[] args) throws IOException, IndexingException {
     Option helpOpt = new Option("h", "help", false, "show this help message");
-    @SuppressWarnings("static-access")
-    Option rulesOpt = OptionBuilder.withArgName("file").hasArg()
-        .withDescription(
-            "Rules file to be used in the tests relative to the conf directory")
-        .isRequired().create("rules");
+    Option rulesOpt = Option.builder("rules")
+        .argName("file").hasArg()
+        .desc(
+        "Rules file to be used in the tests relative to the conf directory")
+        .required()
+        .build();
 
     Options options = new Options();
     options.addOption(helpOpt).addOption(rulesOpt);
 
-    CommandLineParser parser = new GnuParser();
-    HelpFormatter formatter = new HelpFormatter();
+    CommandLineParser parser = new DefaultParser();
+    HelpFormatter formatter = HelpFormatter.builder().get();
     String rulesFile;
 
     try {
       CommandLine line = parser.parse(options, args);
 
       if (line.hasOption("help") || !line.hasOption("rules")) {
-        formatter
-            .printHelp("org.apache.nutch.indexer.filter.MimeTypeIndexingFilter",
-                options, true);
+        formatter.printHelp("org.apache.nutch.indexer.filter.MimeTypeIndexingFilter", "", options, "", true);
         return;
       }
 
       rulesFile = line.getOptionValue("rules");
     } catch (UnrecognizedOptionException e) {
-      formatter
-          .printHelp("org.apache.nutch.indexer.filter.MimeTypeIndexingFilter",
-              options, true);
+      formatter.printHelp("org.apache.nutch.indexer.filter.MimeTypeIndexingFilter", "", options, "", true);
       return;
     } catch (Exception e) {
       LOG.error(StringUtils.stringifyException(e));

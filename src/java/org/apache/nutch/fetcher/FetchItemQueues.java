@@ -17,12 +17,12 @@
 package org.apache.nutch.fetcher;
 
 import java.lang.invoke.MethodHandles;
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hadoop.conf.Configuration;
@@ -101,7 +101,7 @@ public class FetchItemQueues {
     if (dedupRedirMaxTime > 0 && dedupRedirMaxSize > 0) {
       redirectDedupCache = CacheBuilder.newBuilder()
           .maximumSize(dedupRedirMaxSize)
-          .expireAfterWrite(dedupRedirMaxTime, TimeUnit.SECONDS).build();
+          .expireAfterWrite(Duration.ofSeconds(dedupRedirMaxTime)).build();
     }
   }
 
