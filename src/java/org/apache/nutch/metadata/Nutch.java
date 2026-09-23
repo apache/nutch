@@ -20,7 +20,7 @@ import org.apache.hadoop.io.Text;
 
 /**
  * A collection of Nutch internal metadata constants.
- * 
+ *
  */
 public interface Nutch {
 

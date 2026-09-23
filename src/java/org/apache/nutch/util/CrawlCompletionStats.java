@@ -135,7 +135,7 @@ public class CrawlCompletionStats extends Configured implements Tool {
     } else if (cli.getOptionValue("mode").equals("domain")) {
       jobName = jobName + "Domain statistics";
       mode = MODE_DOMAIN;
-    } 
+    }
 
     Configuration conf = getConf();
     conf.setInt("domain.statistics.mode", mode);

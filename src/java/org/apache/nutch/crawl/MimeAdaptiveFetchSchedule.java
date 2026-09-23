@@ -34,18 +34,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Extension of @see AdaptiveFetchSchedule that allows for more flexible
  * configuration of DEC and INC factors for various MIME-types.
- * 
+ *
  * This class can be typically used in cases where a recrawl consists of many
  * different MIME-types. It's not very common for MIME-types other than
  * text/html to change frequently. Using this class you can configure different
  * factors per MIME-type so to prefer frequently changing MIME-types over
  * others.
- * 
+ *
  * For it to work this class relies on the Content-Type MetaData key being
  * present in the CrawlDB. This can either be done when injecting new URL's or
  * by adding "Content-Type" to the db.parsemeta.to.crawldb configuration setting
  * to force MIME-types of newly discovered URL's to be added to the CrawlDB.
- * 
+ *
  */
 public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
   // Loggg
@@ -126,7 +126,7 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
 
   /**
    * Reads the mime types and their associated INC/DEC factors in a HashMap
-   * 
+   *
    * @param mimeFile
    *          Reader
    * @return void

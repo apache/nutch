@@ -217,7 +217,7 @@ public class HttpWebClient {
    * webdriver</a> There are a number of configuration properties within
    * <code>nutch-site.xml</code> which determine whether to take screenshots of
    * the rendered pages and persist them as timestamped .png's into HDFS.
-   * 
+   *
    * @param url
    *          the URL to fetch and render
    * @param conf

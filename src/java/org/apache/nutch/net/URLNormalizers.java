@@ -43,7 +43,7 @@ import org.apache.nutch.util.ObjectCache;
  * Different lists of normalizers may be defined for different "scopes", or
  * contexts where they are used (note however that they need to be activated
  * first through <code>plugin.include</code> property).
- * 
+ *
  * <p>
  * There is one global scope defined by default, which consists of all active
  * normalizers. The order in which these normalizers are executed may be defined
@@ -85,7 +85,7 @@ import org.apache.nutch.util.ObjectCache;
  * count can be configured through <code>urlnormalizer.loop.count</code> property.
  * As soon as the url is unchanged the loop will stop and return the result.
  * </p>
- * 
+ *
  */
 public final class URLNormalizers {
 
@@ -164,7 +164,7 @@ public final class URLNormalizers {
   /**
    * Function returns an array of {@link URLNormalizer}s for a given scope, with
    * a specified order.
-   * 
+   *
    * @param scope
    *          The scope to return the <code>Array</code> of
    *          {@link URLNormalizer}s for.
@@ -208,7 +208,7 @@ public final class URLNormalizers {
 
   /**
    * Finds the best-suited normalizer plugin for a given scope.
-   * 
+   *
    * @param scope
    *          Scope for which we seek a normalizer plugin.
    * @return a list of extensions to be used for this scope. If none, returns
@@ -245,7 +245,7 @@ public final class URLNormalizers {
 
   /**
    * searches a list of suitable url normalizer plugins for the given scope.
-   * 
+   *
    * @param scope
    *          Scope for which we seek a url normalizer plugin.
    * @return List - List of extensions to be used for this scope. If none,
@@ -295,7 +295,7 @@ public final class URLNormalizers {
 
   /**
    * Normalize
-   * 
+   *
    * @param urlString
    *          The URL string to normalize.
    * @param scope

@@ -18,7 +18,7 @@
 <project name="protocol-file" default="jar-core">
 
   <import file="../build-plugin.xml"/>
-  
+
  <!-- for junit test -->
   <mkdir dir="${build.test}/data"/>
   <copy todir="${build.test}/data">

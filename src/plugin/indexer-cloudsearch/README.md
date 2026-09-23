@@ -15,7 +15,7 @@
  limitations under the License.
 -->
 
-AWS CloudSearch plugin for Nutch 
+AWS CloudSearch plugin for Nutch
 ================================
 
 See [http://aws.amazon.com/cloudsearch/] for information on AWS CloudSearch.
@@ -49,16 +49,16 @@ Each parameter has the form `<param name="<name>" value="<value>"/>` and the par
 
 Parameter Name | Description | Default value
 --|--|--
-endpoint | Endpoint where service requests should be submitted. | 
-region | Region name. | 
+endpoint | Endpoint where service requests should be submitted. |
+region | Region name. |
 batch.dump | **true** to store the JSON representation of the documents to a local temp dir. The files has the prefix "CloudSearch_" e.g. `/tmp/CloudSearch_4822180575734804454.json`. This temp file can be used as a template when defining the fields in the domain creation. | false
 batch.maxSize | Maximum number of documents to send as a batch to CloudSearch. | -1
 
 ## Create a CloudSearch domain
 
-This can be done using the web console [https://eu-west-1.console.aws.amazon.com/cloudsearch/home?region=eu-west-1#]. You can use the temp file generated above to bootstrap the field definition. 
+This can be done using the web console [https://eu-west-1.console.aws.amazon.com/cloudsearch/home?region=eu-west-1#]. You can use the temp file generated above to bootstrap the field definition.
 
-You can also create the domain using the AWS CLI [http://docs.aws.amazon.com/cloudsearch/latest/developerguide/creating-domains.html] and the `createCSDomain.sh` example script provided. This script is merely as starting point which you should further improve and fine tune. 
+You can also create the domain using the AWS CLI [http://docs.aws.amazon.com/cloudsearch/latest/developerguide/creating-domains.html] and the `createCSDomain.sh` example script provided. This script is merely as starting point which you should further improve and fine tune.
 
 Note that the creation of the domain can take some time. Once it is complete, note the document endpoint, or alternatively verify the region and domain name.
 

@@ -22,7 +22,7 @@ import java.util.ListIterator;
 
 /**
  * TrieStringMatcher is a base class for simple tree-based string matching.
- * 
+ *
  * This class is thread-safe during string matching but not when adding strings
  * to the trie.
  */

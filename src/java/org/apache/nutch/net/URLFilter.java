@@ -33,7 +33,7 @@ public interface URLFilter extends Pluggable, Configurable {
   /**
    * Interface for a filter that transforms a URL: it can pass the original URL
    * through or "delete" the URL by returning null
-   * 
+   *
    * @param urlString
    *          the URL string the filter is applied on
    * @return the original URL string if the URL is accepted by the filter or

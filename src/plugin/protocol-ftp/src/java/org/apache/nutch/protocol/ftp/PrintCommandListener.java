@@ -27,7 +27,7 @@ import org.apache.commons.net.ProtocolCommandListener;
 
 /***
  * This is a support class for logging all ftp command/reply traffic.
- * 
+ *
  ***/
 public class PrintCommandListener implements ProtocolCommandListener {
   private Logger __logger;

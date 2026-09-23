@@ -43,7 +43,7 @@ import org.apache.nutch.util.XmlUtil;
 /**
  * A reader to load the information stored in the
  * <code>$NUTCH_HOME/conf/parse-plugins.xml</code> file.
- * 
+ *
  * @version 1.0
  */
 class ParsePluginsReader {
@@ -67,7 +67,7 @@ class ParsePluginsReader {
   /**
    * Reads the <code>parse-plugins.xml</code> file and returns the
    * {@link #ParsePluginList} defined by it.
-   * 
+   *
    * @return A {@link #ParsePluginList} specified by the
    *         <code>parse-plugins.xml</code> file.
    * @throws Exception
@@ -171,7 +171,7 @@ class ParsePluginsReader {
    * Tests parsing of the parse-plugins.xml file. An alternative name for the
    * file can be specified via the <code>--file</code> option, although the file
    * must be located in the <code>$NUTCH_HOME/conf</code> directory.
-   * 
+   *
    * @param args
    *          Currently only the --file argument to specify an alternative name
    *          for the parse-plugins.xml file is supported.

@@ -215,7 +215,7 @@ public class LinkDumper extends Configured implements Tool {
     /**
      * Wraps all values in ObjectWritables.
      */
-    public static class InvertMapper extends 
+    public static class InvertMapper extends
         Mapper<Text, Writable, Text, ObjectWritable> {
 
       @Override
@@ -251,7 +251,7 @@ public class LinkDumper extends Configured implements Tool {
         String fromUrl = key.toString();
         List<LinkDatum> outlinks = new ArrayList<>();
         Node node = null;
-        
+
         // loop through all values aggregating outlinks, saving node
         for (ObjectWritable write : values) {
           Object obj = write.get();
@@ -317,13 +317,13 @@ public class LinkDumper extends Configured implements Tool {
    * Runs the inverter and merger jobs of the LinkDumper tool to create the url
    * to inlink node database.
    * @param webGraphDb the {@link org.apache.hadoop.fs.Path} to the output
-   * of {@link org.apache.nutch.scoring.webgraph.WebGraph#createWebGraph(Path, Path[], boolean, boolean)} 
+   * of {@link org.apache.nutch.scoring.webgraph.WebGraph#createWebGraph(Path, Path[], boolean, boolean)}
    * @throws IOException if there is a fatal I/O issue at runtime
    * @throws InterruptedException if the Job is interrupted during execution
-   * @throws ClassNotFoundException if classes required to run 
+   * @throws ClassNotFoundException if classes required to run
    * the Job cannot be located
    */
-  public void dumpLinks(Path webGraphDb) throws IOException, 
+  public void dumpLinks(Path webGraphDb) throws IOException,
       InterruptedException, ClassNotFoundException {
 
     StopWatch stopWatch = new StopWatch();

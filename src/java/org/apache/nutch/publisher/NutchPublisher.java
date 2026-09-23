@@ -21,7 +21,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.plugin.Pluggable;
 
 /**
- * All publisher subscriber model implementations should implement this interface. 
+ * All publisher subscriber model implementations should implement this interface.
  *
  */
 public interface NutchPublisher extends Configurable, Pluggable {
@@ -37,7 +37,7 @@ public interface NutchPublisher extends Configurable, Pluggable {
   public boolean setConfig(Configuration conf);
 
   /**
-   * This method publishes the event. Make sure that the event is a Java POJO to avoid 
+   * This method publishes the event. Make sure that the event is a Java POJO to avoid
    * Jackson JSON conversion errors. Currently we use the FetcherThreadEvent
    * @param event the {@link java.lang.Object} (event) to publish
    * @param conf {@link org.apache.hadoop.conf.Configuration} to be used

@@ -48,7 +48,7 @@ public class DomUtil {
 
   /**
    * Returns parsed dom tree or null if any error
-   * 
+   *
    * @param is XML {@link InputStream}
    * @return A parsed DOM tree from the given {@link InputStream}.
    */
@@ -81,7 +81,7 @@ public class DomUtil {
 
   /**
    * Save dom into {@link OutputStream}
-   * 
+   *
    * @param os Output DOM XML stream to save to
    * @param e A specific DOM {@link org.w3c.dom.Element} to save
    */
@@ -106,7 +106,7 @@ public class DomUtil {
 
   /**
    * Save dom into {@link OutputStream}
-   * 
+   *
    * @param os Output DOM XML stream to save to
    * @param doc A specific DOM {@link org.w3c.dom.DocumentFragment} to save
    */

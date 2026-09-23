@@ -46,10 +46,10 @@
   </scm>
 
   <pluginRepositories>
-    <pluginRepository> 
-      <id>maven2</id> 
-      <url>https://repo.maven.apache.org/maven2/</url> 
-    </pluginRepository> 
+    <pluginRepository>
+      <id>maven2</id>
+      <url>https://repo.maven.apache.org/maven2/</url>
+    </pluginRepository>
   </pluginRepositories>
 
   <developers>
@@ -90,7 +90,7 @@
     </developer>
     <developer>
       <id>tejasp</id>
-      <name>Tejas Patil</name> 
+      <name>Tejas Patil</name>
       <email>tejasp@apache.org</email>
     </developer>
     <developer>

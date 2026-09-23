@@ -29,7 +29,7 @@ import org.apache.nutch.crawl.NutchWritable;
  * serialized by {@link NutchWritable}. This is useful when data needs to be
  * temporarily enriched during processing, but this temporary metadata doesn't
  * need to be permanently stored after the job is done.
- * 
+ *
  */
 public class MetaWrapper extends NutchWritable {
   private Metadata metadata;

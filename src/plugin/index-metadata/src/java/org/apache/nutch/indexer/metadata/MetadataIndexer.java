@@ -48,7 +48,7 @@ public class MetadataIndexer implements IndexingFilter {
   private static final String content_CONF_PROPERTY = "index.content.md";
   private static final String separator_CONF_PROPERTY = "index.metadata.separator";
   private static final String mvfields_CONF_PROPERTY = "index.metadata.multivalued.fields";
-  
+
   @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
@@ -88,7 +88,7 @@ public class MetadataIndexer implements IndexingFilter {
 
     return doc;
   }
-  
+
   protected void add(NutchDocument doc, String key, String value) {
     if (separator == null || value.indexOf(separator) == -1 || !mvFields.contains(key)) {
       value = value.trim();
@@ -112,7 +112,7 @@ public class MetadataIndexer implements IndexingFilter {
     dbFieldnames = conf.getStrings(db_CONF_PROPERTY);
     parseFieldnames = conf.getStrings(parse_CONF_PROPERTY);
     contentFieldnames = conf.getStrings(content_CONF_PROPERTY);
-    
+
     separator = conf.get(separator_CONF_PROPERTY, null);
     mvFields = new HashSet<>(
         Arrays.asList(conf.getStrings(mvfields_CONF_PROPERTY, new String[0])));

@@ -33,7 +33,7 @@
 
    <extension id="org.apache.nutch.htmlparsefilter.regex"
         name="Nutch Regex Parser Filter" point="org.apache.nutch.parse.HtmlParseFilter">
-      <implementation id="RegexParseFilter" 
+      <implementation id="RegexParseFilter"
                       class="org.apache.nutch.parsefilter.regex.RegexParseFilter">
           <parameter name="file" value="regex-parsefilter.txt"/>
       </implementation>

@@ -74,14 +74,14 @@ import org.apache.nutch.util.URLUtil;
  * Creates three databases, one for inlinks, one for outlinks, and a node
  * database that holds the number of in and outlinks to a url and the current
  * score for the url.
- * 
+ *
  * The score is set by an analysis program such as LinkRank. The WebGraph is an
  * update-able database. Outlinks are stored by their fetch time or by the
  * current system time if no fetch time is available. Only the most recent
  * version of outlinks for a given url is stored. As more crawls are executed
  * and the WebGraph updated, newer Outlinks will replace older Outlinks. This
  * allows the WebGraph to adapt to changes in the link structure of the web.
- * 
+ *
  * The Inlink database is created from the Outlink database and is regenerated
  * when the WebGraph is updated. The Node database is created from both the
  * Inlink and Outlink databases. Because the Node database is overwritten when
@@ -113,10 +113,10 @@ public class WebGraph extends Configured implements Tool {
     /**
      * Returns the fetch time from the parse data or the current system time if
      * the fetch time doesn't exist.
-     * 
+     *
      * @param data
      *          The parse data.
-     * 
+     *
      * @return The fetch time as a long.
      */
     private static long getFetchTime(ParseData data) {
@@ -165,10 +165,10 @@ public class WebGraph extends Configured implements Tool {
 
       /**
        * Normalizes and trims extra whitespace from the given url.
-       * 
+       *
        * @param url
        *          The url to normalize.
-       * 
+       *
        * @return The normalized url.
        */
       private String normalizeUrl(String url) {
@@ -180,7 +180,7 @@ public class WebGraph extends Configured implements Tool {
         String normalized = null;
         if (urlNormalizers != null) {
           try {
-            
+
             // normalize and trim the url
             normalized = urlNormalizers.normalize(url,
                 URLNormalizers.SCOPE_DEFAULT);
@@ -195,10 +195,10 @@ public class WebGraph extends Configured implements Tool {
 
       /**
        * Filters the given url.
-       * 
+       *
        * @param url
        *          The url to filter.
-       * 
+       *
        * @return The filtered url or null.
        */
       private String filterUrl(String url) {
@@ -207,7 +207,7 @@ public class WebGraph extends Configured implements Tool {
           return url;
         }
 
-        try { 
+        try {
           url = filters.filter(url);
         } catch (Exception e) {
           url = null;
@@ -343,7 +343,7 @@ public class WebGraph extends Configured implements Tool {
         ignoreDomain = conf.getBoolean("link.ignore.internal.domain", true);
         limitPages = conf.getBoolean("link.ignore.limit.page", true);
         limitDomains = conf.getBoolean("link.ignore.limit.domain", true);
-        
+
         // Initialize cached counter references
         initCounters(context);
       }
@@ -357,7 +357,7 @@ public class WebGraph extends Configured implements Tool {
         removedLinksCounter = context.getCounter(
             NutchMetrics.GROUP_WEBGRAPH, NutchMetrics.WEBGRAPH_REMOVED_LINKS_TOTAL);
       }
-   
+
       @Override
       public void reduce(Text key, Iterable<NutchWritable> values,
           Context context)
@@ -480,7 +480,7 @@ public class WebGraph extends Configured implements Tool {
      * Counts the number of inlinks and outlinks for each url and sets a default
      * score of 0.0 for each url (node) in the webgraph.
      */
-    public static class NodeDbReducer extends 
+    public static class NodeDbReducer extends
         Reducer<Text, LinkDatum, Text, Node> {
 
       @Override
@@ -513,7 +513,7 @@ public class WebGraph extends Configured implements Tool {
    * Creates the three different WebGraph databases, Outlinks, Inlinks, and
    * Node. If a current WebGraph exists then it is updated, if it doesn't exist
    * then a new WebGraph database is created.
-   * 
+   *
    * @param webGraphDb
    *          The WebGraph to create or update.
    * @param segments
@@ -523,15 +523,15 @@ public class WebGraph extends Configured implements Tool {
    *          whether to use URLNormalizers on URL's in the segment
    * @param filter
    *          whether to use URLFilters on URL's in the segment
-   * 
+   *
    * @throws IOException
    *           If an error occurs while processing the WebGraph.
    * @throws InterruptedException if the Job is interrupted during execution
-   * @throws ClassNotFoundException if classes required to run 
+   * @throws ClassNotFoundException if classes required to run
    * the Job cannot be located
    */
   public void createWebGraph(Path webGraphDb, Path[] segments,
-      boolean normalize, boolean filter) throws IOException, 
+      boolean normalize, boolean filter) throws IOException,
       InterruptedException, ClassNotFoundException {
 
     StopWatch stopWatch = new StopWatch();

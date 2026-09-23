@@ -39,8 +39,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * nutch-default.xml. 3. that title is truncated as per
  * {@code indexer.max.title.length} in nutch-default.xml. 4. that content is
  * truncated as per {@code indexer.max.content.length} in nutch-default.xml.
- * 
- * 
+ *
+ *
  */
 
 public class TestBasicIndexingFilter {

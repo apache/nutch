@@ -31,11 +31,11 @@ public class DocVector {
   public void setTermFreqVector(HashMap<String, Integer> termFreqVector) {
     this.termFreqVector = termFreqVector;
   }
-  
+
   public void setVectorEntry(int pos, long freq) {
     termVector.put(pos, freq);
   }
-  
+
   public float dotProduct(DocVector docVector) {
     float product = 0;
     for(Map.Entry<String, Integer> entry : termFreqVector.entrySet()) {
@@ -45,7 +45,7 @@ public class DocVector {
     }
     return product;
   }
-  
+
   public float getL2Norm() {
     float sum = 0;
     for(Map.Entry<String, Integer> entry : termFreqVector.entrySet()) {

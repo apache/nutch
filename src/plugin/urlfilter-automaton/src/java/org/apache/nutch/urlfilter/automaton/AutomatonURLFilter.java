@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * RegexURLFilterBase implementation based on the <a
  * href="https://www.brics.dk/automaton/">dk.brics.automaton</a> Finite-State
  * Automata for Java<sup>TM</sup>.
- * 
+ *
  * @see <a href="https://www.brics.dk/automaton/">dk.brics.automaton</a>
  */
 public class AutomatonURLFilter extends RegexURLFilterBase {
@@ -82,7 +82,7 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
   protected RegexRule createRule(boolean sign, String regex) {
     return new Rule(sign, regex);
   }
-  
+
   @Override
   protected RegexRule createRule(boolean sign, String regex, String hostOrDomain) {
     return new Rule(sign, regex, hostOrDomain);
@@ -105,7 +105,7 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
       super(sign, regex);
       automaton = new RunAutomaton(new RegExp(regex, RegExp.ALL).toAutomaton());
     }
-    
+
     Rule(boolean sign, String regex, String hostOrDomain) {
       super(sign, regex, hostOrDomain);
       automaton = new RunAutomaton(new RegExp(regex, RegExp.ALL).toAutomaton());

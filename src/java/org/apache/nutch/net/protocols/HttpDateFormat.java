@@ -30,13 +30,13 @@ import java.time.format.DateTimeParseException;
 /**
  * Parse and format HTTP dates in HTTP headers, e.g., used to fill the
  * &quot;If-Modified-Since&quot; request header field.
- * 
+ *
  * HTTP dates use Greenwich Mean Time (GMT) as time zone and a date format like:
- * 
+ *
  * <pre>
  * Sun, 06 Nov 1994 08:49:37 GMT
  * </pre>
- * 
+ *
  * See <a href=
  * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1">sec. 3.3.1
  * in RFC 2616</a> and

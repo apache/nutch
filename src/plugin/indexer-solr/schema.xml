@@ -68,7 +68,7 @@
 
     <!-- The format for this date field is of the form 1995-12-31T23:59:59Z, and
          is a more restricted form of the canonical representation of dateTime
-         http://www.w3.org/TR/xmlschema-2/#dateTime    
+         http://www.w3.org/TR/xmlschema-2/#dateTime
          The trailing "Z" designates UTC time and is mandatory.
          Optional fractional seconds are allowed: 1995-12-31T23:59:59.999Z
          All other components are mandatory.
@@ -83,15 +83,15 @@
                NOW/DAY+6MONTHS+3DAYS
                   ... 6 months and 3 days in the future from the start of
                       the current day
-                      
+
          Consult the DateField javadocs for more information.
 
          Note: For faster range queries, consider the tdate type
       -->
     <fieldType name="date" class="solr.TrieDateField" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
-    
+
     <fieldType name="location" class="solr.LatLonPointSpatialField"/>
-    
+
     <!-- A Trie based date field for faster date range queries and date faceting. -->
     <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
     <fieldType name="tdates" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0" multiValued="true"/>
@@ -260,7 +260,7 @@
         <!--
         The DelimitedPayloadTokenFilter can put payloads on tokens... for example,
         a token of "foo|1.4"  would be indexed as "foo" with a payload of 1.4f
-        Attributes of the DelimitedPayloadTokenFilterFactory : 
+        Attributes of the DelimitedPayloadTokenFilterFactory :
          "delimiter" - a one character delimiter. Default is | (pipe)
 	 "encoder" - how to encode the following value into a playload
 	    float -> org.apache.lucene.analysis.payloads.FloatEncoder,
@@ -355,7 +355,7 @@
     <!-- fields for index-geoip plugin -->
     <!-- Common fields -->
     <field name="ip" type="string" stored="true" indexed="true"/>
-    
+
     <!-- Database-specific network address fields -->
     <field name="anonymousNetworkAddress" type="string" stored="true" indexed="true"/>
     <field name="asnNetworkAddress" type="string" stored="true" indexed="true"/>
@@ -364,7 +364,7 @@
     <field name="countryNetworkAddress" type="string" stored="true" indexed="true"/>
     <field name="domainNetworkAddress" type="string" stored="true" indexed="true"/>
     <field name="insightsNetworkAddress" type="string" stored="true" indexed="true"/>
-    
+
     <!-- City database fields -->
     <field name="cityName" type="string" stored="true" indexed="true"/>
     <field name="cityConfidence" type="pint" stored="true" indexed="true"/>
@@ -384,19 +384,19 @@
     <field name="postalCode" type="string" stored="true" indexed="true"/>
     <field name="postalConfidence" type="pint" stored="true" indexed="true"/>
     <field name="countryType" type="string" stored="true" indexed="true"/>
-    
+
     <!-- Subdivision fields (most specific) -->
     <field name="mostSpecificSubDivName" type="string" stored="true" indexed="true"/>
     <field name="mostSpecificSubDivIsoCode" type="string" stored="true" indexed="true"/>
     <field name="mostSpecificSubDivConfidence" type="pint" stored="true" indexed="true"/>
     <field name="mostSpecificSubDivGeoNameId" type="pint" stored="true" indexed="true"/>
-    
+
     <!-- Subdivision fields (least specific) -->
     <field name="leastSpecificSubDivName" type="string" stored="true" indexed="true"/>
     <field name="leastSpecificSubDivIsoCode" type="string" stored="true" indexed="true"/>
     <field name="leastSpecificSubDivConfidence" type="pint" stored="true" indexed="true"/>
     <field name="leastSpecificSubDivGeoNameId" type="pint" stored="true" indexed="true"/>
-    
+
     <!-- ASN/ISP database fields -->
     <field name="autonomousSystemNumber" type="plong" stored="true" indexed="true"/>
     <field name="autonomousSystemOrganization" type="string" stored="true" indexed="true"/>
@@ -405,13 +405,13 @@
     <field name="isp" type="string" stored="true" indexed="true"/>
     <field name="org" type="string" stored="true" indexed="true"/>
     <field name="organization" type="string" stored="true" indexed="true"/>
-    
+
     <!-- Domain database fields -->
     <field name="domain" type="string" stored="true" indexed="true"/>
-    
+
     <!-- Connection Type database fields -->
     <field name="connectionType" type="string" stored="true" indexed="true"/>
-    
+
     <!-- Anonymous IP / Traits fields -->
     <field name="isAnonymous" type="boolean" stored="true" indexed="true"/>
     <field name="isAnonymousVpn" type="boolean" stored="true" indexed="true"/>
@@ -422,14 +422,14 @@
     <field name="isTorExitNode" type="boolean" stored="true" indexed="true"/>
     <field name="isAnycast" type="boolean" stored="true" indexed="true"/>
     <field name="isLegitimateProxy" type="boolean" stored="true" indexed="true"/>
-    
+
     <!-- Mobile/Network traits fields -->
     <field name="mobileCountryCode" type="string" stored="true" indexed="true"/>
     <field name="mobileNetworkCode" type="string" stored="true" indexed="true"/>
     <field name="staticIpScore" type="pfloat" stored="true" indexed="true"/>
     <field name="userCount" type="pint" stored="true" indexed="true"/>
     <field name="userType" type="string" stored="true" indexed="true"/>
-    
+
     <!-- Spatial location field (derived from latLon via copyField) -->
     <field name="location" type="location" stored="true" indexed="true"/>
 
@@ -468,7 +468,7 @@
     <!-- fields for creativecommons plugin -->
     <field name="cc" type="string" stored="true" indexed="true" multiValued="true"/>
 
-    <!-- fields for tld plugin -->    
+    <!-- fields for tld plugin -->
     <field name="tld" type="string" stored="false" indexed="false"/>
 
     <!-- field containing segment's raw binary content if indexed with -addBinaryContent -->

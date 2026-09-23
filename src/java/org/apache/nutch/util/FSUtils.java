@@ -32,7 +32,7 @@ public class FSUtils {
    * Replaces the current path with the new path and if set removes the old
    * path. If removeOld is set to false then the old path will be set to the
    * name current.old.
-   * 
+   *
    * @param fs
    *          The FileSystem.
    * @param current
@@ -41,7 +41,7 @@ public class FSUtils {
    *          The path to replace with.
    * @param removeOld
    *          True if we are removing the current path.
-   * 
+   *
    * @throws IOException
    *           If an error occurs during replacement.
    */
@@ -63,7 +63,7 @@ public class FSUtils {
 
   /**
    * Closes a group of SequenceFile readers.
-   * 
+   *
    * @param readers
    *          The SequenceFile readers to close.
    * @throws IOException
@@ -85,7 +85,7 @@ public class FSUtils {
 
   /**
    * Closes a group of MapFile readers.
-   * 
+   *
    * @param readers
    *          The MapFile readers to close.
    * @throws IOException

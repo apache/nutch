@@ -25,17 +25,17 @@ import org.apache.hadoop.conf.Configuration;
  * Extensions are components that can be dynamically installed as a kind of
  * listener to extension points. Extension points are a kind of publisher that
  * provide a API and invoke one or a set of installed extensions.
- * 
+ *
  * Each plugin may extend the base <code>Plugin</code>. <code>Plugin</code>
  * instances are used as the point of life cycle management of plugin related
  * functionality.
- * 
+ *
  * The <code>Plugin</code> will be started up and shutdown by the nutch plugin
  * management system.
- * 
+ *
  * A possible usecase of the <code>Plugin</code> implementation is to create or
  * close a database connection.
- * 
+ *
  */
 public class Plugin {
   private PluginDescriptor fDescriptor;
@@ -55,7 +55,7 @@ public class Plugin {
    * Will be invoked until plugin start up. Since the nutch-plugin system use
    * lazy loading the start up is invoked until the first time a extension is
    * used.
-   * 
+   *
    * @throws PluginRuntimeException
    *           If the startup was without success.
    */
@@ -64,7 +64,7 @@ public class Plugin {
 
   /**
    * Shutdown the plugin. This happens until nutch will be stopped.
-   * 
+   *
    * @throws PluginRuntimeException
    *           if a problems occurs until shutdown the plugin.
    */
@@ -73,7 +73,7 @@ public class Plugin {
 
   /**
    * Returns the plugin descriptor
-   * 
+   *
    * @return PluginDescriptor
    */
   public PluginDescriptor getDescriptor() {

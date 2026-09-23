@@ -161,7 +161,7 @@ public class SegmentMerger extends Configured implements Tool{
         private Writable w;
 
         @Override
-        public void initialize(InputSplit split, TaskAttemptContext context) 
+        public void initialize(InputSplit split, TaskAttemptContext context)
                 throws IOException, InterruptedException {
           splitReader.initialize(split, context);
         }
@@ -295,7 +295,7 @@ public class SegmentMerger extends Configured implements Tool{
                   SequenceFile.Writer.blockSize(1073741824),
                   SequenceFile.Writer.compression(SequenceFileOutputFormat.getOutputCompressionType(context), new DefaultCodec()),
                   SequenceFile.Writer.progressable((Progressable)context),
-                  SequenceFile.Writer.metadata(new Metadata())); 
+                  SequenceFile.Writer.metadata(new Metadata()));
 
           sliceWriters.put(slice + dirName, res);
           return res;
@@ -421,14 +421,14 @@ public class SegmentMerger extends Configured implements Tool{
 
     private SegmentMergeFilters mergeFilters = null;
     private long sliceSize = -1;
-    private long curCount = 0; 
+    private long curCount = 0;
 
     @Override
     public void setup(Reducer<Text, MetaWrapper, Text, MetaWrapper>.Context context) {
       Configuration conf = context.getConfiguration();
       if (conf.getBoolean("segment.merger.filter", false)) {
         mergeFilters = new SegmentMergeFilters(conf);
-      }      
+      }
       sliceSize = conf.getLong("segment.merger.slice", -1);
       if (sliceSize > 0) {
         LOG.info("Slice size: {} URLs.", sliceSize);

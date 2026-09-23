@@ -41,7 +41,7 @@
         <parameter name="protocolName" value="foo"/>
         <parameter name="urlStreamHandler" value="org.apache.nutch.protocol.foo.Handler"/>
       </implementation>
-      
+
    </extension>
 
 </plugin>

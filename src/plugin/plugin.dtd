@@ -42,7 +42,7 @@
 <!-- A user displayable name for the plug-in -->
 <!ATTLIST plugin name CDATA #REQUIRED>
 
-<!-- 
+<!--
  ! A unique identifier for the plug-in.
  ! To minimize potential for naming collisions,
  ! the identifier should be derived from the internet domain id
@@ -69,7 +69,7 @@
 <!ATTLIST plugin class CDATA #IMPLIED>
 
 
-<!-- 
+<!--
  ! The <requires> section of the manifest declares
  ! any dependencies on other plug-ins.
  !-->
@@ -157,7 +157,7 @@
  !-->
 <!ELEMENT extension (implementation+)>
 
-<!-- 
+<!--
  ! A reference to an extension point being configured.
  ! The extension point can be one defined in this plug-in or another plug-in.
  !-->
@@ -202,5 +202,5 @@
 <!ATTLIST parameter name CDATA #REQUIRED>
 
 <!-- The parameter's value -->
-<!ATTLIST parameter value CDATA #REQUIRED> 
+<!ATTLIST parameter value CDATA #REQUIRED>
 

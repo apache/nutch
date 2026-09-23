@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class creates a model used to store Document vector representation of the corpus. 
+ * This class creates a model used to store Document vector representation of the corpus.
  *
  */
 public class Model {
@@ -69,7 +69,7 @@ public class Model {
       int maxgram = ngramArr[1];
       LOG.info("Value of mingram: {} maxgram: {}", mingram, maxgram);
 
-      // TODO : Allow for corpus of documents to be provided as gold standard. 
+      // TODO : Allow for corpus of documents to be provided as gold standard.
       String line;
       StringBuilder sb = new StringBuilder();
       BufferedReader br = new BufferedReader(conf.getConfResourceAsReader((conf.get("cosine.goldstandard.file"))));
@@ -83,7 +83,7 @@ public class Model {
         throw new Exception("Could not create DocVector for goldstandard");
       }
     } catch (Exception e) {
-      LOG.warn("Failed to add {} to model : {}",conf.get("cosine.goldstandard.file","goldstandard.txt.template"), 
+      LOG.warn("Failed to add {} to model : {}",conf.get("cosine.goldstandard.file","goldstandard.txt.template"),
           StringUtils.stringifyException(e));
     }
     if(docVectors.size()>0) {
@@ -95,7 +95,7 @@ public class Model {
   }
 
   /**
-   * Used to create a DocVector from given String text. Used during the parse stage of the crawl 
+   * Used to create a DocVector from given String text. Used during the parse stage of the crawl
    * cycle to create a DocVector of the currently parsed page from the parseText attribute value
    * @param content The text to tokenize
    * @param mingram Value of mingram for tokenizing
@@ -114,11 +114,11 @@ public class Model {
       tokenizer = new LuceneTokenizer(content, TokenizerType.STANDARD, StemFilterType.PORTERSTEM_FILTER, mingram, maxgram);
     }
     else if(stopWords!=null) {
-      tokenizer = new LuceneTokenizer(content, TokenizerType.STANDARD, stopWords, true, 
+      tokenizer = new LuceneTokenizer(content, TokenizerType.STANDARD, stopWords, true,
           StemFilterType.PORTERSTEM_FILTER);
     }
     else {
-      tokenizer = new LuceneTokenizer(content, TokenizerType.STANDARD, true, 
+      tokenizer = new LuceneTokenizer(content, TokenizerType.STANDARD, true,
           StemFilterType.PORTERSTEM_FILTER);
     }
     TokenStream tStream = tokenizer.getTokenStream();

@@ -23,7 +23,7 @@ import org.apache.hadoop.io.Text;
  * the page was changed or not, the <code>fetchInterval</code> remains
  * unchanged, and the updated page fetchTime will always be set to
  * <code>fetchTime + fetchInterval * 1000</code>.
- * 
+ *
  */
 public class DefaultFetchSchedule extends AbstractFetchSchedule {
 

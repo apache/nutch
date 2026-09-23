@@ -424,7 +424,7 @@ public class OkHttp extends HttpBase {
 
   /**
    * Distribute hosts over clients by host name
-   * 
+   *
    * @param url
    *          URL to fetch
    * @return client responsible to fetch the given URL

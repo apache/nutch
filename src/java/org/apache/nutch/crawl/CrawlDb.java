@@ -299,13 +299,13 @@ public class CrawlDb extends NutchTool implements Tool {
 
     if (args.containsKey("normalize")) {
       normalize = true;
-    } 
+    }
     if (args.containsKey("filter")) {
       filter = true;
-    } 
+    }
     if (args.containsKey("force")) {
       force = true;
-    } 
+    }
     if (args.containsKey("noAdditions")) {
       additionsAllowed = false;
     }
@@ -347,7 +347,7 @@ public class CrawlDb extends NutchTool implements Tool {
       else if(segments instanceof Path){
     	segmentList.add(segments.toString());
       }
-    	      
+    	
       for(String segment: segmentList) {
         dirs.add(new Path(segment));
       }
@@ -355,7 +355,7 @@ public class CrawlDb extends NutchTool implements Tool {
     else {
       String segmentDir = crawlId+"/segments";
       File dir = new File(segmentDir);
-      File[] segmentsList = dir.listFiles();  
+      File[] segmentsList = dir.listFiles();
       Arrays.sort(segmentsList, (f1, f2) -> {
         if(f1.lastModified()>f2.lastModified())
           return -1;

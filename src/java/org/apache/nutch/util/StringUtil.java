@@ -25,9 +25,9 @@ import java.util.regex.Pattern;
 public class StringUtil {
 
   /**
-   * Returns a copy of <code>s</code> (right padded) with trailing 
-   * spaces so that it's length is <code>length</code>. 
-   * Strings already <code>length</code> characters long or longer 
+   * Returns a copy of <code>s</code> (right padded) with trailing
+   * spaces so that it's length is <code>length</code>.
+   * Strings already <code>length</code> characters long or longer
    * are not altered.
    * @param s input string to be copied and processed
    * @param length desired final length of padded string
@@ -41,10 +41,10 @@ public class StringUtil {
   }
 
   /**
-   * Returns a copy of <code>s</code> (left padded) with leading 
-   * spaces so that it's length is <code>length</code>. Strings 
+   * Returns a copy of <code>s</code> (left padded) with leading
+   * spaces so that it's length is <code>length</code>. Strings
    * already <code>length</code> characters long or longer are not altered.
-   * @param s input string to be copied and processed 
+   * @param s input string to be copied and processed
    * @param length desired final length of padded string
    * @return the resulting padded string
    */
@@ -62,7 +62,7 @@ public class StringUtil {
   /**
    * Convenience call for {@link #toHexString(byte[], String, int)}, where
    * <code>sep = null; lineLen = Integer.MAX_VALUE</code>.
-   * 
+   *
    * @param buf input data for which to generate a hex string
    * @return the hex string
    */
@@ -73,7 +73,7 @@ public class StringUtil {
   /**
    * Get a text representation of a byte[] as hexadecimal String, where each
    * pair of hexadecimal digits corresponds to consecutive bytes in the array.
-   * 
+   *
    * @param buf input data for which to generate a hex string
    * @param sep
    *          separate every pair of hexadecimal digits with this separator, or
@@ -106,7 +106,7 @@ public class StringUtil {
    * digits into a corresponding byte array. If the number of digits is not
    * even, a '0' will be appended in the front of the String prior to
    * conversion. Leading and trailing whitespace is ignored.
-   * 
+   *
    * @param text
    *          input text
    * @return converted byte array, or null if unable to convert
@@ -161,7 +161,7 @@ public class StringUtil {
 
   /**
    * Mask sensitive strings - passwords, etc.
-   * 
+   *
    * @param str input string
    * @return the masked string, all characters replaced by <code>*</code>
    */
@@ -171,7 +171,7 @@ public class StringUtil {
 
   /**
    * Mask sensitive strings - passwords, etc.
-   * 
+   *
    * @param str input string
    * @param mask
    *          char used for masking
@@ -187,7 +187,7 @@ public class StringUtil {
 
   /**
    * Mask sensitive strings - passwords, etc.
-   * 
+   *
    * @param str input string
    * @param pattern
    *          pattern which defines capturing groups to be masked in input

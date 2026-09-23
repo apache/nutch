@@ -17,7 +17,7 @@
 package org.apache.nutch.indexwriter.csv;
 
 public interface CSVConstants {
-  
+
   String CSV_FIELDS = "fields";
 
   String CSV_CHARSET = "charset";

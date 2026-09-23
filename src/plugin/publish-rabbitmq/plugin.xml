@@ -31,7 +31,7 @@
       <import plugin="nutch-extensionpoints"/>
       <import plugin="lib-rabbitmq"/>
    </requires>
-   
+
    <extension id="org.apache.nutch.publisher.rabbitmq"
               name="RabbitMQPublisherImpl"
               point="org.apache.nutch.publisher.NutchPublisher">

@@ -34,7 +34,7 @@ public class NutchPublishers extends Configured implements NutchPublisher{
   public NutchPublishers(Configuration conf) {
 	this.conf = conf;
     this.publishers = (NutchPublisher[])PluginRepository.get(conf).
-        getOrderedPlugins(NutchPublisher.class, 
+        getOrderedPlugins(NutchPublisher.class,
             NutchPublisher.X_POINT_ID, "publisher.order");
   }
 
@@ -45,14 +45,14 @@ public class NutchPublishers extends Configured implements NutchPublisher{
       for(int i=0; i<this.publishers.length; i++) {
         success |= this.publishers[i].setConfig(conf);
         if(success)
-          LOG.info("Successfully loaded {} publisher", 
+          LOG.info("Successfully loaded {} publisher",
               this.publishers[i].getClass().getName());
       }
     }catch(Exception e) {
       LOG.warn("Error while loading publishers : {}", e.getMessage());
     }
     if(!success) {
-      LOG.warn("Could not load any publishers out of {} publishers",  
+      LOG.warn("Could not load any publishers out of {} publishers",
           this.publishers.length);
     }
     return success;
@@ -64,7 +64,7 @@ public class NutchPublishers extends Configured implements NutchPublisher{
       try{
         this.publishers[i].publish(event, conf);
       }catch(Exception e){
-        LOG.warn("Could not post event to {}", 
+        LOG.warn("Could not post event to {}",
             this.publishers[i].getClass().getName());
       }
     }
@@ -77,6 +77,6 @@ public class NutchPublishers extends Configured implements NutchPublisher{
 
   @Override
   public void setConf(Configuration arg0) {
-	  
+	
   }
 }

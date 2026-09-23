@@ -192,7 +192,7 @@ public class UpdateHostDbMapper
       if (crawlDatum.getStatus() != CrawlDatum.STATUS_DB_UNFETCHED) {
         // Get the protocol
         String protocol = URLUtil.getProtocol(url);
-        
+
         // Check if the current key is equals the host
         if (URLUtil.isHomePageOf(url, buffer)) {
           // Check if this is a redirect to the real home page

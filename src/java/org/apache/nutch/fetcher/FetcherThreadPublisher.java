@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * This class handles the publishing of the events to the queue implementation. 
+ * This class handles the publishing of the events to the queue implementation.
  *
  */
 public class FetcherThreadPublisher {

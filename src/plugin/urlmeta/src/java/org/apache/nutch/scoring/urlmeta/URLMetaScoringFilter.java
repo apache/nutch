@@ -32,7 +32,7 @@ import org.apache.nutch.scoring.ScoringFilterException;
 
 /**
  * For documentation:
- * 
+ *
  * {@link org.apache.nutch.scoring.urlmeta}
  */
 public class URLMetaScoringFilter extends AbstractScoringFilter {
@@ -45,7 +45,7 @@ public class URLMetaScoringFilter extends AbstractScoringFilter {
    * property, and looks for them inside the parseData object. If they exist,
    * this will be propagated into your 'targets' Collection's ["outlinks"]
    * attributes.
-   * 
+   *
    * @see ScoringFilter#distributeScoreToOutlinks
    */
   @Override
@@ -77,7 +77,7 @@ public class URLMetaScoringFilter extends AbstractScoringFilter {
    * Takes the metadata, specified in your "urlmeta.tags" property, from the
    * datum object and injects it into the content. This is transferred to the
    * parseData object.
-   * 
+   *
    * @see ScoringFilter#passScoreBeforeParsing
    * @see URLMetaScoringFilter#passScoreAfterParsing
    */
@@ -99,7 +99,7 @@ public class URLMetaScoringFilter extends AbstractScoringFilter {
   /**
    * Takes the metadata, which was lumped inside the content, and replicates it
    * within your parse data.
-   * 
+   *
    * @see URLMetaScoringFilter#passScoreBeforeParsing
    * @see ScoringFilter#passScoreAfterParsing
    */

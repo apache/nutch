@@ -77,7 +77,7 @@ import java.util.concurrent.TimeUnit;
  * </dl>
  * <p>
  * Example:
- * 
+ *
  * <pre>
  *  http://www.nutch.org/ \t nutch.score=10 \t nutch.fetchInterval=2592000 \t userType=open_source
  * </pre>
@@ -318,7 +318,7 @@ public class Injector extends NutchTool implements Tool {
       update = conf.getBoolean("db.injector.update", false);
       LOG.info("Injector: overwrite: {}", overwrite);
       LOG.info("Injector: update: {}", update);
-      
+
       // Initialize cached counter references
       initCounters(context);
     }
@@ -335,7 +335,7 @@ public class Injector extends NutchTool implements Tool {
 
     /**
      * Merge the input records of one URL as per rules below :
-     * 
+     *
      * <pre>
      * 1. If there is ONLY new injected record ==&gt; emit injected record
      * 2. If there is ONLY old record          ==&gt; emit existing record
@@ -345,7 +345,7 @@ public class Injector extends NutchTool implements Tool {
      *        (i)  If 'update' is false        ==&gt; emit existing record
      *        (ii) If 'update' is true         ==&gt; update existing record and emit it
      * </pre>
-     * 
+     *
      * For more details @see NUTCH-1405
      */
     @Override

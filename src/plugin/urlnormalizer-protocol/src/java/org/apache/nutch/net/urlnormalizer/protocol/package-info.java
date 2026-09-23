@@ -18,25 +18,25 @@
 /**
  * URL normalizer to normalize the protocol for all URLs of a given host or
  * domain.
- * 
+ *
  * E.g., normalize <code>http://nutch.apache.org/path/</code> to
  * <code>https://www.apache.org/path/</code> if it's known that the host
  * <code>nutch.apache.org</code> supports https and http-URLs either cause
  * duplicate content or are redirected to https.
  *
  * The configuration of rules follows the schema:
- * 
+ *
  * <pre>
  * &lt;host&gt; \t &lt;protocol&gt;
  * </pre>
- * 
+ *
  * for example
- * 
+ *
  * <pre>
  * nutch.apache.org \t https
  * *.example.com \t http
  * </pre>
- * 
+ *
  * These rules will normalize all URLs of the host <code>nutch.apache.org</code>
  * to use https while every URL from <code>example.com</code> and its subdomains
  * is normalized to be based on http.
@@ -44,7 +44,7 @@
  * A "host" pattern which starts with <code>*.</code> will match all hosts
  * (subdomains) of the given domain, or more generally matches domain suffixes
  * separated by a dot.
- * 
+ *
  * Rules are usually configured via the configuration file "protocols.txt". The
  * filename is specified by the property
  * <code>urlnormalizer.protocols.file</code>. Alternatively, if the property

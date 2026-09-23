@@ -22,7 +22,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 /**
  * Utility class for handling information about segment parts.
- * 
+ *
  */
 public class SegmentPart {
   /** Name of the segment (just the last path component). */
@@ -50,10 +50,10 @@ public class SegmentPart {
 
   /**
    * Create SegmentPart from a FileSplit.
-   * 
+   *
    * @param split a {@link FileSplit} segment part
    * @return a {@link SegmentPart} resultant from a {@link FileSplit}.
-   * @throws IOException if there is a fatal error locating the split  
+   * @throws IOException if there is a fatal error locating the split
    */
   public static SegmentPart get(FileSplit split) throws IOException {
     return get(split.getPath().toString());
@@ -61,7 +61,7 @@ public class SegmentPart {
 
   /**
    * Create SegmentPart from a full path of a location inside any segment part.
-   * 
+   *
    * @param path
    *          full path into a segment part (may include "part-xxxxx"
    *          components)
@@ -94,7 +94,7 @@ public class SegmentPart {
 
   /**
    * Create SegmentPart from a String in format "segmentName/partName".
-   * 
+   *
    * @param string
    *          input String
    * @return parsed instance of SegmentPart

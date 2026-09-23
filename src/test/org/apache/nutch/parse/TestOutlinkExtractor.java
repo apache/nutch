@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * TestCase to check regExp extraction of URLs.
- * 
- * 
+ *
+ *
  * @version 1.0
  */
 public class TestOutlinkExtractor {

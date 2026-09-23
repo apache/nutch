@@ -18,8 +18,8 @@ package org.apache.nutch.plugin;
 
 /**
  * A Simple Test Extension Interface.
- * 
- * 
+ *
+ *
  */
 public interface ITestExtension {
   public String testGetExtension(String hello);
