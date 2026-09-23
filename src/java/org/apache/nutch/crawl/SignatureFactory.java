@@ -30,7 +30,6 @@ import java.lang.invoke.MethodHandles;
  * current Configuration configuration. This newly created instance is cached in
  * the Configuration instance, so that it could be later retrieved.
  * 
- * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class SignatureFactory {
   private static final Logger LOG = LoggerFactory

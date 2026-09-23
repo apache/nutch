@@ -37,7 +37,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * Further tests July 2025 to demonstrate conditionally setting values for
  * arbitrary fields based on existing crawl data at the time filter() is
  * called for indexing.
- * @author Joe Gilvary
  */
 
 public class TestArbitraryIndexingFilter {

@@ -79,7 +79,6 @@ import org.apache.nutch.parse.Parse;
  * The property format is defined in greater detail in
  * <code>conf/nutch-default.xml</code>.
  *
- * @author Peter Ciuffetti
  * @see <a
  *      href="https://issues.apache.org/jira/browse/NUTCH-2058">NUTCH-2058</a>
  */

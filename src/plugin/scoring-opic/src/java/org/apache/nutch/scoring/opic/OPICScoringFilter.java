@@ -44,7 +44,6 @@ import org.apache.nutch.scoring.ScoringFilterException;
  * Abiteboul, Serge and Preda, Mihai and Cobena, Gregory (2003), Adaptive
  * On-Line Page Importance Computation.
  * 
- * @author Andrzej Bialecki
  */
 public class OPICScoringFilter implements ScoringFilter {
 

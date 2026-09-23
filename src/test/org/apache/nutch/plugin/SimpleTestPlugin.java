@@ -21,7 +21,6 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Simple Test plugin
  * 
- * @author joa23
  */
 public class SimpleTestPlugin extends Plugin {
 

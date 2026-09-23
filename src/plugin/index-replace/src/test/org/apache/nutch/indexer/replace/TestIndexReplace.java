@@ -43,7 +43,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * <code>index.replace.regexp</code> property being provided to Nutch.
  * 
  * 
- * @author Peter Ciuffetti
  *
  */
 public class TestIndexReplace {

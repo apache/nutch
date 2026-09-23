@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * ones are filtered. 2. that Urls' scheme, authority, path and query are
  * validated.
  * 
- * @author tejasp
  * 
  */
 

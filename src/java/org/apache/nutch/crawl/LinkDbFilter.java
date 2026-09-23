@@ -32,7 +32,6 @@ import org.apache.nutch.net.URLNormalizers;
  * This class provides a way to separate the URL normalization and filtering
  * steps from the rest of LinkDb manipulation code.
  * 
- * @author Andrzej Bialecki
  */
 public class LinkDbFilter extends Mapper<Text, Inlinks, Text, Inlinks> {
   public static final String URL_FILTERING = "linkdb.url.filters";

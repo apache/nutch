@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * TestCase to check regExp extraction of URLs.
  * 
- * @author Stephan Strittmatter - http://www.sybit.de
  * 
  * @version 1.0
  */

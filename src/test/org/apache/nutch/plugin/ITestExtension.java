@@ -19,7 +19,6 @@ package org.apache.nutch.plugin;
 /**
  * A Simple Test Extension Interface.
  * 
- * @author joa23
  * 
  */
 public interface ITestExtension {

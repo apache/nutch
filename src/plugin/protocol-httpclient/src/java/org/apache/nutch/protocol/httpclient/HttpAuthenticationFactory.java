@@ -37,7 +37,6 @@ import org.apache.nutch.metadata.Metadata;
  * @see Http
  * @see HttpResponse
  * 
- * @author Matt Tencati
  */
 public class HttpAuthenticationFactory implements Configurable {
 

@@ -34,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * document 3. that valid field:value pairs are added to the document 4. that
  * fields and values added to the document are trimmed
  * 
- * @author tejasp
  */
 
 public class TestStaticFieldIndexerTest {

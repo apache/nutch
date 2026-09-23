@@ -40,7 +40,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * {@code indexer.max.title.length} in nutch-default.xml. 4. that content is
  * truncated as per {@code indexer.max.content.length} in nutch-default.xml.
  * 
- * @author tejasp
  * 
  */
 

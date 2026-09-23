@@ -76,7 +76,6 @@ import org.apache.nutch.util.XmlUtil;
  * <a href="https://issues.apache.org/jira/browse/NUTCH-827">NUTCH-827</a> Jira
  * issue.
  * 
- * @author Susam Pal
  */
 public class Http extends HttpBase {
 

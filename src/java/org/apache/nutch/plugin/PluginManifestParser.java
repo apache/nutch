@@ -45,7 +45,6 @@ import org.xml.sax.SAXException;
  * parsing Nutch plugin manifest files (<code>plugin.xml</code>) contained
  * in a {@link java.lang.String[]} of plugin directories.
  * 
- * @author joa23
  */
 public class PluginManifestParser {
   private static final String ATTR_NAME = "name";

@@ -19,7 +19,6 @@ package org.apache.nutch.urlfilter.api;
 /**
  * A generic regular expression rule.
  * 
- * @author J&eacute;r&ocirc;me Charron
  */
 public abstract class RegexRule {
 

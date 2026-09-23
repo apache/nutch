@@ -32,8 +32,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * JUnit based tests of class
  * {@link org.apache.nutch.metadata.SpellCheckedMetadata}.
  * 
- * @author Chris Mattmann
- * @author J&eacute;r&ocirc;me Charron
  */
 public class TestSpellCheckedMetadata {
 

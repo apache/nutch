@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
  * even if it comes from a plugin classpath.
  * As the JVM allows only one instance of URLStreamHandlerFactory
  * to be registered, this class implements a singleton pattern.
- * @author Hiran Chaudhuri
  *
  */
 public class URLStreamHandlerFactory

@@ -36,7 +36,6 @@ import org.apache.hadoop.conf.Configuration;
  * A possible usecase of the <code>Plugin</code> implementation is to create or
  * close a database connection.
  * 
- * @author joa23
  */
 public class Plugin {
   private PluginDescriptor fDescriptor;

@@ -41,7 +41,6 @@ import org.apache.tika.Tika;
 
 /**
  * 
- * @author Rohit Kulkarni and Ashish Vaidya
  */
 public class ZipTextExtractor {
 

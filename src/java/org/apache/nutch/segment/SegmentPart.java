@@ -23,7 +23,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 /**
  * Utility class for handling information about segment parts.
  * 
- * @author Andrzej Bialecki
  */
 public class SegmentPart {
   /** Name of the segment (just the last path component). */

@@ -25,7 +25,6 @@ import org.apache.hadoop.fs.Path;
 /**
  * Utility methods for handling application-level locking.
  * 
- * @author Andrzej Bialecki
  */
 public class LockUtil {
 

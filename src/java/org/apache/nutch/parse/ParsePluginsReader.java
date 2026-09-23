@@ -44,7 +44,6 @@ import org.apache.nutch.util.XmlUtil;
  * A reader to load the information stored in the
  * <code>$NUTCH_HOME/conf/parse-plugins.xml</code> file.
  * 
- * @author mattmann
  * @version 1.0
  */
 class ParsePluginsReader {

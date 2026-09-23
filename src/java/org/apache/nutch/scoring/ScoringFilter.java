@@ -37,7 +37,6 @@ import org.apache.nutch.protocol.Content;
  * resulting search indexes. Filters can be chained in a specific order, to
  * provide multi-stage scoring adjustments.
  * 
- * @author Andrzej Bialecki
  */
 public interface ScoringFilter extends Configurable, Pluggable {
   /** The name of the extension point. */

@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * JUnit test for <code>SuffixURLFilter</code>.
  * 
- * @author Andrzej Bialecki
  */
 public class TestSuffixURLFilter {
   private static final String suffixes = "# this is a comment\n" + "\n"
