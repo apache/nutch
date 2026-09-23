@@ -51,12 +51,11 @@ String nutchSmokePrCommentBody(String statusEmoji, String statusText, String dur
         "🧪 Nutch smoke test — ${statusEmoji} ${statusText}",
         "🌿 GIT_REF: `${gitRef}`",
         "🐘 Hadoop: `${params.HADOOP_VERSION}`",
-        "🏷️ Build: #${env.BUILD_NUMBER}",
+        "🏷️ Build: [${env.BUILD_NUMBER}](${env.BUILD_URL})",
     ]
     if (durationText) {
         lines.add("⏱️ ${durationText}")
     }
-    lines.add("🔗 ${env.BUILD_URL}")
     return lines.join('\n')
 }
 
