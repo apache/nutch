@@ -41,7 +41,7 @@ jobs:
     steps:
       - name: Download Yetus PR comment artifacts
         continue-on-error: true
-        uses: dawidd6/action-download-artifact@v24
+        uses: dawidd6/action-download-artifact@v25
         with:
           name: yetus-pr-comment
           workflow: yetus.yml
