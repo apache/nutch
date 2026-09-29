@@ -43,7 +43,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Download Test Report (Ubuntu JDK 17)
-        uses: dawidd6/action-download-artifact@v24
+        uses: dawidd6/action-download-artifact@v25
         with:
           name: junit-test-results-linux-jdk17
           workflow: master-build.yml
