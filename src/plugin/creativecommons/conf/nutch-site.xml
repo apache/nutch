@@ -52,7 +52,7 @@
   <name>plugin.excludes</name>
   <value>parse-(?!html).*</value>
   <description>Exclude non-HTML content, since we don't know how to
-  find a CC license in anything but HTML. 
+  find a CC license in anything but HTML.
   </description>
 </property>
 

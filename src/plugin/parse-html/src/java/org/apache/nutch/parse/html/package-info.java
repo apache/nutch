@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-/** 
+/**
  * <p>An HTML document parsing plugin.</p>
  * <p>This package relies on <a href="https://github.com/codelibs/nekohtml">NekoHTML</a>.</p>
  */

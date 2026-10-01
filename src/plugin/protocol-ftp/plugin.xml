@@ -40,7 +40,7 @@
                       class="org.apache.nutch.protocol.ftp.Ftp">
         <parameter name="protocolName" value="ftp"/>
       </implementation>
-      
+
    </extension>
 
 </plugin>

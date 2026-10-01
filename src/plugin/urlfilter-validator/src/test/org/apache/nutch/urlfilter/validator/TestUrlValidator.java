@@ -25,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * JUnit test case which tests 1. that valid urls are not filtered while invalid
  * ones are filtered. 2. that Urls' scheme, authority, path and query are
  * validated.
- * 
- * 
+ *
+ *
  */
 
 public class TestUrlValidator {

@@ -68,7 +68,7 @@ public class UpdateHostDb extends Configured implements Tool {
   public static final String HOSTDB_PERCENTILES = "hostdb.percentiles";
   public static final String HOSTDB_CRAWLDATUM_PROCESSORS = "hostdb.crawldatum.processors";
   public static final String HOSTDB_URL_LIMIT = "hostdb.url.limit";
-  
+
   private void updateHostDb(Path hostDb, Path crawlDb, Path topHosts,
     boolean checkFailed, boolean checkNew, boolean checkKnown,
     boolean force, boolean filter, boolean normalize, long urlLimit) throws Exception {
@@ -128,7 +128,7 @@ public class UpdateHostDb extends Configured implements Tool {
     conf.setBoolean(HOSTDB_URL_NORMALIZING, normalize);
     conf.setLong(HOSTDB_URL_LIMIT, urlLimit);
     conf.setClassLoader(Thread.currentThread().getContextClassLoader());
-    
+
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {

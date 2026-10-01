@@ -41,7 +41,7 @@
                     class="org.apache.nutch.protocol.htmlunit.Http">
       <parameter name="protocolName" value="http"/>
     </implementation>
-      
+
     <implementation id="org.apache.nutch.protocol.htmlunit.Http"
                     class="org.apache.nutch.protocol.htmlunit.Http">
       <parameter name="protocolName" value="https"/>

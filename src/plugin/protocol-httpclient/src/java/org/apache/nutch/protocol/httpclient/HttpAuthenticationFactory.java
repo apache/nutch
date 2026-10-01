@@ -32,11 +32,11 @@ import org.apache.nutch.metadata.Metadata;
  * Provides the Http protocol implementation with the ability to authenticate
  * when prompted. The goal is to provide multiple authentication types but for
  * now just the {@link HttpBasicAuthentication} authentication type is provided.
- * 
+ *
  * @see HttpBasicAuthentication
  * @see Http
  * @see HttpResponse
- * 
+ *
  */
 public class HttpAuthenticationFactory implements Configurable {
 

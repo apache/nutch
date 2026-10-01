@@ -32,35 +32,35 @@ import org.apache.nutch.parse.Parse;
  * Crawl URLs. 2. When you index your URLs, the meta tags that you specified
  * with your URLs will be indexed alongside those URLs--and can be directly
  * queried, assuming you have done everything else correctly.
- * 
+ *
  * The flat-file of URLs you are injecting should, per NUTCH-655, be
  * tab-delimited in the form of:
- * 
+ *
  * [www.url.com]\t[key1]=[value1]\t[key2]=[value2]...[keyN]=[valueN]
- * 
+ *
  * Be aware that if you collide with keywords that are already in use (such as
  * nutch.score/nutch.fetchInterval) then you are in for some unpredictable
  * behavior.
- * 
+ *
  * Furthermore, in your nutch-site.xml config, you must specify that this plugin
  * is to be used (1), as well as what (2) Meta Tags it should actively look for.
  * This does not mean that you must use these tags for every URL, but it does
  * mean that you must list _all_ of meta tags that you have specified. If you
  * want them to be propagated and indexed, that is.
- * 
+ *
  * 1. As of Nutch 1.2, the property "plugin.includes" looks as follows:
  * &lt;value&gt;protocol-http|urlfilter-regex|parse-(text|html|js|tika|rss)|index
  * -(basic|anchor)|query-(basic|site|url)|response-(json|xml)|summary-basic
  * |scoring-opic|urlnormalizer-(pass|regex|basic)&lt;/value&gt; You must change
  * "index-(basic|anchor)" to "index-(basic|anchor|urlmeta)", in order to call
  * this plugin.
- * 
+ *
  * 2. You must also specify the property "urlmeta.tags", who's values are
  * comma-delimited &lt;value&gt;key1, key2, key3&lt;/value&gt;
- * 
+ *
  * TODO: It may be ideal to offer two separate properties, to specify what gets
  * indexed versus merely propagated.
- * 
+ *
  */
 public class URLMetaIndexingFilter implements IndexingFilter {
 
@@ -72,7 +72,7 @@ public class URLMetaIndexingFilter implements IndexingFilter {
    * This will take the metatags that you have listed in your "urlmeta.tags"
    * property, and looks for them inside the CrawlDatum object. If they exist,
    * this will add it as an attribute inside the NutchDocument.
-   * 
+   *
    * @see IndexingFilter#filter
    */
   @Override

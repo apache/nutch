@@ -16,13 +16,13 @@
  */
 
 /**
- * <p>This plugin implements an indexing filter which takes 
- * advantage of the 
+ * <p>This plugin implements an indexing filter which takes
+ * advantage of the
  * <a href="https://github.com/maxmind/GeoIP2-java">GeoIP2-java API</a>.</p>
- * <p>The third party library distribution provides an API for the GeoIP2 
- * <a href="https://dev.maxmind.com/geoip/geoip2/web-services/">Precision web services</a> 
- * and <a href="https://dev.maxmind.com/geoip/geoip2/downloadable/">databases</a>. 
- * The API also works with the free 
+ * <p>The third party library distribution provides an API for the GeoIP2
+ * <a href="https://dev.maxmind.com/geoip/geoip2/web-services/">Precision web services</a>
+ * and <a href="https://dev.maxmind.com/geoip/geoip2/downloadable/">databases</a>.
+ * The API also works with the free
  * <a href="https://dev.maxmind.com/geoip/geoip2/geolite2/">GeoLite2 databases</a>.
  *
  */

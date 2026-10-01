@@ -75,8 +75,8 @@ public class CommandRunner {
   /**
    * Execute the command
    * @return process exit value (return code) or -1 if timed out.
-   * @throws IOException if there is a fatal error interfacing 
-   * with the environment in which the application is running. 
+   * @throws IOException if there is a fatal error interfacing
+   * with the environment in which the application is running.
    */
   public int exec() throws IOException {
     Process proc = Runtime.getRuntime().exec(_command);
@@ -100,7 +100,7 @@ public class CommandRunner {
     boolean _timedout = false;
     long end = System.currentTimeMillis() + _timeout * 1000;
 
- 
+
     try {
       if (_timeout == 0) {
         _barrier.await();

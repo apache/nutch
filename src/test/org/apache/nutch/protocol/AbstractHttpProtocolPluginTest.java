@@ -119,7 +119,7 @@ public abstract class AbstractHttpProtocolPluginTest {
 
   /**
    * Starts the test server at a specified port and constant response.
-   * 
+   *
    * @param port
    *          Port number. If 0, a random free port is used. The port number
    *          actually used by the test server is always stored in
@@ -264,7 +264,7 @@ public abstract class AbstractHttpProtocolPluginTest {
    * Fetches the specified <code>page</code> from the local test server and
    * checks whether the HTTP response status code matches with the expected
    * code.
-   * 
+   *
    * @param port
    *          port server is listening on
    * @param page

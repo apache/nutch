@@ -28,7 +28,7 @@ class BoilerpipeExtractorRepository {
   private static final Logger LOG = LoggerFactory
 		      .getLogger(MethodHandles.lookup().lookupClass());
   public static final HashMap<String, BoilerpipeExtractor> extractorRepository = new HashMap<>();
- 
+
     /**
      * Returns an instance of the specified extractor
      */

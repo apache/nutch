@@ -35,14 +35,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * JUnit tests for the <code>index-replace</code> plugin.
- * 
+ *
  * In these tests, the sample file has some meta tags added to the Nutch
  * document by the <code>index-metadata</code> plugin. The
  * <code>index-replace</code> plugin is then used to either change (or not
  * change) the fields depending on the various values of
  * <code>index.replace.regexp</code> property being provided to Nutch.
- * 
- * 
+ *
+ *
  *
  */
 public class TestIndexReplace {
@@ -55,7 +55,7 @@ public class TestIndexReplace {
 
   /**
    * Run a test file through the Nutch parser and index filters.
-   * 
+   *
    * @param fileName
    * @param conf
    * @return the Nutch document with the replace indexer applied
@@ -99,7 +99,7 @@ public class TestIndexReplace {
 
   /**
    * Test property parsing.
-   * 
+   *
    * The filter does not expose details of the parse. So all we are checking is
    * that the parse does not throw a runtime exception and that the value
    * provided is the value returned.
@@ -134,7 +134,7 @@ public class TestIndexReplace {
 
   /**
    * Test metatag value replacement using global replacement settings.
-   * 
+   *
    * The index.replace.regexp property does not use hostmatch or urlmatch, so
    * all patterns are global.
    */
@@ -168,7 +168,7 @@ public class TestIndexReplace {
 
   /**
    * Test that invalid property settings are handled and ignored.
-   * 
+   *
    * This test provides an invalid property setting that will fail property
    * parsing and Pattern.compile. The expected outcome is that the patterns will
    * not cause failure and the targeted fields will not be modified by the
@@ -241,7 +241,7 @@ public class TestIndexReplace {
 
   /**
    * Test URL pattern not matching.
-   * 
+   *
    * Expected result is that the filter does not change the fields.
    */
   @Test
@@ -278,7 +278,7 @@ public class TestIndexReplace {
   /**
    * Test a global pattern match for description and URL pattern match for
    * keywords and author.
-   * 
+   *
    * All three should be triggered. It also tests replacement groups.
    */
   @Test
@@ -316,7 +316,7 @@ public class TestIndexReplace {
   /**
    * Test a global pattern match for description and URL pattern match for
    * keywords and author.
-   * 
+   *
    * Only the global match should be triggered.
    */
   @Test
@@ -352,7 +352,7 @@ public class TestIndexReplace {
 
   /**
    * Test order-specific replacement settings.
-   * 
+   *
    * This makes multiple replacements on the same field and will produce the
    * expected value only if the replacements are run in the order specified.
    */
@@ -386,7 +386,7 @@ public class TestIndexReplace {
 
   /**
    * Test a replacement pattern that uses the flags feature.
-   * 
+   *
    * A 2 is Pattern.CASE_INSENSITIVE. We look for upper case and expect to match
    * any case.
    */

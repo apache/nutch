@@ -15,7 +15,7 @@
  limitations under the License.
 -->
 
-exchange-jexl plugin for Nutch  
+exchange-jexl plugin for Nutch
 ==============================
 
 **exchange-jexl plugin** decides which index writer a document should be routed to, based on a JEXL expression.
@@ -25,16 +25,16 @@ exchange-jexl plugin for Nutch
 The **exchange-jexl plugin** must be configured in the exchanges.xml file, included in the official Nutch distribution.
 
 ```xml
-<exchanges>  
-  <exchange id="<exchange_id>" class="org.apache.nutch.exchange.jexl.JexlExchange">  
-    <writers>  
-      ...  
-    </writers>  
-    <params>  
+<exchanges>
+  <exchange id="<exchange_id>" class="org.apache.nutch.exchange.jexl.JexlExchange">
+    <writers>
+      ...
+    </writers>
+    <params>
       <param name="expr" value="<jexl_expression>" />
-    </params>  
-  </exchange>  
-    ...  
+    </params>
+  </exchange>
+    ...
 </exchanges>
 ```
 

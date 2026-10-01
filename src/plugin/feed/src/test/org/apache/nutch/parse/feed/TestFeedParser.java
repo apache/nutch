@@ -37,10 +37,10 @@ import org.apache.nutch.util.NutchConfiguration;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * 
- * 
+ *
+ *
  *         Test Suite for the {@link FeedParser}.
- * 
+ *
  */
 public class TestFeedParser {
 
@@ -60,8 +60,8 @@ public class TestFeedParser {
    * <li>http://www-scf.usc.edu/~mattmann/</li>
    * <li>http://www.nutch.org</li>
    * </ul>
-   * 
-   * 
+   *
+   *
    * @throws ProtocolNotFound
    *           If the {@link Protocol}Layer cannot be loaded (required to fetch
    *           the {@link Content} for the RSS file).

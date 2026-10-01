@@ -16,8 +16,8 @@
  */
 
 /**
- * Index content, configure and run indexing and cleaning jobs to 
- * add, update, and delete documents from an index. Two tasks are 
+ * Index content, configure and run indexing and cleaning jobs to
+ * add, update, and delete documents from an index. Two tasks are
  * delegated to plugins:
  * <ul>
  *  <li>indexing filters, which fill index fields of each document</li>

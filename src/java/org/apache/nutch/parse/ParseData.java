@@ -35,7 +35,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * Data extracted from a page's content.
- * 
+ *
  * @see Parse#getData()
  */
 public final class ParseData extends VersionedWritable {
@@ -125,7 +125,7 @@ public final class ParseData extends VersionedWritable {
    * in the content metadata.
    * @param name the metadata key for which to retrieve a value
    * @return the (string) metadata value
-   * 
+   *
    * @see #getContentMeta()
    * @see #getParseMeta()
    */

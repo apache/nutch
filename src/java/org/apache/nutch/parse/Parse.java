@@ -18,7 +18,7 @@ package org.apache.nutch.parse;
 
 /**
  * The result of parsing a page's raw content.
- * 
+ *
  * @see Parser#getParse(Content)
  */
 public interface Parse {

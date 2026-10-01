@@ -33,22 +33,22 @@ import org.apache.lucene.analysis.CharArraySet;
  * Creates a custom analyzer based on user provided inputs
  *
  */
-public class LuceneAnalyzerUtil extends Analyzer{ 
-  
+public class LuceneAnalyzerUtil extends Analyzer{
+
   public static enum StemFilterType { PORTERSTEM_FILTER, ENGLISHMINIMALSTEM_FILTER, NONE }
-  
+
   private static StemFilterType stemFilterType;
   private static CharArraySet stopSet;
-  
-  
+
+
   /**
-   * Creates an analyzer instance based on Lucene default stopword 
+   * Creates an analyzer instance based on Lucene default stopword
    * set if the param useStopFilter is set to true
    * @param stemFilterType a preferred {@link StemFilterType} to use. Can be one
    * of {@link LuceneAnalyzerUtil.StemFilterType#PORTERSTEM_FILTER},
    * {@link LuceneAnalyzerUtil.StemFilterType#ENGLISHMINIMALSTEM_FILTER}, or
    * {@link LuceneAnalyzerUtil.StemFilterType#NONE}
-   * @param useStopFilter if true use the default Lucene stopword set, 
+   * @param useStopFilter if true use the default Lucene stopword set,
    * false otherwise
    */
   public LuceneAnalyzerUtil(StemFilterType stemFilterType, boolean useStopFilter) {
@@ -60,10 +60,10 @@ public class LuceneAnalyzerUtil extends Analyzer{
       stopSet = null;
     }
   }
-  
+
   /**
-   * Creates an analyzer instance based on user provided stop words. If the 
-   * param addToDefault is set to true, then 
+   * Creates an analyzer instance based on user provided stop words. If the
+   * param addToDefault is set to true, then
    * user provided stop words will be added to the Lucene default stopset.
    * @param stemFilterType a preferred {@link StemFilterType} to use. Can be one
    * of {@link LuceneAnalyzerUtil.StemFilterType#PORTERSTEM_FILTER},
@@ -71,7 +71,7 @@ public class LuceneAnalyzerUtil extends Analyzer{
    * {@link LuceneAnalyzerUtil.StemFilterType#NONE}
    * @param stopWords a {@link List} of stop word Strings
    * @param addToDefault if true the provided stop words will be added to the
-   * default Lucene stopword set, 
+   * default Lucene stopword set,
    * false otherwise
    */
   public LuceneAnalyzerUtil(StemFilterType stemFilterType, List<String> stopWords, boolean addToDefault) {
@@ -83,7 +83,7 @@ public class LuceneAnalyzerUtil extends Analyzer{
       stopSet = StopFilter.makeStopSet(stopWords);
     }
   }
-    
+
   @Override
   protected TokenStreamComponents createComponents(String fieldName) {
     Tokenizer source = new ClassicTokenizer();
@@ -91,7 +91,7 @@ public class LuceneAnalyzerUtil extends Analyzer{
     if(stopSet != null) {
       filter = new StopFilter(filter, stopSet);
     }
-    
+
     switch(stemFilterType){
     case PORTERSTEM_FILTER:
       filter = new PorterStemFilter(filter);
@@ -100,7 +100,7 @@ public class LuceneAnalyzerUtil extends Analyzer{
       filter = new EnglishMinimalStemFilter(filter);
       break;
     default:
-      break;        
+      break;
     }
     return new TokenStreamComponents(source, filter);
   }

@@ -76,7 +76,7 @@ public class DomainStatistics extends Configured implements Tool {
       System.err.println("\t\t\t\ttld\tGather statistics by top level directory");
 
       System.err.println("\t[numOfReducers]\tOptional number of reduce jobs to use. Defaults to 1.");
-      
+
       return 1;
     }
     String inputDir = args[0];

@@ -24,7 +24,7 @@ import org.apache.nutch.net.protocols.Response;
 /**
  * Simple aggregate to pass from protocol plugins both content and protocol
  * status.
- * 
+ *
  */
 public class ProtocolOutput {
   private Content content;

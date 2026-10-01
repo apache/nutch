@@ -146,13 +146,13 @@ public class HttpFormAuthentication {
   /**
    * NUTCH-2280 Set the cookie policy value from httpclient-auth.xml for the
    * Post httpClient action.
-   * 
+   *
    * @param fromConfigurer
    *          - the httpclient-auth.xml values
-   * 
+   *
    * @param params
    *          - the HttpMethodParams from the current httpclient instance
-   * 
+   *
    * @throws NoSuchFieldException
    * @throws SecurityException
    * @throws IllegalArgumentException

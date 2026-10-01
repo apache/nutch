@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-/** A simple plugin called at indexing that adds fields with static data. 
- * You can specify a list of fieldname:fieldcontent per nutch job. 
- * It can be useful when collections can't be created by urlpatterns, 
+/** A simple plugin called at indexing that adds fields with static data.
+ * You can specify a list of fieldname:fieldcontent per nutch job.
+ * It can be useful when collections can't be created by urlpatterns,
  * like in subcollection, but on a job-basis.
  */
 package org.apache.nutch.indexer.staticfield;

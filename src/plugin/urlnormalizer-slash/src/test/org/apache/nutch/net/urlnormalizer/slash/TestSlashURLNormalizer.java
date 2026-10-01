@@ -42,7 +42,7 @@ class TestSlashURLNormalizer {
         normalizer.normalize("http://example.org/", URLNormalizers.SCOPE_DEFAULT));
     assertEquals("http://example.net/",
         normalizer.normalize("http://example.net/", URLNormalizers.SCOPE_DEFAULT));
-    
+
     // Don't touch base URL's
     assertEquals("http://example.org",
         normalizer.normalize("http://example.org", URLNormalizers.SCOPE_DEFAULT));
@@ -52,29 +52,29 @@ class TestSlashURLNormalizer {
         normalizer.normalize("http://example.org/", URLNormalizers.SCOPE_DEFAULT));
     assertEquals("http://example.net/",
         normalizer.normalize("http://example.net/", URLNormalizers.SCOPE_DEFAULT));
-    
+
     // Change
     assertEquals("http://www.example.org/page/",
         normalizer.normalize("http://www.example.org/page", URLNormalizers.SCOPE_DEFAULT));
     assertEquals("http://www.example.net/path/to/something", normalizer.normalize("http://www.example.net/path/to/something/", URLNormalizers.SCOPE_DEFAULT));
-    
+
     // No change
     assertEquals("http://example.org/buh/",
         normalizer.normalize("http://example.org/buh/", URLNormalizers.SCOPE_DEFAULT));
     assertEquals("http://example.net/blaat",
         normalizer.normalize("http://example.net/blaat", URLNormalizers.SCOPE_DEFAULT));
-    
+
     // No change
     assertEquals("http://example.nl/buh/",
         normalizer.normalize("http://example.nl/buh/", URLNormalizers.SCOPE_DEFAULT));
     assertEquals("http://example.de/blaat",
         normalizer.normalize("http://example.de/blaat", URLNormalizers.SCOPE_DEFAULT));
-    
+
     // Change
     assertEquals("http://www.example.org/page/?a=b&c=d", normalizer.normalize("http://www.example.org/page?a=b&c=d", URLNormalizers.SCOPE_DEFAULT));
     assertEquals("http://www.example.net/path/to/something?a=b&c=d",
         normalizer.normalize("http://www.example.net/path/to/something/?a=b&c=d", URLNormalizers.SCOPE_DEFAULT));
-    
+
     // No change
     assertEquals("http://www.example.org/noise.mp3",
         normalizer.normalize("http://www.example.org/noise.mp3", URLNormalizers.SCOPE_DEFAULT));

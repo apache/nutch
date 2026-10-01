@@ -22,7 +22,7 @@ public interface KafkaConstants {
   public static final String PORT = "port";
 
   public static final String KEY_SERIALIZER = "key.serializer";
-  public static final String VALUE_SERIALIZER = 
+  public static final String VALUE_SERIALIZER =
       "value.serializer";
   public static final String TOPIC =  "topic";
   public static final String MAX_DOC_COUNT = "max.doc.count";

@@ -102,13 +102,13 @@ public class TestCrawlDbMerger {
 
   /**
    * Test creates two sample {@link org.apache.nutch.crawl.CrawlDb}'s
-   * populating entries for keys as {@link org.apache.hadoop.io.Text} e.g. URLs 
-   * and values as {@link org.apache.nutch.crawl.CrawlDatum} e.g. record data. 
+   * populating entries for keys as {@link org.apache.hadoop.io.Text} e.g. URLs
+   * and values as {@link org.apache.nutch.crawl.CrawlDatum} e.g. record data.
    * It then simulates a merge process for the two CrawlDb's via the {@link org.apache.nutch.crawl.CrawlDbMerger}
    * tool. The merged CrawlDb is then written to an arbitrary output location and the results
-   * read using the {@link org.apache.nutch.crawl.CrawlDbReader} tool. 
+   * read using the {@link org.apache.nutch.crawl.CrawlDbReader} tool.
    * Test assertions include comparing expected CrawlDb key, value (URL, CrawlDatum) values
-   * with actual results based on the merge process. 
+   * with actual results based on the merge process.
    * @throws Exception
    */
   @Test
@@ -146,10 +146,10 @@ public class TestCrawlDbMerger {
       TreeSet<String> init, CrawlDatum cd) throws Exception {
     LOG.debug("* creating crawldb: {}", crawldb);
     Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
-    
+
     Option wKeyOpt = MapFile.Writer.keyClass(Text.class);
     org.apache.hadoop.io.SequenceFile.Writer.Option wValueOpt = SequenceFile.Writer.valueClass(CrawlDatum.class);
-    
+
     MapFile.Writer writer = new MapFile.Writer(config, new Path(dir,
         "part-r-00000"), wKeyOpt, wValueOpt);
     Iterator<String> it = init.iterator();

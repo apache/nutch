@@ -39,9 +39,9 @@ public abstract class NutchTool extends Configured {
   /**
    * Runs the tool, using a map of arguments. May return results, or null.
    * @param args a {@link Map} of arguments to be run with the tool
-   * @param crawlId a crawl identifier to associate with the tool invocation 
-   * @return Map results object if tool executes successfully 
-   * otherwise null 
+   * @param crawlId a crawl identifier to associate with the tool invocation
+   * @return Map results object if tool executes successfully
+   * otherwise null
    * @throws Exception if there is an error during the tool execution
    */
   public abstract Map<String, Object> run(Map<String, Object> args, String crawlId)
@@ -54,7 +54,7 @@ public abstract class NutchTool extends Configured {
   public NutchTool(){
     super(null);
   }
-  
+
   @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
@@ -65,7 +65,7 @@ public abstract class NutchTool extends Configured {
 
   /**
    * Get relative progress of the tool. Progress is represented as a
-   * float in range [0,1] where 1 is complete. 
+   * float in range [0,1] where 1 is complete.
    * @return a float in range [0,1].
    */
   public float getProgress() {
@@ -91,7 +91,7 @@ public abstract class NutchTool extends Configured {
 
   /**
    * Returns current status of the running tool
-   * @return a populated {@link Map}, the fields 
+   * @return a populated {@link Map}, the fields
    * of which can be accessed to obtain status.
    */
   public Map<String, Object> getStatus() {
@@ -101,7 +101,7 @@ public abstract class NutchTool extends Configured {
   /**
    * Stop the job with the possibility to resume. Subclasses should override
    * this, since by default it calls {@link #killJob()}.
-   * 
+   *
    * @return true if succeeded, false otherwise
    * @throws Exception if there is an error stopping the current
    * {@link org.apache.hadoop.mapreduce.Job}
@@ -113,7 +113,7 @@ public abstract class NutchTool extends Configured {
   /**
    * Kill the job immediately. Clients should assume that any results that the
    * job produced so far are in an inconsistent state or missing.
-   * 
+   *
    * @return true if succeeded, false otherwise.
    * @throws Exception if there is an error stopping the current
    * {@link org.apache.hadoop.mapreduce.Job}

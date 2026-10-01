@@ -24,13 +24,13 @@ import org.apache.hadoop.fs.Path;
 
 /**
  * Utility methods for handling application-level locking.
- * 
+ *
  */
 public class LockUtil {
 
   /**
    * Create a lock file.
-   * 
+   *
    * @param fs
    *          filesystem
    * @param lockFile
@@ -82,7 +82,7 @@ public class LockUtil {
   /**
    * Remove lock file. NOTE: applications enforce the semantics of this file -
    * this method simply removes any file with a given name.
-   * 
+   *
    * @param fs
    *          filesystem
    * @param lockFile

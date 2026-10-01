@@ -30,7 +30,7 @@ import org.apache.nutch.net.URLNormalizer;
  * URL normalizer plugin for normalizing query strings but sorting query string
  * parameters. Not sorting query strings can lead to large amounts of duplicate
  * URL's such as ?a=x&amp;b=y vs b=y&amp;a=x.
- * 
+ *
  */
 public class QuerystringURLNormalizer implements URLNormalizer {
 

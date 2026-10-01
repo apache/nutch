@@ -33,7 +33,7 @@ import java.util.Properties;
 
 /**
  * Test cases for AdaptiveFetchSchedule.
- * 
+ *
  */
 public class TestAdaptiveFetchSchedule {
 
@@ -54,7 +54,7 @@ public class TestAdaptiveFetchSchedule {
 
   /**
    * Test the core functionality of AdaptiveFetchSchedule.
-   * 
+   *
    */
 
   @Test
@@ -86,7 +86,7 @@ public class TestAdaptiveFetchSchedule {
 
   /**
    * Prepare a CrawlDatum (STATUS_DB_UNFETCHED) to Test AdaptiveFetchSchedule.
-   * 
+   *
    * @return properly initialized CrawlDatum
    */
   public CrawlDatum prepareCrawlDatum() {
@@ -99,9 +99,9 @@ public class TestAdaptiveFetchSchedule {
   }
 
   /**
-   * 
+   *
    * The Method validates interval values according to changed parameter.
-   * 
+   *
    * @param changed
    *          status value to check calculated interval value.
    * @param getInterval
@@ -123,7 +123,7 @@ public class TestAdaptiveFetchSchedule {
     }
 
   }
-  
+
   /**
    * Test https://issues.apache.org/jira/browse/NUTCH-1564
    */
@@ -163,7 +163,7 @@ public class TestAdaptiveFetchSchedule {
     doTestSetFetchSchedule(0.3, 2, 1, 10, 10, 3, 180);
   }
 
-  private void doTestSetFetchSchedule(double deltaRate, int intervalDefaultDays, 
+  private void doTestSetFetchSchedule(double deltaRate, int intervalDefaultDays,
       int minIntervalDays, int maxIntervalDays, int intervalMaxDays,
       int previousFetchTimeDays, int modifiedTimeDays) {
     // need to properly override defaults
@@ -175,17 +175,17 @@ public class TestAdaptiveFetchSchedule {
     props.setProperty("db.fetch.schedule.adaptive.min_interval", String.valueOf(FetchSchedule.SECONDS_PER_DAY * minIntervalDays));
     props.setProperty("db.fetch.schedule.adaptive.max_interval", String.valueOf(FetchSchedule.SECONDS_PER_DAY * maxIntervalDays));
     props.setProperty("db.fetch.interval.max", String.valueOf(FetchSchedule.SECONDS_PER_DAY * intervalMaxDays));
-    
+
     conf = NutchConfiguration.create(true, props);
     inc_rate = conf.getFloat("db.fetch.schedule.adaptive.inc_rate", 0.2f); // default
     dec_rate = conf.getFloat("db.fetch.schedule.adaptive.dec_rate", 0.2f); // default
 
     // ignore adaptive-host-specific-intervals.txt
     Text url = new Text("http://www.example2.com");
-    
+
     AdaptiveFetchSchedule fs = new AdaptiveFetchSchedule();
     fs.setConf(conf);
-    
+
     CrawlDatum datum = prepareCrawlDatum();
     Date fetchTime = Date.from(Instant.now());
     Date previousFetchTime = Date.from(Instant.now().minus(Duration.ofDays(previousFetchTimeDays)));
@@ -193,16 +193,16 @@ public class TestAdaptiveFetchSchedule {
     datum.setStatus(CrawlDatum.STATUS_FETCH_SUCCESS);
     datum.setRetriesSinceFetch(0);
     datum.setModifiedTime(modifiedTime.getTime());
-    datum.setFetchTime(fetchTime.getTime()); 
-    
+    datum.setFetchTime(fetchTime.getTime());
+
     System.out.println("CrawlDatum fetchTime: " +  fetchTime + "; modifiedTime: " + modifiedTime);
-    
-    fs.setFetchSchedule(url, datum, previousFetchTime.getTime(), modifiedTime.getTime(), 
+
+    fs.setFetchSchedule(url, datum, previousFetchTime.getTime(), modifiedTime.getTime(),
         fetchTime.getTime(), modifiedTime.getTime(), CrawlDatum.STATUS_DB_NOTMODIFIED);
-    
+
     Date nextFetchTime = new Date(datum.getFetchTime());
     System.out.println("CrawlDatum next fetchTime: " + nextFetchTime);
-    
+
     assertTrue(nextFetchTime.after(fetchTime));
     // adapt milliseconds to seconds
     long fetchTimeDiff = (nextFetchTime.getTime() - fetchTime.getTime()) / 1000L ;

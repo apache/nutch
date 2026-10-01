@@ -47,7 +47,7 @@ public class TestDomainURLFilter {
     assertNotNull(domainFilter.filter("http://www.foobar.be"));
     assertNull(domainFilter.filter("http://www.adobe.com"));
   }
-  
+
   @Test
   public void testNoFilter() throws Exception {
     // https://issues.apache.org/jira/browse/NUTCH-2189

@@ -36,7 +36,7 @@ public class XMLCharacterRecognizer {
    * definition of whitespace. Refer to <A
    * href="http://www.w3.org/TR/1998/REC-xml-19980210#NT-S"> the definition of
    * <CODE>S</CODE></A> for details.
-   * 
+   *
    * @param ch
    *          Character to check as XML whitespace.
    * @return =true if <var>ch</var> is XML whitespace; otherwise =false.
@@ -47,7 +47,7 @@ public class XMLCharacterRecognizer {
 
   /**
    * Tell if the string is whitespace.
-   * 
+   *
    * @param ch
    *          Character array to check as XML whitespace.
    * @param start
@@ -71,7 +71,7 @@ public class XMLCharacterRecognizer {
 
   /**
    * Tell if the string is whitespace.
-   * 
+   *
    * @param buf
    *          StringBuffer to check as XML whitespace.
    * @return True if characters in buffer are XML whitespace, false otherwise
@@ -90,7 +90,7 @@ public class XMLCharacterRecognizer {
 
   /**
    * Tell if the string is whitespace.
-   * 
+   *
    * @param s
    *          String to check as XML whitespace.
    * @return True if characters in buffer are XML whitespace, false otherwise

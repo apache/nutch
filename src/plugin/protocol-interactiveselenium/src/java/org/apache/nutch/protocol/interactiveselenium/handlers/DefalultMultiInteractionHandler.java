@@ -25,9 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is a placeholder/example of a technique or use case where we do multiple 
- * interaction with the web driver and need data from each such interaction in the end. This code shows that after you have 
- * done multiple interactions and accumulated data you can in the end append that to the driver.  
+ * This is a placeholder/example of a technique or use case where we do multiple
+ * interaction with the web driver and need data from each such interaction in the end. This code shows that after you have
+ * done multiple interactions and accumulated data you can in the end append that to the driver.
  */
 public class DefalultMultiInteractionHandler implements
     InteractiveSeleniumHandler {
@@ -39,7 +39,7 @@ public class DefalultMultiInteractionHandler implements
     // loop and get multiple pages in this string
     String accumulatedData = "";
     try {
-      
+
       // append the string to the last page's driver
       JavascriptExecutor jsx = (JavascriptExecutor) driver;
       jsx.executeScript("document.body.innerHTML=document.body.innerHTML "

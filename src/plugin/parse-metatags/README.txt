@@ -9,7 +9,7 @@ In order to extract the values of the metatags description and keywords, you mus
 </property>
 
 Prefixes the names with 'metatag.' in the parse-metadata. For instance to index description and keywords, you need to activate the plugin index-metadata and set the value of the parameter 'index.parse.md' to 'metatag.description;metatag.keywords'.
-  
+
 This code has been developed by DigitalPebble Ltd and offered to the community by ANT.com
 
 

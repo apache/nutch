@@ -37,7 +37,7 @@ public interface IndexingFilter extends Pluggable, Configurable {
    * Adds fields or otherwise modifies the document that will be indexed for a
    * parse. Unwanted documents can be removed from indexing by returning a null
    * value.
-   * 
+   *
    * @param doc
    *          document instance for collecting fields
    * @param parse

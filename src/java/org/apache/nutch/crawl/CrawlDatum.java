@@ -204,8 +204,8 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
 
   /**
    * Get the fetch time.
-   * @return long value indicating either the time of the last 
-   * fetch, or the next fetch time, depending on whether Fetcher 
+   * @return long value indicating either the time of the last
+   * fetch, or the next fetch time, depending on whether Fetcher
    * or CrawlDbReducer set the time.
    */
   public long getFetchTime() {
@@ -274,7 +274,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
 
   /**
    * Add all metadata from other CrawlDatum to this CrawlDatum.
-   * 
+   *
    * @param other
    *          CrawlDatum
    */
@@ -569,12 +569,12 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       throw new RuntimeException(e);
     }
   }
-  
+
   public boolean execute(JexlScript expr, String url) {
     if (expr != null && url != null) {
       // Create a context and add data
       JexlContext jcontext = new MapContext();
-      
+
       // https://issues.apache.org/jira/browse/NUTCH-2229
       jcontext.set("url", url);
       jcontext.set("status", getStatusName(getStatus()));
@@ -584,34 +584,34 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       jcontext.set("interval", Integer.valueOf(getFetchInterval()));
       jcontext.set("score", getScore());
       jcontext.set("signature", StringUtil.toHexString(getSignature()));
-            
+
       // Set metadata variables
       for (Map.Entry<Writable, Writable> entry : getMetaData().entrySet()) {
         Object value = entry.getValue();
         Text tkey = (Text)entry.getKey();
-        
+
         if (value instanceof FloatWritable) {
           FloatWritable fvalue = (FloatWritable)value;
           jcontext.set(tkey.toString(), fvalue.get());
         }
-        
+
         if (value instanceof IntWritable) {
           IntWritable ivalue = (IntWritable)value;
           jcontext.set(tkey.toString(), ivalue.get());
         }
-        
+
         if (value instanceof Text) {
           Text tvalue = (Text)value;
           jcontext.set(tkey.toString().replace("-", "_"), tvalue.toString());
         }
-        
+
         if (value instanceof ProtocolStatus) {
           ProtocolStatus pvalue = (ProtocolStatus)value;
           jcontext.set(tkey.toString().replace("-", "_"), pvalue.toString());
         }
 
       }
-                  
+
       try {
         if (Boolean.TRUE.equals(expr.execute(jcontext))) {
           return true;

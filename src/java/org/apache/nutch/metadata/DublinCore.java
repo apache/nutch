@@ -18,9 +18,9 @@ package org.apache.nutch.metadata;
 
 /**
  * A collection of Dublin Core metadata names.
- * 
+ *
  * @see <a href="http://dublincore.org">dublincore.org</a>
- * 
+ *
  */
 public interface DublinCore {
 

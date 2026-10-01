@@ -41,10 +41,10 @@ import org.apache.nutch.parse.Parse;
 
 /**
  * Do pattern replacements on selected field contents prior to indexing.
- * 
+ *
  * To use this plugin, add <code>index-replace</code> to your
  * <code>plugin.includes</code>. Example:
- * 
+ *
  * <pre>
  *   &lt;property&gt;
  *    &lt;name&gt;plugin.includes&lt;/name&gt;
@@ -55,11 +55,11 @@ import org.apache.nutch.parse.Parse;
  * And then add the <code>index.replace.regexp</code> property to
  * <code>conf/nutch-site.xml</code>. This contains a list of replacement
  * instructions per field name, one per line. eg.
- * 
+ *
  * <pre>
  *   fieldname=/regexp/replacement/[flags]
  * </pre>
- * 
+ *
  * <pre>
  *   &lt;property&gt;
  *    &lt;name&gt;index.replace.regexp&lt;/name&gt;
@@ -69,13 +69,13 @@ import org.apache.nutch.parse.Parse;
  *    &lt;/value&gt;
  *   &lt;/property&gt;
  * </pre>
- * 
+ *
  * <code>hostmatch=</code> and <code>urlmatch=</code> lines indicate the match
  * pattern for a host or url. The field replacements that follow this line will
  * apply only to pages from the matching host or url. Replacements run in the
  * order specified. Field names may appear multiple times if multiple
  * replacements are needed.
- * 
+ *
  * The property format is defined in greater detail in
  * <code>conf/nutch-default.xml</code>.
  *
@@ -121,7 +121,7 @@ public class ReplaceIndexer implements IndexingFilter {
   /**
    * Parse the property value into a set of maps that store a list of
    * replacements by field for each host and url configured into the property.
-   * 
+   *
    * @param propertyValue
    */
   private void parseConf(String propertyValue) {
@@ -248,7 +248,7 @@ public class ReplaceIndexer implements IndexingFilter {
   /**
    * Iterates through the replacement map provided, to update the fields in the
    * Nutch Document.
-   * 
+   *
    * @param doc
    *          the document we are modifying
    * @param keyName

@@ -46,9 +46,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Reads and parses a URL and run the indexers on it. Displays the fields
  * obtained and the first 100 characters of their value
- * 
+ *
  * Tested with e.g.
- * 
+ *
  * <pre>
     echo "http://www.lemonde.fr" | $NUTCH_HOME/bin/nutch indexchecker -stdin
  * </pre>
@@ -131,7 +131,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
         url = args[i];
       }
     }
-    
+
     if (url != null) {
       return super.processSingle(url);
     } else {
@@ -300,7 +300,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
         }
       }
     }
-    
+
     output.append("\n"); // For readability if keepClientCnxOpen
 
     if (doIndex) {
@@ -312,7 +312,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
 
     return 0;
   }
-  
+
   public static void main(String[] args) throws Exception {
     final int res = ToolRunner.run(NutchConfiguration.create(),
         new IndexingFiltersChecker(), args);

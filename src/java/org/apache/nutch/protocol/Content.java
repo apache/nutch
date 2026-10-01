@@ -229,7 +229,7 @@ public final class Content implements Writable {
 
   /**
    * The media type of the retrieved content.
-   * 
+   *
    * @see <a href="http://www.iana.org/assignments/media-types/">
    *      http://www.iana.org/assignments/media-types/</a>
    * @return content type

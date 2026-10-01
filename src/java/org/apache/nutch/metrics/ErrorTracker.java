@@ -29,32 +29,32 @@ import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 
 /**
  * A utility class for tracking errors by category with automatic classification.
- * 
+ *
  * <p>This class provides thread-safe error counting with automatic categorization
  * based on exception type. It uses a bounded set of error categories to stay within
  * Hadoop's counter limits (~120 counters).
- * 
+ *
  * <p><b>Usage in mapper/reducer or task threads:</b>
  * <pre>
  * // In mapper/reducer setup or thread initialization
  * errorTracker = new ErrorTracker(NutchMetrics.GROUP_FETCHER);
  * // or with context for cached counters:
  * errorTracker = new ErrorTracker(NutchMetrics.GROUP_FETCHER, context);
- * 
+ *
  * // When catching exceptions
  * try {
  *     // ... operation ...
  * } catch (Exception e) {
  *     errorTracker.recordError(e);  // Auto-categorizes
  * }
- * 
+ *
  * // Or with manual categorization
  * errorTracker.recordError(ErrorTracker.ErrorType.NETWORK);
- * 
+ *
  * // In cleanup - emit all error counters to the job
  * errorTracker.emitCounters(context);
  * </pre>
- * 
+ *
  * <p><b>Usage in driver/client code (no task context):</b>
  * When used in a job driver or other code that does not run inside a mapper/reducer,
  * create an ErrorTracker with the single-argument constructor (counter group only).
@@ -76,7 +76,7 @@ import org.apache.hadoop.mapreduce.TaskInputOutputContext;
  *   <li>errors_timeout_total - timeout errors</li>
  *   <li>errors_other_total - uncategorized errors</li>
  * </ul>
- * 
+ *
  * @since 1.22
  */
 public class ErrorTracker {
@@ -107,14 +107,14 @@ public class ErrorTracker {
   private final String group;
   private final Map<ErrorType, AtomicLong> counts;
   private final AtomicLong totalCount;
-  
+
   // Cached counter references for performance (optional - set via initCounters)
   private org.apache.hadoop.mapreduce.Counter cachedTotalCounter;
   private final Map<ErrorType, org.apache.hadoop.mapreduce.Counter> cachedCounters;
 
   /**
    * Creates a new ErrorTracker for the specified counter group.
-   * 
+   *
    * <p>Use in mapper/reducer setup or thread initialization: call
    * {@link #initCounters(TaskInputOutputContext)} in setup() to cache counter
    * references, then {@link #emitCounters(TaskInputOutputContext)} in cleanup to
@@ -124,7 +124,7 @@ public class ErrorTracker {
    * emitCounters. Only {@link #recordError(Throwable)} and
    * {@link #recordError(ErrorTracker.ErrorType)} are used; counts stay in-memory
    * for consistent categorization and logging (e.g. with LOG.error).
-   * 
+   *
    * @param group the Hadoop counter group name (e.g., NutchMetrics.GROUP_FETCHER)
    */
   public ErrorTracker(String group) {
@@ -132,7 +132,7 @@ public class ErrorTracker {
     this.counts = new EnumMap<>(ErrorType.class);
     this.cachedCounters = new EnumMap<>(ErrorType.class);
     this.totalCount = new AtomicLong(0);
-    
+
     // Initialize all counts to 0
     for (ErrorType type : ErrorType.values()) {
       counts.put(type, new AtomicLong(0));
@@ -141,10 +141,10 @@ public class ErrorTracker {
 
   /**
    * Creates a new ErrorTracker with cached counter references.
-   * 
+   *
    * <p>This constructor caches all counter references at creation time,
    * avoiding repeated counter lookups in hot paths.
-   * 
+   *
    * @param group the Hadoop counter group name
    * @param context the Hadoop task context for caching counters
    */
@@ -155,10 +155,10 @@ public class ErrorTracker {
 
   /**
    * Initializes cached counter references from the Hadoop context.
-   * 
+   *
    * <p>Call this method in the mapper/reducer setup() method to cache
    * counter references and avoid repeated lookups during processing.
-   * 
+   *
    * @param context the Hadoop task context
    */
   public void initCounters(TaskInputOutputContext<?, ?, ?, ?> context) {
@@ -170,7 +170,7 @@ public class ErrorTracker {
 
   /**
    * Records an error with automatic categorization based on the throwable type.
-   * 
+   *
    * @param t the throwable to categorize and record
    */
   public void recordError(Throwable t) {
@@ -179,7 +179,7 @@ public class ErrorTracker {
 
   /**
    * Records an error with explicit category.
-   * 
+   *
    * @param type the error type category
    */
   public void recordError(ErrorType type) {
@@ -189,7 +189,7 @@ public class ErrorTracker {
 
   /**
    * Returns the count for a specific error type.
-   * 
+   *
    * @param type the error type
    * @return the count for that error type
    */
@@ -199,7 +199,7 @@ public class ErrorTracker {
 
   /**
    * Returns the total count of all errors.
-   * 
+   *
    * @return the total error count
    */
   public long getTotalCount() {
@@ -208,13 +208,13 @@ public class ErrorTracker {
 
   /**
    * Emits all error counters to the Hadoop context.
-   * 
+   *
    * <p>Should be called once during cleanup to emit aggregated metrics.
    * Only emits counters for error types that have non-zero counts.
-   * 
+   *
    * <p>If counters were cached via {@link #initCounters(TaskInputOutputContext)},
    * uses the cached references for better performance.
-   * 
+   *
    * @param context the Hadoop task context
    */
   public void emitCounters(TaskInputOutputContext<?, ?, ?, ?> context) {
@@ -241,11 +241,11 @@ public class ErrorTracker {
 
   /**
    * Directly increments cached error counters without local accumulation.
-   * 
+   *
    * <p>Use this method when you want to immediately update Hadoop counters
    * rather than accumulating locally and emitting in cleanup.
    * Requires {@link #initCounters(TaskInputOutputContext)} to have been called.
-   * 
+   *
    * @param t the throwable to categorize and count
    * @throws IllegalStateException if counters have not been initialized
    */
@@ -255,11 +255,11 @@ public class ErrorTracker {
 
   /**
    * Directly increments cached error counters without local accumulation.
-   * 
+   *
    * <p>Use this method when you want to immediately update Hadoop counters
    * rather than accumulating locally and emitting in cleanup.
    * Requires {@link #initCounters(TaskInputOutputContext)} to have been called.
-   * 
+   *
    * @param type the error type to count
    * @throws IllegalStateException if counters have not been initialized
    */
@@ -274,11 +274,11 @@ public class ErrorTracker {
 
   /**
    * Categorizes a throwable into an error type.
-   * 
+   *
    * <p>The categorization checks the exception class hierarchy to determine
    * the most appropriate category. Timeout exceptions are checked first as
    * they are a subclass of IOException.
-   * 
+   *
    * @param t the throwable to categorize
    * @return the appropriate ErrorType for the throwable
    */
@@ -286,43 +286,43 @@ public class ErrorTracker {
     if (t == null) {
       return ErrorType.OTHER;
     }
-    
+
     String className = t.getClass().getName();
-    
+
     // Check for timeout first (before general IOException)
-    if (t instanceof SocketTimeoutException 
+    if (t instanceof SocketTimeoutException
         || className.contains("TimeoutException")
         || className.contains("Timeout")) {
       return ErrorType.TIMEOUT;
     }
-    
+
     // Network errors
-    if (t instanceof SocketException 
+    if (t instanceof SocketException
         || t instanceof UnknownHostException
         || className.contains("ConnectException")
         || className.contains("NoRouteToHostException")
         || className.contains("ConnectionRefusedException")) {
       return ErrorType.NETWORK;
     }
-    
+
     // URL errors (check before general IOException since MalformedURLException extends IOException)
     if (t instanceof MalformedURLException
         || className.contains("URLFilterException")
         || className.contains("URISyntaxException")) {
       return ErrorType.URL;
     }
-    
+
     // General IOException (but not the specific subtypes above)
     if (t instanceof IOException) {
       return ErrorType.NETWORK;
     }
-    
+
     // Protocol errors
     if (className.contains("ProtocolException")
         || className.contains("ProtocolNotFound")) {
       return ErrorType.PROTOCOL;
     }
-    
+
     // Parsing errors
     if (className.contains("ParseException")
         || className.contains("ParserNotFound")
@@ -330,17 +330,17 @@ public class ErrorTracker {
         || className.contains("ParserConfigurationException")) {
       return ErrorType.PARSING;
     }
-    
+
     // Scoring errors
     if (className.contains("ScoringFilterException")) {
       return ErrorType.SCORING;
     }
-    
+
     // Indexing errors
     if (className.contains("IndexingException")) {
       return ErrorType.INDEXING;
     }
-    
+
     // Check cause chain for more specific categorization
     Throwable cause = t.getCause();
     if (cause != null && cause != t) {
@@ -349,13 +349,13 @@ public class ErrorTracker {
         return causeType;
       }
     }
-    
+
     return ErrorType.OTHER;
   }
 
   /**
    * Gets the counter name constant for a given error type.
-   * 
+   *
    * @param type the error type
    * @return the counter name constant from NutchMetrics
    */
@@ -383,14 +383,14 @@ public class ErrorTracker {
 
   /**
    * Gets the counter name for a throwable based on its categorization.
-   * 
+   *
    * <p>This is a convenience method for direct use in catch blocks:
    * <pre>
    * } catch (Exception e) {
    *     context.getCounter(group, ErrorTracker.getCounterName(e)).increment(1);
    * }
    * </pre>
-   * 
+   *
    * @param t the throwable to get the counter name for
    * @return the counter name constant from NutchMetrics
    */

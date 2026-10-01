@@ -44,7 +44,7 @@ import org.xml.sax.SAXException;
  * The <code>PluginManifestParser</code> provides a mechanism for
  * parsing Nutch plugin manifest files (<code>plugin.xml</code>) contained
  * in a {@link java.lang.String[]} of plugin directories.
- * 
+ *
  */
 public class PluginManifestParser {
   private static final String ATTR_NAME = "name";
@@ -66,7 +66,7 @@ public class PluginManifestParser {
 
   /**
    * Returns a list of all found plugin descriptors.
-   * 
+   *
    * @param pluginFolders
    *          folders to search plugins from
    * @return A {@link Map} of all found {@link PluginDescriptor}s.
@@ -105,7 +105,7 @@ public class PluginManifestParser {
    * Return the named plugin folder. If the name is absolute then it is
    * returned. Otherwise, for relative names, the classpath is scanned.
    * @param name the name of a plugin folder
-   * @return the plugin directory as a {@link File} 
+   * @return the plugin directory as a {@link File}
    */
   public File getPluginFolder(String name) {
     File directory = new File(name);
@@ -180,7 +180,7 @@ public class PluginManifestParser {
     }
     PluginDescriptor pluginDescriptor = new PluginDescriptor(id, version, name,
             providerName, pluginClazz, pPath, this.conf);
-    LOG.debug("plugin: id={} name={} version={} provider={} class={}", 
+    LOG.debug("plugin: id={} name={} version={} provider={} class={}",
             id, name, version, providerName, pluginClazz);
     parseExtension(rootElement, pluginDescriptor);
     parseExtensionPoints(rootElement, pluginDescriptor);

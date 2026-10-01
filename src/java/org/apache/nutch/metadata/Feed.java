@@ -18,8 +18,8 @@ package org.apache.nutch.metadata;
 
 /**
  * A collection of Feed property names extracted by the ROME library.
- * 
- * 
+ *
+ *
  */
 public interface Feed {
 

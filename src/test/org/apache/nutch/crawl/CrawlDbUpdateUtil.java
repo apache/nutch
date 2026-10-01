@@ -67,7 +67,7 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
 
   /** {@link Context} to collect all values in a {@link List} */
   private class DummyContext extends Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context {
-    
+
     private DummyContext() {
       reducer.super();
     }
@@ -127,7 +127,7 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
     public float getProgress() {
       return 1f;
     }
-    
+
     @Override
     public OutputCommitter getOutputCommitter() {
       throw new UnsupportedOperationException("Dummy context without committer");
@@ -144,7 +144,7 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
     }
 
     @Override
-    public TaskAttemptID getTaskAttemptID() throws UnsupportedOperationException { 
+    public TaskAttemptID getTaskAttemptID() throws UnsupportedOperationException {
       throw new UnsupportedOperationException("Dummy context without TaskAttemptID");
     }
 
@@ -345,7 +345,7 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
    * run
    * {@link CrawlDbReducer#reduce(Text, Iterator, OutputCollector, Reporter)}
    * and return the CrawlDatum(s) which would have been written into CrawlDb
-   * 
+   *
    * @param values
    *          list of input CrawlDatums
    * @return list of resulting CrawlDatum(s) in CrawlDb
@@ -371,7 +371,7 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
    * run
    * {@link CrawlDbReducer#reduce(Text, Iterator, OutputCollector, Reporter)}
    * and return the CrawlDatum(s) which would have been written into CrawlDb
-   * 
+   *
    * @param dbDatum
    *          previous CrawlDatum in CrawlDb
    * @param fetchDatum

@@ -2,3 +2,10 @@
 # See --blanks-eol-ignore-file in the blanks plugin.
 ^out/
 CHANGES.md
+# Bundled third-party license/notice text (same set as .yetus/excludes.txt).
+^licenses-binary/
+^NOTICE-binary$
+# Language-identifier test corpora and other non-source fixtures.
+^src/plugin/language-identifier/src/test/
+^src/plugin/parse-js/sample/
+^conf/naivebayes-train\.txt\.template$

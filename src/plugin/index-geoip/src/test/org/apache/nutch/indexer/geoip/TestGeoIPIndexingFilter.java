@@ -221,7 +221,7 @@ public class TestGeoIPIndexingFilter {
     conf.set("index.geoip.db.connection", "GeoIP2-Connection-Type-Test.mmdb");
     filter = new GeoIPIndexingFilter();
     filter.setConf(conf);
-    
+
     // Use IP 1.0.0.1 which exists in Connection Type test database
     // Note: This IP may not exist in the City database, so we just verify
     // that Connection Type data is returned
@@ -285,7 +285,7 @@ public class TestGeoIPIndexingFilter {
   public void testAddIfNotDuplicateNewField() {
     NutchDocument testDoc = new NutchDocument();
     GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", "192.168.1.1");
-    
+
     assertNotNull(testDoc.getFieldValue("ip"));
     assertEquals("192.168.1.1", testDoc.getFieldValue("ip"));
     assertEquals(1, testDoc.getField("ip").getValues().size());
@@ -297,12 +297,12 @@ public class TestGeoIPIndexingFilter {
   @Test
   public void testAddIfNotDuplicatePreventsDuplicates() {
     NutchDocument testDoc = new NutchDocument();
-    
+
     // Add the same IP three times (simulating multiple database lookups)
     GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", "192.168.1.1");
     GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", "192.168.1.1");
     GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", "192.168.1.1");
-    
+
     // Should only have one value
     NutchField field = testDoc.getField("ip");
     assertNotNull(field);
@@ -316,11 +316,11 @@ public class TestGeoIPIndexingFilter {
   @Test
   public void testAddIfNotDuplicateAllowsDifferentValues() {
     NutchDocument testDoc = new NutchDocument();
-    
+
     // Add different IPs (this shouldn't happen in practice but tests the logic)
     GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", "192.168.1.1");
     GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", "192.168.1.2");
-    
+
     // Should have two different values
     NutchField field = testDoc.getField("ip");
     assertNotNull(field);
@@ -335,10 +335,10 @@ public class TestGeoIPIndexingFilter {
   @Test
   public void testAddIfNotDuplicateNullValue() {
     NutchDocument testDoc = new NutchDocument();
-    
+
     // Adding null should not create a field
     GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", null);
-    
+
     assertNull(testDoc.getField("ip"));
   }
 
@@ -376,7 +376,7 @@ public class TestGeoIPIndexingFilter {
     conf.set("index.geoip.db.connection", "GeoIP2-Connection-Type-Test.mmdb");
     filter = new GeoIPIndexingFilter();
     filter.setConf(conf);
-    
+
     // Use IP 1.0.0.1 which exists in Connection Type test database
     parseImpl.getData().getContentMeta().add("_ip_", "1.0.0.1");
     try {
@@ -386,18 +386,18 @@ public class TestGeoIPIndexingFilter {
       fail(e.getMessage());
     }
     assertNotNull(doc);
-    
+
     // Verify connection type data is present with specific network address field
     assertEquals("Cable/DSL", doc.getFieldValue("connectionType"));
     assertNotNull(doc.getFieldValue(GeoIPDocumentCreator.CONNECTION_NETWORK_ADDRESS));
-    
+
     // Verify the generic networkAddress field is NOT used
     assertNull(doc.getField("networkAddress"));
-    
+
     // Verify IP field exists and has only one value (not duplicated)
     NutchField ipField = doc.getField("ip");
     assertNotNull(ipField);
-    assertEquals(1, ipField.getValues().size(), 
+    assertEquals(1, ipField.getValues().size(),
         "IP field should have exactly one value, not duplicated across databases");
   }
 
@@ -415,7 +415,7 @@ public class TestGeoIPIndexingFilter {
     filter = new GeoIPIndexingFilter();
     filter.setConf(conf);
     // Configuration should be accepted without error (file missing is logged as warning)
-    assertEquals("nonexistent-country-test.mmdb", 
+    assertEquals("nonexistent-country-test.mmdb",
         filter.getConf().get("index.geoip.db.country"));
   }
 

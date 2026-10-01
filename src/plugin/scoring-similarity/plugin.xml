@@ -33,7 +33,7 @@
    <requires>
       <import plugin="nutch-extensionpoints"/>
    </requires>
-   
+
    <extension id="org.apache.nutch.scoring.similarity"
               name="SimilarityScoring"
               point="org.apache.nutch.scoring.ScoringFilter">

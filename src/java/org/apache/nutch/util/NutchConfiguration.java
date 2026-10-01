@@ -45,7 +45,7 @@ public class NutchConfiguration {
   /**
    * Retrieve a Nutch UUID of this configuration object, or null if the
    * configuration was created elsewhere.
-   * 
+   *
    * @param conf
    *          configuration instance
    * @return uuid or null
@@ -69,7 +69,7 @@ public class NutchConfiguration {
 
   /**
    * Create a {@link Configuration} from supplied properties.
-   * 
+   *
    * @param addNutchResources
    *          if true, then first <code>nutch-default.xml</code>, and then
    *          <code>nutch-site.xml</code> will be loaded prior to applying the
@@ -93,7 +93,7 @@ public class NutchConfiguration {
 
   /**
    * Add the standard Nutch resources to {@link Configuration}.
-   * 
+   *
    * @param conf
    *          Configuration object to which configuration is to be added.
    */

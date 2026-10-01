@@ -88,7 +88,7 @@ public class HtmlParser implements Parser {
    * http://www.w3.org/International/questions/qa-html-encoding-declarations,
    * http://www.w3.org/TR/2011/WD-html5-diff-20110405/#character-encoding, and
    * http://www.w3.org/TR/REC-xml/#sec-guessing
-   * 
+   *
    * @param content
    *          <code>byte[]</code> representation of an html file
    */

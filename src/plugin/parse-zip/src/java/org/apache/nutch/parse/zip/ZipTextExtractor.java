@@ -40,7 +40,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.tika.Tika;
 
 /**
- * 
+ *
  */
 public class ZipTextExtractor {
 

@@ -58,7 +58,7 @@ public class PluginDescriptor {
 
   /**
    * Overloaded constructor
-   * 
+   *
    * @param pId set plugin ID
    * @param pVersion set plugin version
    * @param pName set plugin name
@@ -92,7 +92,7 @@ public class PluginDescriptor {
 
   /**
    * Returns the name of the plugin.
-   * 
+   *
    * @return String
    */
   public String getName() {
@@ -123,7 +123,7 @@ public class PluginDescriptor {
   /**
    * Returns the fully qualified name of the class which implements the abstarct
    * <code>Plugin</code> class.
-   * 
+   *
    * @return the name of this plug-in's runtime class or <code>null</code>.
    */
   public String getPluginClass() {
@@ -132,7 +132,7 @@ public class PluginDescriptor {
 
   /**
    * Returns the unique identifier of the plug-in or <code>null</code>.
-   * 
+   *
    * @return String
    */
   public String getPluginId() {
@@ -141,7 +141,7 @@ public class PluginDescriptor {
 
   /**
    * Returns an array of extensions.
-   * 
+   *
    * @return Exception[]
    */
   public Extension[] getExtensions() {
@@ -150,7 +150,7 @@ public class PluginDescriptor {
 
   /**
    * Adds a extension.
-   * 
+   *
    * @param pExtension a {@link org.apache.nutch.plugin.Extension}
    */
   public void addExtension(Extension pExtension) {
@@ -159,7 +159,7 @@ public class PluginDescriptor {
 
   /**
    * Sets the pluginClass.
-   * 
+   *
    * @param pluginClass
    *          The pluginClass to set
    */
@@ -169,7 +169,7 @@ public class PluginDescriptor {
 
   /**
    * Sets the plugin Id.
-   * 
+   *
    * @param pluginId
    *          The pluginId to set
    */
@@ -179,7 +179,7 @@ public class PluginDescriptor {
 
   /**
    * Adds a extension point.
-   * 
+   *
    * @param extensionPoint a {@link org.apache.nutch.plugin.ExtensionPoint}
    */
   public void addExtensionPoint(ExtensionPoint extensionPoint) {
@@ -188,7 +188,7 @@ public class PluginDescriptor {
 
   /**
    * Returns a array of extension points.
-   * 
+   *
    * @return ExtensionPoint[]
    */
   public ExtensionPoint[] getExtenstionPoints() {
@@ -198,7 +198,7 @@ public class PluginDescriptor {
 
   /**
    * Returns a array of plugin ids.
-   * 
+   *
    * @return String[]
    */
   public String[] getDependencies() {
@@ -207,7 +207,7 @@ public class PluginDescriptor {
 
   /**
    * Adds a dependency
-   * 
+   *
    * @param pId
    *          id of the dependent plugin
    */
@@ -218,15 +218,15 @@ public class PluginDescriptor {
   /**
    * Adds a exported library with a relative path to the plugin directory. We
    * automatically escape characters that are illegal in URLs. It is recommended
-   * that code converts an abstract pathname into a {@link java.net.URL} by 
-   * first converting it into a {@link java.net.URI}, via the 
-   * {@link java.net.URL#toURI()} method, and then converting the 
-   * {@link java.net.URI} into a {@link java.net.URL} via the 
+   * that code converts an abstract pathname into a {@link java.net.URL} by
+   * first converting it into a {@link java.net.URI}, via the
+   * {@link java.net.URL#toURI()} method, and then converting the
+   * {@link java.net.URI} into a {@link java.net.URL} via the
    * {@link java.net.URI#toURL()} method.
-   * 
+   *
    * @param pLibPath path to a exported library relative to the plugin directory
-   * @throws MalformedURLException if the pLibPath is not a relative path 
-   * (to the plugin directory) 
+   * @throws MalformedURLException if the pLibPath is not a relative path
+   * (to the plugin directory)
    */
   public void addExportedLibRelative(String pLibPath)
       throws MalformedURLException {
@@ -237,7 +237,7 @@ public class PluginDescriptor {
 
   /**
    * Returns the directory path of the plugin.
-   * 
+   *
    * @return String
    */
   public String getPluginPath() {
@@ -246,7 +246,7 @@ public class PluginDescriptor {
 
   /**
    * Returns a array of exported libs as URLs
-   * 
+   *
    * @return URL[]
    */
   public URL[] getExportedLibUrls() {
@@ -256,15 +256,15 @@ public class PluginDescriptor {
   /**
    * Adds a non-exported library with a relative path to the plugin directory. We
    * automatically escape characters that are illegal in URLs. It is recommended
-   * that code converts an abstract pathname into a {@link java.net.URL} by 
-   * first converting it into a {@link java.net.URI}, via the 
-   * {@link java.net.URL#toURI()} method, and then converting the 
-   * {@link java.net.URI} into a {@link java.net.URL} via the 
+   * that code converts an abstract pathname into a {@link java.net.URL} by
+   * first converting it into a {@link java.net.URI}, via the
+   * {@link java.net.URL#toURI()} method, and then converting the
+   * {@link java.net.URI} into a {@link java.net.URL} via the
    * {@link java.net.URI#toURL()} method.
-   * 
+   *
    * @param pLibPath path to a exported library relative to the plugin directory
-   * @throws MalformedURLException if the pLibPath is not a relative path 
-   * (to the plugin directory) 
+   * @throws MalformedURLException if the pLibPath is not a relative path
+   * (to the plugin directory)
    */
   public void addNotExportedLibRelative(String pLibPath)
       throws MalformedURLException {
@@ -275,7 +275,7 @@ public class PluginDescriptor {
 
   /**
    * Returns a array of libraries as URLs that are not exported by the plugin.
-   * 
+   *
    * @return URL[]
    */
   public URL[] getNotExportedLibUrls() {
@@ -286,7 +286,7 @@ public class PluginDescriptor {
    * Returns a cached classloader for a plugin. Until classloader creation all
    * needed libraries are collected. A classloader use as first the plugins own
    * libraries and add then all exported libraries of dependent plugins.
-   * 
+   *
    * @return PluginClassLoader the classloader for the plugin
    */
   public PluginClassLoader getClassLoader() {
@@ -339,10 +339,10 @@ public class PluginDescriptor {
   /**
    * Returns a I18N'd resource string. The resource bundles could be stored in
    * root directory of a plugin in the well known i18n file name conventions.
-   * 
+   *
    * @param pKey a plugin key
    * @param pLocale the required {@link java.util.Locale}
-   * @return a string for the given key from the 
+   * @return a string for the given key from the
    * {@link java.util.ResourceBundle} bundle or one of its parents
    * @throws IOException if there is an error obtaining the key
    */

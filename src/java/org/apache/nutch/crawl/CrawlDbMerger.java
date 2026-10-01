@@ -48,7 +48,7 @@ import org.apache.nutch.util.NutchJob;
 /**
  * This tool merges several CrawlDb-s into one, optionally filtering URLs
  * through the current URLFilters, to skip prohibited pages.
- * 
+ *
  * <p>
  * It's possible to use this tool just for filtering - in that case only one
  * CrawlDb should be specified in arguments.
@@ -59,7 +59,7 @@ import org.apache.nutch.util.NutchJob;
  * {@link org.apache.nutch.crawl.CrawlDatum#getFetchTime()}. However, all
  * metadata information from all versions is accumulated, with newer values
  * taking precedence over older values.
- * 
+ *
  */
 public class CrawlDbMerger extends Configured implements Tool {
   private static final Logger LOG = LoggerFactory
@@ -100,11 +100,11 @@ public class CrawlDbMerger extends Configured implements Tool {
       context.write(key, res);
     }
 
-    // Determine which CrawlDatum is the latest, according to calculateLastFetchTime() 
+    // Determine which CrawlDatum is the latest, according to calculateLastFetchTime()
     // and getFetchTime() as fallback in case calculateLastFetchTime()s are equal (eg: DB_UNFETCHED)
     private boolean isNewer(CrawlDatum cd1, CrawlDatum cd2) {
-      return schedule.calculateLastFetchTime(cd2) > schedule.calculateLastFetchTime(cd1) 
-        || schedule.calculateLastFetchTime(cd2) == schedule.calculateLastFetchTime(cd1) 
+      return schedule.calculateLastFetchTime(cd2) > schedule.calculateLastFetchTime(cd1)
+        || schedule.calculateLastFetchTime(cd2) == schedule.calculateLastFetchTime(cd1)
         && cd2.getFetchTime() > cd1.getFetchTime();
     }
 

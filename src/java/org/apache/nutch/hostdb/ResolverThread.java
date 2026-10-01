@@ -73,7 +73,7 @@ public class ResolverThread implements Runnable {
     this.datum = datum;
     this.context = context;
     this.purgeFailedHostsThreshold = purgeFailedHostsThreshold;
-    
+
     // Initialize cached counters for performance
     initCounters();
   }

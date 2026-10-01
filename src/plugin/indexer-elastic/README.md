@@ -15,7 +15,7 @@
  limitations under the License.
 -->
 
-indexer-elastic plugin for Nutch 
+indexer-elastic plugin for Nutch
 ================================
 
 **indexer-elastic plugin** is used for sending documents from one or more segments to an Elasticsearch server. The configuration for the index writers is on **conf/index-writers.xml** file, included in the official Nutch distribution and it's as follow:
@@ -27,7 +27,7 @@ indexer-elastic plugin for Nutch
   </mapping>
   <parameters>
     ...
-  </parameters>   
+  </parameters>
 </writer>
 ```
 
@@ -47,7 +47,7 @@ Each parameter has the form `<param name="<name>" value="<value>"/>` and the par
 
 Parameter Name | Description | Default value
 --|--|--
-host | Comma-separated list of hostnames to send documents to using [TransportClient](https://static.javadoc.io/org.elasticsearch/elasticsearch/5.3.0/org/elasticsearch/client/transport/TransportClient.html). Either host and port must be defined. | 
+host | Comma-separated list of hostnames to send documents to using [TransportClient](https://static.javadoc.io/org.elasticsearch/elasticsearch/5.3.0/org/elasticsearch/client/transport/TransportClient.html). Either host and port must be defined. |
 port | The port to connect to using [TransportClient](https://static.javadoc.io/org.elasticsearch/elasticsearch/5.3.0/org/elasticsearch/client/transport/TransportClient.html). | 9300
 scheme | The scheme (http or https) to connect to elastic server. | http
 index | Default index to send documents to. | nutch

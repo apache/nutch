@@ -52,12 +52,12 @@ public class NodeReader extends Configured {
 
   /**
    * Prints the content of the Node represented by the url to system out.
-   * 
+   *
    * @param webGraphDb
    *          The webgraph from which to get the node.
    * @param url
    *          The url of the node.
-   * 
+   *
    * @throws IOException
    *           If an error occurs while getting the node.
    */
@@ -83,7 +83,7 @@ public class NodeReader extends Configured {
    * Runs the NodeReader tool. The command line arguments must contain a
    * webgraphdb path and a url. The url must match the normalized url that is
    * contained in the NodeDb of the WebGraph.
-   * @param args input parameters for running this tool, run with 
+   * @param args input parameters for running this tool, run with
    * "help" for information
    * @throws Exception if there is a fatal error running this tool
    */

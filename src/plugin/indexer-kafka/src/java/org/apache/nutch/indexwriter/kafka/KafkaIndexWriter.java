@@ -70,7 +70,7 @@ public class KafkaIndexWriter implements IndexWriter {
   public void open(IndexWriterParams params) throws IOException {
     host = params.get(KafkaConstants.HOST);
     port = params.getInt(KafkaConstants.PORT, 9092);
-    
+
     keySerializer = params.get(KafkaConstants.KEY_SERIALIZER,
         "org.apache.kafka.common.serialization.ByteArraySerializer");
     valueSerializer = params.get(KafkaConstants.VALUE_SERIALIZER,
@@ -79,14 +79,14 @@ public class KafkaIndexWriter implements IndexWriter {
     maxDocCount = params.getInt(KafkaConstants.MAX_DOC_COUNT, 100);
 
     inputDocs = new ArrayList<ProducerRecord<String, JsonNode>>(maxDocCount);
-    
+
     if (StringUtils.isBlank(host)) {
       String message = "Missing host. It should be set in index-writers.xml";
       message += "\n" + describe();
       LOG.error(message);
       throw new RuntimeException(message);
     }
-    
+
     Properties configProperties = new Properties();
     configProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
         host + ":" + port);
@@ -183,7 +183,7 @@ public class KafkaIndexWriter implements IndexWriter {
     properties.put(KafkaConstants.KEY_SERIALIZER,
     new AbstractMap.SimpleEntry<>(
             "instruct how to turn the key object the user provides with their ProducerRecord into bytes",
-            this.keySerializer));      
+            this.keySerializer));
 
     properties.put(KafkaConstants.VALUE_SERIALIZER,
     new AbstractMap.SimpleEntry<>(

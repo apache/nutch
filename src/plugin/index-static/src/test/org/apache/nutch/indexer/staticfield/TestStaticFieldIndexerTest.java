@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * document 2. that empty {@code index.static} does not add anything to the
  * document 3. that valid field:value pairs are added to the document 4. that
  * fields and values added to the document are trimmed
- * 
+ *
  */
 
 public class TestStaticFieldIndexerTest {
@@ -58,7 +58,7 @@ public class TestStaticFieldIndexerTest {
 
   /**
    * Test that empty {@code index.static} does not add anything to the document
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -83,7 +83,7 @@ public class TestStaticFieldIndexerTest {
 
   /**
    * Test that valid field:value pairs are added to the document
-   * 
+   *
    * @throws Exception
    */
   @Test

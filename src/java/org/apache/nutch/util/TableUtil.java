@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,7 @@ public class TableUtil {
    * <p>
    * E.g. "http://bar.foo.com:8983/to/index.html?a=b" becomes
    * "com.foo.bar:8983:http/to/index.html?a=b".
-   * 
+   *
    * @param urlString
    *          url to be reversed
    * @return Reversed url
@@ -49,7 +49,7 @@ public class TableUtil {
    * <p>
    * E.g. "http://bar.foo.com:8983/to/index.html?a=b" becomes
    * "com.foo.bar:http:8983/to/index.html?a=b".
-   * 
+   *
    * @param url
    *          url to be reversed
    * @return Reversed url
@@ -112,7 +112,7 @@ public class TableUtil {
   /**
    * Given a reversed url, returns the reversed host E.g
    * "com.foo.bar:http:8983/to/index.html?a=b" -&gt; "com.foo.bar"
-   * 
+   *
    * @param reversedUrl
    *          Reversed url
    * @return Reversed host
@@ -148,8 +148,8 @@ public class TableUtil {
   /**
    * Convert given Utf8 instance to String and and cleans out any offending "\uFFFD"
    * from the String.
-   * 
-   * 
+   *
+   *
    * @param utf8
    *          Utf8 object
    * @return string-ifed Utf8 object or null if Utf8 instance is null

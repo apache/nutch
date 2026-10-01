@@ -21,7 +21,7 @@
    version="2.0.0"
    provider-name="nutch.org">
 
-   <!-- this file hosts all extension points nutch core code offers. 
+   <!-- this file hosts all extension points nutch core code offers.
    Please not that plugins can define extension points as well to be extendable.-->
 
 <extension-point
@@ -39,7 +39,7 @@
 <extension-point
       id="org.apache.nutch.parse.Parser"
       name="Nutch Content Parser"/>
- 
+
 <extension-point
       id="org.apache.nutch.parse.HtmlParseFilter"
       name="HTML Parse Filter"/>

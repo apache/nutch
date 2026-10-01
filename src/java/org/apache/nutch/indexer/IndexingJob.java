@@ -315,7 +315,7 @@ public class IndexingJob extends NutchTool implements Tool {
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
     boolean noCommit = false;
-    boolean deleteGone = false; 
+    boolean deleteGone = false;
     boolean filter = false;
     boolean normalize = false;
     boolean isSegment = false;
@@ -371,7 +371,7 @@ public class IndexingJob extends NutchTool implements Tool {
         if (SegmentChecker.isIndexable(p,fs)) {
           segments.add(p);
         }
-      }     
+      }
     }
 
     if(args.containsKey(Nutch.ARG_SEGMENTS)) {
@@ -391,7 +391,7 @@ public class IndexingJob extends NutchTool implements Tool {
     if(!isSegment){
       String segment_dir = crawlId+"/segments";
       File segmentsDir = new File(segment_dir);
-      File[] segmentsList = segmentsDir.listFiles();  
+      File[] segmentsList = segmentsDir.listFiles();
       Arrays.sort(segmentsList, (f1, f2) -> {
         if(f1.lastModified()>f2.lastModified())
           return -1;

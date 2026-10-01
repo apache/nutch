@@ -24,7 +24,7 @@ import org.apache.hadoop.io.Writable;
 
 /**
  * The result of parsing a page's raw content.
- * 
+ *
  * @see Parser#getParse(Content)
  */
 public class ParseImpl implements Parse, Writable {

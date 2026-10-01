@@ -278,7 +278,7 @@ public class SolrIndexWriter implements IndexWriter {
       try {
         LOG.info("SolrIndexer: deleting {}/{} documents", deleteIds.size(),
             totalDeletes);
-        
+
         UpdateRequest req = new UpdateRequest();
         req.deleteById(deleteIds);
         req.setAction(UpdateRequest.ACTION.OPTIMIZE, false, false);

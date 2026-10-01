@@ -122,11 +122,11 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
       }
     }
   }
-  
+
   public static class LinkDBDumpMapper extends Mapper<Text, Inlinks, Text, Inlinks> {
     Pattern pattern = null;
     Matcher matcher = null;
-    
+
     @Override
     public void setup(Mapper<Text, Inlinks, Text, Inlinks>.Context context) {
       Configuration conf = context.getConfiguration();
@@ -150,7 +150,7 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
     }
   }
 
-  public void processDumpJob(String linkdb, String output, String regex) 
+  public void processDumpJob(String linkdb, String output, String regex)
     throws IOException, InterruptedException, ClassNotFoundException {
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
@@ -161,9 +161,9 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
 
     Job job = Job.getInstance(getConf(), "Nutch LinkDbReader: " + linkdb);
     job.setJarByClass(LinkDbReader.class);
-    
+
     Configuration conf = job.getConfiguration();
- 
+
     if (regex != null) {
       conf.set("linkdb.regex", regex);
       job.setMapperClass(LinkDBDumpMapper.class);

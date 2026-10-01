@@ -53,7 +53,7 @@ import org.apache.nutch.util.URLUtil;
  * A tools that dumps out the top urls by number of inlinks, number of outlinks,
  * or by score, to a text file. One of the major uses of this tool is to check
  * the top scoring urls of a link analysis program such as LinkRank.
- * 
+ *
  * For number of inlinks or number of outlinks the WebGraph program will need to
  * have been run. For link analysis score a program such as LinkRank will need
  * to have been run which updates the NodeDb of the WebGraph.
@@ -86,7 +86,7 @@ public class NodeDumper extends Configured implements Tool {
      * Outputs the url with the appropriate number of inlinks, outlinks, or for
      * score.
      */
-    public static class SorterMapper extends 
+    public static class SorterMapper extends
         Mapper<Text, Node, FloatWritable, Text> {
 
       private Configuration conf;
@@ -127,7 +127,7 @@ public class NodeDumper extends Configured implements Tool {
      */
     public static class SorterReducer extends
         Reducer<FloatWritable, Text, Text, FloatWritable> {
-     
+
       private Configuration conf;
       private long topn = Long.MAX_VALUE;
 
@@ -218,12 +218,12 @@ public class NodeDumper extends Configured implements Tool {
      */
     public static class DumperReducer extends
         Reducer<Text, FloatWritable, Text, FloatWritable> {
-   
+
       private Configuration conf;
       private long topn = Long.MAX_VALUE;
       private boolean sum = false;
-   
-      @Override 
+
+      @Override
       public void reduce(Text key, Iterable<FloatWritable> values,
           Context context) throws IOException, InterruptedException {
 
@@ -265,24 +265,24 @@ public class NodeDumper extends Configured implements Tool {
 
   /**
    * Runs the process to dump the top urls out to a text file.
-   * 
+   *
    * @param webGraphDb
-   *          The {@link org.apache.nutch.scoring.webgraph.WebGraph} 
+   *          The {@link org.apache.nutch.scoring.webgraph.WebGraph}
    *          from which to pull values.
-   * @param type the node property type to dump, one of 
-   * {@link NodeDumper.DumpType#INLINKS}, {@link NodeDumper.DumpType#OUTLINKS} 
+   * @param type the node property type to dump, one of
+   * {@link NodeDumper.DumpType#INLINKS}, {@link NodeDumper.DumpType#OUTLINKS}
    * or {@link NodeDumper.DumpType#SCORES}
    * @param topN maximum value of top links to dump
    * @param output a {@link org.apache.hadoop.fs.Path} to write output to
-   * @param asEff if true set equals-sign as separator for 
+   * @param asEff if true set equals-sign as separator for
    * <a href="https://lucene.apache.org/solr/api/org/apache/solr/schema/ExternalFileField.html">
    * Solr's ExternalFileField</a>, false otherwise
-   * @param nameType either {@link NodeDumper.NameType#HOST} or 
+   * @param nameType either {@link NodeDumper.NameType#HOST} or
    * {@link NodeDumper.NameType#DOMAIN}
-   * @param aggrType the aggregation type, either 
+   * @param aggrType the aggregation type, either
    * {@link NodeDumper.AggrType#MAX} or {@link NodeDumper.AggrType#SUM}
-   * @param asSequenceFile true output will be written as 
-   * {@link SequenceFileOutputFormat}, otherwise default 
+   * @param asSequenceFile true output will be written as
+   * {@link SequenceFileOutputFormat}, otherwise default
    * {@link TextOutputFormat}
    * @throws Exception
    *           If an error occurs while dumping the top values.

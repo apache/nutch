@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Emulate a continuous crawl for one URL.
- * 
+ *
  */
 public class ContinuousCrawlTestUtil {
 
@@ -106,7 +106,7 @@ public class ContinuousCrawlTestUtil {
 
   /**
    * default fetch action: set status and time
-   * 
+   *
    * @param datum
    *          CrawlDatum to fetch
    * @param currentTime
@@ -140,7 +140,7 @@ public class ContinuousCrawlTestUtil {
 
   /**
    * default parse action: add signature if successfully fetched
-   * 
+   *
    * @param fetchDatum
    *          fetch datum
    * @return list of all datums resulting from parse (status: signature, linked,
@@ -158,7 +158,7 @@ public class ContinuousCrawlTestUtil {
 
   /**
    * default implementation to check the result state
-   * 
+   *
    * @param datum
    *          the CrawlDatum to be checked
    * @return true if the check succeeds
@@ -174,7 +174,7 @@ public class ContinuousCrawlTestUtil {
    * <p>
    * A loop emulates a continuous crawl launched in regular intervals (see
    * {@link #setInterval(int)} over a longer period ({@link #setDuraction(int)}.
-   * 
+   *
    * <ul>
    * <li>every "round" emulates
    * <ul>
@@ -185,13 +185,13 @@ public class ContinuousCrawlTestUtil {
    * <li>and is checked whether it is correct (see {@link #check(CrawlDatum)})
    * </ul>
    * </p>
-   * 
+   *
    * @param maxErrors
    *          (if > 0) continue crawl even if the checked CrawlDatum is not
    *          correct, but stop after max. number of errors
-   * 
+   *
    * @return false if a check of CrawlDatum failed, true otherwise
-   * @throws IOException 
+   * @throws IOException
    */
   protected boolean run(int maxErrors) throws IOException {
 

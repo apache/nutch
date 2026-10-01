@@ -19,8 +19,8 @@ package org.apache.nutch.plugin;
 /**
  * Defines the capability of a class to be plugged into Nutch. This is a common
  * interface that must be implemented by all Nutch Extension Points.
- * 
- * 
+ *
+ *
  * @see <a href="https://cwiki.apache.org/confluence/display/NUTCH/AboutPlugins">About Plugins</a>
  * @see <a href="package-summary.html#package_description"> plugin package
  *      description</a>

@@ -25,7 +25,7 @@ import org.apache.nutch.net.URLNormalizer;
  * This URLNormalizer doesn't change urls. It is sometimes useful if for a given
  * scope at least one normalizer must be defined but no transformations are
  * required.
- * 
+ *
  */
 public class PassURLNormalizer implements URLNormalizer {
 

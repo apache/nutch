@@ -43,9 +43,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * fetch and parse it using external command 'cat' and 'md5sum' alternately for
  * 10 times. Doing so also does a light stress test for class CommandRunner.java
  * (as used in ExtParser.java).
- * 
+ *
  * Warning: currently only do test on linux platform.
- * 
+ *
  */
 public class TestExtParser {
   private File tempFile = null;

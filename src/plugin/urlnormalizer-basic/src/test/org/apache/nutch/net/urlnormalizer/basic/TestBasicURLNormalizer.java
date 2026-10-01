@@ -39,7 +39,7 @@ public class TestBasicURLNormalizer {
     conf = NutchConfiguration.create();
     normalizer.setConf(conf);
   }
-  
+
   @Test
   public void testNUTCH1098() throws Exception {
     // check that % encoding is normalized
@@ -51,7 +51,7 @@ public class TestBasicURLNormalizer {
 
     // check that % decoder do not overlap strings
     normalizeTest("http://foo.com/%66oo.ht%6d%6c", "http://foo.com/foo.html");
-    
+
     // check that % decoder leaves high bit chars alone
     normalizeTest("http://foo.com/%66oo.htm%C0", "http://foo.com/foo.htm%C0");
 
@@ -82,7 +82,7 @@ public class TestBasicURLNormalizer {
     // check encoding of Spanish chars
     normalizeTest("http://mydomain.com/en Espa\u00F1ol.aspx", "http://mydomain.com/en%20Espa%C3%B1ol.aspx");
   }
-  
+
   @Test
   public void testNUTCH2064() throws Exception {
     // Ampersand and colon and other punctuation characters are not to be unescaped
@@ -244,7 +244,7 @@ public class TestBasicURLNormalizer {
     normalizeTest("https://user@[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/path/../to/index.html",
         "https://[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/to/index.html");
   }
-  
+
   @Test
   public void testCurlyBraces() throws Exception {
     // check whether curly braces are properly escaped

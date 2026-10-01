@@ -35,7 +35,7 @@ import org.apache.nutch.net.URLNormalizers;
 /**
  * This class provides a way to separate the URL normalization and filtering
  * steps from the rest of CrawlDb manipulation code.
- * 
+ *
  */
 public class CrawlDbFilter extends
     Mapper<Text, CrawlDatum, Text, CrawlDatum> {
@@ -78,7 +78,7 @@ public class CrawlDbFilter extends
       scope = conf.get(URL_NORMALIZING_SCOPE, URLNormalizers.SCOPE_CRAWLDB);
       normalizers = new URLNormalizers(conf, scope);
     }
-    
+
     // Initialize cached counter references
     initCounters(context);
 

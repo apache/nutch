@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * Basic generator test. 1. Insert entries in crawldb 2. Generates entries to
  * fetch 3. Verifies that number of generated urls match 4. Verifies that
  * highest scoring urls are generated
- * 
+ *
  */
 public class TestGenerator {
 
@@ -74,7 +74,7 @@ public class TestGenerator {
 
   /**
    * Test that generator generates fetchlish ordered by score (desc).
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -135,7 +135,7 @@ public class TestGenerator {
 
   /**
    * Test that generator obeys the property "generate.max.count".
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -200,7 +200,7 @@ public class TestGenerator {
   /**
    * Test that generator obeys the property "generate.max.count" and
    * "generate.count.mode".
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -267,7 +267,7 @@ public class TestGenerator {
 
   /**
    * Test generator obeys the filter setting.
-   * 
+   *
    * @throws Exception
    * @throws IOException
    */
@@ -305,7 +305,7 @@ public class TestGenerator {
 
   /**
    * Test that Generator can process URLs without a host part.
-   * 
+   *
    * @throws Exception
    * @throws IOException
    */
@@ -355,7 +355,7 @@ public class TestGenerator {
 
   /**
    * Read contents of fetchlist.
-   * 
+   *
    * @param fetchlist
    *          path to Generated fetchlist
    * @return Generated {@link URLCrawlDatum} objects
@@ -384,15 +384,15 @@ public class TestGenerator {
 
   /**
    * Generate Fetchlist.
-   * 
+   *
    * @param numResults
    *          number of results to generate
    * @param config
    *          Configuration to use
    * @return path to generated segment
    * @throws IOException
-   * @throws InterruptedException 
-   * @throws ClassNotFoundException 
+   * @throws InterruptedException
+   * @throws ClassNotFoundException
    */
   private Path generateFetchlist(int numResults, Configuration config,
       boolean filter) throws IOException, ClassNotFoundException, InterruptedException {
@@ -407,7 +407,7 @@ public class TestGenerator {
 
   /**
    * Creates CrawlDB.
-   * 
+   *
    * @param list
    *          database contents. The list must be lexicographically sorted by
    *          URL.
@@ -427,7 +427,7 @@ public class TestGenerator {
 
   /**
    * Constructs new {@link URLCrawlDatum} from submitted parameters.
-   * 
+   *
    * @param url
    *          url to use
    * @param fetchInterval

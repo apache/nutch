@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
  * <li><code>ParseText</code>: The page parse text which varies in length depdnecing
  * on <code>content.length</code> configuration.</li>
  * </ol>
- * 
+ *
  */
 
 public class ParserChecker extends AbstractChecker {
@@ -145,7 +145,7 @@ public class ParserChecker extends AbstractChecker {
     }
 
     this.scfilters = new ScoringFilters(getConf());
-    
+
     if (url != null) {
       return super.processSingle(url);
     } else {

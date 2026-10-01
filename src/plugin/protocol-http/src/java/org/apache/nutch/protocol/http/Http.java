@@ -45,7 +45,7 @@ public class Http extends HttpBase {
 
   /**
    * Set the {@link org.apache.hadoop.conf.Configuration} object.
-   * 
+   *
    * @param conf a populated {@link Configuration}
    */
   @Override

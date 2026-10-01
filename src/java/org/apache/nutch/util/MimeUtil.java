@@ -105,11 +105,11 @@ public final class MimeUtil {
   /**
    * Cleans a {@link MimeType} name by removing out the actual {@link MimeType},
    * from a string of the form:
-   * 
+   *
    * <pre>
    *      &lt;primary type&gt;/&lt;sub type&gt; ; &lt; optional params
    * </pre>
-   * 
+   *
    * @param origType
    *          The original mime type string to be cleaned.
    * @return The primary type, and subtype, concatenated, e.g., the actual mime
@@ -140,7 +140,7 @@ public final class MimeUtil {
    * the mime type. However, if <code>mime.type.magic</code> is enabled in
    * {@link NutchConfiguration}, then mime type magic resolution is used to try
    * and obtain a better-than-the-default approximation of the {@link MimeType}.
-   * 
+   *
    * @param typeName
    *          The original mime type, returned from a {@link ProtocolOutput}.
    * @param url
@@ -223,7 +223,7 @@ public final class MimeUtil {
   /**
    * Facade interface to Tika's underlying {@link MimeTypes#getMimeType(String)}
    * method.
-   * 
+   *
    * @param url
    *          A string representation of the document URL to sense the
    *          {@link org.apache.tika.mime.MimeType MimeType} for.
@@ -237,7 +237,7 @@ public final class MimeUtil {
   /**
    * A facade interface to Tika's underlying {@link MimeTypes#forName(String)}
    * method.
-   * 
+   *
    * @param name
    *          The name of a valid {@link MimeType} in the Tika mime registry.
    * @return The object representation of the {@link MimeType}, if it exists, or
@@ -255,7 +255,7 @@ public final class MimeUtil {
   /**
    * Facade interface to Tika's underlying {@link MimeTypes#getMimeType(File)}
    * method.
-   * 
+   *
    * @param f
    *          The {@link File} to sense the {@link MimeType} for.
    * @return The {@link MimeType} of the given {@link File}, or null if it

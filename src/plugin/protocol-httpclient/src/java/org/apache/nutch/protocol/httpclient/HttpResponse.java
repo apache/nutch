@@ -40,7 +40,7 @@ import org.apache.hadoop.io.Text;
 
 /**
  * An HTTP response.
- * 
+ *
  */
 public class HttpResponse implements Response {
 
@@ -51,7 +51,7 @@ public class HttpResponse implements Response {
 
   /**
    * Fetches the given <code>url</code> and prepares HTTP response.
-   * 
+   *
    * @param http
    *          An instance of the implementation class of this plugin
    * @param url
@@ -98,23 +98,23 @@ public class HttpResponse implements Response {
     // XXX the request body was sent the method is not retried, so there is
     // XXX little danger in retrying...
     // params.setParameter(HttpMethodParams.RETRY_HANDLER, null);
-    
+
     if (http.isCookieEnabled()) {
       String cookie = null;
-      
+
       if (datum.getMetaData().containsKey(http.COOKIE)) {
         cookie = ((Text)datum.getMetaData().get(http.COOKIE)).toString();
       }
-      
+
       if (cookie == null) {
         cookie = http.getCookie(url);
       }
-      
+
       if (cookie != null) {
         get.addRequestHeader("Cookie", cookie);
       }
     }
-    
+
     try {
       HttpClient client = Http.getClient();
       client.getParams().setParameter("http.useragent", http.getUserAgent()); // NUTCH-1941

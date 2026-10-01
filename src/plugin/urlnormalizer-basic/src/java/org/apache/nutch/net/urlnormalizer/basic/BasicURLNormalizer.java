@@ -74,7 +74,7 @@ public class BasicURLNormalizer implements URLNormalizer {
    */
   private final static Pattern unescapeRulePattern = Pattern
       .compile("%([0-9A-Fa-f]{2})");
-  
+
   // charset used for encoding URLs before escaping
   private final static Charset UTF_8 = StandardCharsets.UTF_8;
 
@@ -168,7 +168,7 @@ public class BasicURLNormalizer implements URLNormalizer {
   @Override
   public String normalize(String urlString, String scope)
       throws MalformedURLException {
-    
+
     if ("".equals(urlString)) // permit empty
       return urlString;
 
@@ -311,7 +311,7 @@ public class BasicURLNormalizer implements URLNormalizer {
 
     return file;
   }
-  
+
   /**
    * Remove % encoding from path segment in URL for characters which should be
    * unescaped according to <a
@@ -319,9 +319,9 @@ public class BasicURLNormalizer implements URLNormalizer {
    */
   private String unescapePath(String path) {
     StringBuilder sb = new StringBuilder();
-    
+
     Matcher matcher = unescapeRulePattern.matcher(path);
-    
+
     int end = -1;
     int letter;
 
@@ -329,7 +329,7 @@ public class BasicURLNormalizer implements URLNormalizer {
     while (matcher.find()) {
       // Append everything up to this group
       sb.append(path.substring(end + 1, matcher.start()));
-      
+
       // Get the integer representation of this hexadecimal encoded character
       letter = Integer.valueOf(matcher.group().substring(1), 16);
 
@@ -340,12 +340,12 @@ public class BasicURLNormalizer implements URLNormalizer {
         // Append the encoded character as uppercase
         sb.append(matcher.group().toUpperCase(Locale.ROOT));
       }
-      
+
       end = matcher.start() + 2;
     }
-    
+
     letter = path.length();
-    
+
     // Append the rest if there's anything
     if (end <= letter - 1) {
       sb.append(path.substring(end + 1, letter));
@@ -369,12 +369,12 @@ public class BasicURLNormalizer implements URLNormalizer {
       byte b = bytes[i];
       // Is this a control character?
       if (b < 0 || escapedCharacters[b]) {
-        // Start escape sequence 
+        // Start escape sequence
         sb.append('%');
-        
-        // Get this byte's hexadecimal representation 
+
+        // Get this byte's hexadecimal representation
         String hex = Integer.toHexString(b & 0xFF).toUpperCase(Locale.ROOT);
-        
+
         // Do we need to prepend a zero?
         if (hex.length() % 2 != 0 ) {
           sb.append('0');
@@ -406,7 +406,7 @@ public class BasicURLNormalizer implements URLNormalizer {
         sb.append((char) b);
       }
     }
-    
+
     return sb.toString();
   }
 

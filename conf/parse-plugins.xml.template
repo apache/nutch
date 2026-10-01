@@ -15,19 +15,19 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 	
-	Author     : mattmann 
-	Description: This xml file represents a natural ordering for which parsing 
-	plugin should get called for a particular mimeType. 
+	Author     : mattmann
+	Description: This xml file represents a natural ordering for which parsing
+	plugin should get called for a particular mimeType.
 -->
 
 <parse-plugins>
 
-  <!--  by default if the mimeType is set to *, or 
+  <!--  by default if the mimeType is set to *, or
         if it can't be determined, use parse-tika -->
 	<mimeType name="*">
 	  <plugin id="parse-tika" />
 	</mimeType>
- 
+
 	<mimeType name="application/rss+xml">
 	    <plugin id="parse-tika" />
 	    <plugin id="feed" />
@@ -78,10 +78,10 @@
 		<plugin id="parse-ext" />
 	</mimeType>
 
-	<!--  alias mappings for parse-xxx names to the actual extension implementation 
+	<!--  alias mappings for parse-xxx names to the actual extension implementation
 	ids described in each plugin's plugin.xml file -->
 	<aliases>
-		<alias name="parse-tika" 
+		<alias name="parse-tika"
 			extension-id="org.apache.nutch.parse.tika.TikaParser" />
 		<alias name="parse-ext" extension-id="ExtParser" />
 		<alias name="parse-html"

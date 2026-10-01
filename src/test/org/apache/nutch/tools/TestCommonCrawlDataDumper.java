@@ -32,7 +32,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
- * 
+ *
  * Test harness for the {@link CommonCrawlDataDumper}.
  *
  */

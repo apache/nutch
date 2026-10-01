@@ -26,7 +26,7 @@
          <export name="*"/>
       </library>
    </runtime>
-   
+
    <requires>
       <import plugin="nutch-extensionpoints"/>
    </requires>
@@ -36,6 +36,6 @@
               point="org.apache.nutch.indexer.IndexingFilter">
       <implementation id="SubcollectionIndexingFilter"
                       class="org.apache.nutch.indexer.subcollection.SubcollectionIndexingFilter"/>
-                      
+
    </extension>
 </plugin>

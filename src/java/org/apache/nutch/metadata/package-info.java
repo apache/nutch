@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-/** 
+/**
  *  A Multi-valued Metadata container, and set
  * of constant fields for Nutch Metadata.
  */

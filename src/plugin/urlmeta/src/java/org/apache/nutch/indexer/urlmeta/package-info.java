@@ -17,11 +17,11 @@
 
 /**
  * <p>URL Meta Tag Indexing Plugin</p>
- * <p>Takes Meta Tags, injected alongside a URL 
- * (see <A href="https://issues.apache.org/jira/browse/NUTCH-655">NUTCH-655</a>) 
- * and specified in the "urlmeta.tags" property, and inserts them into 
- * the document--which is then sent to the Indexer. If you specify 
- * these fields in the Nutch schema (as well as the Indexer's), you 
+ * <p>Takes Meta Tags, injected alongside a URL
+ * (see <A href="https://issues.apache.org/jira/browse/NUTCH-655">NUTCH-655</a>)
+ * and specified in the "urlmeta.tags" property, and inserts them into
+ * the document--which is then sent to the Indexer. If you specify
+ * these fields in the Nutch schema (as well as the Indexer's), you
  * can reasonably assume that they will be indexed.</p>
  */
 package org.apache.nutch.indexer.urlmeta;

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-/** 
- * URL filter plugin based on 
- * <a href="https://www.brics.dk/automaton/">dk.brics.automaton</a> Finite-State 
+/**
+ * URL filter plugin based on
+ * <a href="https://www.brics.dk/automaton/">dk.brics.automaton</a> Finite-State
  * Automata for Java<sup>TM</sup>.
  */
 package org.apache.nutch.urlfilter.automaton;
