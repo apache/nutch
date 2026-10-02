@@ -48,7 +48,7 @@ import org.apache.nutch.scoring.ScoringFilterException;
 public class DepthScoringFilter extends Configured implements ScoringFilter {
 
   private static final Logger LOG = LoggerFactory
-		      .getLogger(MethodHandles.lookup().lookupClass());
+          .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String DEPTH_KEY = "_depth_";
   public static final Text DEPTH_KEY_W = new Text(DEPTH_KEY);

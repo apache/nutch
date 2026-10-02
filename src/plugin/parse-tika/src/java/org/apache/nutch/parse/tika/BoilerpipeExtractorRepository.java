@@ -26,7 +26,7 @@ import de.l3s.boilerpipe.BoilerpipeExtractor;
 class BoilerpipeExtractorRepository {
 
   private static final Logger LOG = LoggerFactory
-		      .getLogger(MethodHandles.lookup().lookupClass());
+          .getLogger(MethodHandles.lookup().lookupClass());
   public static final HashMap<String, BoilerpipeExtractor> extractorRepository = new HashMap<>();
 
     /**

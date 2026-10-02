@@ -188,39 +188,39 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
         }
         if (allFieldsAccess) {
           theConstructor = theClass.getDeclaredConstructor(String[].class,
-							   NutchDocument.class,
-							   Parse.class,
-							   Text.class,
-							   CrawlDatum.class,
-							   Inlinks.class);
-	} else {
+                 NutchDocument.class,
+                 Parse.class,
+                 Text.class,
+                 CrawlDatum.class,
+                 Inlinks.class);
+  } else {
           theConstructor = theClass.getDeclaredConstructor(String[].class);
-	}
+  }
       } catch (NoSuchMethodException nme) {
         LOG.error("Exception preparing reflection for constructor. className was {}",
-		 String.valueOf(className));
+     String.valueOf(className));
         nme.printStackTrace();
         continue;
       }  catch (Exception e) {
         LOG.error("Exception preparing reflection tasks. className was {}",
-		 String.valueOf(className));
+     String.valueOf(className));
         e.printStackTrace();
         continue;
       }
       try {
         constrArgs = new String[userConstrArgs.length + 1];
         System.arraycopy(userConstrArgs,0,constrArgs,1,userConstrArgs.length);
-	if (allFieldsAccess) {
+  if (allFieldsAccess) {
           instance = theConstructor.newInstance(constrArgs,
-						doc,
-						parse,
-						url,
-						datum,
-						inlinks);
-	} else {
+            doc,
+            parse,
+            url,
+            datum,
+            inlinks);
+  } else {
           constrArgs[0] = url.toString();
           instance = theConstructor.newInstance(new Object[]{constrArgs});
-	}
+  }
 
         if (methodArgs.length > 0) {
           result = theMethod.invoke(instance, new Object[]{methodArgs});
@@ -229,8 +229,8 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
         }
       } catch (Exception e) {
         LOG.error("Exception in reflection trying to instantiate/invoke. "
-		  + "url was {} & className was {}",
-		  String.valueOf(url), String.valueOf(className));
+      + "url was {} & className was {}",
+      String.valueOf(url), String.valueOf(className));
         if (constrArgs.length > 1) {
           LOG.error("constrArgs[1] was {}", String.valueOf(constrArgs[1]));
         }
@@ -239,19 +239,19 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
           LOG.error("methodArgs[0] was {}", String.valueOf(methodArgs[0]));
         }
         e.printStackTrace();
-	continue;
+  continue;
       }
 
       LOG.debug("{}.{}() returned {} for field {}.", className,
-		methodName, String.valueOf(result), String.valueOf(fieldName));
+    methodName, String.valueOf(result), String.valueOf(fieldName));
 
       // If user chose to overwrite, remove existing value
       if (overwrite) {
-	LOG.debug("overwrite == true for fieldName == {} ", fieldName);
-	if (doc.getFieldNames().contains(fieldName)) {
-	  LOG.debug("Removing field '{}' from doc for overwrite", fieldName);
-	  doc.removeField(fieldName);
-	}
+  LOG.debug("overwrite == true for fieldName == {} ", fieldName);
+  if (doc.getFieldNames().contains(fieldName)) {
+    LOG.debug("Removing field '{}' from doc for overwrite", fieldName);
+    doc.removeField(fieldName);
+  }
       }
       if (result == null) {
         LOG.debug("Call to {}.{} returned null", className, methodName);
@@ -288,7 +288,7 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
     LOG.debug("In setIndexedConf() where ndx was passed in as {}", String.valueOf(ndx));
     fieldName = conf.get("index.arbitrary.fieldName.".concat(String.valueOf(ndx)));
     LOG.debug("Looking now for index.arbitrary.fieldname.{} which was: {}",
-	      String.valueOf(ndx),String.valueOf(fieldName));
+        String.valueOf(ndx),String.valueOf(fieldName));
 
     if (fieldName == null || fieldName == "") {
       throw new RuntimeException ("Problem in configuration where the index.arbitrary.fieldName."

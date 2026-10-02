@@ -32,7 +32,7 @@ public class NutchPublishers extends Configured implements NutchPublisher{
   private Configuration conf;
 
   public NutchPublishers(Configuration conf) {
-	this.conf = conf;
+  this.conf = conf;
     this.publishers = (NutchPublisher[])PluginRepository.get(conf).
         getOrderedPlugins(NutchPublisher.class,
             NutchPublisher.X_POINT_ID, "publisher.order");
@@ -77,6 +77,6 @@ public class NutchPublishers extends Configured implements NutchPublisher{
 
   @Override
   public void setConf(Configuration arg0) {
-	
+
   }
 }

@@ -312,7 +312,7 @@ Lao Word Break Dictionary Data (laodict.txt)
  # License: https://github.com/rober42539/lao-dictionary/LICENSE.txt
  #          (copied below)
  #
- #	This file is derived from the above dictionary version of Nov 22, 2020
+ #  This file is derived from the above dictionary version of Nov 22, 2020
  #  ----------------------------------------------------------------------
  #  Copyright (C) 2013 Brian Eugene Wilson, Robert Martin Campbell.
  #  All rights reserved.

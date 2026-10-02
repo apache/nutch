@@ -162,8 +162,8 @@ public abstract class RobotRulesParser implements Tool {
     } else {
       for (int i = 0; i < confAllowList.length; i++) {
         if (confAllowList[i].isEmpty()) {
-      	  LOG.info("Empty allowlisted URL skipped!");
-      	  continue;
+          LOG.info("Empty allowlisted URL skipped!");
+          continue;
         }
         allowList.add(confAllowList[i]);
       }
@@ -193,7 +193,7 @@ public abstract class RobotRulesParser implements Tool {
     String urlString = url.getHost();
 
     if (matcher != null) {
-    	match = matcher.matches(urlString);
+      match = matcher.matches(urlString);
     }
 
     return match;

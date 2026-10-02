@@ -407,7 +407,7 @@ public class ParseSegment extends NutchTool implements Tool {
       }
     }
     else {
-    	String segment_dir = crawlId+"/segments";
+      String segment_dir = crawlId+"/segments";
         File segmentsDir = new File(segment_dir);
         File[] segmentsList = segmentsDir.listFiles();
         Arrays.sort(segmentsList, (f1, f2) -> {
