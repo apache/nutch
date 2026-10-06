@@ -57,7 +57,7 @@ jobs:
       # Coverage and JUnit XML come only from the master-build Ubuntu JDK 17 matrix job.
       - name: Download Binary Artifacts (Ubuntu JDK 17)
         id: bins
-        uses: dawidd6/action-download-artifact@v25
+        uses: dawidd6/action-download-artifact@v27
         with:
           name: build-artifacts-linux-jdk17
           workflow: master-build.yml
@@ -72,7 +72,7 @@ jobs:
 
       - name: Download coverage data (Ubuntu JDK 17)
         if: steps.bins.outputs.found_artifact == 'true'
-        uses: dawidd6/action-download-artifact@v25
+        uses: dawidd6/action-download-artifact@v27
         with:
           name: coverage-data-linux-jdk17
           workflow: master-build.yml
@@ -81,7 +81,7 @@ jobs:
 
       - name: Download test reports (Ubuntu JDK 17)
         if: steps.bins.outputs.found_artifact == 'true'
-        uses: dawidd6/action-download-artifact@v25
+        uses: dawidd6/action-download-artifact@v27
         with:
           name: junit-test-results-linux-jdk17
           workflow: master-build.yml
