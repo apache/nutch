@@ -185,7 +185,7 @@
       <fileset refid="lib.jars"/>
     </copy>
   </target>
-	
+
   <target name="copy-generated-lib" if="lib-available">
     <copy file="${build.dir}/${name}.jar" todir="${deploy.dir}" failonerror="false"/>
   </target>

@@ -41,7 +41,7 @@ public class Multiplier {
   }
 
   public static void main(String[] args) {
-	Multiplier mp = new Multiplier(args);
-	out.println(mp.getProduct(args));
+  Multiplier mp = new Multiplier(args);
+  out.println(mp.getProduct(args));
   }
 }

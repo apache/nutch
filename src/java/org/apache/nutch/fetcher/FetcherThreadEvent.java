@@ -93,15 +93,15 @@ public class FetcherThreadEvent implements Serializable {
 
   /**
    * Set URL of this event (fetched page)
-   * @param url	URL of the fetched page
+   * @param url  URL of the fetched page
    */
   public void setUrl(String url) {
     this.url = url;
   }
   /**
    * Add new data to the eventData object.
-   * @param key	A key to refer to the data being added to this event
-   * @param value	Data to be stored in the event referenced by the above key
+   * @param key  A key to refer to the data being added to this event
+   * @param value  Data to be stored in the event referenced by the above key
    */
   public void addEventData(String key, Object value) {
     if(eventData == null) {
@@ -113,8 +113,8 @@ public class FetcherThreadEvent implements Serializable {
   /**
    * Given a collection of lists this method will add it
    * the oultink metadata
-   * @param links	A collection of outlinks generating from the fetched page
-   * 				this event refers to
+   * @param links  A collection of outlinks generating from the fetched page
+   *         this event refers to
    */
   public void addOutlinksToEventData(Collection<Outlink> links) {
     ArrayList<Map<String, String>> outlinkList = new ArrayList<>();
@@ -137,7 +137,7 @@ public class FetcherThreadEvent implements Serializable {
 
   /**
    * Set timestamp for this event
-   * @param timestamp	Timestamp of the occurrence of this event
+   * @param timestamp  Timestamp of the occurrence of this event
    */
   public void setTimestamp(Long timestamp) {
     this.timestamp = timestamp;

@@ -100,8 +100,8 @@ public class NodeDumper extends Configured implements Tool {
       @Override
       public void setup(Mapper<Text, Node, FloatWritable, Text>.Context context) {
         conf = context.getConfiguration();
-	inlinks = conf.getBoolean("inlinks", false);
-	outlinks = conf.getBoolean("outlinks", false);
+  inlinks = conf.getBoolean("inlinks", false);
+  outlinks = conf.getBoolean("outlinks", false);
       }
 
       @Override
@@ -185,7 +185,7 @@ public class NodeDumper extends Configured implements Tool {
       @Override
       public void setup(Mapper<Text, Node, Text, FloatWritable>.Context context) {
         conf = context.getConfiguration();
-	inlinks = conf.getBoolean("inlinks", false);
+  inlinks = conf.getBoolean("inlinks", false);
         outlinks = conf.getBoolean("outlinks", false);
         host = conf.getBoolean("host", false);
       }

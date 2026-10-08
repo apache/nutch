@@ -32,90 +32,90 @@ import org.codehaus.jettison.json.JSONObject;
  *
  */
 public class CommonCrawlFormatJettinson extends AbstractCommonCrawlFormat {
-	
-	private Deque<JSONObject> stackObjects;
-	
-	private Deque<JSONArray> stackArrays;
 
-	public CommonCrawlFormatJettinson(String url, Content content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
-		super(url, content, metadata, nutchConf, config);
-		
-		stackObjects = new ArrayDeque<>();
-		stackArrays = new ArrayDeque<>();
-	}
-	
-	@Override
-	protected void writeKeyValue(String key, String value) throws IOException {
-		try {
-			stackObjects.getFirst().put(key, value);
-		} catch (JSONException jsone) {
-			throw new IOException(jsone.getMessage());
-		}
-	}
-	
-	@Override
-	protected void writeKeyNull(String key) throws IOException {
-		try {
-			stackObjects.getFirst().put(key, JSONObject.NULL);
-		} catch (JSONException jsone) {
-			throw new IOException(jsone.getMessage());
-		}
-	}
-	
-	@Override
-	protected void startArray(String key, boolean nested, boolean newline) throws IOException {
-		JSONArray array = new JSONArray();
-		stackArrays.push(array);
-	}
-	
-	@Override
-	protected void closeArray(String key, boolean nested, boolean newline) throws IOException {
-		try {
-			if (stackArrays.size() > 1) {
-				JSONArray array = stackArrays.pop();
-				if (nested) {
-					stackArrays.getFirst().put(array);
-				}
-				else {
-					stackObjects.getFirst().put(key, array);
-				}
-			}
-		} catch (JSONException jsone) {
-			throw new IOException(jsone.getMessage());
-		}
-	}
-	
-	@Override
-	protected void writeArrayValue(String value) throws IOException {
-		if (stackArrays.size() > 1) {
-			stackArrays.getFirst().put(value);
-		}
-	}
-	
-	@Override
-	protected void startObject(String key) throws IOException {
-		JSONObject object = new JSONObject();
-		stackObjects.push(object);
-	}
-	
-	@Override
-	protected void closeObject(String key) throws IOException {
-		try {
-			if (stackObjects.size() > 1) {
-				JSONObject object = stackObjects.pop();
-				stackObjects.getFirst().put(key, object);
-			}
-		} catch (JSONException jsone) {
-			throw new IOException(jsone.getMessage());
-		}
-	}
-	
-	@Override
-	protected String generateJson() throws IOException {
-		try {
-			return stackObjects.getFirst().toString(2);
-		} catch (JSONException jsone) {
-			throw new IOException(jsone.getMessage());
-		}
-	}
+  private Deque<JSONObject> stackObjects;
+
+  private Deque<JSONArray> stackArrays;
+
+  public CommonCrawlFormatJettinson(String url, Content content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
+    super(url, content, metadata, nutchConf, config);
+
+    stackObjects = new ArrayDeque<>();
+    stackArrays = new ArrayDeque<>();
+  }
+
+  @Override
+  protected void writeKeyValue(String key, String value) throws IOException {
+    try {
+      stackObjects.getFirst().put(key, value);
+    } catch (JSONException jsone) {
+      throw new IOException(jsone.getMessage());
+    }
+  }
+
+  @Override
+  protected void writeKeyNull(String key) throws IOException {
+    try {
+      stackObjects.getFirst().put(key, JSONObject.NULL);
+    } catch (JSONException jsone) {
+      throw new IOException(jsone.getMessage());
+    }
+  }
+
+  @Override
+  protected void startArray(String key, boolean nested, boolean newline) throws IOException {
+    JSONArray array = new JSONArray();
+    stackArrays.push(array);
+  }
+
+  @Override
+  protected void closeArray(String key, boolean nested, boolean newline) throws IOException {
+    try {
+      if (stackArrays.size() > 1) {
+        JSONArray array = stackArrays.pop();
+        if (nested) {
+          stackArrays.getFirst().put(array);
+        }
+        else {
+          stackObjects.getFirst().put(key, array);
+        }
+      }
+    } catch (JSONException jsone) {
+      throw new IOException(jsone.getMessage());
+    }
+  }
+
+  @Override
+  protected void writeArrayValue(String value) throws IOException {
+    if (stackArrays.size() > 1) {
+      stackArrays.getFirst().put(value);
+    }
+  }
+
+  @Override
+  protected void startObject(String key) throws IOException {
+    JSONObject object = new JSONObject();
+    stackObjects.push(object);
+  }
+
+  @Override
+  protected void closeObject(String key) throws IOException {
+    try {
+      if (stackObjects.size() > 1) {
+        JSONObject object = stackObjects.pop();
+        stackObjects.getFirst().put(key, object);
+      }
+    } catch (JSONException jsone) {
+      throw new IOException(jsone.getMessage());
+    }
+  }
+
+  @Override
+  protected String generateJson() throws IOException {
+    try {
+      return stackObjects.getFirst().toString(2);
+    } catch (JSONException jsone) {
+      throw new IOException(jsone.getMessage());
+    }
+  }
 }

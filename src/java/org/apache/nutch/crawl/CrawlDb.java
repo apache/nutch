@@ -342,12 +342,12 @@ public class CrawlDb extends NutchTool implements Tool {
       Object segments = args.get(Nutch.ARG_SEGMENTS);
       ArrayList<String> segmentList = new ArrayList<>();
       if(segments instanceof ArrayList) {
-    	segmentList = (ArrayList<String>)segments;
+      segmentList = (ArrayList<String>)segments;
       }
       else if(segments instanceof Path){
-    	segmentList.add(segments.toString());
+      segmentList.add(segments.toString());
       }
-    	
+
       for(String segment: segmentList) {
         dirs.add(new Path(segment));
       }

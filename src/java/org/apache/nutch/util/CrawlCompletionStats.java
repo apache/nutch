@@ -52,8 +52,8 @@ import org.slf4j.LoggerFactory;
  * Extracts some simple crawl completion stats from the crawldb
  *
  * Stats will be sorted by host/domain and will be of the form:
- * 1	www.spitzer.caltech.edu FETCHED
- * 50	www.spitzer.caltech.edu UNFETCHED
+ * 1  www.spitzer.caltech.edu FETCHED
+ * 50  www.spitzer.caltech.edu UNFETCHED
  *
  */
 public class CrawlCompletionStats extends Configured implements Tool {

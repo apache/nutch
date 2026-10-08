@@ -30,8 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DumpFileUtil {
-	private static final Logger LOG = LoggerFactory
-			.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
     private final static String DIR_PATTERN = "%s/%s/%s";
     private final static String FILENAME_PATTERN = "%s_%s.%s";
@@ -57,12 +57,12 @@ public class DumpFileUtil {
             firstLevelDirName, secondLevelDirName);
 
         if (makeDir) {
-	        try {
-	            FileUtils.forceMkdir(new File(fullDirPath));
-	        } catch (IOException e) {
-	            LOG.error("Failed to create dir: {}", fullDirPath);
-	            fullDirPath = null;
-	        }
+          try {
+              FileUtils.forceMkdir(new File(fullDirPath));
+          } catch (IOException e) {
+              LOG.error("Failed to create dir: {}", fullDirPath);
+              fullDirPath = null;
+          }
         }
 
         return fullDirPath;
@@ -83,7 +83,7 @@ public class DumpFileUtil {
             fileExtension = StringUtils.substring(fileExtension, 0, MAX_LENGTH_OF_EXTENSION);
         }
 
-	// Added to prevent FileNotFoundException (Invalid Argument) - in *nix environment
+  // Added to prevent FileNotFoundException (Invalid Argument) - in *nix environment
         fileBaseName = fileBaseName.replaceAll("\\?", "");
         fileExtension = fileExtension.replaceAll("\\?", "");
 
@@ -119,38 +119,38 @@ public class DumpFileUtil {
     return outputFullPath;
   }
 
-	public static String displayFileTypes(Map<String, Integer> typeCounts, Map<String, Integer> filteredCounts) {
-		StringBuilder builder = new StringBuilder();
-		// print total stats
-		builder.append("\nTOTAL Stats:\n");
-		builder.append("[\n");
-		int mimetypeCount = 0;
-		for (String mimeType : typeCounts.keySet()) {
-			builder.append("    {\"mimeType\":\"");
-			builder.append(mimeType);
-			builder.append("\",\"count\":\"");
-			builder.append(typeCounts.get(mimeType));
-			builder.append("\"}\n");
-			mimetypeCount += typeCounts.get(mimeType);
-		}
-		builder.append("]\n");
-		builder.append("Total count: " + mimetypeCount + "\n");
-		// filtered types stats
-		mimetypeCount = 0;
-		if (!filteredCounts.isEmpty()) {
-			builder.append("\nFILTERED Stats:\n");
-			builder.append("[\n");
-			for (String mimeType : filteredCounts.keySet()) {
-				builder.append("    {\"mimeType\":\"");
-				builder.append(mimeType);
-				builder.append("\",\"count\":\"");
-				builder.append(filteredCounts.get(mimeType));
-				builder.append("\"}\n");
-				mimetypeCount += filteredCounts.get(mimeType);
-			}
-			builder.append("]\n");
-			builder.append("Total filtered count: " + mimetypeCount + "\n");
-		}
-		return builder.toString();
+  public static String displayFileTypes(Map<String, Integer> typeCounts, Map<String, Integer> filteredCounts) {
+    StringBuilder builder = new StringBuilder();
+    // print total stats
+    builder.append("\nTOTAL Stats:\n");
+    builder.append("[\n");
+    int mimetypeCount = 0;
+    for (String mimeType : typeCounts.keySet()) {
+      builder.append("    {\"mimeType\":\"");
+      builder.append(mimeType);
+      builder.append("\",\"count\":\"");
+      builder.append(typeCounts.get(mimeType));
+      builder.append("\"}\n");
+      mimetypeCount += typeCounts.get(mimeType);
+    }
+    builder.append("]\n");
+    builder.append("Total count: " + mimetypeCount + "\n");
+    // filtered types stats
+    mimetypeCount = 0;
+    if (!filteredCounts.isEmpty()) {
+      builder.append("\nFILTERED Stats:\n");
+      builder.append("[\n");
+      for (String mimeType : filteredCounts.keySet()) {
+        builder.append("    {\"mimeType\":\"");
+        builder.append(mimeType);
+        builder.append("\",\"count\":\"");
+        builder.append(filteredCounts.get(mimeType));
+        builder.append("\"}\n");
+        mimetypeCount += filteredCounts.get(mimeType);
+      }
+      builder.append("]\n");
+      builder.append("Total filtered count: " + mimetypeCount + "\n");
+    }
+    return builder.toString();
   }
 }

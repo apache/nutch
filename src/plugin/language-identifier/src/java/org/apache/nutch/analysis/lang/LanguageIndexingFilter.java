@@ -75,7 +75,7 @@ public class LanguageIndexingFilter implements IndexingFilter {
     }
 
     if (!indexLangs.isEmpty() && !indexLangs.contains(lang)) {
-    	return null;
+      return null;
     }
 
     doc.add("lang", lang);

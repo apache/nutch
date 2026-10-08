@@ -6,19 +6,19 @@
 BSD license definition
 
 
-The BSD license is a class of extremely simple and very liberal licenses for computer software that was originally developed at the University of California at Berkeley (UCB). It was first used in 1980 for the Berkeley Source Distribution (BSD), also known as BSD UNIX, an enhanced version of the original UNIX operating system that was first written in 1969 by Ken Thompson at Bell Labs. 
+The BSD license is a class of extremely simple and very liberal licenses for computer software that was originally developed at the University of California at Berkeley (UCB). It was first used in 1980 for the Berkeley Source Distribution (BSD), also known as BSD UNIX, an enhanced version of the original UNIX operating system that was first written in 1969 by Ken Thompson at Bell Labs.
 
 
-The only restrictions placed on users of software released under a typical BSD license are that if they redistribute such software in any form, with or without modification, they must include in the redistribution (1) the original copyright notice, (2) a list of two simple restrictions and (3) a disclaimer of liability. These restrictions can be summarized as (1) one should not claim that they wrote the software if they did not write it and (2) one should not sue the developer if the software does not function as expected or as desired. Some BSD licenses additionally include a clause that restricts the use of the name of the project (or the names of its contributors) for endorsing or promoting derivative works. 
+The only restrictions placed on users of software released under a typical BSD license are that if they redistribute such software in any form, with or without modification, they must include in the redistribution (1) the original copyright notice, (2) a list of two simple restrictions and (3) a disclaimer of liability. These restrictions can be summarized as (1) one should not claim that they wrote the software if they did not write it and (2) one should not sue the developer if the software does not function as expected or as desired. Some BSD licenses additionally include a clause that restricts the use of the name of the project (or the names of its contributors) for endorsing or promoting derivative works.
 
 
-The most basic definition of a derivative work is a product that is based on, or incorporates, one or more already existing works. This can become a complex issue, particularly with regard to software, but the primary indicator that a software program is a derivative of another program is if it includes source code from the original program, even if the source code has been modified, including improving, extending, reordering or translating it into another programming language. 
+The most basic definition of a derivative work is a product that is based on, or incorporates, one or more already existing works. This can become a complex issue, particularly with regard to software, but the primary indicator that a software program is a derivative of another program is if it includes source code from the original program, even if the source code has been modified, including improving, extending, reordering or translating it into another programming language.
 
 
 Source code is the version of software (usually an application program or an operating system) as it is originally written (i.e., typed into a computer) by a human in plain text  (i.e., human readable alphanumeric characters). Source code can be written in any of hundreds of programming languages, some of the most popular of which are C, C++ and Java.
 
 
-Due to the extremely minimal restrictions of BSD-style licenses, software released under such licenses can be freely modified and used in proprietary (i.e., commercial) software for which the source code is kept secret. 
+Due to the extremely minimal restrictions of BSD-style licenses, software released under such licenses can be freely modified and used in proprietary (i.e., commercial) software for which the source code is kept secret.
 
 
 It is possible for a product to be distributed under a BSD-style license and for some other license to apply as well. This was, in fact, the case with very early versions of BSD UNIX, which included both new code written at UCB and code from the original versions of UNIX written at Bell Labs.
@@ -29,8 +29,8 @@ BSD-style licenses have been very successful, and they are now widely used for a
 
 BSD Licenses Versus the GPL
 
-	
-The GPL (GNU General Public License) is by far the most widely used license for free software (i.e., software whose source code is available at no cost for anyone to use for any purpose). The Linux kernel (i.e., the core of the operating system) as well as much of the other software generally included in Linux distributions have been released under the terms of the GPL. 
+
+The GPL (GNU General Public License) is by far the most widely used license for free software (i.e., software whose source code is available at no cost for anyone to use for any purpose). The Linux kernel (i.e., the core of the operating system) as well as much of the other software generally included in Linux distributions have been released under the terms of the GPL.
 
 
 Although far fewer programs are released under BSD-style licenses, this class of licenses is disproportionately important because of the widespread use of BSD-licensed code in both free and proprietary operating systems.
@@ -69,7 +69,7 @@ The original version of the BSD license contained the so called advertising clau
 One of the problems with this clause arose from the fact that people who made changes to the source code often wanted to have their names added to the acknowledgment. This could easily result in large and cumbersome acknowledgments for products with numerous contributors and for software distributions consisting of multiple individual projects.
 
 
-A second problem was legal incompatibility with the terms of the GPL. This is because the GPL prohibits the addition of restrictions beyond those that it already imposes. Thus it was necessary to segregate GPL and BSD-licensed software within projects. 
+A second problem was legal incompatibility with the terms of the GPL. This is because the GPL prohibits the addition of restrictions beyond those that it already imposes. Thus it was necessary to segregate GPL and BSD-licensed software within projects.
 
 
 Initially, the "obnoxious BSD advertising clause," as it was referred to by GPL advocates, was used only for the BSD UNIX license. That did not cause any major problems because it was only necessary to include a single sentence of acknowledgment in any advertisement.
@@ -78,7 +78,7 @@ Initially, the "obnoxious BSD advertising clause," as it was referred to by GPL 
 However, the fact that other software developers did not copy the clause verbatim, but replaced the phrase "University of California" with the name of their own organization or persons involved in it, resulted in a proliferation of slightly different licenses and a consequently serious problem when many such programs were assembled to form a larger work or an operating system. For example, if an operating system or other program required fifty slightly different  acknowledgment sentences, each naming a different developer or group of developers, such advertising alone might require a full page. Not only would this be very tedious reading, but it could also be costly.
 
 
-In June 1999, after two years of discussion, the Office of Technology Licensing at UCB finally proclaimed: "Effective immediately, licensees and distributors are no longer required to include the acknowledgment within advertising materials. Accordingly, the foregoing paragraph of those BSD Unix files containing it is hereby deleted in its entirety." 
+In June 1999, after two years of discussion, the Office of Technology Licensing at UCB finally proclaimed: "Effective immediately, licensees and distributors are no longer required to include the acknowledgment within advertising materials. Accordingly, the foregoing paragraph of those BSD Unix files containing it is hereby deleted in its entirety."
 
 
 This was clearly very useful. However, it could not eliminate the legacy of the advertising clause, as similar clauses still exist in the licenses of many programs that followed the old BSD license; only the developers of such packages can change them.
@@ -96,7 +96,7 @@ Below are three examples of BSD-style licenses: (1) the BSD license as it is use
 
 Copyright 1994-2004 The FreeBSD Project. All rights reserved.
 
- 
+
 Redistribution and use in source and binary forms, with or
 without modification, are permitted provided that the
 following conditions are met:
@@ -140,7 +140,7 @@ or implied, of the FreeBSD Project.
 
 
 
- 
+
 Sudo License
 
 Sudo is distributed under the following BSD-style license:
@@ -182,7 +182,7 @@ Additionally, lsearch.c, fnmatch.c, getcwd.c, snprintf.c strcasecmp.c and fnmatc
 
 
 
-(3) A template for a BSD-style license. [YEAR], [COPYRIGHT OWNER] and [LICENSOR] are to be replaced by the actual year of copyright, the owner of the copyright and the licensor. The copyright owner and licensor may be the same, as in the case of the license for FreeBSD (as shown above).  
+(3) A template for a BSD-style license. [YEAR], [COPYRIGHT OWNER] and [LICENSOR] are to be replaced by the actual year of copyright, the owner of the copyright and the licensor. The copyright owner and licensor may be the same, as in the case of the license for FreeBSD (as shown above).
 
 
 
