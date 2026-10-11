@@ -57,17 +57,17 @@ public class PopularityGauge {
       if(anchorSet.contains("dinosaur")){
         popularityBoost = popularityBoost + 0.50;
       } else {
-  popularityBoost = popularityBoost - 0.20;
+        popularityBoost = popularityBoost - 0.20;
       }
       if (anchorSet.contains("baseball")) {
         popularityBoost = popularityBoost + 0.25;
       } else {
-  popularityBoost = popularityBoost - 0.15;
+        popularityBoost = popularityBoost - 0.15;
       }
       if (anchorSet.contains("source code")) {
         popularityBoost = popularityBoost + 0.25;
       } else {
-  popularityBoost = popularityBoost - 0.15;
+        popularityBoost = popularityBoost - 0.15;
       }
     }
     return popularityBoost;

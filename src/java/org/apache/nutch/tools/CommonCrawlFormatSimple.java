@@ -140,34 +140,34 @@ public class CommonCrawlFormatSimple extends AbstractCommonCrawlFormat {
                 break;
             case '/':
                 if (b == '<') {
-                  sb.append('\\');
+                    sb.append('\\');
                 }
                 sb.append(c);
                 break;
             case '\b':
-              sb.append("\\b");
+                sb.append("\\b");
                 break;
             case '\t':
-              sb.append("\\t");
+                sb.append("\\t");
                 break;
             case '\n':
-              sb.append("\\n");
+                sb.append("\\n");
                 break;
             case '\f':
-              sb.append("\\f");
+                sb.append("\\f");
                 break;
             case '\r':
-              sb.append("\\r");
+                sb.append("\\r");
                 break;
             default:
                 if (c < ' ' || (c >= '\u0080' && c < '\u00a0')
                         || (c >= '\u2000' && c < '\u2100')) {
-                  sb.append("\\u");
+                    sb.append("\\u");
                     hhhh = Integer.toHexString(c);
                     sb.append("0000", 0, 4 - hhhh.length());
                     sb.append(hhhh);
                 } else {
-                  sb.append(c);
+                    sb.append(c);
                 }
             }
         }
