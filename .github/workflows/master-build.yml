@@ -389,6 +389,9 @@ jobs:
           path: |
             ./build/test/TEST-*.xml
             ./build/**/test/TEST-*.xml
+            # Optional: present only for pull_request runs. A wildcard keeps
+            # push uploads working when the file was not recorded.
+            ./build/junit-pr-number*
           retention-days: 1
       - name: Upload Coverage Data
         uses: actions/upload-artifact@v7
