@@ -17,52 +17,52 @@
 -->
 
 <ivy-module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd"
-	xmlns:ns0="http://ant.apache.org/ivy/maven" version="2.0">
-	<info organisation="org.apache.nutch" module="${ant.project.name}">
-		<license name="Apache 2.0" />
-		<ivyauthor name="Apache Nutch Team"
-			url="https://nutch.apache.org/" />
-		<description>
-			Apache Nutch
-		</description>
-	</info>
+  xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd"
+  xmlns:ns0="http://ant.apache.org/ivy/maven" version="2.0">
+  <info organisation="org.apache.nutch" module="${ant.project.name}">
+    <license name="Apache 2.0" />
+    <ivyauthor name="Apache Nutch Team"
+      url="https://nutch.apache.org/" />
+    <description>
+      Apache Nutch
+    </description>
+  </info>
 
-	<configurations>
-		<include file="../../..//ivy/ivy-configurations.xml" />
-	</configurations>
+  <configurations>
+    <include file="../../..//ivy/ivy-configurations.xml" />
+  </configurations>
 
-	<publications>
-		<!--get the artifact from our module name -->
-		<artifact conf="master" />
-	</publications>
+  <publications>
+    <!--get the artifact from our module name -->
+    <artifact conf="master" />
+  </publications>
 
-	<dependencies>
-		<dependency org="org.testcontainers" name="testcontainers-solr" rev="2.0.3" conf="test->default"/>
-		<dependency org="org.apache.solr" name="solr-solrj"
-			          rev="8.11.4" conf="*->default">
-			<!-- exclusions of dependencies provided by Nutch core -->
-			<exclude org="commons-codec" name="commons-codec" />
-			<exclude org="commons-logging" name="commons-logging" />
-			<exclude org="org.slf4j" name="slf4j-api" />
-		</dependency>
-		<dependency org="org.apache.httpcomponents" name="httpclient"
-			          rev="4.5.14" conf="*->default">
-			<!-- exclusions of dependencies provided by Nutch core -->
-			<exclude org="commons-codec" name="commons-codec" />
-			<exclude org="commons-logging" name="commons-logging" />
-		</dependency>
-		<dependency org="org.apache.httpcomponents" name="httpmime"
-			          rev="4.5.14" conf="*->default">
-			<!-- exclusions of dependencies provided by Nutch core -->
-			<exclude org="commons-codec" name="commons-codec" />
-			<exclude org="commons-logging" name="commons-logging" />
-		</dependency>
-		<dependency org="org.apache.httpcomponents" name="httpcore"
-			          rev="4.4.16" conf="*->default">
-			<!-- exclusions of dependencies provided by Nutch core -->
-			<exclude org="commons-logging" name="commons-logging" />
-		</dependency>
-	</dependencies>
+  <dependencies>
+    <dependency org="org.testcontainers" name="testcontainers-solr" rev="2.0.3" conf="test->default"/>
+    <dependency org="org.apache.solr" name="solr-solrj"
+                rev="8.11.4" conf="*->default">
+      <!-- exclusions of dependencies provided by Nutch core -->
+      <exclude org="commons-codec" name="commons-codec" />
+      <exclude org="commons-logging" name="commons-logging" />
+      <exclude org="org.slf4j" name="slf4j-api" />
+    </dependency>
+    <dependency org="org.apache.httpcomponents" name="httpclient"
+                rev="4.5.14" conf="*->default">
+      <!-- exclusions of dependencies provided by Nutch core -->
+      <exclude org="commons-codec" name="commons-codec" />
+      <exclude org="commons-logging" name="commons-logging" />
+    </dependency>
+    <dependency org="org.apache.httpcomponents" name="httpmime"
+                rev="4.5.14" conf="*->default">
+      <!-- exclusions of dependencies provided by Nutch core -->
+      <exclude org="commons-codec" name="commons-codec" />
+      <exclude org="commons-logging" name="commons-logging" />
+    </dependency>
+    <dependency org="org.apache.httpcomponents" name="httpcore"
+                rev="4.4.16" conf="*->default">
+      <!-- exclusions of dependencies provided by Nutch core -->
+      <exclude org="commons-logging" name="commons-logging" />
+    </dependency>
+  </dependencies>
 
 </ivy-module>

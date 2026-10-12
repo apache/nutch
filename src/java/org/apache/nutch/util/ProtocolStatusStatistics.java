@@ -50,10 +50,12 @@ import org.apache.nutch.metadata.Nutch;
  * An example output run showing the number of encountered status
  * codes such as 200, 300, and a count of un-fetched record.
  *
- * 38	200
- * 19	301
- * 2	302
- * 665	UNFETCHED
+ * <pre>
+ * 38  200
+ * 19  301
+ * 2   302
+ * 665 UNFETCHED
+ * </pre>
  *
  */
 public class ProtocolStatusStatistics extends Configured implements Tool {

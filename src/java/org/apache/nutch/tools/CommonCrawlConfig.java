@@ -23,124 +23,124 @@ import java.util.Properties;
 
 public class CommonCrawlConfig implements Serializable {
 
-	/**
-	 * Serial version UID
-	 */
-	private static final long serialVersionUID = 5235013733207799661L;
-	
-	// Prefix for key value in the output format
-	private String keyPrefix = "";
-	
-	private boolean simpleDateFormat = false;
-	
-	private boolean jsonArray = false;
-	
-	private boolean reverseKey = false;
-	
-	private String reverseKeyValue = "";
+  /**
+   * Serial version UID
+   */
+  private static final long serialVersionUID = 5235013733207799661L;
 
-	private boolean compressed = false;
+  // Prefix for key value in the output format
+  private String keyPrefix = "";
 
-	private long warcSize = 0;
+  private boolean simpleDateFormat = false;
 
-	private String outputDir;
-	
-	/**
-	 * Default constructor
-	 */
-	public CommonCrawlConfig() {
-		// TODO init(this.getClass().getResourceAsStream("CommonCrawlConfig.properties"));
-	}
-	
-	public CommonCrawlConfig(InputStream stream) {
-		init(stream);
-	}
-	
-	private void init(InputStream stream) {
-		if (stream == null) {
-			return;
-		}
-		Properties properties = new Properties();
-		
-		try {
-			properties.load(stream);
-		} catch (IOException e) {
-			// TODO
-		} finally {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				// TODO
-			}
-		}
+  private boolean jsonArray = false;
 
-		setKeyPrefix(properties.getProperty("keyPrefix", ""));
-		setSimpleDateFormat(Boolean.parseBoolean(properties.getProperty("simpleDateFormat", "False")));
-		setJsonArray(Boolean.parseBoolean(properties.getProperty("jsonArray", "False")));
-		setReverseKey(Boolean.parseBoolean(properties.getProperty("reverseKey", "False")));
-	}
-	
-	public void setKeyPrefix(String keyPrefix) {
-		this.keyPrefix = keyPrefix;
-	}
-	
-	public void setSimpleDateFormat(boolean simpleDateFormat) {
-		this.simpleDateFormat = simpleDateFormat;
-	}
-	
-	public void setJsonArray(boolean jsonArray) {
-		this.jsonArray = jsonArray;
-	}
-	
-	public void setReverseKey(boolean reverseKey) {
-		this.reverseKey = reverseKey;
-	}
-	
-	public void setReverseKeyValue(String reverseKeyValue) {
-		this.reverseKeyValue = reverseKeyValue;
-	}
-	
-	public String getKeyPrefix() {
-		return this.keyPrefix;
-	}
-	
-	public boolean getSimpleDateFormat() {
-		return this.simpleDateFormat;
-	}
-	
-	public boolean getJsonArray() {
-		return this.jsonArray;
-	}
-	
-	public boolean getReverseKey() {
-		return this.reverseKey;
-	}
-	
-	public String getReverseKeyValue() {
-		return this.reverseKeyValue;
-	}
+  private boolean reverseKey = false;
 
-	public boolean isCompressed() {
-		return compressed;
-	}
+  private String reverseKeyValue = "";
 
-	public void setCompressed(boolean compressed) {
-		this.compressed = compressed;
-	}
+  private boolean compressed = false;
 
-	public long getWarcSize() {
-		return warcSize;
-	}
+  private long warcSize = 0;
 
-	public void setWarcSize(long warcSize) {
-		this.warcSize = warcSize;
-	}
+  private String outputDir;
 
-	public String getOutputDir() {
-		return outputDir;
-	}
+  /**
+   * Default constructor
+   */
+  public CommonCrawlConfig() {
+    // TODO init(this.getClass().getResourceAsStream("CommonCrawlConfig.properties"));
+  }
 
-	public void setOutputDir(String outputDir) {
-		this.outputDir = outputDir;
-	}
+  public CommonCrawlConfig(InputStream stream) {
+    init(stream);
+  }
+
+  private void init(InputStream stream) {
+    if (stream == null) {
+      return;
+    }
+    Properties properties = new Properties();
+
+    try {
+      properties.load(stream);
+    } catch (IOException e) {
+      // TODO
+    } finally {
+      try {
+        stream.close();
+      } catch (IOException e) {
+        // TODO
+      }
+    }
+
+    setKeyPrefix(properties.getProperty("keyPrefix", ""));
+    setSimpleDateFormat(Boolean.parseBoolean(properties.getProperty("simpleDateFormat", "False")));
+    setJsonArray(Boolean.parseBoolean(properties.getProperty("jsonArray", "False")));
+    setReverseKey(Boolean.parseBoolean(properties.getProperty("reverseKey", "False")));
+  }
+
+  public void setKeyPrefix(String keyPrefix) {
+    this.keyPrefix = keyPrefix;
+  }
+
+  public void setSimpleDateFormat(boolean simpleDateFormat) {
+    this.simpleDateFormat = simpleDateFormat;
+  }
+
+  public void setJsonArray(boolean jsonArray) {
+    this.jsonArray = jsonArray;
+  }
+
+  public void setReverseKey(boolean reverseKey) {
+    this.reverseKey = reverseKey;
+  }
+
+  public void setReverseKeyValue(String reverseKeyValue) {
+    this.reverseKeyValue = reverseKeyValue;
+  }
+
+  public String getKeyPrefix() {
+    return this.keyPrefix;
+  }
+
+  public boolean getSimpleDateFormat() {
+    return this.simpleDateFormat;
+  }
+
+  public boolean getJsonArray() {
+    return this.jsonArray;
+  }
+
+  public boolean getReverseKey() {
+    return this.reverseKey;
+  }
+
+  public String getReverseKeyValue() {
+    return this.reverseKeyValue;
+  }
+
+  public boolean isCompressed() {
+    return compressed;
+  }
+
+  public void setCompressed(boolean compressed) {
+    this.compressed = compressed;
+  }
+
+  public long getWarcSize() {
+    return warcSize;
+  }
+
+  public void setWarcSize(long warcSize) {
+    this.warcSize = warcSize;
+  }
+
+  public String getOutputDir() {
+    return outputDir;
+  }
+
+  public void setOutputDir(String outputDir) {
+    this.outputDir = outputDir;
+  }
 }

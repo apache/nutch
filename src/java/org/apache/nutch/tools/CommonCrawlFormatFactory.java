@@ -25,17 +25,17 @@ import org.apache.hadoop.conf.Configuration;
  *
  */
 public class CommonCrawlFormatFactory {
-	
-	// The format should not depend on variable attributes, essentially this
-	// should be one for the full job
-	public static CommonCrawlFormat getCommonCrawlFormat(String formatType, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
-		if (formatType.equalsIgnoreCase("WARC")) {
-			return new CommonCrawlFormatWARC(nutchConf, config);
-		}
 
-		if (formatType.equalsIgnoreCase("JACKSON")) {
-			return new CommonCrawlFormatJackson( nutchConf, config);
-		}
-		return null;
-	}
+  // The format should not depend on variable attributes, essentially this
+  // should be one for the full job
+  public static CommonCrawlFormat getCommonCrawlFormat(String formatType, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
+    if (formatType.equalsIgnoreCase("WARC")) {
+      return new CommonCrawlFormatWARC(nutchConf, config);
+    }
+
+    if (formatType.equalsIgnoreCase("JACKSON")) {
+      return new CommonCrawlFormatJackson( nutchConf, config);
+    }
+    return null;
+  }
 }

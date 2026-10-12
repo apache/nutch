@@ -341,13 +341,13 @@ public class CrawlDb extends NutchTool implements Tool {
     else if(args.containsKey(Nutch.ARG_SEGMENTS)) {
       Object segments = args.get(Nutch.ARG_SEGMENTS);
       ArrayList<String> segmentList = new ArrayList<>();
-      if(segments instanceof ArrayList) {
-    	segmentList = (ArrayList<String>)segments;
+      if (segments instanceof ArrayList) {
+        segmentList = (ArrayList<String>)segments;
       }
-      else if(segments instanceof Path){
-    	segmentList.add(segments.toString());
+      else if (segments instanceof Path){
+        segmentList.add(segments.toString());
       }
-    	
+
       for(String segment: segmentList) {
         dirs.add(new Path(segment));
       }

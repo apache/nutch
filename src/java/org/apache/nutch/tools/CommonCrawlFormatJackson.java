@@ -33,77 +33,77 @@ import com.fasterxml.jackson.core.JsonGenerator;
  */
 public class CommonCrawlFormatJackson extends AbstractCommonCrawlFormat {
 
-	private ByteArrayOutputStream out;
+  private ByteArrayOutputStream out;
 
-	private JsonGenerator generator;
+  private JsonGenerator generator;
 
-	public CommonCrawlFormatJackson(Configuration nutchConf,
-			CommonCrawlConfig config) throws IOException {
-		super(null, null, null, nutchConf, config);
+  public CommonCrawlFormatJackson(Configuration nutchConf,
+      CommonCrawlConfig config) throws IOException {
+    super(null, null, null, nutchConf, config);
 
-		JsonFactory factory = new JsonFactory();
-		this.out = new ByteArrayOutputStream();
-		this.generator = factory.createGenerator(out);
+    JsonFactory factory = new JsonFactory();
+    this.out = new ByteArrayOutputStream();
+    this.generator = factory.createGenerator(out);
 
-		this.generator.useDefaultPrettyPrinter(); // INDENTED OUTPUT
-	}
+    this.generator.useDefaultPrettyPrinter(); // INDENTED OUTPUT
+  }
 
-	public CommonCrawlFormatJackson(String url, Content content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
-		super(url, content, metadata, nutchConf, config);
+  public CommonCrawlFormatJackson(String url, Content content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
+    super(url, content, metadata, nutchConf, config);
 
-		JsonFactory factory = new JsonFactory();
-		this.out = new ByteArrayOutputStream();
-		this.generator = factory.createGenerator(out);
+    JsonFactory factory = new JsonFactory();
+    this.out = new ByteArrayOutputStream();
+    this.generator = factory.createGenerator(out);
 
-		this.generator.useDefaultPrettyPrinter(); // INDENTED OUTPUT
-	}
+    this.generator.useDefaultPrettyPrinter(); // INDENTED OUTPUT
+  }
 
-	@Override
-	protected void writeKeyValue(String key, String value) throws IOException {
-		generator.writeFieldName(key);
-		generator.writeString(value);
-	}
+  @Override
+  protected void writeKeyValue(String key, String value) throws IOException {
+    generator.writeFieldName(key);
+    generator.writeString(value);
+  }
 
-	@Override
-	protected void writeKeyNull(String key) throws IOException {
-		generator.writeFieldName(key);
-		generator.writeNull();
-	}
+  @Override
+  protected void writeKeyNull(String key) throws IOException {
+    generator.writeFieldName(key);
+    generator.writeNull();
+  }
 
-	@Override
-	protected void startArray(String key, boolean nested, boolean newline) throws IOException {
-		if (key != null) {
-			generator.writeFieldName(key);
-		}
-		generator.writeStartArray();
-	}
+  @Override
+  protected void startArray(String key, boolean nested, boolean newline) throws IOException {
+    if (key != null) {
+      generator.writeFieldName(key);
+    }
+    generator.writeStartArray();
+  }
 
-	@Override
-	protected void closeArray(String key, boolean nested, boolean newline) throws IOException {
-		generator.writeEndArray();
-	}
+  @Override
+  protected void closeArray(String key, boolean nested, boolean newline) throws IOException {
+    generator.writeEndArray();
+  }
 
-	@Override
-	protected void writeArrayValue(String value) throws IOException {
-		generator.writeString(value);
-	}
+  @Override
+  protected void writeArrayValue(String value) throws IOException {
+    generator.writeString(value);
+  }
 
-	@Override
-	protected void startObject(String key) throws IOException {
-		if (key != null) {
-			generator.writeFieldName(key);
-		}
-		generator.writeStartObject();
-	}
+  @Override
+  protected void startObject(String key) throws IOException {
+    if (key != null) {
+      generator.writeFieldName(key);
+    }
+    generator.writeStartObject();
+  }
 
-	@Override
-	protected void closeObject(String key) throws IOException {
-		generator.writeEndObject();
-	}
+  @Override
+  protected void closeObject(String key) throws IOException {
+    generator.writeEndObject();
+  }
 
-	@Override
-	protected String generateJson() throws IOException {
-		this.generator.flush();
+  @Override
+  protected String generateJson() throws IOException {
+    this.generator.flush();
     return this.out.toString(StandardCharsets.UTF_8);
-	}
+  }
 }

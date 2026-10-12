@@ -81,32 +81,32 @@ public interface Nutch {
   public static final Text WRITABLE_FIXED_INTERVAL_KEY = new Text(
       FIXED_INTERVAL_KEY);
 
-	 /** For progress of job (programmatic / tooling). */
-	public static final String STAT_PROGRESS = "progress";
-	/** Crawl id key for programmatic jobs. */
-	public static final String CRAWL_ID_KEY = "storage.crawl.id";
-	/** Argument key for seed URL directory path. */
-	public static final String ARG_SEEDDIR = "url_dir";
-	/** Argument key for crawldb location in programmatic jobs. */
-	public static final String ARG_CRAWLDB = "crawldb";
-	/** Argument key for linkdb location in programmatic jobs. */
-	public static final String ARG_LINKDB = "linkdb";
-	/** Name of the key used in the result map from {@link org.apache.nutch.util.NutchTool#run}. */
-	public static final String VAL_RESULT = "result";
-	/** Argument key for a directory of segments; similar to the -dir option in bin/nutch. */
-	public static final String ARG_SEGMENTDIR = "segment_dir";
-	/** Argument key for one segment or a list of segments (job-dependent). */
-	public static final String ARG_SEGMENTS = "segment";
-	/** Argument key for hostdb location in programmatic jobs. */
-	public static final String ARG_HOSTDB = "hostdb";
-	/** Title key in the Pub/Sub event metadata for the title of the parsed page*/
-	public static final String FETCH_EVENT_TITLE = "title";
-	/** Content-type key in the Pub/Sub event metadata for the content-type of the parsed page*/
-	public static final String FETCH_EVENT_CONTENTTYPE = "content-type";
-	/** Score key in the Pub/Sub event metadata for the score of the parsed page*/
-	public static final String FETCH_EVENT_SCORE = "score";
-	/** Fetch time key in the Pub/Sub event metadata for the fetch time of the parsed page*/
-	public static final String FETCH_EVENT_FETCHTIME = "fetchTime";
-	/** Content-lanueage key in the Pub/Sub event metadata for the content-language of the parsed page*/
-	public static final String FETCH_EVENT_CONTENTLANG = "content-language";
+   /** For progress of job (programmatic / tooling). */
+  public static final String STAT_PROGRESS = "progress";
+  /** Crawl id key for programmatic jobs. */
+  public static final String CRAWL_ID_KEY = "storage.crawl.id";
+  /** Argument key for seed URL directory path. */
+  public static final String ARG_SEEDDIR = "url_dir";
+  /** Argument key for crawldb location in programmatic jobs. */
+  public static final String ARG_CRAWLDB = "crawldb";
+  /** Argument key for linkdb location in programmatic jobs. */
+  public static final String ARG_LINKDB = "linkdb";
+  /** Name of the key used in the result map from {@link org.apache.nutch.util.NutchTool#run}. */
+  public static final String VAL_RESULT = "result";
+  /** Argument key for a directory of segments; similar to the -dir option in bin/nutch. */
+  public static final String ARG_SEGMENTDIR = "segment_dir";
+  /** Argument key for one segment or a list of segments (job-dependent). */
+  public static final String ARG_SEGMENTS = "segment";
+  /** Argument key for hostdb location in programmatic jobs. */
+  public static final String ARG_HOSTDB = "hostdb";
+  /** Title key in the Pub/Sub event metadata for the title of the parsed page*/
+  public static final String FETCH_EVENT_TITLE = "title";
+  /** Content-type key in the Pub/Sub event metadata for the content-type of the parsed page*/
+  public static final String FETCH_EVENT_CONTENTTYPE = "content-type";
+  /** Score key in the Pub/Sub event metadata for the score of the parsed page*/
+  public static final String FETCH_EVENT_SCORE = "score";
+  /** Fetch time key in the Pub/Sub event metadata for the fetch time of the parsed page*/
+  public static final String FETCH_EVENT_FETCHTIME = "fetchTime";
+  /** Content-lanueage key in the Pub/Sub event metadata for the content-language of the parsed page*/
+  public static final String FETCH_EVENT_CONTENTLANG = "content-language";
 }
