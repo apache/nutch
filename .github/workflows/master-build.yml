@@ -326,7 +326,11 @@ jobs:
       # commit lookup cannot see a fork commit. Record the trusted pull_request
       # number so junit-report.yml can validate and post the sticky comment.
       - name: Record PR number for JUnit comment
-        if: always() && github.event_name == 'pull_request' && matrix.os == 'ubuntu-24.04' && matrix.java == '17' && steps.ran.outputs.value == 'true' && steps.check_tests.outputs.has_results == 'true'
+        if: >-
+          always() && github.event_name == 'pull_request'
+          && matrix.os == 'ubuntu-24.04' && matrix.java == '17'
+          && steps.ran.outputs.value == 'true'
+          && steps.check_tests.outputs.has_results == 'true'
         run: |
           mkdir -p build
           printf '%s\n' "${{ github.event.pull_request.number }}" > build/junit-pr-number
