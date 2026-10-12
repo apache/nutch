@@ -355,16 +355,16 @@ public class TestSpellCheckedMetadata {
   }
 
   private SpellCheckedMetadata writeRead(SpellCheckedMetadata meta) {
-    SpellCheckedMetadata readed = new SpellCheckedMetadata();
+    SpellCheckedMetadata readBack = new SpellCheckedMetadata();
     try {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       meta.write(new DataOutputStream(out));
-      readed.readFields(new DataInputStream(new ByteArrayInputStream(out
+      readBack.readFields(new DataInputStream(new ByteArrayInputStream(out
           .toByteArray())));
     } catch (IOException ioe) {
       fail(ioe.toString());
     }
-    return readed;
+    return readBack;
   }
 
   /**

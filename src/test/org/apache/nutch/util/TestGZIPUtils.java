@@ -28,10 +28,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 /** Unit tests for GZIPUtils methods. */
 public class TestGZIPUtils {
 
-  /* a short, highly compressable, string */
+  /* a short, highly compressible, string */
   String SHORT_TEST_STRING = "aaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbcccccccccccccccc";
 
-  /* a short, highly compressable, string */
+  /* a short, highly compressible, string */
   String LONGER_TEST_STRING = SHORT_TEST_STRING + SHORT_TEST_STRING
       + SHORT_TEST_STRING + SHORT_TEST_STRING + SHORT_TEST_STRING
       + SHORT_TEST_STRING + SHORT_TEST_STRING + SHORT_TEST_STRING
