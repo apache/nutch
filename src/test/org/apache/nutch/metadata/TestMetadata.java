@@ -267,16 +267,16 @@ public class TestMetadata {
   }
 
   private Metadata writeRead(Metadata meta) {
-    Metadata readed = new Metadata();
+    Metadata readBack = new Metadata();
     try {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       meta.write(new DataOutputStream(out));
-      readed.readFields(new DataInputStream(new ByteArrayInputStream(out
+      readBack.readFields(new DataInputStream(new ByteArrayInputStream(out
           .toByteArray())));
     } catch (IOException ioe) {
       fail(ioe.toString());
     }
-    return readed;
+    return readBack;
   }
 
 }

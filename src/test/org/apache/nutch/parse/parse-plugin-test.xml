@@ -30,7 +30,7 @@
   <!--  test these 4 plugins -->
   <mimeType name="text/html">
     <!--
-     ! Test that if a parser cannot be instanciated,
+     ! Test that if a parser cannot be instantiated,
      ! it should not block the process and then the next one is used
      !-->
     <plugin id="parse-plugin-that-not-exist"/>

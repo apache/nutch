@@ -139,10 +139,12 @@ public class TestURLUtil {
     url = new URL("http://subdomain.example.edu.tr");
     assertEquals("edu.tr", URLUtil.getDomainSuffix(url));
 
-    url = new URL("http://subdomain.example.presse.fr");
+    url = new URL(
+        "http://subdomain.example.presse.fr"); // codespell:ignore presse
     assertEquals("fr", URLUtil.getDomainSuffix(url));
 
-    url = new URL("http://subdomain.example.presse.tr");
+    url = new URL(
+        "http://subdomain.example.presse.tr"); // codespell:ignore presse
     assertEquals("tr", URLUtil.getDomainSuffix(url));
 
     // plc.co.im is listed as a domain suffix
