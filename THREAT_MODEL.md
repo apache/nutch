@@ -100,6 +100,7 @@ not about preventing Nutch from reaching or parsing hostile content.
 ## §4 Trust boundaries and data flow
 
 Two boundaries matter, and they are different from a typical service:
+
 1. **The fetch boundary (primary).** Everything Nutch fetches from the web is
    untrusted and crosses into the parser/store. The trust transition is
    "bytes-from-the-internet → parsed structures." *(inferred)*
@@ -110,6 +111,7 @@ Data flow: seed URLs (operator) → fetch (untrusted content) → parse (Tika/pl
 on untrusted bytes) → URL extraction + filtering → crawl DB → index to backend.
 
 **Reachability preconditions per family:**
+
 - A fetcher/parser finding is in-model when it is reachable **from
   attacker-controlled fetched content** (a hostile page/feed/redirect) — that is
   the core in-model surface.
@@ -162,6 +164,7 @@ needs a §8 line *(inferred — §14)*.
 ## §7 Adversary model
 
 **In scope** *(inferred — §14)*:
+
 - **Malicious web-content supplier** — anyone who controls a page Nutch fetches:
   serves hostile HTML/XML/feeds/redirects/headers/`robots.txt` to crash the
   parser, exhaust resources, exfiltrate via the parser (XXE), or poison the crawl
@@ -173,6 +176,7 @@ needs a §8 line *(inferred — §14)*.
 cannot (assumed) reach the operator's config, host, or backends.
 
 **Explicitly out of scope:**
+
 - The **operator** and anyone who controls seeds/filters/plugins/host — already
   trusted.
 - Anyone reaching a `nutch-server` or crawl store that the operator exposed
@@ -210,6 +214,7 @@ enumerate committed properties.)*
 - **No protection for deployments outside a trusted environment.** *(documented)*
 
 **False-friend properties:**
+
 - **URL filters are a crawl-scoping tool, not a security boundary against a
   hostile operator or a guarantee against SSRF to internal services** — they
   reduce reachable URLs but are operator-configured and regex-based. *(inferred)*
@@ -217,6 +222,7 @@ enumerate committed properties.)*
   the operator's scope allowed it. *(inferred)*
 
 **Well-known attack classes left to the operator / inherent to crawling:**
+
 - **XXE** in XML/feed parsing of hostile content (Tika/parsers) — a real
   in-model concern (parser must be hardened).
 - **ReDoS** in URL-filter / normalizer regex fed URLs from hostile pages.
@@ -295,6 +301,7 @@ Grouped in waves; each states a **proposed answer** to confirm/correct/strike.
 Every *(inferred)* tag above maps to one of these.
 
 **Wave 1 — scope & adversary (these shape everything):**
+
 1. **Trusted-environment posture / `nutch-server`.** Proposed: the supported
    posture is "trusted environment only"; an exposed no-auth `nutch-server` is
    `OUT-OF-MODEL: non-default-build`. Correct? (→ §5a, §3, §11a)

@@ -18,7 +18,8 @@
 indexer-opensearch1x plugin for Nutch
 ================================
 
-**indexer-opensearch1x plugin** is used for sending documents from one or more segments to an OpenSearch server. The configuration for the index writers is on **conf/index-writers.xml** file, included in the official Nutch distribution and it's as follow:
+**indexer-opensearch1x plugin** is used for sending documents from one or more segments to an OpenSearch server.
+The configuration for the index writers is on **conf/index-writers.xml** file, included in the official Nutch distribution and it's as follow:
 
 ```xml
 <writer id="<writer_id>" class="org.apache.nutch.indexwriter.opensearch1x.OpenSearch1xIndexWriter">
@@ -33,9 +34,12 @@ indexer-opensearch1x plugin for Nutch
 
 Each `<writer>` element has two mandatory attributes:
 
-* `<writer_id>` is a unique identification for each configuration. This feature allows Nutch to distinguish each configuration, even when they are for the same index writer. In addition, it allows to have multiple instances for the same index writer, but with different configurations.
+* `<writer_id>` is a unique identification for each configuration.
+  This feature allows Nutch to distinguish each configuration, even when they are for the same index writer.
+  In addition, it allows to have multiple instances for the same index writer, but with different configurations.
 
-* `org.apache.nutch.indexwriter.opensearch1x.OpenSearch1x.IndexWriter` corresponds to the canonical name of the class that implements the IndexWriter extension point. This value should not be modified for the **indexer-opensearch1x plugin**.
+* `org.apache.nutch.indexwriter.opensearch1x.OpenSearch1x.IndexWriter` corresponds to the canonical name of the class that implements the IndexWriter extension point.
+  This value should not be modified for the **indexer-opensearch1x plugin**.
 
 ## Mapping
 
@@ -47,17 +51,17 @@ Each parameter has the form `<param name="<name>" value="<value>"/>` and the par
 
 Parameter Name | Description | Default value
 --|--|--
-host | Comma-separated list of hostnames to send documents to using [TransportClient](https://static.javadoc.io/org.opensearch/opensearch/1.3.8/org/opensearch/client/transport/TransportClient.html). Either host and port must be defined. |
+host | Comma-separated list of hostnames to send documents to using [TransportClient](https://static.javadoc.io/org.opensearch/opensearch/1.3.8/org/opensearch/client/transport/TransportClient.html). Either host and port must be defined. | <!-- none -->
 port | The port to connect to using [TransportClient](https://static.javadoc.io/org.opensearch/opensearch/1.3.8/org/opensearch/client/transport/TransportClient.html). | 9300
 scheme | The scheme (http or https) to connect to OpenSearch server. | https
 index | Default index to send documents to. | nutch
 username | Username for auth credentials | admin
 password | Password for auth credentials | admin
-trust.store.path | Path to the trust store |
-trust.store.password | Password for trust store |
+trust.store.path | Path to the trust store | <!-- none -->
+trust.store.password | Password for trust store | <!-- none -->
 trust.store.type | Type of trust store | JKS
-key.store.path | Path to the key store |
-key.store.password | Password for the key and the key store |
+key.store.path | Path to the key store | <!-- none -->
+key.store.password | Password for the key and the key store | <!-- none -->
 key.store.type | Type of key store | JKS
 max.bulk.docs | Maximum size of the bulk in number of documents. | 250
 max.bulk.size | Maximum size of the bulk in bytes. | 2500500

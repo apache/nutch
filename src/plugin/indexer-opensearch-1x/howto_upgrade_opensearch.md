@@ -15,6 +15,8 @@
  limitations under the License.
 -->
 
+# How to Upgrade OpenSearch in Nutch
+
 1. Upgrade OpenSearch dependency in src/plugin/indexer-opensearch-1x/ivy.xml
 
 2. Upgrade the OpenSearch specific dependencies in src/plugin/indexer-opensearch-1x/plugin.xml
@@ -29,7 +31,7 @@
       <!-- end of OpenSearch Rest Client dependencies -->
    with the output of the command above.
 
-4. (Optionally) remove overlapping dependencies between indexer-opensearch-1x and Nutch core dependencies:
+3. (Optionally) remove overlapping dependencies between indexer-opensearch-1x and Nutch core dependencies:
    - check for libs present both in
        build/lib
      and
@@ -40,11 +42,11 @@
    - but it should be made sure that the library versions in ivy/ivy.xml correspond to
      those required by Tika
 
-5. Remove the locally "installed" dependencies in src/plugin/indexer-opensearch-1x/lib/:
+4. Remove the locally "installed" dependencies in src/plugin/indexer-opensearch-1x/lib/:
 
     $ rm -rf lib/
 
-6. Build Nutch and run all unit tests:
+5. Build Nutch and run all unit tests:
 
     $ cd ../../../
     $ ant clean runtime test
