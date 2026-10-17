@@ -15,6 +15,8 @@
  limitations under the License.
 -->
 
+# How to Upgrade Solr in Nutch
+
 1. Upgrade Solr dependency in src/plugin/indexer-solr/ivy.xml
 
 2. Upgrade the Solr specific dependencies in src/plugin/indexer-solr/plugin.xml
@@ -29,7 +31,7 @@
       <!-- end of Solr dependencies -->
    with the output of the command above.
 
-4. (Optionally) remove overlapping dependencies between indexer-solr and Nutch core dependencies:
+3. (Optionally) remove overlapping dependencies between indexer-solr and Nutch core dependencies:
    - check for libs present both in
        build/lib
      and
@@ -40,11 +42,11 @@
    - but it should be made sure that the library versions in ivy/ivy.xml correspond to
      those required by Tika
 
-5. Remove the locally "installed" dependencies in src/plugin/indexer-solr/lib/:
+4. Remove the locally "installed" dependencies in src/plugin/indexer-solr/lib/:
 
     $ rm -rf lib/
 
-6. Build Nutch and run all unit tests:
+5. Build Nutch and run all unit tests:
 
     $ cd ../../../
     $ ant clean runtime test

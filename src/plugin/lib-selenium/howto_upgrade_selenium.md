@@ -15,15 +15,19 @@
  limitations under the License.
 -->
 
+# How to upgrade Selenium
+
 1. Upgrade various driver versions dependency in `src/plugin/lib-selenium/ivy.xml`
 
 2. Upgrade Selenium's own dependencies in `src/plugin/lib-selenium/plugin.xml`
 
    To get a list of dependencies and their versions execute:
+
+   ```bash
+   ant -f ./build-ivy.xml
+   ls lib | sed 's/^/     <library name="/g' | sed 's/$/">\n       <export name="*"\/>\n     <\/library>/g'
    ```
-   $ ant -f ./build-ivy.xml
-   $ ls lib | sed 's/^/     <library name="/g' | sed 's/$/">\n       <export name="*"\/>\n     <\/library>/g'
-   ```
+
    Note that all dependent libraries are exported for a "library" plugin `lib-selenium`.
 
    N.B. The above Regex + Sed commands may not work if you are using MacOSX's Sed. In this instance you can install GNU Sed as follows
@@ -44,7 +48,7 @@
 
 5. Build Nutch and run all unit tests:
 
-   ```
-   $ cd ../../../
-   $ ant clean runtime test
+   ```bash
+   cd ../../../
+   ant clean runtime test
    ```

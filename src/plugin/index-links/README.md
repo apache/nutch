@@ -57,13 +57,13 @@ examples of default values for the Solr schema.
 * The `inlink`/`outlink` fields have to be multivalued, because normally a
 given URL will have multiple inlinks and outlinks.
 
-```
+```xml
 <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
 ```
 
 The field configuration could look like:
 
-```
+```xml
 <field name="inlinks" type="multiValuedString" stored="true" indexed="true" multiValued="true"/>
 
 <field name="outlinks" type="multiValuedString" stored="true" indexed="true" multiValued="true"/>
