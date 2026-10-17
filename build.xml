@@ -41,7 +41,6 @@
 
   <property environment="env"/>
 
-  <property name="spotbugs.version" value="4.9.8" />
   <property name="spotbugs.home" value="${ivy.dir}/spotbugs-${spotbugs.version}" />
   <property name="spotbugs.jar" value="${spotbugs.home}/lib/spotbugs-ant.jar" />
 
@@ -50,11 +49,10 @@
   <property name="jacoco.ant.jar" value="${jacoco.home}/lib/jacocoant.jar" />
   <property name="coverage.dir" value="${build.dir}/coverage" />
 
-  <property name="apache-rat.version" value="0.18" />
   <property name="apache-rat.home" value="${ivy.dir}/apache-rat-${apache-rat.version}" />
   <property name="apache-rat.jar" value="${apache-rat.home}/apache-rat-${apache-rat.version}.jar" />
 
-  <property name="ant-eclipse.jar" value="${ivy.dir}/lib/ant-eclipse-1.0-jvm1.2.jar" />
+  <property name="ant-eclipse.jar" value="${ivy.dir}/lib/ant-eclipse-${ant-eclipse.version}-jvm1.2.jar" />
 
   <!--
     Java Version Strategy:
@@ -345,7 +343,7 @@
     <!-- sign and deploy the main artifact -->
     <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
       <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
-      <arg value="org.apache.maven.plugins:maven-gpg-plugin:3.2.2:sign-and-deploy-file" />
+      <arg value="org.apache.maven.plugins:maven-gpg-plugin:${maven-gpg-plugin.version}:sign-and-deploy-file" />
       <arg value="-Durl=${maven-repository-url}" />
       <arg value="-DrepositoryId=${maven-repository-id}" />
       <arg value="-DpomFile=pom.xml" />
@@ -356,7 +354,7 @@
     <!-- sign and deploy the sources artifact -->
     <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
       <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
-      <arg value="org.apache.maven.plugins:maven-gpg-plugin:3.2.2:sign-and-deploy-file" />
+      <arg value="org.apache.maven.plugins:maven-gpg-plugin:${maven-gpg-plugin.version}:sign-and-deploy-file" />
       <arg value="-Durl=${maven-repository-url}" />
       <arg value="-DrepositoryId=${maven-repository-id}" />
       <arg value="-DpomFile=pom.xml" />
@@ -368,7 +366,7 @@
     <!-- sign and deploy the javadoc artifact -->
     <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
       <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
-      <arg value="org.apache.maven.plugins:maven-gpg-plugin:3.2.2:sign-and-deploy-file" />
+      <arg value="org.apache.maven.plugins:maven-gpg-plugin:${maven-gpg-plugin.version}:sign-and-deploy-file" />
       <arg value="-Durl=${maven-repository-url}" />
       <arg value="-DrepositoryId=${maven-repository-id}" />
       <arg value="-DpomFile=pom.xml" />
@@ -1239,17 +1237,17 @@
 
   <target name="ant-eclipse-download-unchecked" unless="ant-eclipse.jar.found"
           description="--> downloads the ant-eclipse jar">
-    <get src="https://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"
-         dest="${ivy.dir}/ant-eclipse-1.0.bin.tar.bz2" usetimestamp="false" />
+    <get src="https://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/${ant-eclipse.version}/ant-eclipse-${ant-eclipse.version}.bin.tar.bz2"
+         dest="${ivy.dir}/ant-eclipse-${ant-eclipse.version}.bin.tar.bz2" usetimestamp="false" />
 
-    <untar src="${ivy.dir}/ant-eclipse-1.0.bin.tar.bz2"
+    <untar src="${ivy.dir}/ant-eclipse-${ant-eclipse.version}.bin.tar.bz2"
            dest="${ivy.dir}" compression="bzip2">
       <patternset>
-        <include name="lib/ant-eclipse-1.0-jvm1.2.jar"/>
+        <include name="lib/ant-eclipse-${ant-eclipse.version}-jvm1.2.jar"/>
       </patternset>
     </untar>
 
-    <delete file="${ivy.dir}/ant-eclipse-1.0.bin.tar.bz2" />
+    <delete file="${ivy.dir}/ant-eclipse-${ant-eclipse.version}.bin.tar.bz2" />
   </target>
 
   <!-- target: eclipse   ================================================ -->
