@@ -43,19 +43,19 @@
 #         https://hadoop.apache.org/docs/stable3/hadoop-yarn/hadoop-yarn-common/yarn-default.xml
 #
 cygwin=false
-case "`uname`" in
+case "$(uname)" in
 CYGWIN*) cygwin=true;;
 esac
 
 # resolve links - $0 may be a softlink
 THIS="$0"
 while [ -h "$THIS" ]; do
-  ls=`ls -ld "$THIS"`
-  link=`expr "$ls" : '.*-> \(.*\)$'`
+  ls=$(ls -ld "$THIS")
+  link=$(expr "$ls" : '.*-> \(.*\)$')
   if expr "$link" : '.*/.*' > /dev/null; then
     THIS="$link"
   else
-    THIS=`dirname "$THIS"`/"$link"
+    THIS=$(dirname "$THIS")/"$link"
   fi
 done
 
@@ -131,8 +131,8 @@ COMMAND=$1
 shift
 
 # some directories
-THIS_DIR="`dirname "$THIS"`"
-NUTCH_HOME="`cd "$THIS_DIR/.." ; pwd`"
+THIS_DIR="$(dirname "$THIS")"
+NUTCH_HOME="$(cd "$THIS_DIR/.." && pwd)" || exit
 
 # some Java parameters
 if [ "$NUTCH_JAVA_HOME" != "" ]; then
@@ -191,14 +191,14 @@ fi
 
 # cygwin path translation
 if $cygwin; then
-  CLASSPATH="`cygpath -p -w "$CLASSPATH"`"
+  CLASSPATH="$(cygpath -p -w "$CLASSPATH")"
 fi
 
 # setup 'java.library.path' for native-hadoop code if necessary
 # used only in local mode
 JAVA_LIBRARY_PATH=''
 if [ -d "${NUTCH_HOME}/lib/native" ]; then
-  JAVA_PLATFORM=`"${JAVA}" -classpath "$CLASSPATH" org.apache.hadoop.util.PlatformName | sed -e 's/ /_/g' -e 's/\r//g'`
+  JAVA_PLATFORM=$("${JAVA}" -classpath "$CLASSPATH" org.apache.hadoop.util.PlatformName | sed -e 's/ /_/g' -e 's/\r//g')
 
   if [ -d "${NUTCH_HOME}/lib/native/${JAVA_PLATFORM}" ]; then
     if [ "x$JAVA_LIBRARY_PATH" != "x" ]; then
@@ -209,8 +209,8 @@ if [ -d "${NUTCH_HOME}/lib/native" ]; then
   fi
 fi
 
-if [ $cygwin = true -a "X${JAVA_LIBRARY_PATH}" != "X" ]; then
-  JAVA_LIBRARY_PATH="`cygpath -p -w "$JAVA_LIBRARY_PATH"`"
+if [ "$cygwin" = true ] && [ "X${JAVA_LIBRARY_PATH}" != "X" ]; then
+  JAVA_LIBRARY_PATH="$(cygpath -p -w "$JAVA_LIBRARY_PATH")"
 fi
 
 # restore ordinary behaviour
@@ -226,10 +226,13 @@ fi
 
 #Fix log path under cygwin
 if $cygwin; then
-  NUTCH_LOG_DIR="`cygpath -p -w "$NUTCH_LOG_DIR"`"
+  NUTCH_LOG_DIR="$(cygpath -p -w "$NUTCH_LOG_DIR")"
 fi
 
-NUTCH_OPTS=($NUTCH_OPTS -Dhadoop.log.dir="$NUTCH_LOG_DIR")
+# NUTCH_OPTS is documented as whitespace-separated Java options. Split on
+# whitespace without pathname expansion so metacharacters stay literal.
+read -r -a nutch_user_opts <<< "${NUTCH_OPTS-}"
+NUTCH_OPTS=("${nutch_user_opts[@]}" -Dhadoop.log.dir="$NUTCH_LOG_DIR")
 NUTCH_OPTS=("${NUTCH_OPTS[@]}" -Dhadoop.log.file="$NUTCH_LOGFILE")
 
 if [ "x$JAVA_LIBRARY_PATH" != "x" ]; then
@@ -332,10 +335,10 @@ fi
 EXEC_CALL=(hadoop jar "$NUTCH_JOB")
 
 if $local; then
- EXEC_CALL=("$JAVA" $JAVA_HEAP_MAX "${NUTCH_OPTS[@]}" -classpath "$CLASSPATH")
+ EXEC_CALL=("$JAVA" "$JAVA_HEAP_MAX" "${NUTCH_OPTS[@]}" -classpath "$CLASSPATH")
 else
  # check that hadoop can be found on the path
- if [ $(which hadoop | wc -l ) -eq 0 ]; then
+ if [ "$(which hadoop | wc -l)" -eq 0 ]; then
     echo "Can't find Hadoop executable. Add HADOOP_COMMON_HOME/bin to the path or run in local mode."
     # POSIX: 127 = utility not found (hadoop not on PATH)
     exit 127;
@@ -343,5 +346,5 @@ else
 fi
 
 # run it
-exec "${EXEC_CALL[@]}" $CLASS "$@"
+exec "${EXEC_CALL[@]}" "$CLASS" "$@"
 
