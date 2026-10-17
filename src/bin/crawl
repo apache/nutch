@@ -54,25 +54,28 @@
 ## @audience private
 ## @stability stable
 function __to_seconds() {
-  NUMBER=$(echo $1 | tr -dc '0-9')
-  MODIFIER=$(echo $1 | tr -dc '[^s|h|m|d]]')
+  NUMBER=$(printf '%s' "$1" | tr -dc '0-9')
+  # Same characters the previous tr expression kept: lowercase suffixes plus
+  # the literal brackets, caret, and pipe.
+  MODIFIER=$(printf '%s' "$1" | tr -dc '[]^dhms|')
 
   case $MODIFIER in
       m|M)
-        SECONDS=`expr $NUMBER \* 60`
+        SECONDS=$((10#$NUMBER * 60))
         ;;
       h|H)
-        SECONDS=`expr $NUMBER \* 120`
+        # h means 120 seconds here, not 3600. A follow-up issue tracks the correction.
+        SECONDS=$((10#$NUMBER * 120))
         ;;
       d|D)
-        SECONDS=`expr $NUMBER \* 86400`
+        SECONDS=$((10#$NUMBER * 86400))
         ;;
       s|S|*)
         SECONDS=$NUMBER
         ;;
   esac
 
-  echo $SECONDS
+  echo "$SECONDS"
 }
 
 ## @audience private
@@ -228,8 +231,8 @@ if [ "$WAIT" != "-1" ]; then
   echo "Time to wait (--wait) = $WAIT sec."
 fi
 
-bin="`dirname "$0"`"
-bin="`cd "$bin"; pwd`"
+bin="$(dirname "$0")"
+bin="$(cd "$bin" && pwd)" || exit
 
 # determines whether mode based on presence of job file
 mode=local
@@ -248,11 +251,11 @@ fi
 
 # note that some of the options listed here could be set in the
 # corresponding hadoop site xml param file
-commonOptions=("${HADOOP_PROPERTIES[@]}" -Dmapreduce.job.reduces=$NUM_TASKS -Dmapreduce.reduce.speculative=false -Dmapreduce.map.speculative=false -Dmapreduce.map.output.compress=true)
+commonOptions=("${HADOOP_PROPERTIES[@]}" -Dmapreduce.job.reduces="$NUM_TASKS" -Dmapreduce.reduce.speculative=false -Dmapreduce.map.speculative=false -Dmapreduce.map.output.compress=true)
 
  # check that hadoop can be found on the path
-if [ $mode = "distributed" ]; then
- if [ $(which hadoop | wc -l ) -eq 0 ]; then
+if [ "$mode" = "distributed" ]; then
+ if [ "$(which hadoop | wc -l)" -eq 0 ]; then
     echo "Can't find Hadoop executable. Add HADOOP_COMMON_HOME/bin to the path or run in local mode."
     # POSIX: 127 = utility not found (hadoop not on PATH)
     exit 127;
@@ -301,15 +304,15 @@ function __update_hostdb {
 }
 
 # initial injection
-if [[ ! -z $SEEDDIR  ]]; then
+if [[ -n "$SEEDDIR" ]]; then
   echo "Injecting seed URLs"
   __bin_nutch inject "${commonOptions[@]}" "$CRAWL_PATH"/crawldb "$SEEDDIR"
 fi
 
 # sitemap processing based on sitemap definition file(s)
-if [[ ! -z $SITEMAPDIR ]]; then
+if [[ -n "$SITEMAPDIR" ]]; then
   echo "Processing sitemaps defined in $SITEMAPDIR"
-  __bin_nutch sitemap "${commonOptions[@]}" "$CRAWL_PATH/crawldb" -sitemapUrls "$SITEMAPDIR" -threads $NUM_THREADS
+  __bin_nutch sitemap "${commonOptions[@]}" "$CRAWL_PATH/crawldb" -sitemapUrls "$SITEMAPDIR" -threads "$NUM_THREADS"
 fi
 
 # main loop : rounds of generate - fetch - parse - update
@@ -320,14 +323,14 @@ do
     break
   fi
 
-  if [ $LIMIT -ne -1 ]; then
-    if [ $a -gt $LIMIT ]; then
-      echo `date` ": Finished loop with $LIMIT iterations"
+  if [ "$LIMIT" -ne -1 ]; then
+    if [ "$a" -gt "$LIMIT" ]; then
+      echo "$(date) : Finished loop with $LIMIT iterations"
       break
     fi
-    echo `date` ": Iteration $a of $LIMIT"
+    echo "$(date) : Iteration $a of $LIMIT"
   else
-    echo `date` ": Iteration $a"
+    echo "$(date) : Iteration $a"
   fi
 
   if [[ "$SITEMAPS_FROM_HOSTDB_FREQUENCY" = "always" || ("$SITEMAPS_FROM_HOSTDB_FREQUENCY" = "once" && $a -eq 1) ]]; then
@@ -337,19 +340,19 @@ do
     # sitemap processing based on HostDB
     if __directory_exists "$CRAWL_PATH"/hostdb; then
       echo "Processing sitemaps based on hosts in HostDB"
-      __bin_nutch sitemap "${commonOptions[@]}" "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb -threads $NUM_THREADS
+      __bin_nutch sitemap "${commonOptions[@]}" "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb -threads "$NUM_THREADS"
     fi
   fi
 
   echo "Generating a new segment"
   if [[ "$HOSTDBGENERATE" == "true" ]] && __directory_exists "$CRAWL_PATH"/hostdb; then
-   generate_args=("${commonOptions[@]}" "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_FETCHERS -noFilter -hostdb "$CRAWL_PATH"/hostdb)
+   generate_args=("${commonOptions[@]}" "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN "$SIZE_FETCHLIST" -numFetchers "$NUM_FETCHERS" -noFilter -hostdb "$CRAWL_PATH"/hostdb)
   else
-   generate_args=("${commonOptions[@]}" "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_FETCHERS -noFilter)
+   generate_args=("${commonOptions[@]}" "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN "$SIZE_FETCHLIST" -numFetchers "$NUM_FETCHERS" -noFilter)
   fi
 
   echo "$bin/nutch generate" "${generate_args[@]}"
-  $bin/nutch generate "${generate_args[@]}"
+  "$bin/nutch" generate "${generate_args[@]}"
   RETCODE=$?
   if [ $RETCODE -eq 0 ]; then
       : # ok: no error
@@ -358,7 +361,7 @@ do
 
     if [ "$WAIT" -ne -1 ]; then
       echo "Waiting for $WAIT sec. ..."
-      sleep $WAIT
+      sleep "$WAIT"
       continue
     else
       echo "Escaping loop: no more URLs to fetch now"
@@ -375,28 +378,31 @@ do
   # call hadoop in distributed mode
   # or use ls
 
-  if [ $mode = "local" ]; then
-   SEGMENT=`ls "$CRAWL_PATH"/segments/ | sort -n | tail -n 1`
+  if [ "$mode" = "local" ]; then
+   # Numeric segment directory names. Keep ls|sort -n, which selects the same newest segment.
+   # shellcheck disable=SC2012
+   SEGMENT=$(ls "$CRAWL_PATH"/segments/ | sort -n | tail -n 1)
   else
-   SEGMENT=`hadoop fs -ls "$CRAWL_PATH"/segments/ | grep segments |  sed -e "s/\//\\n/g" | egrep 20[0-9]+ | sort -n | tail -n 1`
+   SEGMENT=$(hadoop fs -ls "$CRAWL_PATH"/segments/ | grep segments | sed -e "s/\//\\n/g" | grep -E '20[0-9]+' | sort -n | tail -n 1)
   fi
 
   echo "Operating on segment : $SEGMENT"
 
   # fetching the segment
   echo "Fetching : $SEGMENT"
-  __bin_nutch fetch "${commonOptions[@]}" -D fetcher.timelimit.mins=$TIME_LIMIT_FETCH "$CRAWL_PATH"/segments/$SEGMENT -threads $NUM_THREADS
+  __bin_nutch fetch "${commonOptions[@]}" -D "fetcher.timelimit.mins=$TIME_LIMIT_FETCH" "$CRAWL_PATH/segments/$SEGMENT" -threads "$NUM_THREADS"
 
   # parsing the segment
   echo "Parsing : $SEGMENT"
   # enable the skipping of records for the parsing so that a dodgy document
   # so that it does not fail the full task
-  skipRecordsOptions="-D mapreduce.task.skip.start.attempts=2 -D mapreduce.map.skip.maxrecords=1"
-  __bin_nutch parse "${commonOptions[@]}" $skipRecordsOptions "$CRAWL_PATH"/segments/$SEGMENT
+  # Four separate arguments, matching the historical unquoted expansion.
+  skipRecordsOptions=(-D mapreduce.task.skip.start.attempts=2 -D mapreduce.map.skip.maxrecords=1)
+  __bin_nutch parse "${commonOptions[@]}" "${skipRecordsOptions[@]}" "$CRAWL_PATH/segments/$SEGMENT"
 
   # updatedb with this segment
   echo "CrawlDB update"
-  __bin_nutch updatedb "${commonOptions[@]}" "$CRAWL_PATH"/crawldb  "$CRAWL_PATH"/segments/$SEGMENT
+  __bin_nutch updatedb "${commonOptions[@]}" "$CRAWL_PATH"/crawldb  "$CRAWL_PATH/segments/$SEGMENT"
 
   echo "HostDB update"
   if $HOSTDBUPDATE; then
@@ -410,14 +416,14 @@ do
   #   (both invertlinks and index accept multiple segments as input)
   # The latter is more efficient but the index is then updated later.
   echo "Link inversion"
-  __bin_nutch invertlinks "${commonOptions[@]}" "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT -noNormalize -nofilter
+  __bin_nutch invertlinks "${commonOptions[@]}" "$CRAWL_PATH"/linkdb "$CRAWL_PATH/segments/$SEGMENT" -noNormalize -nofilter
 
   echo "Dedup on crawldb"
   __bin_nutch dedup "${commonOptions[@]}" "$CRAWL_PATH"/crawldb -group "$DEDUP_GROUP"
 
   if $INDEXFLAG; then
       echo "Indexing $SEGMENT to index"
-      __bin_nutch index "${commonOptions[@]}" "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT -deleteGone
+      __bin_nutch index "${commonOptions[@]}" "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH/segments/$SEGMENT" -deleteGone
   else
       echo "Skipping indexing ..."
   fi
