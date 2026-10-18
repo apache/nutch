@@ -15,13 +15,15 @@
  limitations under the License.
 -->
 
+# Fast URL Filter
+
 Filters URLs based on a file of regular expressions using host/domains
 matching first. The default policy is to accept a URL if no matches
 are found.
 
 Rule Format:
 
-```
+```text
 Host www.example.org
   DenyPath /path/to/be/excluded
   DenyPath /some/other/path/excluded

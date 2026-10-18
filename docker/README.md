@@ -24,7 +24,7 @@ Current configuration of this image consists of components:
 * Default runtime user `nutch` (not root)
 * `NUTCH_HOME=/opt/nutch/runtime/local` (sources under `/opt/nutch`)
 
-##  Base Image
+## Base Image
 
 * [alpine:3.19](https://hub.docker.com/_/alpine/tags)
 
@@ -32,7 +32,7 @@ Current configuration of this image consists of components:
 
 You may need to alias docker to "docker --tls" if you see errors such as:
 
-```
+```text
 2015/04/07 09:19:56 Post http://192.168.59.103:2376/v1.14/containers/create?name=NutchContainer: malformed HTTP response "\x15\x03\x01\x00\x02\x02\x16"
 ```
 
@@ -65,11 +65,13 @@ plugins, and keep the crawl process on the image default user `nutch` so the
 filesystem cannot be abused to drop unexpected JARs or `plugin.xml` files into
 that tree. Use `docker run --user root ...` only for privileged debugging.
 
-User-defined JEXL in configuration (for example `index.jexl.filter`, generator expressions, and `hostdb.filter.expression`) is evaluated in a **sandboxed** engine by default. The property `nutch.jexl.disable.sandbox` disables that protection and must not be set in untrusted environments.
+User-defined JEXL in configuration (for example `index.jexl.filter`, generator expressions, and `hostdb.filter.expression`) is evaluated in a **sandboxed** engine by default.
+The property `nutch.jexl.disable.sandbox` disables that protection and must not be set in untrusted environments.
 
 ## Usage
 
 If not already running, start docker
+
 ```bash
 boot2docker up
 $(boot2docker shellinit | grep export)

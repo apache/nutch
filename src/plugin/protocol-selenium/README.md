@@ -26,71 +26,76 @@ The underlying code is based on the nutch-htmlunit plugin, which was in turn bas
 
 There are essentially two ways in which Nutch can be used with Selenium.
 
- * Locally (on each node) as a self contained process, or
- * via the RemoteWebDriver which connects to [Selenium-Grid](https://selenium.dev/documentation/en/grid/). A grid consists of a single hub, and one or more nodes.
+* Locally (on each node) as a self contained process, or
+* via the RemoteWebDriver which connects to [Selenium-Grid](https://selenium.dev/documentation/en/grid/). A grid consists of a single hub, and one or more nodes.
 
 # Installation
 
-## Part 1:
+## Part 1
 
 ### A) Setting up Selenium (local mode)
 
- * Ensure that you have your preferred browser installed. Currently Chrome, Safari, Opera, PhantomJS and Firefox are supported. Here there example of installing Firefox is provided. More info about the package @ [launchpad](https://launchpad.net/ubuntu/trusty/+source/firefox)
-```
+* Ensure that you have your preferred browser installed. Currently Chrome,
+  Safari, Opera, PhantomJS and Firefox are supported. Here there example of
+  installing Firefox is provided. More info about the package @
+  [launchpad](https://launchpad.net/ubuntu/trusty/+source/firefox)
+
+```bash
 sudo apt-get install firefox
 ```
 
- * Install Xvfb and its associates
+* Install Xvfb and its associates
 
 This step is not necessary for the PhantomJs browser and may not be needed for all browsers.
 
-```
+```bash
 sudo apt-get install xorg synaptic xvfb gtk2-engines-pixbuf xfonts-cyrillic xfonts-100dpi \
     xfonts-75dpi xfonts-base xfonts-scalable freeglut3-dev dbus-x11 openbox x11-xserver-utils \
     libxrender1 cabextract
 ```
 
- * Set a display for Xvfb, so that firefox believes a display is connected
+* Set a display for Xvfb, so that firefox believes a display is connected
 
-```
+```bash
 sudo /usr/bin/Xvfb :11 -screen 0 1024x768x24 &
 sudo export DISPLAY=:11
 ```
+
 ### B) Setting up a Selenium Grid
 
 Using the Selenium Grid will allow you to parallelize the job by facilitating access of several instances of browsers whether on one machine or on several machines.
 
 Note that grid facilitates heterogeneity with regards to browser types used. However, these steps have been tested using a homogeneous Selenium Grid with Firefox and PhantomJS browsers.
 
- * Download the [Selenium Standalone Server](https://selenium.dev/downloads/) and follow the installation instructions.
+* Download the [Selenium Standalone Server](https://selenium.dev/downloads/) and follow the installation instructions.
 
- * Some important configurations to note while setting up the selenium-hub and the selenium-nodes are:
-    * For the hub:
-      - maxSession (how many browser sessions to allow on the grid at a time)
-      - browserTimeout (how long to wait before timing out a browser session. This is dependent on the interactivity to be completed on the page)
+* Some important configurations to note while setting up the selenium-hub and the selenium-nodes are:
+  * For the hub:
+    * maxSession (how many browser sessions to allow on the grid at a time)
+    * browserTimeout (how long to wait before timing out a browser session. This is dependent on the interactivity to be completed on the page)
 
-    * For the nodes:
-      - browserName=<browser>, maxInstances (the max number of instances of the same version browser to allow per a system)
-      - browserName=<browser>, maxSession (the max number of sessions of any type of browser/version to allow per a system)
+  * For the nodes:
+    * browserName=<browser>, maxInstances (the max number of instances of the same version browser to allow per a system)
+    * browserName=<browser>, maxSession (the max number of sessions of any type of browser/version to allow per a system)
 
-  * Go headless with your selenium Grid installation. There are different ways to this. See [this resource](https://elementalselenium.com/tips/38-headless) for further details.
+* Go headless with your selenium Grid installation. There are different ways to this. See [this resource](https://elementalselenium.com/tips/38-headless) for further details.
 
-  * For Nutch efficiency, and optimization of the grid, consider editing the following configs in **nutch-site.xml**
-    - fetcher.threads.per.queue (change value to the value of the maxSession config on the hub)
-    - fetcher.threads.fetch (change value to the value of the maxSession config on the hub)
-    - fetcher.server.delay (As multiple threads may be accessing a single server at a time, consider changing this value to 4-5 seconds for politeness)
-    - fetcher.server.min.delay (As multiple threads may be accessing a single server at a time, consider changing this values to 4-5 seconds for politeness)
-    - Ensure all configs for the hub mentioned in Part 2 are appropriately set.
+* For Nutch efficiency, and optimization of the grid, consider editing the following configs in **nutch-site.xml**
+  * fetcher.threads.per.queue (change value to the value of the maxSession config on the hub)
+  * fetcher.threads.fetch (change value to the value of the maxSession config on the hub)
+  * fetcher.server.delay (As multiple threads may be accessing a single server at a time, consider changing this value to 4-5 seconds for politeness)
+  * fetcher.server.min.delay (As multiple threads may be accessing a single server at a time, consider changing this values to 4-5 seconds for politeness)
+  * Ensure all configs for the hub mentioned in Part 2 are appropriately set.
 
-  * To activate the full selenium grid, edit **$NUTCH_HOME/runtime/local/bin/crawl** script:
-    - numThreads = maxSession on nodes * num of nodes
+* To activate the full selenium grid, edit **$NUTCH_HOME/runtime/local/bin/crawl** script:
+  * numThreads = maxSession on nodes * num of nodes
 
 
 ## Part 2: Installing plugin for Nutch (where NUTCH_HOME is the root of your nutch install)
 
- * Ensure that the plugin will be used as the protocol parser in your config
+* Ensure that the plugin will be used as the protocol parser in your config
 
-```
+```xml
 <!-- NUTCH_HOME/conf/nutch-site.xml -->
 
 <configuration>
@@ -111,7 +116,7 @@ Note that grid facilitates heterogeneity with regards to browser types used. How
 
 * Then ensure that you have the correct configuration set within the following configuration options
 
-```
+```xml
 <!-- protocol-selenium plugin properties -->
 
 <property>
@@ -202,15 +207,17 @@ Note that grid facilitates heterogeneity with regards to browser types used. How
   </description>
 </property>
 ```
- * If you've selected 'remote' value for the 'selenium.driver' property, ensure that you've configured
+
+* If you've selected 'remote' value for the 'selenium.driver' property, ensure that you've configured
  the additional properties based on your [Selenium-Grid installation](https://selenium.dev/documentation/en/grid/setting_up_your_own_grid/).
 
- * Compile nutch
-```
+* Compile nutch
+
+```bash
 ant runtime
 ```
 
- * Start your web crawl (Ensure that you followed the above steps and have started your xvfb display as shown above)
+* Start your web crawl (Ensure that you followed the above steps and have started your xvfb display as shown above)
 
 ## Part 3: Common Pitfalls
 
