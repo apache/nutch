@@ -315,7 +315,7 @@
 
 <property>
   <name>http.tls.certificates.check</name>
-  <value>false</value>
+  <value>true</value>
   <description>
     Whether to check the TLS/SSL server certificates for validity.
     If true invalid (e.g., self-signed or expired) certificates are
