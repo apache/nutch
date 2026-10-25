@@ -88,8 +88,8 @@ public class TestGeneratorSecondarySort {
     out.close();
 
     // Deserialize
-    ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-    DataInputStream in = new DataInputStream(bais);
+    DataInputStream in = new DataInputStream(
+        new ByteArrayInputStream(baos.toByteArray()));
     FloatTextPair deserialized = new FloatTextPair();
     deserialized.readFields(in);
     in.close();
@@ -122,7 +122,7 @@ public class TestGeneratorSecondarySort {
   public void testHostDbEntriesSortBeforeCrawlDbEntries() {
     // HostDb entry: has hostname in second field
     FloatTextPair hostDbEntry = new FloatTextPair(-Float.MAX_VALUE, "example.com");
-    
+
     // CrawlDb entry: empty hostname
     FloatTextPair crawlDbEntry = new FloatTextPair(1.0f, "");
 
@@ -174,19 +174,19 @@ public class TestGeneratorSecondarySort {
   @Test
   public void testCompleteSortingOrder() {
     List<FloatTextPair> entries = new ArrayList<>();
-    
+
     // Add CrawlDb entries with various scores
     entries.add(new FloatTextPair(5.0f, ""));   // CrawlDb medium score
     entries.add(new FloatTextPair(10.0f, ""));  // CrawlDb high score
     entries.add(new FloatTextPair(1.0f, ""));   // CrawlDb low score
-    
+
     // Add HostDb entries
     entries.add(new FloatTextPair(-Float.MAX_VALUE, "bbb.com"));
     entries.add(new FloatTextPair(-Float.MAX_VALUE, "aaa.com"));
-    
+
     // Sort using our comparator
     Collections.sort(entries, (a, b) -> comparator.compare(a, b));
-    
+
     // Verify order: HostDb entries first (sorted by hostname), then CrawlDb entries (by score desc)
     assertEquals("aaa.com", entries.get(0).getSecond().toString(),
         "First should be HostDb entry aaa.com");

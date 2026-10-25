@@ -74,7 +74,7 @@ public class URLPartitioner extends Partitioner<Text, Writable> implements Confi
   /**
    * Returns the normalized URL root (host, domain, or IP) for the given URL key.
    * This is used for partitioning URLs by their root component.
-   * 
+   *
    * @param key
    *          The URL as a Text object.
    * @return The normalized URL root based on the partition mode.

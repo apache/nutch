@@ -92,10 +92,10 @@ import org.slf4j.LoggerFactory;
  * selected for fetching. The URLs are partitioned by IP, domain or host within
  * a segment. We can choose separately how to count the URLs i.e. by domain or
  * host to limit the entries.
- * 
+ *
  * <h2>HostDb Integration (NUTCH-2455)</h2>
  * <p>
- * When configured with a HostDb (via {@code -hostdb} option or 
+ * When configured with a HostDb (via {@code -hostdb} option or
  * {@code generate.hostdb} property), the Generator can apply per-host settings
  * using JEXL expressions:
  * </p>
@@ -103,7 +103,7 @@ import org.slf4j.LoggerFactory;
  *   <li>{@code generate.max.count.expr} - Expression to compute max URLs per host</li>
  *   <li>{@code generate.fetch.delay.expr} - Expression to compute fetch delay per host</li>
  * </ul>
- * 
+ *
  * <h3>Performance Characteristics</h3>
  * <p>
  * The HostDb integration uses secondary sorting via MapReduce to efficiently
@@ -119,7 +119,7 @@ import org.slf4j.LoggerFactory;
  *   <li><b>I/O efficiency:</b> Uses Hadoop's sorted merge join pattern, leveraging
  *       disk-based sorting and sequential reads.</li>
  * </ul>
- * 
+ *
  * <h3>Backward Compatibility</h3>
  * <p>
  * When {@code generate.hostdb} is not configured, the Generator operates without
@@ -127,7 +127,7 @@ import org.slf4j.LoggerFactory;
  * JEXL expressions ({@code generate.max.count.expr}, {@code generate.fetch.delay.expr})
  * are only evaluated when a HostDb is provided.
  * </p>
- * 
+ *
  * @see org.apache.nutch.hostdb.UpdateHostDb
  * @see org.apache.nutch.hostdb.HostDatum
  **/
@@ -210,7 +210,7 @@ public class Generator extends NutchTool implements Tool {
   /**
    * Composite key for secondary sorting. Contains score and hostname.
    * Used to ensure HostDb entries arrive before CrawlDb entries in the reducer.
-   * 
+   *
    * For HostDb entries: FloatTextPair(-Float.MAX_VALUE, hostname)
    * For CrawlDb entries: FloatTextPair(score, "")
    */
@@ -368,7 +368,7 @@ public class Generator extends NutchTool implements Tool {
      * Partition by host / domain or IP.
      * For HostDb entries (key.second is non-empty), partition by the hostname.
      * For CrawlDb entries (key.second is empty), use the URLPartitioner.
-     * 
+     *
      * Note: When partition.url.mode is not "byHost", HostDb entries may not
      * be correctly grouped with their corresponding CrawlDb entries. For best
      * results, use "byHost" mode (the default) when using HostDb.
@@ -399,10 +399,10 @@ public class Generator extends NutchTool implements Tool {
     public void setConf(Configuration conf) {
       this.conf = conf;
       this.seed = conf.getInt("partition.url.seed", 0);
-      this.mode = conf.get(URLPartitioner.PARTITION_MODE_KEY, 
+      this.mode = conf.get(URLPartitioner.PARTITION_MODE_KEY,
           URLPartitioner.PARTITION_MODE_HOST);
       partitioner.setConf(conf);
-      
+
       // Warn if mode is not byHost and hostdb is configured
       String hostdb = conf.get(GENERATOR_HOSTDB);
       if (hostdb != null && !mode.equals(URLPartitioner.PARTITION_MODE_HOST)) {
@@ -414,7 +414,7 @@ public class Generator extends NutchTool implements Tool {
     }
   }
 
-  /** 
+  /**
    * Selects entries due for fetch. Partitions by host/domain/IP (original, without HostDb).
    * Uses FloatWritable key for optimized raw byte comparison.
    */
@@ -608,7 +608,7 @@ public class Generator extends NutchTool implements Tool {
     }
   }
 
-  /** 
+  /**
    * Select and invert subset due for fetch (original, without HostDb).
    * Uses FloatWritable key for optimized raw byte comparison during sorting.
    */
@@ -1048,7 +1048,7 @@ public class Generator extends NutchTool implements Tool {
     }
   }
 
-  /** 
+  /**
    * Collect until limit is reached (original, without HostDb support).
    * Uses FloatWritable key for optimized raw byte comparison.
    */
@@ -1529,13 +1529,13 @@ public class Generator extends NutchTool implements Tool {
       // HostDb path: Use secondary sorting with FloatTextPair key
       LOG.info("Generator: using HostDb integration with secondary sorting");
       conf.set(GENERATOR_HOSTDB, hostdb);
-      
+
       // Use MultipleInputs to read from both HostDb and CrawlDb
       MultipleInputs.addInputPath(job, new Path(hostdb, "current"),
           SequenceFileInputFormat.class, HostDbReaderMapper.class);
       MultipleInputs.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME),
           SequenceFileInputFormat.class, SelectorMapperWithHostDb.class);
-      
+
       job.setJarByClass(SelectorWithHostDb.class);
       job.setMapOutputKeyClass(FloatTextPair.class);
       job.setPartitionerClass(SelectorWithHostDb.class);
@@ -1544,18 +1544,18 @@ public class Generator extends NutchTool implements Tool {
     } else {
       // Original path: Use FloatWritable key with optimized raw byte comparison
       LOG.info("Generator: using standard generation (no HostDb)");
-      
+
       FileInputFormat.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME));
       job.setInputFormatClass(SequenceFileInputFormat.class);
       job.setMapperClass(SelectorMapper.class);
-      
+
       job.setJarByClass(Selector.class);
       job.setMapOutputKeyClass(FloatWritable.class);
       job.setPartitionerClass(Selector.class);
       job.setReducerClass(SelectorReducer.class);
       job.setSortComparatorClass(DecreasingFloatComparator.class);
     }
-    
+
     // Common configuration
     job.setMapOutputValueClass(SelectorEntry.class);
     FileOutputFormat.setOutputPath(job, tempDir);

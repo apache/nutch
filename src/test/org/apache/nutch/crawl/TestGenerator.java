@@ -455,7 +455,7 @@ public class TestGenerator {
   /**
    * Creates a HostDb with the given hostname -> HostDatum entries.
    * Uses SequenceFile format as expected by Generator.
-   * 
+   *
    * @param hostData
    *          Map of hostname to HostDatum
    * @throws IOException
@@ -464,17 +464,17 @@ public class TestGenerator {
     hostDbDir = new Path(testdir, "hostdb");
     Path dir = new Path(hostDbDir, "current");
     fs.mkdirs(dir);
-    
+
     // Use SequenceFile as expected by Generator's MultipleInputs
     SequenceFile.Writer.Option fileOpt = SequenceFile.Writer.file(new Path(dir, "part-r-00000"));
     SequenceFile.Writer.Option keyOpt = SequenceFile.Writer.keyClass(Text.class);
     SequenceFile.Writer.Option valueOpt = SequenceFile.Writer.valueClass(HostDatum.class);
     SequenceFile.Writer writer = SequenceFile.createWriter(conf, fileOpt, keyOpt, valueOpt);
-    
+
     // Sort hostnames alphabetically for consistency
     ArrayList<String> sortedHosts = new ArrayList<>(hostData.keySet());
     Collections.sort(sortedHosts);
-    
+
     for (String hostname : sortedHosts) {
       writer.append(new Text(hostname), hostData.get(hostname));
     }
@@ -483,7 +483,7 @@ public class TestGenerator {
 
   /**
    * Generate Fetchlist with HostDb integration.
-   * 
+   *
    * @param numResults
    *          number of results to generate
    * @param config
@@ -494,8 +494,8 @@ public class TestGenerator {
    *          path to HostDb (can be null)
    * @return path to generated segment
    * @throws IOException
-   * @throws InterruptedException 
-   * @throws ClassNotFoundException 
+   * @throws InterruptedException
+   * @throws ClassNotFoundException
    */
   private Path generateFetchlistWithHostDb(int numResults, Configuration config,
       boolean filter, Path hostdb) throws IOException, ClassNotFoundException, InterruptedException {
@@ -514,7 +514,7 @@ public class TestGenerator {
    * 1. HostDb entries are read and processed before CrawlDb entries
    * 2. Variable fetch delays from JEXL expressions are applied
    * 3. Variable max count from JEXL expressions are applied
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -530,17 +530,17 @@ public class TestGenerator {
 
     // Create HostDb with host-specific settings
     Map<String, HostDatum> hostData = new HashMap<>();
-    
+
     // Create HostDatum for www.example.com with high fetch count
     HostDatum exampleDatum = new HostDatum(1.0f, new Date());
     exampleDatum.setFetched(100);  // Set fetched count for JEXL expression
     hostData.put("www.example.com", exampleDatum);
-    
+
     // Create HostDatum for www.other.com with lower fetch count
     HostDatum otherDatum = new HostDatum(0.5f, new Date());
     otherDatum.setFetched(10);
     hostData.put("www.other.com", otherDatum);
-    
+
     createHostDb(hostData);
 
     // Configure generator with JEXL expression for max count
@@ -548,7 +548,7 @@ public class TestGenerator {
     Configuration myConfiguration = new Configuration(conf);
     myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 10);  // Default max
     myConfiguration.set(Generator.GENERATOR_MAX_COUNT_EXPR, "fetched < 50 ? 1 : 10");
-    
+
     Path generatedSegment = generateFetchlistWithHostDb(Integer.MAX_VALUE,
         myConfiguration, false, hostDbDir);
 
@@ -579,7 +579,7 @@ public class TestGenerator {
 
   /**
    * Test that Generator correctly applies variable fetch delay from HostDb.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -592,19 +592,19 @@ public class TestGenerator {
 
     // Create HostDb with connection failure data
     Map<String, HostDatum> hostData = new HashMap<>();
-    
+
     // delayhost has many connection failures - should get longer delay
     HostDatum delayDatum = new HostDatum(1.0f, new Date());
     delayDatum.setConnectionFailures(100L);
     hostData.put("www.delayhost.com", delayDatum);
-    
+
     createHostDb(hostData);
 
     // Configure generator with JEXL expression for fetch delay
     // This simple expression just returns a constant based on connection failures
     Configuration myConfiguration = new Configuration(conf);
     myConfiguration.set(Generator.GENERATOR_FETCH_DELAY_EXPR, "5000");
-    
+
     Path generatedSegment = generateFetchlistWithHostDb(Integer.MAX_VALUE,
         myConfiguration, false, hostDbDir);
 
@@ -614,21 +614,21 @@ public class TestGenerator {
         CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
-    
+
     assertEquals(1, fetchList.size(), "Should have exactly one URL in fetch list");
 
     // Verify variable fetch delay is set in the CrawlDatum metadata
     Text fetchDelayKey = new Text("_variableFetchDelay_");
     URLCrawlDatum entry = fetchList.get(0);
     LongWritable fetchDelay = (LongWritable) entry.datum.getMetaData().get(fetchDelayKey);
-    
+
     assertNotNull(fetchDelay, "URL should have variable fetch delay set when HostDb is configured");
     assertEquals(5000L, fetchDelay.get(), "Fetch delay should be 5000ms");
   }
 
   /**
    * Test that Generator works correctly without HostDb (backward compatibility).
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -646,7 +646,7 @@ public class TestGenerator {
     Configuration myConfiguration = new Configuration(conf);
     myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 2);  // Limit to 2 per host
     myConfiguration.set(Generator.GENERATOR_MAX_COUNT_EXPR, "1");  // Would be 1 if HostDb present
-    
+
     // Generate without HostDb
     Path generatedSegment = generateFetchlistWithHostDb(Integer.MAX_VALUE,
         myConfiguration, false, null);
@@ -658,9 +658,9 @@ public class TestGenerator {
 
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
 
-    // Without HostDb, the JEXL expression should be ignored and 
+    // Without HostDb, the JEXL expression should be ignored and
     // generate.max.count (2) should be used
-    assertEquals(2, fetchList.size(), 
+    assertEquals(2, fetchList.size(),
         "Without HostDb, should use generate.max.count not JEXL expression");
   }
 }

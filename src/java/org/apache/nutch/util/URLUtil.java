@@ -510,7 +510,7 @@ public class URLUtil {
    * Returns the URL root (host, domain, or IP) based on the specified partition mode.
    * This method centralizes the logic for extracting the appropriate URL component
    * for partitioning purposes.
-   * 
+   *
    * @param url
    *          The URL to extract the root from.
    * @param mode
