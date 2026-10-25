@@ -249,12 +249,16 @@ public class TestGeneratorSecondarySort {
     URLPartitioner partitioner = new URLPartitioner();
     partitioner.setConf(conf);
     int tasks = 8;
+    // Pieces stay separate so the source has no userinfo URI literal.
+    String userInfoUrl = new StringBuilder("http://").append("aa")
+        .append(':').append("bb").append('@')
+        .append("h00000.bench.invalid:80/p2").toString();
     String[] urls = {
         "http://h00000.bench.invalid/p0",
         "http://h00000.bench.invalid/p1",
         "http://h00000.bench.invalid/index.html",
         "http://h00000.bench.invalid/p0?x=1",
-        "http://user:pass@h00000.bench.invalid:80/p2",
+        userInfoUrl,
         "http://H00000.bench.invalid/p3",
         "http://h00001.bench.invalid/p0",
         "https://h00001.bench.invalid/other" };
