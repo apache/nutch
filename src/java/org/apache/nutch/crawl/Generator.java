@@ -23,6 +23,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -360,8 +361,10 @@ public class Generator extends NutchTool implements Tool {
       implements Configurable {
 
     private final URLPartitioner partitioner = new URLPartitioner();
+    private final Map<String, Integer> partitionByHost = new HashMap<>();
     private Configuration conf;
     private int seed;
+    private int cachedReduceTasks = -1;
     private String mode = URLPartitioner.PARTITION_MODE_HOST;
 
     /**
@@ -387,7 +390,78 @@ public class Generator extends NutchTool implements Tool {
         hashCode ^= seed;
         return (hashCode & Integer.MAX_VALUE) % numReduceTasks;
       }
-      return partitioner.getPartition(entry.url, key.first, numReduceTasks);
+      if (cachedReduceTasks != numReduceTasks) {
+        partitionByHost.clear();
+        cachedReduceTasks = numReduceTasks;
+      }
+      String host = rawHost(entry.url);
+      if (host != null) {
+        Integer cached = partitionByHost.get(host);
+        if (cached != null) {
+          return cached;
+        }
+      }
+      int part = partitioner.getPartition(entry.url, key.first, numReduceTasks);
+      if (host != null) {
+        partitionByHost.put(host, part);
+      }
+      return part;
+    }
+
+    /**
+     * Host used as the CrawlDb partition cache key. Returns null when the URL
+     * has no scheme or host, so those URLs keep the uncached partitioner path.
+     */
+    private static String rawHost(Text url) {
+      int length = url.getLength();
+      if (length <= 0) {
+        return null;
+      }
+      byte[] bytes = url.getBytes();
+      int scheme = -1;
+      for (int i = 0; i + 2 < length; i++) {
+        if (bytes[i] == ':' && bytes[i + 1] == '/' && bytes[i + 2] == '/') {
+          scheme = i;
+          break;
+        }
+      }
+      if (scheme < 0) {
+        return null;
+      }
+      int start = scheme + 3;
+      int authorityEnd = start;
+      int at = -1;
+      for (int i = start; i < length; i++) {
+        byte c = bytes[i];
+        if (c == '/' || c == '?' || c == '#') {
+          break;
+        }
+        if (c == '@') {
+          at = i;
+        }
+        authorityEnd = i + 1;
+      }
+      int hostStart = at >= 0 ? at + 1 : start;
+      int hostEnd;
+      if (hostStart < authorityEnd && bytes[hostStart] == '[') {
+        hostEnd = hostStart + 1;
+        while (hostEnd < authorityEnd && bytes[hostEnd] != ']') {
+          hostEnd++;
+        }
+        if (hostEnd < authorityEnd && bytes[hostEnd] == ']') {
+          hostEnd++;
+        }
+      } else {
+        hostEnd = hostStart;
+        while (hostEnd < authorityEnd && bytes[hostEnd] != ':') {
+          hostEnd++;
+        }
+      }
+      if (hostEnd <= hostStart) {
+        return null;
+      }
+      return new String(bytes, hostStart, hostEnd - hostStart,
+          StandardCharsets.UTF_8).toLowerCase(Locale.ROOT);
     }
 
     @Override
@@ -401,6 +475,8 @@ public class Generator extends NutchTool implements Tool {
       this.seed = conf.getInt("partition.url.seed", 0);
       this.mode = conf.get(URLPartitioner.PARTITION_MODE_KEY,
           URLPartitioner.PARTITION_MODE_HOST);
+      partitionByHost.clear();
+      cachedReduceTasks = -1;
       partitioner.setConf(conf);
 
       // Warn if mode is not byHost and hostdb is configured

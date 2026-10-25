@@ -16,10 +16,14 @@
  */
 package org.apache.nutch.crawl;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.Generator.FloatTextPair;
 import org.apache.nutch.crawl.Generator.ScoreHostKeyComparator;
+import org.apache.nutch.crawl.Generator.SelectorEntry;
+import org.apache.nutch.crawl.Generator.SelectorWithHostDb;
+import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -231,5 +235,45 @@ public class TestGeneratorSecondarySort {
     String str = pair.toString();
     assertTrue(str.contains("1.5"), "toString should contain score");
     assertTrue(str.contains("example.com"), "toString should contain hostname");
+  }
+
+  /**
+   * CrawlDb partition caching must return the same partition as URLPartitioner,
+   * including the second URL on a host. HostDb keys stay on the hostname hash.
+   */
+  @Test
+  public void testHostDbPartitionCacheMatchesUrlPartitioner() {
+    Configuration conf = NutchConfiguration.create();
+    SelectorWithHostDb selector = new SelectorWithHostDb();
+    selector.setConf(conf);
+    URLPartitioner partitioner = new URLPartitioner();
+    partitioner.setConf(conf);
+    int tasks = 8;
+    String[] urls = {
+        "http://h00000.bench.invalid/p0",
+        "http://h00000.bench.invalid/p1",
+        "http://h00000.bench.invalid/index.html",
+        "http://h00000.bench.invalid/p0?x=1",
+        "http://user:pass@h00000.bench.invalid:80/p2",
+        "http://H00000.bench.invalid/p3",
+        "http://h00001.bench.invalid/p0",
+        "https://h00001.bench.invalid/other" };
+    for (String url : urls) {
+      SelectorEntry entry = new SelectorEntry();
+      entry.url = new Text(url);
+      FloatTextPair key = new FloatTextPair(1.0f, "");
+      int expected = partitioner.getPartition(entry.url, key.getFirst(), tasks);
+      assertEquals(expected, selector.getPartition(key, entry, tasks), url);
+      assertEquals(expected, selector.getPartition(key, entry, tasks),
+          url + " cache hit");
+    }
+
+    SelectorEntry hostEntry = new SelectorEntry();
+    hostEntry.url = new Text("http://h00000.bench.invalid/p0");
+    FloatTextPair hostKey = new FloatTextPair(-Float.MAX_VALUE,
+        "h00000.bench.invalid");
+    int hostHash = "h00000.bench.invalid".hashCode();
+    int hostPart = (hostHash & Integer.MAX_VALUE) % tasks;
+    assertEquals(hostPart, selector.getPartition(hostKey, hostEntry, tasks));
   }
 }
