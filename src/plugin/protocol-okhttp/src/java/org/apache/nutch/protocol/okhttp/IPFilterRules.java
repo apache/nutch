@@ -20,6 +20,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Predicate;
 
 import org.apache.hadoop.conf.Configuration;
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * Optionally limit or block connections to IP address ranges
  * (localhost/loopback or site-local addresses, subnet ranges given in CIDR
  * notation, or single IP addresses).
- * 
+ *
  * IP filter rules are built from two Nutch properties:
  * <ul>
  * <li><code>http.filter.ipaddress.include</code> defines all allowed IP ranges.
@@ -101,18 +102,18 @@ public class IPFilterRules {
       return rules;
     }
     for (String ipRule : ipRules) {
-      switch (ipRule.toLowerCase()) {
+      switch (ipRule.toLowerCase(Locale.ROOT)) {
       case "localhost":
       case "loopback":
-        rules.add((InetAddress a) -> a.isLoopbackAddress());
+        rules.add(InetAddress::isLoopbackAddress);
         break;
       case "sitelocal":
-        rules.add((InetAddress a) -> a.isSiteLocalAddress());
+        rules.add(InetAddress::isSiteLocalAddress);
         break;
       default:
         try {
           CIDR cidr = new CIDR(ipRule);
-          rules.add((InetAddress a) -> cidr.contains(a));
+          rules.add(cidr::contains);
         } catch (IllegalArgumentException e) {
           LOG.error(
               "Failed to parse {} as CIDR, ignoring to configure IP rules ({})",

@@ -16,23 +16,21 @@
  */
 package org.apache.nutch.net.urlnormalizer.protocol;
 
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -40,6 +38,8 @@ import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.util.SuffixStringMatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * URL normalizer to normalize the protocol for all URLs of a given host or
@@ -47,7 +47,7 @@ import org.apache.nutch.util.SuffixStringMatcher;
  * <code>https://www.apache.org/path/</code> if it's known that the host
  * <code>nutch.apache.org</code> supports https and http-URLs either cause
  * duplicate content or are redirected to https.
- * 
+ *
  * See {@link org.apache.nutch.net.urlnormalizer.protocol} for details and
  * configuration.
  */
@@ -59,7 +59,7 @@ public class ProtocolURLNormalizer implements URLNormalizer {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   private String attributeFile = null;
-  
+
   // We record a map of hosts and the protocol string to be used for this host
   private final Map<String,String> protocolsMap = new HashMap<>();
 
@@ -193,19 +193,19 @@ public class ProtocolURLNormalizer implements URLNormalizer {
         Path path = new Path(file);
         FileSystem fs = path.getFileSystem(conf);
         LOG.info("Reading {} rules file {}", pluginName, path.toUri());
-        reader = new InputStreamReader(fs.open(path));
+        reader = new InputStreamReader(fs.open(path), StandardCharsets.UTF_8);
       }
       readConfiguration(reader);
     } catch (IOException | IllegalArgumentException e) {
       LOG.error("Error reading {} rule file {}", pluginName, file, e);
     }
   }
-  
+
   @Override
   public String normalize(String url, String scope) throws MalformedURLException {
     // Get URL repr.
     URL u = new URL(url);
-    
+
     // Get the host
     String host = u.getHost();
 

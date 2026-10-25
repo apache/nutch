@@ -16,34 +16,33 @@
  */
 package org.apache.nutch.parsefilter.regex;
 
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.HtmlParseFilter;
+import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.protocol.Content;
-
-import org.apache.commons.lang3.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
 
 /**
- * RegexParseFilter. If a regular expression matches either HTML or 
+ * RegexParseFilter. If a regular expression matches either HTML or
  * extracted text, a configurable field is set to true.
  */
 public class RegexParseFilter implements HtmlParseFilter {
@@ -51,21 +50,21 @@ public class RegexParseFilter implements HtmlParseFilter {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
   private static String attributeFile = null;
-  
+
   private Configuration conf;
-  
+
   private static final Map<String,RegexRule> rules = new HashMap<>();
-  
+
   @Override
   public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
     Parse parse = parseResult.get(content.getUrl());
-    String html = new String(content.getContent());
+    String html = new String(content.getContent(), StandardCharsets.UTF_8);
     String text = parse.getText();
-    
+
     for (Map.Entry<String, RegexRule> entry : rules.entrySet()) {
       String field = entry.getKey();
       RegexRule regexRule = entry.getValue();
-      
+
       String source = null;
       if (regexRule.source.equalsIgnoreCase("html")) {
         source = html;
@@ -73,18 +72,18 @@ public class RegexParseFilter implements HtmlParseFilter {
       if (regexRule.source.equalsIgnoreCase("text")) {
         source = text;
       }
-      
+
       if (source == null) {
         LOG.error("source for regex rule {} misconfigured", field);
       }
-      
+
       if (matches(source, regexRule.regex)) {
         parse.getData().getParseMeta().set(field, "true");
       } else {
         parse.getData().getParseMeta().set(field, "false");
       }
     }
-    
+
     return parseResult;
   }
 
@@ -127,7 +126,7 @@ public class RegexParseFilter implements HtmlParseFilter {
     }
     try {
       if (reader == null) {
-        reader = new FileReader(file);
+        reader = new FileReader(file, StandardCharsets.UTF_8);
       }
       readConfiguration(reader);
     }
@@ -140,16 +139,16 @@ public class RegexParseFilter implements HtmlParseFilter {
   public Configuration getConf() {
     return this.conf;
   }
-  
+
   private boolean matches(String value, Pattern pattern) {
     if (value != null) {
       Matcher matcher = pattern.matcher(value);
       return matcher.find();
     }
-       
+
     return false;
   }
-  
+
   private synchronized void readConfiguration(Reader configReader) throws IOException {
     if (rules.size() > 0) {
       return;
@@ -166,7 +165,7 @@ public class RegexParseFilter implements HtmlParseFilter {
             String field = parts[0].trim();
             String source = parts[1].trim();
             String regex = parts[2].trim();
-            
+
             rules.put(field, new RegexRule(source, regex));
         } else {
             LOG.info("RegexParseFilter rule is invalid: {}", line);
@@ -174,7 +173,7 @@ public class RegexParseFilter implements HtmlParseFilter {
       }
     }
   }
-  
+
   private static class RegexRule {
     public RegexRule(String source, String regex) {
       this.source = source;

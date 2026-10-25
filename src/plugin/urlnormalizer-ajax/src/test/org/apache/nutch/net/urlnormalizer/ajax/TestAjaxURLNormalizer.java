@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TestAjaxURLNormalizer {
   private AjaxURLNormalizer normalizer;
   private Configuration conf;
-  
+
   public TestAjaxURLNormalizer() {
     normalizer = new AjaxURLNormalizer();
     conf = NutchConfiguration.create();
@@ -58,7 +58,7 @@ public class TestAjaxURLNormalizer {
     assertEquals(normal,
         normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
   }
-  
+
   private void normalizeTest(String weird, String normal, String scope) throws Exception {
     assertEquals(normal, normalizer.normalize(weird, scope));
   }

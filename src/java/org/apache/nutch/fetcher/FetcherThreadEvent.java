@@ -25,23 +25,23 @@ import java.util.Map;
 import org.apache.nutch.parse.Outlink;
 
 /**
- * This class is used to capture the various events occurring 
- * at fetch time. These events are sent to a 
+ * This class is used to capture the various events occurring
+ * at fetch time. These events are sent to a
  * {@link org.apache.nutch.publisher.NutchPublisher} implementation.
  */
 public class FetcherThreadEvent implements Serializable {
 
   /** Type of event to specify start, end or reporting of a fetch item.  **/
   public static enum PublishEventType {START, END, REPORT}
-  
+
   private PublishEventType eventType;
   private Map<String, Object> eventData;
-  private String url; 
-  private Long timestamp; 
-  
+  private String url;
+  private Long timestamp;
+
   /**
    * Constructor to create an event to be published
-   * @param eventType Type of {@link #eventType event} being created 
+   * @param eventType Type of {@link #eventType event} being created
    * @param url URL of the fetched page to which this event belongs to
    */
   public FetcherThreadEvent(PublishEventType eventType, String url) {
@@ -49,7 +49,7 @@ public class FetcherThreadEvent implements Serializable {
     this.url = url;
     this.timestamp = System.currentTimeMillis();
   }
-  
+
   /**
    * Get type of this event object
    * @return {@link PublishEventType Event} type
@@ -57,7 +57,7 @@ public class FetcherThreadEvent implements Serializable {
   public PublishEventType getEventType() {
     return eventType;
   }
-  
+
   /**
    * Set event type of this object
    * @param eventType Set {@link #eventType event} type
@@ -65,7 +65,7 @@ public class FetcherThreadEvent implements Serializable {
   public void setEventType(PublishEventType eventType) {
     this.eventType = eventType;
   }
-  
+
   /**
    * Get event data
    * @return a Map of event data
@@ -73,16 +73,16 @@ public class FetcherThreadEvent implements Serializable {
   public Map<String, Object> getEventData() {
     return eventData;
   }
-  /** 
+  /**
    * Set metadata to this even
-   * @param eventData A map containing important information relevant 
+   * @param eventData A map containing important information relevant
    * to this event (fetched page).
    * Exeample - score, title, outlinks, content-type, etc
    */
   public void setEventData(Map<String, Object> eventData) {
     this.eventData = eventData;
   }
-  
+
   /**
    * Get URL of this event
    * @return {@link #url URL} of this event
@@ -90,18 +90,18 @@ public class FetcherThreadEvent implements Serializable {
   public String getUrl() {
     return url;
   }
-  
+
   /**
    * Set URL of this event (fetched page)
-   * @param url	URL of the fetched page
+   * @param url  URL of the fetched page
    */
   public void setUrl(String url) {
     this.url = url;
   }
   /**
-   * Add new data to the eventData object. 
-   * @param key	A key to refer to the data being added to this event
-   * @param value	Data to be stored in the event referenced by the above key
+   * Add new data to the eventData object.
+   * @param key  A key to refer to the data being added to this event
+   * @param value  Data to be stored in the event referenced by the above key
    */
   public void addEventData(String key, Object value) {
     if(eventData == null) {
@@ -109,12 +109,12 @@ public class FetcherThreadEvent implements Serializable {
     }
     eventData.put(key, value);
   }
-  
+
   /**
-   * Given a collection of lists this method will add it 
-   * the oultink metadata 
-   * @param links	A collection of outlinks generating from the fetched page
-   * 				this event refers to
+   * Given a collection of lists this method will add it
+   * the oultink metadata
+   * @param links  A collection of outlinks generating from the fetched page
+   *         this event refers to
    */
   public void addOutlinksToEventData(Collection<Outlink> links) {
     ArrayList<Map<String, String>> outlinkList = new ArrayList<>();
@@ -126,18 +126,18 @@ public class FetcherThreadEvent implements Serializable {
     }
     this.addEventData("outlinks", outlinkList);
   }
-  
+
   /**
-   * Get timestamp of current event. 
+   * Get timestamp of current event.
    * @return {@link #timestamp Timestamp}
    */
   public Long getTimestamp() {
     return timestamp;
   }
-  
+
   /**
    * Set timestamp for this event
-   * @param timestamp	Timestamp of the occurrence of this event
+   * @param timestamp  Timestamp of the occurrence of this event
    */
   public void setTimestamp(Long timestamp) {
     this.timestamp = timestamp;

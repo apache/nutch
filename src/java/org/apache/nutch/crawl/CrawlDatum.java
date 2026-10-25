@@ -75,6 +75,8 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   public static final byte STATUS_DB_DUPLICATE = 0x07;
   /** Page was marked as orphan, e.g. has no inlinks anymore */
   public static final byte STATUS_DB_ORPHAN = 0x08;
+  /** Page parsing failed */
+  public static final byte STATUS_DB_PARSE_FAILED = 0x09;
 
   /** Maximum value of DB-related status. */
   public static final byte STATUS_DB_MAX = 0x1f;
@@ -103,6 +105,8 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   public static final byte STATUS_LINKED = 0x43;
   /** Page got metadata from a parser */
   public static final byte STATUS_PARSE_META = 0x44;
+  /** Page parse failed */
+  public static final byte STATUS_PARSE_FAILED = 0x45;
 
   public static final HashMap<Byte, String> statNames = new HashMap<>();
   static {
@@ -114,6 +118,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     statNames.put(STATUS_DB_NOTMODIFIED, "db_notmodified");
     statNames.put(STATUS_DB_DUPLICATE, "db_duplicate");
     statNames.put(STATUS_DB_ORPHAN, "db_orphan");
+    statNames.put(STATUS_DB_PARSE_FAILED, "db_parse_failed");
     statNames.put(STATUS_SIGNATURE, "signature");
     statNames.put(STATUS_INJECTED, "injected");
     statNames.put(STATUS_LINKED, "linked");
@@ -124,6 +129,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     statNames.put(STATUS_FETCH_GONE, "fetch_gone");
     statNames.put(STATUS_FETCH_NOTMODIFIED, "fetch_notmodified");
     statNames.put(STATUS_PARSE_META, "parse_metadata");
+    statNames.put(STATUS_PARSE_FAILED, "parse_failed");
 
     oldToNew.put(OLD_STATUS_DB_UNFETCHED, STATUS_DB_UNFETCHED);
     oldToNew.put(OLD_STATUS_DB_FETCHED, STATUS_DB_FETCHED);
@@ -144,16 +150,14 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   private long modifiedTime;
   private org.apache.hadoop.io.MapWritable metaData;
 
+  /** Validate DB Status (ref.: CrawlDbReducer, IndexerReducer) */
   public static boolean hasDbStatus(CrawlDatum datum) {
-    if (datum.status <= STATUS_DB_MAX)
-      return true;
-    return false;
+    return (datum.status <= STATUS_DB_MAX) || CrawlDatum.STATUS_DB_PARSE_FAILED == datum.getStatus();
   }
-
+  /** Validate Fetch Status (ref.: CrawlDbReducer, IndexerReducer, SegmentMergerReducer) */
   public static boolean hasFetchStatus(CrawlDatum datum) {
-    if (datum.status > STATUS_DB_MAX && datum.status <= STATUS_FETCH_MAX)
-      return true;
-    return false;
+    return (datum.status > STATUS_DB_MAX && datum.status <= STATUS_FETCH_MAX)
+      || CrawlDatum.STATUS_PARSE_FAILED == datum.getStatus();
   }
 
   public CrawlDatum() {
@@ -200,8 +204,8 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
 
   /**
    * Get the fetch time.
-   * @return long value indicating either the time of the last 
-   * fetch, or the next fetch time, depending on whether Fetcher 
+   * @return long value indicating either the time of the last
+   * fetch, or the next fetch time, depending on whether Fetcher
    * or CrawlDbReducer set the time.
    */
   public long getFetchTime() {
@@ -270,7 +274,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
 
   /**
    * Add all metadata from other CrawlDatum to this CrawlDatum.
-   * 
+   *
    * @param other
    *          CrawlDatum
    */
@@ -415,7 +419,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
    * @param that an existing {@link CrawlDatum}
    * @return 1 if any one field (score, status, fetchTime, retries,
    * fetchInterval or modifiedTime) of the new {@link CrawlDatum}
-   * minus the correspoinding field of the existing {@link CrawlDatum}
+   * minus the corresponding field of the existing {@link CrawlDatum}
    * is greater than 0, otherwise return -1.
    */
   @Override
@@ -565,12 +569,12 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       throw new RuntimeException(e);
     }
   }
-  
+
   public boolean execute(JexlScript expr, String url) {
     if (expr != null && url != null) {
       // Create a context and add data
       JexlContext jcontext = new MapContext();
-      
+
       // https://issues.apache.org/jira/browse/NUTCH-2229
       jcontext.set("url", url);
       jcontext.set("status", getStatusName(getStatus()));
@@ -580,34 +584,34 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       jcontext.set("interval", Integer.valueOf(getFetchInterval()));
       jcontext.set("score", getScore());
       jcontext.set("signature", StringUtil.toHexString(getSignature()));
-            
+
       // Set metadata variables
       for (Map.Entry<Writable, Writable> entry : getMetaData().entrySet()) {
         Object value = entry.getValue();
         Text tkey = (Text)entry.getKey();
-        
+
         if (value instanceof FloatWritable) {
           FloatWritable fvalue = (FloatWritable)value;
           jcontext.set(tkey.toString(), fvalue.get());
         }
-        
+
         if (value instanceof IntWritable) {
           IntWritable ivalue = (IntWritable)value;
           jcontext.set(tkey.toString(), ivalue.get());
         }
-        
+
         if (value instanceof Text) {
           Text tvalue = (Text)value;
           jcontext.set(tkey.toString().replace("-", "_"), tvalue.toString());
         }
-        
+
         if (value instanceof ProtocolStatus) {
           ProtocolStatus pvalue = (ProtocolStatus)value;
           jcontext.set(tkey.toString().replace("-", "_"), pvalue.toString());
         }
 
       }
-                  
+
       try {
         if (Boolean.TRUE.equals(expr.execute(jcontext))) {
           return true;

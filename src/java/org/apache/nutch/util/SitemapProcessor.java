@@ -21,6 +21,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -90,7 +91,8 @@ import crawlercommons.sitemaps.SiteMapURL;
  */
 public class SitemapProcessor extends Configured implements Tool {
   private static final Logger LOG = LoggerFactory.getLogger(SitemapProcessor.class);
-  public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  public static final SimpleDateFormat sdf = new SimpleDateFormat(
+      "yyyy-MM-dd HH:mm:ss", Locale.ROOT);
 
   public static final String CURRENT_NAME = "current";
   public static final String LOCK_NAME = ".locked";
@@ -198,7 +200,7 @@ public class SitemapProcessor extends Configured implements Tool {
             }
 
             seedsCounter.increment(1);
-            generateSitemapUrlDatum(protocolFactory.getProtocol(url), url, context); 
+            generateSitemapUrlDatum(protocolFactory.getProtocol(url), url, context);
           } else {
             LOG.info("generateSitemapsFromHostname: {}", key.toString());
             generateSitemapsFromHostname(key.toString(), context);
@@ -224,7 +226,7 @@ public class SitemapProcessor extends Configured implements Tool {
       }
       return url;
     }
-    
+
     private void generateSitemapsFromHostname(String host, Context context) {
       try {
         // For entry from hostdb, get sitemap url(s) from robots.txt, fetch the sitemap,
@@ -272,7 +274,7 @@ public class SitemapProcessor extends Configured implements Tool {
       while (!output.getStatus().isSuccess() && output.getStatus().isRedirect() && maxRedir > 0) {
         String[] stuff = output.getStatus().getArgs();
         url = filterNormalize(stuff[0]);
-        
+
         // get out!
         if (url == null) {
           break;
@@ -280,7 +282,7 @@ public class SitemapProcessor extends Configured implements Tool {
         output = protocol.getProtocolOutput(new Text(url), datum);
         status = output.getStatus();
         content = output.getContent();
-        
+
         maxRedir--;
       }
 

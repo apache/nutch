@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This handler clicks all the <code><a href="javascript:void(null);"></a></code> tags
- * because it considers them as not usual links but ajax links/interactions. This uses the same logic of 
- * DefalultMultiInteractionHandler. 
+ * because it considers them as not usual links but ajax links/interactions. This uses the same logic of
+ * DefalultMultiInteractionHandler.
  */
 public class DefaultClickAllAjaxLinksHandler implements InteractiveSeleniumHandler {
   private static final Logger LOG = LoggerFactory
@@ -42,10 +42,10 @@ public class DefaultClickAllAjaxLinksHandler implements InteractiveSeleniumHandl
 
   @Override
   public String processDriver(WebDriver driver) {
-    
+
     String accumulatedData = "";
     try {
-      
+
 
       driver.findElement(By.tagName("body")).getAttribute("innerHTML");
       Configuration conf = NutchConfiguration.create();

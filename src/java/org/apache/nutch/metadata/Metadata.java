@@ -47,7 +47,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
 
   /**
    * Returns true if named value is multivalued.
-   * 
+   *
    * @param name
    *          name of metadata
    * @return true is named value is multivalued, false if single value or null
@@ -58,7 +58,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
 
   /**
    * Returns an array of the names contained in the metadata.
-   * 
+   *
    * @return Metadata names
    */
   public String[] names() {
@@ -68,7 +68,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
   /**
    * Get the value associated to a metadata name. If many values are associated
    * to the specified name, then the first one is returned.
-   * 
+   *
    * @param name
    *          of the metadata.
    * @return the value associated to the specified metadata name.
@@ -84,7 +84,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
 
   /**
    * Get the values associated to a metadata name.
-   * 
+   *
    * @param name
    *          of the metadata.
    * @return the values associated to a metadata name.
@@ -104,7 +104,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
   /**
    * Add a metadata name/value mapping. Add the specified value to the list of
    * values associated to the specified metadata name.
-   * 
+   *
    * @param name
    *          the metadata name.
    * @param value
@@ -149,7 +149,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
 
   /**
    * Copy All key-value pairs from properties.
-   * 
+   *
    * @param properties
    *          properties to copy from
    */
@@ -165,7 +165,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
    * Set metadata name/value. Associate the specified value to the specified
    * metadata name. If some previous values were associated to this name, they
    * are removed.
-   * 
+   *
    * @param name
    *          the metadata name.
    * @param value
@@ -177,7 +177,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
 
   /**
    * Remove a metadata and all its associated values.
-   * 
+   *
    * @param name
    *          metadata name to remove
    */
@@ -187,7 +187,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
 
   /**
    * Returns the number of metadata names in this metadata.
-   * 
+   *
    * @return number of metadata names
    */
   public int size() {
@@ -296,4 +296,3 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
   }
 
 }
-  

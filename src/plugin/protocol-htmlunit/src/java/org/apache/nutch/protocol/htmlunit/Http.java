@@ -45,7 +45,7 @@ public class Http extends HttpBase {
 
   /**
    * Set the {@link org.apache.hadoop.conf.Configuration} object.
-   * 
+   *
    * @param conf a popultaed {@link Configuration}
    */
   @Override
@@ -58,7 +58,7 @@ public class Http extends HttpBase {
     http.setConf(NutchConfiguration.create());
     main(http, args);
   }
- 
+
   @Override
   protected Response getResponse(URL url, CrawlDatum datum, boolean redirect)
       throws ProtocolException, IOException {

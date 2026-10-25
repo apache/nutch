@@ -33,24 +33,23 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FilenameUtils;
-
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
@@ -67,19 +66,18 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.crawl.LinkDbReader;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.ErrorTracker;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.DumpFileUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchTool;
-
 import org.apache.tika.Tika;
-
-import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
-import com.fasterxml.jackson.dataformat.cbor.CBORGenerator;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
+import com.fasterxml.jackson.dataformat.cbor.CBORGenerator;
 import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.text.SimpleDateFormat;
 
@@ -179,7 +177,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
   private static final int MAX_INLINKS = 5000;
-  
+
   private CommonCrawlConfig config = null;
 
   // Gzip initialization
@@ -188,6 +186,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
   private GzipCompressorOutputStream gzipOutput = null;
   private TarArchiveOutputStream tarOutput = null;
   private ArrayList<String> fileList = null;
+  private ErrorTracker errorTracker;
 
   /**
    * Main method for invoking this tool
@@ -210,6 +209,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
    * @param config A populated {@link CommonCrawlConfig}
    */
   public CommonCrawlDataDumper(CommonCrawlConfig config) {
+    this();
     this.config = config;
   }
 
@@ -217,6 +217,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
    * Constructor
    */
   public CommonCrawlDataDumper() {
+    this.errorTracker = new ErrorTracker(NutchMetrics.GROUP_COMMONCRAWL_DUMPER);
   }
 
   /**
@@ -267,181 +268,180 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
       }
     }
 
-    LinkDbReader linkDbReader = null;
-    if (linkdb != null) {
-      linkDbReader = new LinkDbReader(nutchConfig, new Path(linkdb.toString()));
-    }
-    if (parts == null || parts.size() == 0) {
-      LOG.error( "No segment directories found in {} ",
-          segmentRootDir.getAbsolutePath());
-      System.exit(1);
-    }
-    LOG.info("Found {} segment parts", parts.size());
-    if (gzip && !warc) {
-      fileList = new ArrayList<>();
-      constructNewStream(outputDir);
-    }
-
-    for (Path segmentPart : parts) {
-      LOG.info("Processing segment Part : [ {} ]", segmentPart);
-      try {
-        SequenceFile.Reader reader = new SequenceFile.Reader(nutchConfig,
-            SequenceFile.Reader.file(segmentPart));
-
-        Writable key = (Writable) reader.getKeyClass().getConstructor().newInstance();
-
-        Content content = null;
-        while (reader.next(key)) {
-          content = new Content();
-          reader.getCurrentValue(content);
-          Metadata metadata = content.getMetadata();
-          String url = key.toString();
-
-          String baseName = FilenameUtils.getBaseName(url);
-          String extensionName = FilenameUtils.getExtension(url);
-
-          if (!extension.isEmpty()) {
-            extensionName = extension;
-          } else if ((extensionName == null) || extensionName.isEmpty()) {
-            extensionName = "html";
-          }
-
-          String outputFullPath = null;
-          String outputRelativePath = null;
-          String filename = null;
-          String timestamp = null;
-          String reverseKey = null;
-
-          if (epochFilename || config.getReverseKey()) {
-            try {
-              long epoch = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z")
-                  .parse(getDate(metadata.get("Date"))).getTime();
-              timestamp = String.valueOf(epoch);
-            } catch (ParseException pe) {
-              LOG.warn(pe.getMessage());
-            }
-
-            reverseKey = reverseUrl(url);
-            config.setReverseKeyValue(
-                reverseKey.replace("/", "_") + "_" + DigestUtils.sha1Hex(url)
-                    + "_" + timestamp);
-          }
-
-          if (!warc) {
-            if (epochFilename) {
-              outputFullPath = DumpFileUtil
-                  .createFileNameFromUrl(outputDir.getAbsolutePath(),
-                      reverseKey, url, timestamp, extensionName, !gzip);
-              outputRelativePath = outputFullPath
-                  .substring(0, outputFullPath.lastIndexOf(File.separator) - 1);
-              filename = content.getMetadata().get(Metadata.DATE) + "."
-                  + extensionName;
-            } else {
-              String md5Ofurl = DumpFileUtil.getUrlMD5(url);
-              String fullDir = DumpFileUtil
-                  .createTwoLevelsDirectory(outputDir.getAbsolutePath(),
-                      md5Ofurl, !gzip);
-              filename = DumpFileUtil
-                  .createFileName(md5Ofurl, baseName, extensionName);
-              outputFullPath = String.format("%s/%s", fullDir, filename);
-
-              String[] fullPathLevels = fullDir
-                  .split(Pattern.quote(File.separator));
-              String firstLevelDirName = fullPathLevels[fullPathLevels.length
-                  - 2];
-              String secondLevelDirName = fullPathLevels[fullPathLevels.length
-                  - 1];
-              outputRelativePath = firstLevelDirName + secondLevelDirName;
-            }
-          }
-          // Encode all filetypes if no mimetypes have been given
-          Boolean filter = (mimeTypes == null);
-
-          String jsonData = "";
-          try {
-            String mimeType = new Tika().detect(content.getContent());
-            // Maps file to JSON-based structure
-
-            Set<String> inUrls = null; //there may be duplicates, so using set
-            if (linkDbReader != null) {
-              Inlinks inlinks = linkDbReader.getInlinks((Text) key);
-              if (inlinks != null) {
-                Iterator<Inlink> iterator = inlinks.iterator();
-                inUrls = new LinkedHashSet<>();
-                while (inUrls.size() <= MAX_INLINKS && iterator.hasNext()){
-                  inUrls.add(iterator.next().getFromUrl());
-                }
-              }
-            }
-            //TODO: Make this Jackson Format implementation reusable
-            try (CommonCrawlFormat format = CommonCrawlFormatFactory
-                .getCommonCrawlFormat(warc ? "WARC" : "JACKSON", nutchConfig, config)) {
-              if (inUrls != null) {
-                format.setInLinks(new ArrayList<>(inUrls));
-              }
-              jsonData = format.getJsonData(url, content, metadata);
-            }
-
-            collectStats(typeCounts, mimeType);
-            // collects statistics for the given mimetypes
-            if ((mimeType != null) && (mimeTypes != null) && Arrays
-                .asList(mimeTypes).contains(mimeType)) {
-              collectStats(filteredCounts, mimeType);
-              filter = true;
-            }
-          } catch (IOException ioe) {
-            LOG.error("Fatal error in creating JSON data: {}", ioe.getMessage());
-            return;
-          }
-
-          if (!warc) {
-            if (filter) {
-              byte[] byteData = serializeCBORData(jsonData);
-
-              if (!gzip) {
-                File outputFile = new File(outputFullPath);
-                if (outputFile.exists()) {
-                  LOG.info("Skipping writing: [{}]: file already exists", outputFullPath);
-                } else {
-                  LOG.info("Writing: [{}]", outputFullPath);
-                  IOUtils.copy(new ByteArrayInputStream(byteData),
-                      new FileOutputStream(outputFile));
-                }
-              } else {
-                if (fileList.contains(outputFullPath)) {
-                  LOG.info("Skipping compressing: [{}]: file already exists", outputFullPath);
-                } else {
-                  fileList.add(outputFullPath);
-                  LOG.info("Compressing: [{}]", outputFullPath);
-                  //TarArchiveEntry tarEntry = new TarArchiveEntry(firstLevelDirName + File.separator + secondLevelDirName + File.separator + filename);
-                  TarArchiveEntry tarEntry = new TarArchiveEntry(
-                      outputRelativePath + File.separator + filename);
-                  tarEntry.setSize(byteData.length);
-                  tarOutput.putArchiveEntry(tarEntry);
-                  tarOutput.write(byteData);
-                  tarOutput.closeArchiveEntry();
-                }
-              }
-            }
-          }
-        }
-        reader.close();
-      } catch (Exception e){
-        LOG.warn("SKIPPED: {} Because : {}", segmentPart, e.getMessage());
-      } finally {
-        fs.close();
+    try (LinkDbReader linkDbReader = linkdb != null
+        ? new LinkDbReader(nutchConfig, new Path(linkdb.toString()))
+        : null) {
+      if (parts == null || parts.size() == 0) {
+        LOG.error( "No segment directories found in {} ",
+            segmentRootDir.getAbsolutePath());
+        this.errorTracker.recordError(ErrorTracker.ErrorType.OTHER);
+        return;
       }
-    }
+      LOG.info("Found {} segment parts", parts.size());
+      if (gzip && !warc) {
+        fileList = new ArrayList<>();
+        constructNewStream(outputDir);
+      }
 
-    if (gzip && !warc) {
-      closeStream();
-    }
+      for (Path segmentPart : parts) {
+        LOG.info("Processing segment Part : [ {} ]", segmentPart);
+        try (SequenceFile.Reader reader = new SequenceFile.Reader(nutchConfig,
+              SequenceFile.Reader.file(segmentPart))) {
 
-    if (!typeCounts.isEmpty()) {
-      LOG.info("CommonsCrawlDataDumper File Stats: {}", DumpFileUtil
-          .displayFileTypes(typeCounts, filteredCounts));
-    }
+          Writable key = (Writable) reader.getKeyClass().getConstructor().newInstance();
 
+          Content content = null;
+          while (reader.next(key)) {
+            content = new Content();
+            reader.getCurrentValue(content);
+            Metadata metadata = content.getMetadata();
+            String url = key.toString();
+
+            String baseName = FilenameUtils.getBaseName(url);
+            String extensionName = FilenameUtils.getExtension(url);
+
+            if (!extension.isEmpty()) {
+              extensionName = extension;
+            } else if ((extensionName == null) || extensionName.isEmpty()) {
+              extensionName = "html";
+            }
+
+            String outputFullPath = null;
+            String outputRelativePath = null;
+            String filename = null;
+            String timestamp = null;
+            String reverseKey = null;
+
+            if (epochFilename || config.getReverseKey()) {
+              try {
+                long epoch = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z")
+                    .parse(getDate(metadata.get("Date"))).getTime();
+                timestamp = String.valueOf(epoch);
+              } catch (ParseException pe) {
+                LOG.warn(pe.getMessage());
+              }
+
+              reverseKey = reverseUrl(url);
+              config.setReverseKeyValue(
+                  reverseKey.replace("/", "_") + "_" + DigestUtils.sha256Hex(url)
+                      + "_" + timestamp);
+            }
+
+            if (!warc) {
+              if (epochFilename) {
+                outputFullPath = DumpFileUtil
+                    .createFileNameFromUrl(outputDir.getAbsolutePath(),
+                        reverseKey, url, timestamp, extensionName, !gzip);
+                outputRelativePath = outputFullPath
+                    .substring(0, outputFullPath.lastIndexOf(File.separator) - 1);
+                filename = content.getMetadata().get(Metadata.DATE) + "."
+                    + extensionName;
+              } else {
+                String md5Ofurl = DumpFileUtil.getUrlMD5(url);
+                String fullDir = DumpFileUtil
+                    .createTwoLevelsDirectory(outputDir.getAbsolutePath(),
+                        md5Ofurl, !gzip);
+                filename = DumpFileUtil
+                    .createFileName(md5Ofurl, baseName, extensionName);
+                outputFullPath = String.format(Locale.ROOT, "%s/%s", fullDir, filename);
+
+                String[] fullPathLevels = fullDir
+                    .split(Pattern.quote(File.separator));
+                String firstLevelDirName = fullPathLevels[fullPathLevels.length
+                    - 2];
+                String secondLevelDirName = fullPathLevels[fullPathLevels.length
+                    - 1];
+                outputRelativePath = firstLevelDirName + secondLevelDirName;
+              }
+            }
+            // Encode all filetypes if no mimetypes have been given
+            Boolean filter = (mimeTypes == null);
+
+            String jsonData = "";
+            try {
+              String mimeType = new Tika().detect(content.getContent());
+              // Maps file to JSON-based structure
+
+              Set<String> inUrls = null; //there may be duplicates, so using set
+              if (linkDbReader != null) {
+                Inlinks inlinks = linkDbReader.getInlinks((Text) key);
+                if (inlinks != null) {
+                  Iterator<Inlink> iterator = inlinks.iterator();
+                  inUrls = new LinkedHashSet<>();
+                  while (inUrls.size() <= MAX_INLINKS && iterator.hasNext()){
+                    inUrls.add(iterator.next().getFromUrl());
+                  }
+                }
+              }
+              //TODO: Make this Jackson Format implementation reusable
+              try (CommonCrawlFormat format = CommonCrawlFormatFactory
+                  .getCommonCrawlFormat(warc ? "WARC" : "JACKSON", nutchConfig, config)) {
+                if (inUrls != null) {
+                  format.setInLinks(new ArrayList<>(inUrls));
+                }
+                jsonData = format.getJsonData(url, content, metadata);
+              }
+
+              collectStats(typeCounts, mimeType);
+              // collects statistics for the given mimetypes
+              if ((mimeType != null) && (mimeTypes != null) && Arrays
+                  .asList(mimeTypes).contains(mimeType)) {
+                collectStats(filteredCounts, mimeType);
+                filter = true;
+              }
+            } catch (IOException ioe) {
+              LOG.error("Fatal error in creating JSON data: {}", ioe.getMessage());
+              return;
+            }
+
+            if (!warc) {
+              if (filter) {
+                byte[] byteData = serializeCBORData(jsonData);
+
+                if (!gzip) {
+                  File outputFile = new File(outputFullPath);
+                  if (outputFile.exists()) {
+                    LOG.info("Skipping writing: [{}]: file already exists", outputFullPath);
+                  } else {
+                    LOG.info("Writing: [{}]", outputFullPath);
+                    IOUtils.copy(new ByteArrayInputStream(byteData),
+                        new FileOutputStream(outputFile));
+                  }
+                } else {
+                  if (fileList.contains(outputFullPath)) {
+                    LOG.info("Skipping compressing: [{}]: file already exists", outputFullPath);
+                  } else {
+                    fileList.add(outputFullPath);
+                    LOG.info("Compressing: [{}]", outputFullPath);
+                    //TarArchiveEntry tarEntry = new TarArchiveEntry(firstLevelDirName + File.separator + secondLevelDirName + File.separator + filename);
+                    TarArchiveEntry tarEntry = new TarArchiveEntry(
+                        outputRelativePath + File.separator + filename);
+                    tarEntry.setSize(byteData.length);
+                    tarOutput.putArchiveEntry(tarEntry);
+                    tarOutput.write(byteData);
+                    tarOutput.closeArchiveEntry();
+                  }
+                }
+              }
+            }
+          }
+        } catch (Exception e){
+          LOG.warn("SKIPPED: {} Because : {}", segmentPart, e.getMessage());
+        } finally {
+          fs.close();
+        }
+      }
+
+      if (gzip && !warc) {
+        closeStream();
+      }
+
+      if (!typeCounts.isEmpty()) {
+        LOG.info("CommonsCrawlDataDumper File Stats: {}", DumpFileUtil
+            .displayFileTypes(typeCounts, filteredCounts));
+      }
+
+    }
   }
 
   private void closeStream() {
@@ -573,64 +573,65 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
   public int run(String[] args) throws Exception {
     Option helpOpt = new Option("h", "help", false, "show this help message.");
     // argument options
-    @SuppressWarnings("static-access")
-    Option outputOpt = OptionBuilder.withArgName("outputDir").hasArg()
-        .withDescription(
-            "output directory (which will be created) to host the CBOR data.")
-        .create("outputDir");
+    Option outputOpt = Option.builder("outputDir")
+        .argName("outputDir").hasArg()
+        .desc(
+        "output directory (which will be created) to host the CBOR data.")
+        .build();
     // WARC format
     Option warcOpt = new Option("warc", "export to a WARC file");
 
-    @SuppressWarnings("static-access")
-    Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
-        .withDescription("the segment or directory containing segments to use").create("segment");
+    Option segOpt = Option.builder("segment")
+        .argName("segment").hasArgs()
+        .desc("the segment or directory containing segments to use")
+        .build();
     // create mimetype and gzip options
-    @SuppressWarnings("static-access")
-    Option mimeOpt = OptionBuilder.isRequired(false).withArgName("mimetype")
-        .hasArgs().withDescription(
-            "an optional list of mimetypes to dump, excluding all others. Defaults to all.")
-        .create("mimetype");
-    @SuppressWarnings("static-access")
-    Option gzipOpt = OptionBuilder.withArgName("gzip").hasArg(false)
-        .withDescription(
-            "an optional flag indicating whether to additionally gzip the data.")
-        .create("gzip");
-    @SuppressWarnings("static-access")
-    Option keyPrefixOpt = OptionBuilder.withArgName("keyPrefix").hasArg(true)
-        .withDescription("an optional prefix for key in the output format.")
-        .create("keyPrefix");
-    @SuppressWarnings("static-access")
-    Option simpleDateFormatOpt = OptionBuilder.withArgName("SimpleDateFormat")
-        .hasArg(false).withDescription(
-            "an optional format for timestamp in GMT epoch milliseconds.")
-        .create("SimpleDateFormat");
-    @SuppressWarnings("static-access")
-    Option epochFilenameOpt = OptionBuilder.withArgName("epochFilename")
+    Option mimeOpt = Option.builder("mimetype")
+        .required(false).argName("mimetype")
+        .hasArgs().desc(
+        "an optional list of mimetypes to dump, excluding all others. Defaults to all.")
+        .build();
+    Option gzipOpt = Option.builder("gzip")
+        .argName("gzip").hasArg(false)
+        .desc(
+        "an optional flag indicating whether to additionally gzip the data.")
+        .build();
+    Option keyPrefixOpt = Option.builder("keyPrefix")
+        .argName("keyPrefix").hasArg(true)
+        .desc("an optional prefix for key in the output format.")
+        .build();
+    Option simpleDateFormatOpt = Option.builder("SimpleDateFormat")
+        .argName("SimpleDateFormat")
+        .hasArg(false).desc(
+        "an optional format for timestamp in GMT epoch milliseconds.")
+        .build();
+    Option epochFilenameOpt = Option.builder("epochFilename")
+        .argName("epochFilename")
         .hasArg(false)
-        .withDescription("an optional format for output filename.")
-        .create("epochFilename");
-    @SuppressWarnings("static-access")
-    Option jsonArrayOpt = OptionBuilder.withArgName("jsonArray").hasArg(false)
-        .withDescription("an optional format for JSON output.")
-        .create("jsonArray");
-    @SuppressWarnings("static-access")
-    Option reverseKeyOpt = OptionBuilder.withArgName("reverseKey").hasArg(false)
-        .withDescription("an optional format for key value in JSON output.")
-        .create("reverseKey");
-    @SuppressWarnings("static-access")
-    Option extensionOpt = OptionBuilder.withArgName("extension").hasArg(true)
-        .withDescription("an optional file extension for output documents.")
-        .create("extension");
-    @SuppressWarnings("static-access")
-    Option sizeOpt = OptionBuilder.withArgName("warcSize").hasArg(true)
-        .withType(Number.class)
-        .withDescription("an optional file size in bytes for the WARC file(s)")
-        .create("warcSize");
-    @SuppressWarnings("static-access")
-    Option linkDbOpt = OptionBuilder.withArgName("linkdb").hasArg(true)
-        .withDescription("an optional linkdb parameter to include inlinks in dump files")
-        .isRequired(false)
-        .create("linkdb");
+        .desc("an optional format for output filename.")
+        .build();
+    Option jsonArrayOpt = Option.builder("jsonArray")
+        .argName("jsonArray").hasArg(false)
+        .desc("an optional format for JSON output.")
+        .build();
+    Option reverseKeyOpt = Option.builder("reverseKey")
+        .argName("reverseKey").hasArg(false)
+        .desc("an optional format for key value in JSON output.")
+        .build();
+    Option extensionOpt = Option.builder("extension")
+        .argName("extension").hasArg(true)
+        .desc("an optional file extension for output documents.")
+        .build();
+    Option sizeOpt = Option.builder("warcSize")
+        .argName("warcSize").hasArg(true)
+        .type(Number.class)
+        .desc("an optional file size in bytes for the WARC file(s)")
+        .build();
+    Option linkDbOpt = Option.builder("linkdb")
+        .argName("linkdb").hasArg(true)
+        .desc("an optional linkdb parameter to include inlinks in dump files")
+        .required(false)
+        .build();
 
     // create the options
     Options options = new Options();
@@ -652,14 +653,14 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
     options.addOption(sizeOpt);
     options.addOption(linkDbOpt);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     try {
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("outputDir") || (!line
           .hasOption("segment"))) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter
-            .printHelp(CommonCrawlDataDumper.class.getName(), options, true);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp(CommonCrawlDataDumper.class.getName(), "", options,
+            "", true);
         return 0;
       }
 
@@ -716,7 +717,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
   }
 
   /**
-   * Used by the REST service
+   * Programmatic entry point for {@link org.apache.nutch.util.NutchTool} callers.
    */
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId)

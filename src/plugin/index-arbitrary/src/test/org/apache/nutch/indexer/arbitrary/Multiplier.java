@@ -22,11 +22,11 @@ public class Multiplier {
   private float product = 1;
   private static PrintStream err = System.err;
   private static PrintStream out = System.out;
-  
+
   public Multiplier(String args[]) {
     super();
   }
-  
+
   public String getProduct(String args[]) {
     int i = args.length - 1;
     try {
@@ -41,7 +41,7 @@ public class Multiplier {
   }
 
   public static void main(String[] args) {
-	Multiplier mp = new Multiplier(args);
-	out.println(mp.getProduct(args));
+    Multiplier mp = new Multiplier(args);
+    out.println(mp.getProduct(args));
   }
 }

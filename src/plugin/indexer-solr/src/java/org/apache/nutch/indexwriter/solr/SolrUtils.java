@@ -60,17 +60,17 @@ public class SolrUtils {
   /**
    * Creates a new SolrClient, passing an Authorization header on the requests'
    * HTTP Header:
-   * 
+   *
    * <pre>
    * Authorization: headerName headerValue
    * </pre>
-   * 
+   *
    * ie.
-   * 
+   *
    * <pre>
    * Authorization: Bearer XXXXXXXXXXX
    * </pre>
-   * 
+   *
    * @param url
    *          Sorl URL
    * @param headerName
@@ -100,17 +100,17 @@ public class SolrUtils {
   /**
    * Creates a new SolrClient, passing an Authorization header on the requests'
    * HTTP Header:
-   * 
+   *
    * <pre>
    * Authorization: headerName headerValue
    * </pre>
-   * 
+   *
    * ie.
-   * 
+   *
    * <pre>
    * Authorization: Bearer XXXXXXXXXXX
    * </pre>
-   * 
+   *
    * @param url
    *          Solr URL
    * @param headerName
@@ -130,7 +130,7 @@ public class SolrUtils {
 
   /**
    * Creates a new SolrClient, using Basic Authentication.
-   * 
+   *
    * @param url
    *          Solr URL
    * @param username

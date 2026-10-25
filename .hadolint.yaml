@@ -1,0 +1,4 @@
+# Hadolint config for docker/Dockerfile (NUTCH-3197).
+# DL3018: do not pin floating Alpine apk versions without a deliberate bump policy.
+ignored:
+  - DL3018

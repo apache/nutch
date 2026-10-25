@@ -29,8 +29,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * JUnit based test of class <code>RegexURLFilter</code>.
- * 
- * @author J&eacute;r&ocirc;me Charron
+ *
  */
 public class TestRegexURLFilter extends RegexURLFilterBaseTest {
 
@@ -54,7 +53,7 @@ public class TestRegexURLFilter extends RegexURLFilterBaseTest {
     bench(400, "Benchmarks");
     bench(800, "Benchmarks");
   }
-  
+
   @Test
   public void test1838() {
     test("nutch1838");

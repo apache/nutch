@@ -19,22 +19,19 @@ package org.apache.nutch.protocol;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.util.ObjectCache;
 import org.apache.nutch.util.URLUtil;
-
-import org.apache.commons.lang3.StringUtils;
-
-import org.apache.hadoop.conf.Configuration;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +93,7 @@ public class ProtocolFactory {
   }
   /**
    * Returns the appropriate {@link Protocol} implementation for a url.
-   * 
+   *
    * @param urlString
    *          Url String
    * @return The appropriate {@link Protocol} implementation for a given
@@ -116,7 +113,7 @@ public class ProtocolFactory {
 
   /**
    * Returns the appropriate {@link Protocol} implementation for a url.
-   * 
+   *
    * @param url
    *          URL to be fetched by returned {@link Protocol} implementation
    * @return The appropriate {@link Protocol} implementation for a given
@@ -128,21 +125,28 @@ public class ProtocolFactory {
       throws ProtocolNotFound {
     try {
       Protocol protocol = null;
-
-      // First attempt to resolve a protocol implementation by hostname
-      String host = url.getHost();
-      String domain = URLUtil.getDomainName(url).toLowerCase().trim();
-      String hostOrDomain = null;
       Extension extension = null;
-      if (hostProtocolMapping.containsKey(host)) {
-        hostOrDomain = host;
-      } else if (hostProtocolMapping.containsKey(domain)) {
-        hostOrDomain = domain;
-      }
-      if (hostOrDomain != null) {
-        extension = getExtensionById(hostProtocolMapping.get(hostOrDomain));
-        if (extension != null) {
-          protocol = getProtocolInstanceByExtension(extension);
+
+      /*
+       * First attempt to resolve a protocol implementation by host or domain
+       * name, if the "host-protocol-mapping.txt" defines rules.
+       */
+      if (!hostProtocolMapping.isEmpty()) {
+        String host = url.getHost();
+        String hostOrDomain = null;
+        if (hostProtocolMapping.containsKey(host)) {
+          hostOrDomain = host;
+        } else {
+          String domain = URLUtil.getDomainName(url);
+          if (hostProtocolMapping.containsKey(domain)) {
+            hostOrDomain = domain;
+          }
+        }
+        if (hostOrDomain != null) {
+          extension = getExtensionById(hostProtocolMapping.get(hostOrDomain));
+          if (extension != null) {
+            protocol = getProtocolInstanceByExtension(extension);
+          }
         }
       }
 

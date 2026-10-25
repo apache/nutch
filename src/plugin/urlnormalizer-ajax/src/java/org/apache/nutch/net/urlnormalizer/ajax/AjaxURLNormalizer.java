@@ -16,19 +16,19 @@
  */
 package org.apache.nutch.net.urlnormalizer.ajax;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.MalformedURLException;
-import java.nio.charset.Charset;
+import java.util.Locale;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.net.URLNormalizers;
-import org.apache.hadoop.conf.Configuration;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * URLNormalizer capable of dealing with AJAX URL's.
  *
@@ -43,13 +43,11 @@ public class AjaxURLNormalizer implements URLNormalizer {
   public static String ESCAPED_URL_PART = "_escaped_fragment_=";
 
   private Configuration conf;
-  private Charset utf8;
 
   /**
    * Default constructor.
    */
   public AjaxURLNormalizer() {
-    utf8 = Charset.forName("UTF-8");
   }
 
   /**
@@ -63,12 +61,12 @@ public class AjaxURLNormalizer implements URLNormalizer {
   @Override
   public String normalize(String urlString, String scope) throws MalformedURLException {
     LOG.info("{} // {}", scope, urlString);
-  
+
     // When indexing, transform _escaped_fragment_ URL's to their #! counterpart
     if (scope.equals(URLNormalizers.SCOPE_INDEXER) && urlString.contains(ESCAPED_URL_PART)) {
       return normalizeEscapedFragment(urlString);
     }
-    
+
     // Otherwise transform #! URL's to their _escaped_fragment_ counterpart
     if (urlString.contains(AJAX_URL_PART)) {
       LOG.info("{} // {}", scope, normalizeHashedFragment(urlString));
@@ -177,7 +175,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
    */
   protected String unescape(String fragmentPart) {
     try {
-      fragmentPart = URLDecoder.decode(fragmentPart, "UTF-8");
+      fragmentPart = URLDecoder.decode(fragmentPart, UTF_8);
     } catch (Exception e) {
       /// bluh
     }
@@ -195,11 +193,11 @@ public class AjaxURLNormalizer implements URLNormalizer {
     String hex = null;
     StringBuilder sb = new StringBuilder(fragmentPart.length());
 
-    for (byte b : fragmentPart.getBytes(utf8)) {
+    for (byte b : fragmentPart.getBytes(UTF_8)) {
       if (b < 33) {
         sb.append('%');
 
-        hex = Integer.toHexString(b & 0xFF).toUpperCase();
+        hex = Integer.toHexString(b & 0xFF).toUpperCase(Locale.ROOT);
 
         // Prevent odd # chars
         if (hex.length() % 2 != 0) {

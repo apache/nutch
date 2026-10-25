@@ -16,12 +16,13 @@
  */
 package org.apache.nutch.net.urlnormalizer.regex;
 
-import java.lang.invoke.MethodHandles;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,13 +32,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.XmlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -50,7 +50,7 @@ import org.xml.sax.InputSource;
 /**
  * Allows users to do regex substitutions on all/any URLs that are encountered,
  * which is useful for stripping session IDs from URLs.
- * 
+ *
  * <p>
  * This class uses the <code>urlnormalizer.regex.file</code> property. It should be
  * set to the file name of an xml file which should contain the patterns and
@@ -60,9 +60,6 @@ import org.xml.sax.InputSource;
  * This class also supports different rules depending on the scope. Please see
  * the javadoc in {@link org.apache.nutch.net.URLNormalizers} for more details.
  * </p>
- * 
- * @author Luke Baker
- * @author Andrzej Bialecki
  */
 public class RegexURLNormalizer extends Configured implements URLNormalizer {
 
@@ -70,7 +67,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
-   * Class which holds a compiled pattern and its corresponding substition
+   * Class which holds a compiled pattern and its corresponding substitution
    * string.
    */
   private static class Rule {
@@ -107,12 +104,12 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
   }
 
   /**
-   * Constructor which can be passed the configuration file name, 
+   * Constructor which can be passed the configuration file name,
    * so it doesn't look in other configuration files for it.
    * @param conf A populated {@link Configuration}
    * @param filename A specific configuration file
    * @throws IOException if there is an error locatingf the specified input file
-   * @throws PatternSyntaxException If there is an error whilst interpreting 
+   * @throws PatternSyntaxException If there is an error whilst interpreting
    * rule patterns.
    */
   public RegexURLNormalizer(Configuration conf, String filename)
@@ -165,7 +162,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
    * This function does the replacements by iterating through all the regex
    * patterns. It accepts a string url as input and returns the altered string.
    * @param urlString A url string to process
-   * @param scope The identifier for a specific scoped rule 
+   * @param scope The identifier for a specific scoped rule
    * @return The altered string
    */
   public String regexNormalize(String urlString, String scope) {
@@ -194,7 +191,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
     }
     Iterator<Rule> i = curRules.iterator();
     while (i.hasNext()) {
-      Rule r = (Rule) i.next();
+      Rule r = i.next();
 
       Matcher matcher = r.pattern.matcher(urlString);
 
@@ -213,7 +210,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
   private List<Rule> readConfigurationFile(String filename) {
     LOG.info("loading {}", filename);
     try {
-      FileReader reader = new FileReader(filename);
+      FileReader reader = new FileReader(filename, StandardCharsets.UTF_8);
       return readConfiguration(reader);
     } catch (Exception e) {
       LOG.error("Error loading rules from '{}':", filename, e);
@@ -226,7 +223,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
     try {
 
       // borrowed heavily from code in Configuration.java
-      Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+      Document doc = XmlUtil.newSecureDocumentBuilderFactory().newDocumentBuilder()
           .parse(new InputSource(reader));
       Element root = doc.getDocumentElement();
       if (!"regex-normalize".equals(root.getTagName())) {
@@ -284,7 +281,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
    * Spits out patterns and substitutions that are in the configuration file.
    * @param args accepts one argument which is a scope
    * @throws IOException Can be thrown by {@link RegexURLNormalizer#normalize(String, String)}
-   * @throws PatternSyntaxException If there is an error with the provided scope 
+   * @throws PatternSyntaxException If there is an error with the provided scope
    * rule pattern.
    */
   public static void main(String args[]) throws PatternSyntaxException,
@@ -310,9 +307,9 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
         if (URLNormalizers.SCOPE_DEFAULT.equals(scope))
           continue;
         System.out.println("* Rules for '" + scope + "' scope:");
-        i = ((List<Rule>) scopedRules.get(scope)).iterator();
+        i = scopedRules.get(scope).iterator();
         while (i.hasNext()) {
-          Rule r = (Rule) i.next();
+          Rule r = i.next();
           System.out.print("  " + r.pattern.pattern() + " -> ");
           System.out.println(r.substitution);
         }

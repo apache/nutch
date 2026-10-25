@@ -21,9 +21,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Date;
-import java.util.Map.Entry;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map.Entry;
 
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
@@ -337,7 +338,8 @@ public class HostDatum implements Writable, Cloneable {
     buf.append("\t");
     buf.append(Float.toString(score));
     buf.append("\t");
-    buf.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(lastCheck));
+    buf.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT)
+        .format(lastCheck));
     buf.append("\t");
     buf.append(homepageUrl);
     buf.append("\t");

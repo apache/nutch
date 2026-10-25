@@ -17,7 +17,6 @@
 package org.apache.nutch.indexer;
 
 import org.apache.hadoop.conf.Configurable;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.plugin.Pluggable;
 
 import java.io.IOException;
@@ -29,15 +28,6 @@ public interface IndexWriter extends Pluggable, Configurable {
    * The name of the extension point.
    */
   final static String X_POINT_ID = IndexWriter.class.getName();
-
-  /**
-   * @param conf Nutch configuration
-   * @param name target name of the {@link IndexWriter} to be opened
-   * @throws IOException Some exception thrown by some writer.
-   * @deprecated use {@link #open(IndexWriterParams)}} instead.  
-   */
-  @Deprecated
-  public void open(Configuration conf, String name) throws IOException;
 
   /**
    * Initializes the internal variables from a given index writer configuration.

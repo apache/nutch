@@ -34,18 +34,16 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * An {@link org.apache.nutch.indexer.IndexingFilter} that add a
  * <code>lang</code> (language) field to the document.
- * 
+ *
  * It tries to find the language of the document by:
  * <ul>
  * <li>First, checking if {@link HTMLLanguageParser} add some language
  * information</li>
  * <li>Then, checking if a <code>Content-Language</code> HTTP header can be
  * found</li>
- * <li>Finaly by analyzing the document content</li>
+ * <li>Finally by analyzing the document content</li>
  * </ul>
- * 
- * @author Sami Siren
- * @author Jerome Charron
+ *
  */
 public class LanguageIndexingFilter implements IndexingFilter {
 
@@ -77,9 +75,9 @@ public class LanguageIndexingFilter implements IndexingFilter {
     }
 
     if (!indexLangs.isEmpty() && !indexLangs.contains(lang)) {
-    	return null;
+      return null;
     }
-    
+
     doc.add("lang", lang);
 
     return doc;

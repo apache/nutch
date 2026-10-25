@@ -45,7 +45,7 @@ public class TestFeedParser extends TikaParserTest {
    * <p>
    * The test method: tests out the following 2 asserts:
    * </p>
-   * 
+   *
    * <ul>
    * <li>There are 3 outlinks read from the sample rss file</li>
    * <li>The 3 outlinks read are in fact the correct outlinks from the sample

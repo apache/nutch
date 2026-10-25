@@ -16,26 +16,25 @@
  */
 package org.apache.nutch.tools;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.ByteArrayInputStream;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
-import com.google.common.base.Strings;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.codec.digest.DigestUtils;
-
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -46,12 +45,12 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.DumpFileUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.TableUtil;
-
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 /**
  * The file dumper tool enables one to reverse generate the raw content from
  * Nutch segment data directories.
@@ -68,11 +67,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Upon successful completion the tool displays a very convenient JSON snippet
  * detailing the mimetype classifications and the counts of documents which fall
  * into those classifications. An example is as follows:
- * 
+ *
  * <pre>
  * {@code
- * INFO: File Types: 
- *   TOTAL Stats:    
+ * INFO: File Types:
+ *   TOTAL Stats:
  *    [
  *     {"mimeType":"application/xml","count":"19"}
  *     {"mimeType":"image/png","count":"47"}
@@ -85,8 +84,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *     {"mimeType":"application/octet-stream","count":"40"}
  *     {"mimeType":"text/html","count":"1863"}
  *   ]
- *   
- *   FILTER Stats: 
+ *
+ *   FILTER Stats:
  *   [
  *     {"mimeType":"image/png","count":"47"}
  *     {"mimeType":"image/jpeg","count":"141"}
@@ -111,7 +110,7 @@ public class FileDumper {
    * Dumps the reverse engineered raw content from the provided segment
    * directories if a parent directory contains more than one segment, otherwise
    * a single segment can be passed as an argument.
-   * 
+   *
    * @param outputDir
    *          the directory you wish to dump the raw content to. This directory
    *          will be created.
@@ -130,7 +129,7 @@ public class FileDumper {
    * @param reverseURLDump whether to reverse the URLs when they are written to disk
    * @throws Exception if there is a fatal error dumping files to disk
    */
-  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes, boolean 
+  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes, boolean
           flatDir, boolean mimeTypeStats, boolean reverseURLDump) throws Exception {
     if (mimeTypes == null) {
       LOG.info("Accepting all mimetypes.");
@@ -169,110 +168,107 @@ public class FileDumper {
             continue;
           }
 
-          SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(file));
+          try (SequenceFile.Reader reader = new SequenceFile.Reader(conf,
+              SequenceFile.Reader.file(file))) {
 
-          Writable key = (Writable) reader.getKeyClass().getConstructor().newInstance();
-          Content content = null;
+            Writable key = (Writable) reader.getKeyClass().getConstructor().newInstance();
+            Content content = null;
 
-          while (reader.next(key)) {
-            content = new Content();
-            reader.getCurrentValue(content);
-            String url = key.toString();
-            String baseName = FilenameUtils.getBaseName(url);
-            String extension = FilenameUtils.getExtension(url);
-            if (extension == null || (extension != null && extension.equals(""))) {
-              extension = "html";
-            }
-
-            ByteArrayInputStream bas = null;
-            Boolean filter = false;
-            try {
-              bas = new ByteArrayInputStream(content.getContent());
-              String mimeType = new Tika().detect(content.getContent());
-              collectStats(typeCounts, mimeType);
-              if (mimeType != null) {
-                if (mimeTypes == null
-                    || Arrays.asList(mimeTypes).contains(mimeType)) {
-                  collectStats(filteredCounts, mimeType);
-                  filter = true;
-                }
+            while (reader.next(key)) {
+              content = new Content();
+              reader.getCurrentValue(content);
+              String url = key.toString();
+              String baseName = FilenameUtils.getBaseName(url);
+              String extension = FilenameUtils.getExtension(url);
+              if (extension == null || (extension != null && extension.equals(""))) {
+                extension = "html";
               }
-            } catch (Exception e) {
-              e.printStackTrace();
-              LOG.warn("Tika is unable to detect type for: [{}]", url);
-            } finally {
-              if (bas != null) {
-                try {
-                  bas.close();
-                } catch (Exception ignore) {
-                }
-              }
-            }
 
-            if (filter) {
-              if (!mimeTypeStats) {
-                String md5Ofurl = DumpFileUtil.getUrlMD5(url);
-
-                String fullDir = outputDir.getAbsolutePath();
-                if (!flatDir && !reverseURLDump) {
-                  fullDir = DumpFileUtil.createTwoLevelsDirectory(fullDir, md5Ofurl);
-                }
-
-                if (!Strings.isNullOrEmpty(fullDir)) {
-                  String outputFullPath;
-
-                  if (reverseURLDump) {
-                    String[] reversedURL = TableUtil.reverseUrl(url).split(":");
-                    reversedURL[0] = reversedURL[0].replace('.', '/');
-
-                    String reversedURLPath = reversedURL[0] + "/" + DigestUtils.sha256Hex(url).toUpperCase();
-                    outputFullPath = String.format("%s/%s", fullDir, reversedURLPath);
-
-                    // We'll drop the trailing file name and create the nested structure if it doesn't already exist.
-                    String[] splitPath = outputFullPath.split("/");
-                    File fullOutputDir = new File(org.apache.commons.lang3.StringUtils.join(Arrays.copyOf(splitPath, splitPath.length - 1), "/"));
-
-                    if (!fullOutputDir.exists()) {
-                      if(!fullOutputDir.mkdirs());
-                        throw new Exception("Unable to create: ["
-                              + fullOutputDir.getAbsolutePath() + "]"); 
-                    }
-                  } else {
-                    outputFullPath = String.format("%s/%s", fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName, extension));
+              ByteArrayInputStream bas = null;
+              Boolean filter = false;
+              try {
+                bas = new ByteArrayInputStream(content.getContent());
+                String mimeType = new Tika().detect(content.getContent());
+                collectStats(typeCounts, mimeType);
+                if (mimeType != null) {
+                  if (mimeTypes == null
+                      || Arrays.asList(mimeTypes).contains(mimeType)) {
+                    collectStats(filteredCounts, mimeType);
+                    filter = true;
                   }
-                  filenameToUrl.put(outputFullPath, url);
-                  File outputFile = new File(outputFullPath);
+                }
+              } catch (Exception e) {
+                e.printStackTrace();
+                LOG.warn("Tika is unable to detect type for: [{}]", url);
+              } finally {
+                if (bas != null) {
+                  try {
+                    bas.close();
+                  } catch (Exception ignore) {
+                  }
+                }
+              }
 
-                  if (!outputFile.exists()) {
-                    LOG.info("Writing: [{}]", outputFullPath);
+              if (filter) {
+                if (!mimeTypeStats) {
+                  String md5Ofurl = DumpFileUtil.getUrlMD5(url);
 
-                    // Modified to prevent FileNotFoundException (Invalid Argument)
-                    FileOutputStream output = null;
-                    try {
-                      output = new FileOutputStream(outputFile);
-                      IOUtils.write(content.getContent(), output);
-                    } catch (Exception e) {
-                      LOG.warn("Write Error: [{}]", outputFullPath);
-                      e.printStackTrace();
-                    } finally {
-                      if (output != null) {
-                        output.flush();
-                        try {
-                          output.close();
-                        } catch (Exception ignore) {
-                        }
+                  String fullDir = outputDir.getAbsolutePath();
+                  if (!flatDir && !reverseURLDump) {
+                    fullDir = DumpFileUtil.createTwoLevelsDirectory(fullDir, md5Ofurl);
+                  }
+
+                  if (!Strings.isNullOrEmpty(fullDir)) {
+                    String outputFullPath;
+
+                    if (reverseURLDump) {
+                      String[] reversedURL = TableUtil.reverseUrl(url).split(":");
+                      reversedURL[0] = reversedURL[0].replace('.', '/');
+
+                      String reversedURLPath = reversedURL[0] + "/"
+                          + DigestUtils.sha256Hex(url).toUpperCase(Locale.ROOT);
+                      outputFullPath = String.format(Locale.ROOT, "%s/%s",
+                          fullDir, reversedURLPath);
+
+                      // We'll drop the trailing file name and create the nested structure if it doesn't already exist.
+                      String[] splitPath = outputFullPath.split("/");
+                      File fullOutputDir = new File(org.apache.commons.lang3.StringUtils.join(Arrays.copyOf(splitPath, splitPath.length - 1), "/"));
+
+                      if (!fullOutputDir.exists()) {
+                        if(!fullOutputDir.mkdirs());
+                          throw new Exception("Unable to create: ["
+                                + fullOutputDir.getAbsolutePath() + "]");
                       }
+                    } else {
+                      outputFullPath = String.format(Locale.ROOT, "%s/%s",
+                          fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName,
+                              extension));
                     }
-                    fileCount++;
-                  } else {
-                    LOG.info("Skipping writing: [{}]: file already exists",
-                        outputFullPath);
+                    filenameToUrl.put(outputFullPath, url);
+                    File outputFile = new File(outputFullPath);
+
+                    if (!outputFile.exists()) {
+                      LOG.info("Writing: [{}]", outputFullPath);
+
+                      // Modified to prevent FileNotFoundException (Invalid Argument)
+                      try (FileOutputStream output = new FileOutputStream(
+                          outputFile)) {
+                        IOUtils.write(content.getContent(), output);
+                        output.flush();
+                      } catch (Exception e) {
+                        LOG.warn("Write Error: [{}]", outputFullPath);
+                        e.printStackTrace();
+                      }
+                      fileCount++;
+                    } else {
+                      LOG.info("Skipping writing: [{}]: file already exists",
+                          outputFullPath);
+                    }
                   }
                 }
               }
             }
           }
-          reader.close();
         } finally {
           if (doutputStream != null) {
             try {
@@ -282,23 +278,25 @@ public class FileDumper {
           }
         }
       }
-      //save filenameToUrl in a json file for each segment there is one mapping file 
-      String filenameToUrlFilePath = String.format("%s/%s_filenameToUrl.json", outputDir.getAbsolutePath(), segment.getName() );
+      //save filenameToUrl in a json file for each segment there is one mapping file
+      String filenameToUrlFilePath = String.format(Locale.ROOT,
+          "%s/%s_filenameToUrl.json", outputDir.getAbsolutePath(),
+          segment.getName());
       new ObjectMapper().writeValue(new File(filenameToUrlFilePath), filenameToUrl);
-      
+
     }
     LOG.info("Dumper File Stats: {}",
         DumpFileUtil.displayFileTypes(typeCounts, filteredCounts));
 
     if (mimeTypeStats) {
-      System.out.println("Dumper File Stats: " 
+      System.out.println("Dumper File Stats: "
           + DumpFileUtil.displayFileTypes(typeCounts, filteredCounts));
     }
   }
 
   /**
    * Main method for invoking this tool
-   * 
+   *
    * @param args
    *          1) output directory (which will be created) to host the raw data
    *          and 2) a directory containing one or more segments.
@@ -308,41 +306,37 @@ public class FileDumper {
     // boolean options
     Option helpOpt = new Option("h", "help", false, "show this help message");
     // argument options
-    @SuppressWarnings("static-access")
-    Option outputOpt = OptionBuilder
-    .withArgName("outputDir")
-    .hasArg()
-    .withDescription(
+    Option outputOpt = Option.builder("outputDir")
+        .argName("outputDir")
+        .hasArg()
+        .desc(
         "output directory (which will be created) to host the raw data")
-    .create("outputDir");
-    @SuppressWarnings("static-access")
-    Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
-    .withDescription("the segment(s) to use").create("segment");
-    @SuppressWarnings("static-access")
-    Option mimeOpt = OptionBuilder
-    .withArgName("mimetype")
-    .hasArgs()
-    .withDescription(
+        .build();
+    Option segOpt = Option.builder("segment")
+        .argName("segment").hasArgs()
+        .desc("the segment(s) to use")
+        .build();
+    Option mimeOpt = Option.builder("mimetype")
+        .argName("mimetype")
+        .hasArgs()
+        .desc(
         "an optional list of mimetypes to dump, excluding all others. Defaults to all.")
-    .create("mimetype");
-    @SuppressWarnings("static-access")
-    Option mimeStat = OptionBuilder
-    .withArgName("mimeStats")
-    .withDescription(
+        .build();
+    Option mimeStat = Option.builder("mimeStats")
+        .argName("mimeStats")
+        .desc(
         "only display mimetype stats for the segment(s) instead of dumping file.")
-    .create("mimeStats");
-    @SuppressWarnings("static-access")
-    Option dirStructureOpt = OptionBuilder
-    .withArgName("flatdir")
-    .withDescription(
+        .build();
+    Option dirStructureOpt = Option.builder("flatdir")
+        .argName("flatdir")
+        .desc(
         "optionally specify that the output directory should only contain files.")
-    .create("flatdir");
-    @SuppressWarnings("static-access")
-    Option reverseURLOutput = OptionBuilder
-    .withArgName("reverseUrlDirs")
-    .withDescription(
+        .build();
+    Option reverseURLOutput = Option.builder("reverseUrlDirs")
+        .argName("reverseUrlDirs")
+        .desc(
         "optionally specify to use reverse URL folders for output structure.")
-    .create("reverseUrlDirs");
+        .build();
 
     // create the options
     Options options = new Options();
@@ -354,13 +348,13 @@ public class FileDumper {
     options.addOption(dirStructureOpt);
     options.addOption(reverseURLOutput);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     try {
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("outputDir")
           || (!line.hasOption("segment"))) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("FileDumper", options, true);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp("FileDumper", "", options, "", true);
         return;
       }
 

@@ -30,8 +30,8 @@ import org.apache.hadoop.conf.Configuration.IntegerRanges;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.Counters;
-import org.apache.hadoop.mapred.Counters.Counter;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -67,7 +67,7 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
 
   /** {@link Context} to collect all values in a {@link List} */
   private class DummyContext extends Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context {
-    
+
     private DummyContext() {
       reducer.super();
     }
@@ -105,12 +105,12 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
 
     @Override
     public Counter getCounter(Enum<?> arg0) {
-      return dummyCounters.getGroup("dummy").getCounterForName("dummy");
+      return dummyCounters.findCounter(arg0);
     }
 
     @Override
     public Counter getCounter(String arg0, String arg1) {
-      return dummyCounters.getGroup("dummy").getCounterForName("dummy");
+      return dummyCounters.findCounter(arg0, arg1);
     }
 
     @Override
@@ -127,7 +127,7 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
     public float getProgress() {
       return 1f;
     }
-    
+
     @Override
     public OutputCommitter getOutputCommitter() {
       throw new UnsupportedOperationException("Dummy context without committer");
@@ -144,7 +144,7 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
     }
 
     @Override
-    public TaskAttemptID getTaskAttemptID() throws UnsupportedOperationException { 
+    public TaskAttemptID getTaskAttemptID() throws UnsupportedOperationException {
       throw new UnsupportedOperationException("Dummy context without TaskAttemptID");
     }
 
@@ -230,12 +230,14 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
 
     @Override
     @Deprecated
+    // Implements deprecated Hadoop DistributedCache API; required by JobContext.
     public Path[] getLocalCacheArchives() throws IOException {
       return null;
     }
 
     @Override
     @Deprecated
+    // Implements deprecated Hadoop DistributedCache API; required by JobContext.
     public Path[] getLocalCacheFiles() throws IOException {
       return null;
     }
@@ -317,6 +319,7 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
 
     @Override
     @Deprecated
+    // Implements deprecated Hadoop DistributedCache API; required by JobContext.
     public boolean getSymlink() {
       return false;
     }
@@ -342,7 +345,7 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
    * run
    * {@link CrawlDbReducer#reduce(Text, Iterator, OutputCollector, Reporter)}
    * and return the CrawlDatum(s) which would have been written into CrawlDb
-   * 
+   *
    * @param values
    *          list of input CrawlDatums
    * @return list of resulting CrawlDatum(s) in CrawlDb
@@ -368,7 +371,7 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
    * run
    * {@link CrawlDbReducer#reduce(Text, Iterator, OutputCollector, Reporter)}
    * and return the CrawlDatum(s) which would have been written into CrawlDb
-   * 
+   *
    * @param dbDatum
    *          previous CrawlDatum in CrawlDb
    * @param fetchDatum

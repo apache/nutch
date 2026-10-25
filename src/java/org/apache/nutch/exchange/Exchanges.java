@@ -22,6 +22,7 @@ import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.plugin.PluginRuntimeException;
+import org.apache.nutch.util.XmlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -104,7 +105,7 @@ public class Exchanges {
     final List<ExchangeConfig> configList = new LinkedList<>();
 
     try {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilderFactory factory = XmlUtil.newSecureDocumentBuilderFactory();
       DocumentBuilder builder = factory.newDocumentBuilder();
       Element rootElement = builder.parse(inputSource).getDocumentElement();
       NodeList exchangeList = rootElement.getElementsByTagName("exchange");

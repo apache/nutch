@@ -20,7 +20,7 @@
   <import file="../build-plugin.xml"/>
 
   <!-- Add compilation dependencies to classpath -->
-  <path id="plugin.deps">    
+  <path id="plugin.deps">
     <fileset dir="${nutch.root}/build">
       <include name="**/lib-http/*.jar" />
     </fileset>

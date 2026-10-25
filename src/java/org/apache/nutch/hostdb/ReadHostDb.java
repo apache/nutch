@@ -44,11 +44,10 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.SegmentReaderUtil;
 
-import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlScript;
-import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.MapContext;
+import org.apache.nutch.util.JexlUtil;
 
 /**
  * @see <a href='https://commons.apache.org/proper/commons-jexl/reference/syntax.html'>Commons</a>
@@ -77,11 +76,7 @@ public class ReadHostDb extends Configured implements Tool {
       fieldHeader = context.getConfiguration().getBoolean(HOSTDB_DUMP_HEADER, true);
       String expr = context.getConfiguration().get(HOSTDB_FILTER_EXPRESSION);
       if (expr != null) {
-        // Create or retrieve a JexlEngine
-        JexlEngine jexl = new JexlBuilder().silent(true).strict(true).create();
-        
-        // Create an expression object
-        this.expr = jexl.createScript(expr);
+        this.expr = JexlUtil.parseExpression(context.getConfiguration(), expr);
       }
     }
 
@@ -91,11 +86,11 @@ public class ReadHostDb extends Configured implements Tool {
         context.write(new Text("hostname"), new Text("unfetched\tfetched\tgone\tredirTemp\tredirPerm\tnotModified\tnumRecords\tdnsFail\tcnxFail\tsumFail\tscore\tlastCheck\thomepage\tmetadata"));
         fieldHeader = false;
       }
-      
+
       if (expr != null) {
         // Create a context and add data
         JexlContext jcontext = new MapContext();
-        
+
         // Set some fixed variables
         jcontext.set("unfetched", datum.getUnfetched());
         jcontext.set("fetched", datum.getFetched());
@@ -108,7 +103,7 @@ public class ReadHostDb extends Configured implements Tool {
         jcontext.set("numRecords", datum.numRecords());
         jcontext.set("dnsFailures", datum.getDnsFailures());
         jcontext.set("connectionFailures", datum.getConnectionFailures());
-        
+
         // Set metadata variables
         if (datum.hasMetaData()) {
           for (Map.Entry<Writable, Writable> entry : datum.getMetaData()
@@ -128,7 +123,7 @@ public class ReadHostDb extends Configured implements Tool {
             }
           }
         }
-        
+
         // Filter this record if evaluation did not pass
         try {
           if (!Boolean.TRUE.equals(expr.execute(jcontext))) {
@@ -138,19 +133,19 @@ public class ReadHostDb extends Configured implements Tool {
           LOG.info("{} for {}", e.toString(), key.toString());
         }
       }
-      
+
       if (dumpHomepages) {
         if (datum.hasHomepageUrl()) {
           context.write(new Text(datum.getHomepageUrl()), emptyText);
         }
         return;
       }
-      
+
       if (dumpHostnames) {
         context.write(key, emptyText);
         return;
       }
-      
+
       // Write anyway
       context.write(key, new Text(datum.toString()));
     }
@@ -179,7 +174,7 @@ public class ReadHostDb extends Configured implements Tool {
     }
     conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
     conf.set("mapreduce.output.textoutputformat.separator", "\t");
-    
+
     Job job = Job.getInstance(conf, "Nutch ReadHostDb");
     job.setJarByClass(ReadHostDb.class);
 
@@ -213,20 +208,20 @@ public class ReadHostDb extends Configured implements Tool {
     LOG.info("ReadHostDb: finished, elapsed: {} ms", stopWatch.getTime(
         TimeUnit.MILLISECONDS));
   }
-  
+
   private void getHostDbRecord(Path hostDb, String host) throws Exception {
     Configuration conf = getConf();
     SequenceFile.Reader[] readers = SegmentReaderUtil.getReaders(hostDb, conf);
 
     Class<?> keyClass = readers[0].getKeyClass();
     Class<?> valueClass = readers[0].getValueClass();
-    
+
     if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
       throw new IOException("Incompatible key (" + keyClass.getName() + ")");
-      
+
     Text key = (Text) keyClass.getConstructor().newInstance();
     HostDatum value = (HostDatum) valueClass.getConstructor().newInstance();
-    
+
     for (int i = 0; i < readers.length; i++) {
       while (readers[i].next(key, value)) {
         if (host.equals(key.toString())) {
@@ -234,7 +229,7 @@ public class ReadHostDb extends Configured implements Tool {
         }
       }
       readers[i].close();
-    }    
+    }
   }
 
   public static void main(String args[]) throws Exception {

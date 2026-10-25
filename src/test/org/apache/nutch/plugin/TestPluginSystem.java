@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Properties;
@@ -28,12 +29,17 @@ import java.util.Properties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.util.NutchConfiguration;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for the plugin system
@@ -114,7 +120,7 @@ public class TestPluginSystem {
   }
 
   /**
-   *  
+   *
    */
   @Test
   public void testGetExtensionAndAttributes() {
@@ -151,8 +157,8 @@ public class TestPluginSystem {
   }
 
   /**
-   * 
-   *  
+   *
+   *
    */
   @Test
   public void testGetClassLoader() {
@@ -197,7 +203,7 @@ public class TestPluginSystem {
 
   /**
    * Creates some Dummy Plugins
-   * 
+   *
    * @param pCount
    */
   private void createDummyPlugins(int pCount) {
@@ -220,7 +226,7 @@ public class TestPluginSystem {
 
   /**
    * Creates an ResourceFile
-   * 
+   *
    * @param pFolderPath
    * @throws FileNotFoundException
    * @throws IOException
@@ -235,7 +241,7 @@ public class TestPluginSystem {
 
   /**
    * Deletes files in path
-   * 
+   *
    * @param path
    * @throws IOException
    */
@@ -250,14 +256,14 @@ public class TestPluginSystem {
 
   /**
    * Creates an Plugin Manifest File
-   * 
+   *
    * @param i
    * @param pFolderPath
    * @throws IOException
    */
   private void createPluginManifest(int i, String pFolderPath)
       throws IOException {
-    FileWriter out = new FileWriter(pFolderPath + File.separator + "plugin.xml");
+    FileWriter out = new FileWriter(pFolderPath + File.separator + "plugin.xml", StandardCharsets.UTF_8);
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
         + "<!--this is just a simple plugin for testing issues.-->"
         + "<plugin id=\"org.apache.nutch.plugin."

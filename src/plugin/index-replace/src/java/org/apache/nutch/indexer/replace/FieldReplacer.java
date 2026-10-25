@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
  * A checkAndReplace method is provided where you can simultaneously check if
  * the field matches this replacer and if the pattern matches your field value.
  *
- * @author Peter Ciuffetti
  */
 public class FieldReplacer {
 

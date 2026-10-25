@@ -18,11 +18,11 @@ package org.apache.nutch.plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +31,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.XmlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -43,8 +44,7 @@ import org.xml.sax.SAXException;
  * The <code>PluginManifestParser</code> provides a mechanism for
  * parsing Nutch plugin manifest files (<code>plugin.xml</code>) contained
  * in a {@link java.lang.String[]} of plugin directories.
- * 
- * @author joa23
+ *
  */
 public class PluginManifestParser {
   private static final String ATTR_NAME = "name";
@@ -66,7 +66,7 @@ public class PluginManifestParser {
 
   /**
    * Returns a list of all found plugin descriptors.
-   * 
+   *
    * @param pluginFolders
    *          folders to search plugins from
    * @return A {@link Map} of all found {@link PluginDescriptor}s.
@@ -105,7 +105,7 @@ public class PluginManifestParser {
    * Return the named plugin folder. If the name is absolute then it is
    * returned. Otherwise, for relative names, the classpath is scanned.
    * @param name the name of a plugin folder
-   * @return the plugin directory as a {@link File} 
+   * @return the plugin directory as a {@link File}
    */
   public File getPluginFolder(String name) {
     File directory = new File(name);
@@ -124,10 +124,7 @@ public class PluginManifestParser {
       String path = url.getPath();
       if (WINDOWS && path.startsWith("/")) // patch a windows bug
         path = path.substring(1);
-      try {
-        path = URLDecoder.decode(path, "UTF-8"); // decode the url path
-      } catch (UnsupportedEncodingException e) {
-      }
+      path = URLDecoder.decode(path, StandardCharsets.UTF_8); // decode the url path
       directory = new File(path);
     } else if (!directory.exists()) {
       LOG.warn("Plugins: directory not found: {}", name);
@@ -161,7 +158,7 @@ public class PluginManifestParser {
    */
   private Document parseXML(URL url)
           throws SAXException, IOException, ParserConfigurationException {
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilderFactory factory = XmlUtil.newSecureDocumentBuilderFactory();
     DocumentBuilder builder = factory.newDocumentBuilder();
     return builder.parse(url.openStream());
   }
@@ -183,7 +180,7 @@ public class PluginManifestParser {
     }
     PluginDescriptor pluginDescriptor = new PluginDescriptor(id, version, name,
             providerName, pluginClazz, pPath, this.conf);
-    LOG.debug("plugin: id={} name={} version={} provider={} class={}", 
+    LOG.debug("plugin: id={} name={} version={} provider={} class={}",
             id, name, version, providerName, pluginClazz);
     parseExtension(rootElement, pluginDescriptor);
     parseExtensionPoints(rootElement, pluginDescriptor);

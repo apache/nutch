@@ -43,7 +43,6 @@ import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
-import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -78,7 +77,7 @@ import java.util.concurrent.TimeUnit;
  * </dl>
  * <p>
  * Example:
- * 
+ *
  * <pre>
  *  http://www.nutch.org/ \t nutch.score=10 \t nutch.fetchInterval=2592000 \t userType=open_source
  * </pre>
@@ -319,7 +318,7 @@ public class Injector extends NutchTool implements Tool {
       update = conf.getBoolean("db.injector.update", false);
       LOG.info("Injector: overwrite: {}", overwrite);
       LOG.info("Injector: update: {}", update);
-      
+
       // Initialize cached counter references
       initCounters(context);
     }
@@ -336,7 +335,7 @@ public class Injector extends NutchTool implements Tool {
 
     /**
      * Merge the input records of one URL as per rules below :
-     * 
+     *
      * <pre>
      * 1. If there is ONLY new injected record ==&gt; emit injected record
      * 2. If there is ONLY old record          ==&gt; emit existing record
@@ -346,7 +345,7 @@ public class Injector extends NutchTool implements Tool {
      *        (i)  If 'update' is false        ==&gt; emit existing record
      *        (ii) If 'update' is true         ==&gt; update existing record and emit it
      * </pre>
-     * 
+     *
      * For more details @see NUTCH-1405
      */
     @Override
@@ -638,25 +637,21 @@ public class Injector extends NutchTool implements Tool {
   }
 
   /**
-   * Used by the Nutch REST service
+   * Programmatic entry point for {@link org.apache.nutch.util.NutchTool} callers.
    */
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId)
       throws Exception {
     if(args.size()<1){
-      throw new IllegalArgumentException("Required arguments <url_dir> or <seedName>");
+      throw new IllegalArgumentException("Required argument " + Nutch.ARG_SEEDDIR);
     }
     Path input;
     Object path = null;
     if(args.containsKey(Nutch.ARG_SEEDDIR)) {
       path = args.get(Nutch.ARG_SEEDDIR);
     }
-    else if(args.containsKey(Nutch.ARG_SEEDNAME)) {
-      path = NutchServer.getInstance().getSeedManager().
-          getSeedList((String)args.get(Nutch.ARG_SEEDNAME)).getSeedFilePath();
-    }
     else {
-      throw new IllegalArgumentException("Required arguments <url_dir> or <seedName>");
+      throw new IllegalArgumentException("Required argument " + Nutch.ARG_SEEDDIR);
     }
     if(path instanceof Path) {
       input = (Path) path;

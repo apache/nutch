@@ -28,7 +28,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 
 /**
- * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class ParseStatus implements Writable {
 
@@ -56,7 +55,7 @@ public class ParseStatus implements Writable {
   // Secondary failure codes go here:
 
   /**
-   * Parsing failed. An Exception occured (which may be retrieved from the
+   * Parsing failed. An Exception occurred (which may be retrieved from the
    * arguments).
    */
   public static final short FAILED_EXCEPTION = 200;
@@ -187,6 +186,10 @@ public class ParseStatus implements Writable {
    */
   public boolean isSuccess() {
     return majorCode == SUCCESS;
+  }
+
+  public boolean isFailed() {
+    return majorCode == FAILED;
   }
 
   /**

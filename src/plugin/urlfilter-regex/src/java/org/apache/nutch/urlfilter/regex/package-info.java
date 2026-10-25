@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-/** 
+/**
  * URL filter plugin to include and/or exclude URLs matching Java regular expressions.
  */
 package org.apache.nutch.urlfilter.regex;

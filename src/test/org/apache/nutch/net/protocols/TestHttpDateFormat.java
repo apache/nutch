@@ -31,7 +31,7 @@ public class TestHttpDateFormat {
 
   /**
    * Test date as string and epoche milliseconds:
-   * 
+   *
    * <pre>
    *   $> date --date "Sun, 06 Nov 1994 08:49:37 GMT" '+%s'
    *   784111777

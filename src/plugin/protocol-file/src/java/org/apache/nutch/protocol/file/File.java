@@ -18,14 +18,11 @@ package org.apache.nutch.protocol.file;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
@@ -34,6 +31,8 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.protocol.RobotRulesParser;
 import org.apache.nutch.util.NutchConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import crawlercommons.robots.BaseRobotRules;
 
@@ -43,8 +42,6 @@ import crawlercommons.robots.BaseRobotRules;
  * Configurable parameters are {@code file.content.limit} and
  * {@code file.crawl.parent} in nutch-default.xml defined under
  * "file properties" section.
- * 
- * @author John Xing
  */
 public class File implements Protocol {
 
@@ -98,12 +95,12 @@ public class File implements Protocol {
   /**
    * Creates a {@link FileResponse} object corresponding to the url and return a
    * {@link ProtocolOutput} object as per the content received
-   * 
+   *
    * @param url
    *          Text containing the url
    * @param datum
    *          The CrawlDatum object corresponding to the url
-   * 
+   *
    * @return {@link ProtocolOutput} object for the content of the file indicated
    *         by url
    */
@@ -216,7 +213,7 @@ public class File implements Protocol {
     }
 
     if (dumpContent) {
-      System.out.print(new String(content.getContent()));
+      System.out.print(new String(content.getContent(), StandardCharsets.UTF_8));
     }
 
     file = null;

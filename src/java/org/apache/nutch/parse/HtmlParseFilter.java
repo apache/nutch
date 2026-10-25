@@ -36,8 +36,8 @@ public interface HtmlParseFilter extends Pluggable, Configurable {
    * Adds metadata or otherwise modifies a parse of HTML content, given the DOM
    * tree of a page.
    * @param content the {@link Content} for a given response
-   * @param parseResult the result of running on or more 
-   * {@link Parser}'s on the content. 
+   * @param parseResult the result of running on or more
+   * {@link Parser}'s on the content.
    * @see Parser#getParse(Content)
    * @param metaTags a populated {@link HTMLMetaTags} object
    * @param doc a {@link DocumentFragment} (DOM) which can be processed in

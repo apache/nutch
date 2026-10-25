@@ -45,7 +45,7 @@ public class DummyX509TrustManager implements X509TrustManager {
    * @throws NoSuchAlgorithmException if there is a fatal error obtaining a
    * {@link javax.net.ssl.TrustManagerFactory} for the default algorithm.
    * @see TrustManagerFactory#getDefaultAlgorithm()
-   * @throws KeyStoreException if there is a fatal error initializing the 
+   * @throws KeyStoreException if there is a fatal error initializing the
    * {@link javax.net.ssl.TrustManagerFactory} with the provided keystore.
    */
   public DummyX509TrustManager(KeyStore keystore)

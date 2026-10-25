@@ -24,7 +24,8 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Tests for parser failure handling and graceful degradation.
@@ -47,9 +48,9 @@ public class TestParserFailureHandling {
   public void testMalformedHtml() {
     // Severely malformed HTML
     String html = "<<<>>>not really html at all{{{";
-    
+
     ParseResult result = doParse(html, "text/html");
-    
+
     // Should return a result even for malformed input (not throw exception)
     assertNotNull(result, "Should return a result even for malformed input");
   }
@@ -57,7 +58,7 @@ public class TestParserFailureHandling {
   @Test
   public void testEmptyContent() {
     ParseResult result = doParse("", "text/html");
-    
+
     // Should handle empty content gracefully
     assertNotNull(result, "Should handle empty content");
   }
@@ -65,11 +66,11 @@ public class TestParserFailureHandling {
   @Test
   public void testNullBytes() {
     String url = "http://example.com/";
-    Content content = new Content(url, url, new byte[0], 
+    Content content = new Content(url, url, new byte[0],
         "text/html", new Metadata(), conf);
-    
+
     ParseResult result = parser.getParse(content);
-    
+
     // Should handle zero-length byte array
     assertNotNull(result, "Should handle zero-length content");
   }
@@ -80,11 +81,11 @@ public class TestParserFailureHandling {
     byte[] binaryContent = new byte[]{
         0x00, 0x01, 0x02, (byte)0xFF, (byte)0xFE, 0x50, 0x4B, 0x03, 0x04
     };
-    
+
     String url = "http://example.com/";
-    Content content = new Content(url, url, binaryContent, 
+    Content content = new Content(url, url, binaryContent,
         "text/html", new Metadata(), conf);
-    
+
     // Should not throw exception
     ParseResult result = parser.getParse(content);
     assertNotNull(result, "Should handle binary content declared as HTML");
@@ -93,11 +94,11 @@ public class TestParserFailureHandling {
   @Test
   public void testUnknownMimeType() {
     String url = "http://example.com/file.xyz";
-    Content content = new Content(url, url, "some content".getBytes(), 
+    Content content = new Content(url, url, "some content".getBytes(UTF_8),
         "application/x-unknown-type", new Metadata(), conf);
-    
+
     ParseResult result = parser.getParse(content);
-    
+
     // Should handle gracefully (may return failed status but not throw)
     assertNotNull(result, "Should handle unknown MIME type");
   }
@@ -110,9 +111,9 @@ public class TestParserFailureHandling {
       sb.append("VeryLongTitle");
     }
     sb.append("</title></head><body>Content</body></html>");
-    
+
     ParseResult result = doParse(sb.toString(), "text/html");
-    
+
     assertNotNull(result, "Should handle very long titles");
   }
 
@@ -129,9 +130,9 @@ public class TestParserFailureHandling {
       sb.append("</div>");
     }
     sb.append("</body></html>");
-    
+
     ParseResult result = doParse(sb.toString(), "text/html");
-    
+
     assertNotNull(result, "Should handle deeply nested HTML");
   }
 
@@ -144,9 +145,9 @@ public class TestParserFailureHandling {
       sb.append("<a href='http://example.com/page").append(i).append("'>Link ").append(i).append("</a>");
     }
     sb.append("</body></html>");
-    
+
     ParseResult result = doParse(sb.toString(), "text/html");
-    
+
     assertNotNull(result, "Should handle many links");
   }
 
@@ -158,23 +159,24 @@ public class TestParserFailureHandling {
         + "<a href='http://example.com/path#section'>Link 3</a>"
         + "<a href='http://example.com/路径'>Link 4</a>"
         + "</body></html>";
-    
+
     ParseResult result = doParse(html, "text/html");
-    
+
     assertNotNull(result, "Should handle special characters in URLs");
   }
 
   @Test
   public void testNullCharactersInContent() {
     // HTML with null characters embedded
-    byte[] htmlBytes = "<!DOCTYPE html><html><body>Before\0After</body></html>".getBytes();
-    
+    byte[] htmlBytes = "<!DOCTYPE html><html><body>Before\0After</body></html>"
+        .getBytes(UTF_8);
+
     String url = "http://example.com/";
-    Content content = new Content(url, url, htmlBytes, 
+    Content content = new Content(url, url, htmlBytes,
         "text/html", new Metadata(), conf);
-    
+
     ParseResult result = parser.getParse(content);
-    
+
     assertNotNull(result, "Should handle null characters in content");
   }
 
@@ -182,9 +184,9 @@ public class TestParserFailureHandling {
   public void testIncompleteHtml() {
     // HTML that cuts off mid-tag
     String html = "<!DOCTYPE html><html><head><title>Test</title></head><body><div>Content<a href='http://";
-    
+
     ParseResult result = doParse(html, "text/html");
-    
+
     assertNotNull(result, "Should handle incomplete HTML");
   }
 
@@ -194,9 +196,9 @@ public class TestParserFailureHandling {
         + "<script>this is { not valid javascript</script>"
         + "<title>Script Error</title>"
         + "</head><body>Content</body></html>";
-    
+
     ParseResult result = doParse(html, "text/html");
-    
+
     assertNotNull(result, "Should handle invalid JavaScript in script tags");
   }
 
@@ -206,15 +208,15 @@ public class TestParserFailureHandling {
         + "<style>this is { not: valid; css }</style>"
         + "<title>CSS Error</title>"
         + "</head><body>Content</body></html>";
-    
+
     ParseResult result = doParse(html, "text/html");
-    
+
     assertNotNull(result, "Should handle invalid CSS in style tags");
   }
 
   private ParseResult doParse(String content, String mimeType) {
     String url = "http://example.com/";
-    Content c = new Content(url, url, content.getBytes(), 
+    Content c = new Content(url, url, content.getBytes(UTF_8),
         mimeType, new Metadata(), conf);
     return parser.getParse(c);
   }

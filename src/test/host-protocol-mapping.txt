@@ -1,0 +1,35 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file defines a hostname to protocol plugin mapping. Each line takes a
+# host name followed by a tab, followed by the ID of the protocol plugin. You
+# can find the ID in the protocol plugin's plugin.xml file.
+#
+# <hostname>\t<plugin_id>\n
+# nutch.apache.org	org.apache.nutch.protocol.httpclient.Http
+# tika.apache.org	org.apache.nutch.protocol.http.Http
+#
+# If the requested host is not mapped, Nutch can choose any of the enabled
+# plugins so you can force defaults using:
+#
+# protocol:<protocol>\t<plugin_id>\n
+#
+# This example forces httpclient for all protocol in case the host is not mapped:
+protocol:http	org.apache.nutch.protocol.http.Http
+protocol:https	org.apache.nutch.protocol.okhttp.OkHttp
+nutch.apache.org	org.apache.nutch.protocol.http.Http
+square.github.io	org.apache.nutch.protocol.okhttp.OkHttp
+tika.apache.org	org.apache.nutch.protocol.httpclient.Http
+selenium.dev	org.apache.nutch.protocol.selenium.Http

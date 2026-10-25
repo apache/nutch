@@ -30,35 +30,36 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -71,6 +72,8 @@ import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.SegmentReaderUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Dump the content of a segment. */
 public class SegmentReader extends Configured implements Tool {
@@ -489,31 +492,55 @@ public class SegmentReader extends Configured implements Tool {
   }
 
   private List<Writable> getSeqRecords(Path dir, Text key) throws Exception {
-    SequenceFile.Reader[] readers = org.apache.hadoop.mapred.SequenceFileOutputFormat
-        .getReaders(getConf(), dir);
-    ArrayList<Writable> res = new ArrayList<>();
-    Class<?> keyClass = readers[0].getKeyClass();
-    Class<?> valueClass = readers[0].getValueClass();
-    if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
-      throw new IOException("Incompatible key (" + keyClass.getName() + ")");
-    WritableComparable<?> aKey = (WritableComparable<?>) keyClass.getConstructor().newInstance();
-    Writable value = (Writable) valueClass.getConstructor().newInstance();
-    for (int i = 0; i < readers.length; i++) {
-      while (readers[i].next(aKey, value)) {
-        if (aKey.equals(key)) {
-          res.add(value);
-          value = (Writable) valueClass.getConstructor().newInstance();
+    Configuration conf = getConf();
+    FileSystem fs = dir.getFileSystem(conf);
+    FileStatus[] listed = fs.listStatus(dir);
+    ArrayList<FileStatus> parts = new ArrayList<>();
+    for (FileStatus st : listed) {
+      if (!st.isFile()) {
+        continue;
+      }
+      String name = st.getPath().getName();
+      if (!name.startsWith("_") && !name.startsWith(".")) {
+        parts.add(st);
+      }
+    }
+    FileStatus[] statuses = parts.toArray(new FileStatus[0]);
+    if (statuses.length == 0) {
+      throw new IOException("No sequence file parts under " + dir);
+    }
+    Arrays.sort(statuses, Comparator.comparing(f -> f.getPath().getName()));
+    SequenceFile.Reader[] readers = new SequenceFile.Reader[statuses.length];
+    try {
+      for (int i = 0; i < statuses.length; i++) {
+        readers[i] = new SequenceFile.Reader(conf,
+            SequenceFile.Reader.file(statuses[i].getPath()));
+      }
+      ArrayList<Writable> res = new ArrayList<>();
+      Class<?> keyClass = readers[0].getKeyClass();
+      Class<?> valueClass = readers[0].getValueClass();
+      if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
+        throw new IOException("Incompatible key (" + keyClass.getName() + ")");
+      WritableComparable<?> aKey = (WritableComparable<?>) keyClass.getConstructor().newInstance();
+      Writable value = (Writable) valueClass.getConstructor().newInstance();
+      for (int i = 0; i < readers.length; i++) {
+        while (readers[i].next(aKey, value)) {
+          if (aKey.equals(key)) {
+            res.add(value);
+            value = (Writable) valueClass.getConstructor().newInstance();
+          }
         }
       }
-      readers[i].close();
+      return res;
+    } finally {
+      IOUtils.cleanupWithLogger(LOG, readers);
     }
-    return res;
   }
 
   /**
    * Try to get HTML encoding from parse metadata. Try
    * {@link Metadata#CHAR_ENCODING_FOR_CONVERSION}, then
-   * {@link Metadata#CONTENT_ENCODING} then fallback
+   * {@link Metadata#CONTENT_ENCODING} then fall back to
    * {@link java.nio.charset.StandardCharsets#UTF_8}
    * @param parseMeta a populated {@link Metadata}
    * @return {@link Charset}
@@ -543,7 +570,8 @@ public class SegmentReader extends Configured implements Tool {
     public long parseErrors = -1L;
   }
 
-  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
+      Locale.ROOT);
 
   public void list(List<Path> dirs, Writer writer) throws Exception {
     writer

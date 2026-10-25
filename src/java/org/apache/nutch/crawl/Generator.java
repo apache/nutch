@@ -33,29 +33,12 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.JexlScript;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.hadoop.conf.Configurable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.commons.jexl3.JexlScript;
-import org.apache.commons.jexl3.JexlContext;
-import org.apache.commons.jexl3.MapContext;
-import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
-import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.util.ToolRunner;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
-import org.apache.hadoop.mapreduce.Partitioner;
-import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -69,6 +52,21 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.hostdb.HostDatum;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.metrics.ErrorTracker;
@@ -83,8 +81,9 @@ import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
-import org.apache.nutch.util.SegmentReaderUtil;
 import org.apache.nutch.util.URLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generates a subset of a CrawlDb to fetch. This version allows to generate
@@ -495,7 +494,7 @@ public class Generator extends NutchTool implements Tool {
       if (!restrictStatusString.isEmpty()) {
         restrictStatus = CrawlDatum.getStatusByName(restrictStatusString);
       }
-      expr = JexlUtil.parseExpression(conf.get(GENERATOR_EXPR, null));
+      expr = JexlUtil.parseExpression(conf, conf.get(GENERATOR_EXPR, null));
       // Initialize error tracker with cached counters
       errorTracker = new ErrorTracker(NutchMetrics.GROUP_GENERATOR, context);
       // Initialize cached counter references
@@ -842,10 +841,10 @@ public class Generator extends NutchTool implements Tool {
             URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
 
       if (conf.get(GENERATOR_HOSTDB) != null) {
-        maxCountExpr = JexlUtil
-            .parseExpression(conf.get(GENERATOR_MAX_COUNT_EXPR, null));
-        fetchDelayExpr = JexlUtil
-            .parseExpression(conf.get(GENERATOR_FETCH_DELAY_EXPR, null));
+        maxCountExpr = JexlUtil.parseExpression(conf,
+            conf.get(GENERATOR_MAX_COUNT_EXPR, null));
+        fetchDelayExpr = JexlUtil.parseExpression(conf,
+            conf.get(GENERATOR_FETCH_DELAY_EXPR, null));
       }
       // Initialize error tracker
       errorTracker = new ErrorTracker(NutchMetrics.GROUP_GENERATOR, context);
@@ -1382,56 +1381,12 @@ public class Generator extends NutchTool implements Tool {
   }
 
   /**
-   * This is an old signature used for compatibility - does not specify whether
-   * or not to normalise and set the number of segments to 1
-   * 
-   * @param dbDir
-   *          Crawl database directory
-   * @param segments
-   *          Segments directory
-   * @param numLists
-   *          Number of fetch lists (partitions) per segment or number of
-   *          fetcher map tasks. (One fetch list partition is fetched in one
-   *          fetcher map task.)
-   * @param topN
-   *          Number of top URLs to be selected
-   * @param curTime
-   *          Current time in milliseconds
-   * @param filter
-   *          whether to apply filtering operation
-   * @param force
-   *          if true, and the target lockfile exists, consider it valid. If
-   *          false and the target file exists, throw an IOException.
-   * @deprecated since 1.19 use
-   *             {@link #generate(Path, Path, int, long, long, boolean, boolean, boolean, int, String, String)}
-   *             or
-   *             {@link #generate(Path, Path, int, long, long, boolean, boolean, boolean, int, String)}
-   *             in the instance that no hostdb is available
-   * @throws IOException
-   *           if an I/O exception occurs.
-   * @see LockUtil#createLockFile(Configuration, Path, boolean)
-   * @throws InterruptedException
-   *           if a thread is waiting, sleeping, or otherwise occupied, and the
-   *           thread is interrupted, either before or during the activity.
-   * @throws ClassNotFoundException
-   *           if runtime class(es) are not available
-   * @return Path to generated segment or null if no entries were selected
-   **/
-  @Deprecated
-  public Path[] generate(Path dbDir, Path segments, int numLists, long topN,
-      long curTime, boolean filter, boolean force)
-      throws IOException, InterruptedException, ClassNotFoundException {
-    return generate(dbDir, segments, numLists, topN, curTime, filter, true,
-        force, 1, null);
-  }
-
-  /**
    * This signature should be used in the instance that no hostdb is available.
    * Generate fetchlists in one or more segments. Whether to filter URLs or not
    * is read from the &quot;generate.filter&quot; property set for the job from
    * command-line. If the property is not found, the URLs are filtered. Same for
    * the normalisation.
-   * 
+   *
    * @param dbDir
    *          Crawl database directory
    * @param segments
@@ -1455,7 +1410,7 @@ public class Generator extends NutchTool implements Tool {
    *          maximum number of segments to generate
    * @param expr
    *          a Jexl expression to use in the Generator job.
-   * @see JexlUtil#parseExpression(String)
+   * @see JexlUtil#parseExpression(Configuration, String)
    * @throws IOException
    *           if an I/O exception occurs.
    * @see LockUtil#createLockFile(Configuration, Path, boolean)
@@ -1479,7 +1434,7 @@ public class Generator extends NutchTool implements Tool {
    * is read from the &quot;generate.filter&quot; property set for the job from
    * command-line. If the property is not found, the URLs are filtered. Same for
    * the normalisation.
-   * 
+   *
    * @param dbDir
    *          Crawl database directory
    * @param segments
@@ -1506,7 +1461,7 @@ public class Generator extends NutchTool implements Tool {
    * @param hostdb
    *          name of a hostdb from which to execute Jexl expressions in a bid
    *          to determine the maximum URL count and/or fetch delay per host.
-   * @see JexlUtil#parseExpression(String)
+   * @see JexlUtil#parseExpression(Configuration, String)
    * @throws IOException
    *           if an I/O exception occurs.
    * @see LockUtil#createLockFile(Configuration, Path, boolean)
@@ -1548,7 +1503,7 @@ public class Generator extends NutchTool implements Tool {
     Job job = Job.getInstance(getConf(), "Nutch Generator: generate from " + dbDir);
     Configuration conf = job.getConfiguration();
     if (numLists == -1) {
-      /* for politeness create exactly one partition per fetch task */ 
+      /* for politeness create exactly one partition per fetch task */
       numLists = Integer.parseInt(conf.get("mapreduce.job.maps"));
     }
     if ("local".equals(conf.get("mapreduce.framework.name")) && numLists != 1) {
@@ -1766,7 +1721,7 @@ public class Generator extends NutchTool implements Tool {
     return segment;
   }
 
-  private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+  private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ROOT);
 
   public static synchronized String generateSegmentName() {
     try {

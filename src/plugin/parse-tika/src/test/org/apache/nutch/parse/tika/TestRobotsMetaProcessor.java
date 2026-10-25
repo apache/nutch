@@ -17,6 +17,7 @@
 package org.apache.nutch.parse.tika;
 
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.html.dom.HTMLDocumentImpl;
@@ -28,19 +29,22 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DocumentFragment;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /** Unit tests for HTMLMetaProcessor. */
 public class TestRobotsMetaProcessor {
 
   /*
-   * 
+   *
    * some sample tags:
-   * 
+   *
    * <meta name="robots" content="index,follow"> <meta name="robots"
    * content="noindex,follow"> <meta name="robots" content="index,nofollow">
    * <meta name="robots" content="noindex,nofollow">
-   * 
+   *
    * <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
    */
 
@@ -130,7 +134,7 @@ public class TestRobotsMetaProcessor {
     }
 
     for (int i = 0; i < tests.length; i++) {
-      byte[] bytes = tests[i].getBytes();
+      byte[] bytes = tests[i].getBytes(StandardCharsets.UTF_8);
 
       HTMLDocumentImpl doc = new HTMLDocumentImpl();
       doc.setErrorChecking(false);
@@ -156,9 +160,10 @@ public class TestRobotsMetaProcessor {
       assertEquals(answers[i][2], robotsMeta.getNoCache(),
           "got nocache wrong on test " + i);
       assertTrue(
-              ((robotsMeta.getBaseHref() == null) && (currURLsAndAnswers[i][1] == null))
-                  || ((robotsMeta.getBaseHref() != null) && robotsMeta
-                      .getBaseHref().equals(currURLsAndAnswers[i][1])),
+          ((robotsMeta.getBaseHref() == null)
+              && (currURLsAndAnswers[i][1] == null))
+              || ((robotsMeta.getBaseHref() != null) && robotsMeta.getBaseHref()
+                  .toString().equals(currURLsAndAnswers[i][1].toString())),
           "got base href wrong on test " + i + " (got "
               + robotsMeta.getBaseHref() + ")");
 

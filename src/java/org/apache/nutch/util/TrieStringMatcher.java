@@ -22,7 +22,7 @@ import java.util.ListIterator;
 
 /**
  * TrieStringMatcher is a base class for simple tree-based string matching.
- * 
+ *
  * This class is thread-safe during string matching but not when adding strings
  * to the trie.
  */
@@ -202,7 +202,7 @@ public abstract class TrieStringMatcher {
    * Returns true if the given <code>String</code> is matched by a pattern in
    * the trie
    * @param input A String to be matched by a pattern
-   * @return true if there is a match, flase otherwise
+   * @return true if there is a match, false otherwise
    */
   public abstract boolean matches(String input);
 

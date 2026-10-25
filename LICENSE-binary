@@ -222,6 +222,7 @@ com.fasterxml.jackson.dataformat:jackson-dataformat-csv
 com.fasterxml.jackson.dataformat:jackson-dataformat-smile
 com.fasterxml.jackson.dataformat:jackson-dataformat-yaml
 com.fasterxml.jackson.datatype:jackson-datatype-jdk8
+com.fasterxml.jackson.datatype:jackson-datatype-jsr310
 com.fasterxml.jackson.jaxrs:jackson-jaxrs-base
 com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider
 com.fasterxml.jackson.module:jackson-module-jaxb-annotations
@@ -230,7 +231,6 @@ com.fasterxml.woodstox:woodstox-core
 com.github.ben-manes.caffeine:caffeine
 com.github.crawler-commons:crawler-commons
 com.github.spullara.mustache.java:compiler
-com.github.stephenc.jcip:jcip-annotations
 com.google.auto:auto-common
 com.google.auto.service:auto-service
 com.google.auto.service:auto-service-annotations
@@ -336,10 +336,12 @@ io.opentelemetry:opentelemetry-semconv
 io.opentelemetry.semconv:opentelemetry-semconv
 io.ous:jtoml
 io.sgr:s2-geometry-library-java
+jakarta.validation:jakarta.validation-api
 javax.inject:javax.inject
 joda-time:joda-time
 net.arnx:jsonic
 net.bytebuddy:byte-buddy
+net.jodah:failsafe
 net.sourceforge.htmlunit:htmlunit
 net.sourceforge.htmlunit:htmlunit-cssparser
 net.sourceforge.htmlunit:htmlunit-xpath
@@ -358,19 +360,6 @@ org.apache.commons:commons-text
 org.apache.curator:curator-client
 org.apache.curator:curator-framework
 org.apache.curator:curator-recipes
-org.apache.cxf:cxf-core
-org.apache.cxf:cxf-rt-bindings-soap
-org.apache.cxf:cxf-rt-bindings-xml
-org.apache.cxf:cxf-rt-databinding-jaxb
-org.apache.cxf:cxf-rt-frontend-jaxrs
-org.apache.cxf:cxf-rt-frontend-jaxws
-org.apache.cxf:cxf-rt-frontend-simple
-org.apache.cxf:cxf-rt-security
-org.apache.cxf:cxf-rt-transports-http
-org.apache.cxf:cxf-rt-transports-http-jetty
-org.apache.cxf:cxf-rt-ws-addr
-org.apache.cxf:cxf-rt-ws-policy
-org.apache.cxf:cxf-rt-wsdl
 org.apache.hadoop:hadoop-annotations
 org.apache.hadoop:hadoop-auth
 org.apache.hadoop:hadoop-common
@@ -427,7 +416,6 @@ org.apache.lucene:lucene-sandbox
 org.apache.lucene:lucene-spatial-extras
 org.apache.lucene:lucene-spatial3d
 org.apache.lucene:lucene-suggest
-org.apache.neethi:neethi
 org.apache.pdfbox:fontbox
 org.apache.pdfbox:jbig2-imageio
 org.apache.pdfbox:jempbox
@@ -437,7 +425,7 @@ org.apache.pdfbox:pdfbox-tools
 org.apache.pdfbox:xmpbox
 org.apache.poi:poi
 org.apache.poi:poi-ooxml
-org.apache.poi:poi-ooxml-lite
+org.apache.poi:poi-ooxml-full
 org.apache.poi:poi-scratchpad
 org.apache.solr:solr-solrj
 org.apache.tika:tika-core
@@ -466,7 +454,6 @@ org.apache.tika:tika-parser-xml-module
 org.apache.tika:tika-parser-xmp-commons
 org.apache.tika:tika-parser-zip-commons
 org.apache.tika:tika-parsers-standard-package
-org.apache.ws.xmlschema:xmlschema-core
 org.apache.xmlbeans:xmlbeans
 org.apache.yetus:audience-annotations
 org.apache.zookeeper:zookeeper
@@ -481,6 +468,8 @@ org.eclipse.jetty:jetty-alpn-java-client
 org.eclipse.jetty:jetty-client
 org.eclipse.jetty:jetty-http
 org.eclipse.jetty:jetty-io
+org.eclipse.jetty:jetty-security
+org.eclipse.jetty:jetty-server
 org.eclipse.jetty:jetty-servlet
 org.eclipse.jetty:jetty-util
 org.eclipse.jetty:jetty-util-ajax
@@ -490,7 +479,6 @@ org.eclipse.jetty.http2:http2-client
 org.eclipse.jetty.http2:http2-common
 org.eclipse.jetty.http2:http2-hpack
 org.eclipse.jetty.http2:http2-http-client-transport
-org.eclipse.jetty.toolchain:jetty-servlet-api
 org.eclipse.jetty.websocket:websocket-api
 org.eclipse.jetty.websocket:websocket-client
 org.eclipse.jetty.websocket:websocket-common
@@ -562,7 +550,6 @@ org.xerial.snappy:snappy-java
 org.yaml:snakeyaml
 xerces:xercesImpl
 xml-apis:xml-apis
-xml-resolver:xml-resolver
 
 
 --------------------------------------------------------------------------------
@@ -612,6 +599,12 @@ BSD 3-clause License w/nuclear disclaimer
 com.github.jai-imageio:jai-imageio-core
 
 
+BSD License 2.0
+---------------
+
+jaxen:jaxen
+
+
 BSD licence
 -----------
 
@@ -635,7 +628,7 @@ org.bouncycastle:bcutil-jdk18on
 CDDL 1.0
 --------
 
-(licenses-binary/LICENSE-cddl-v1.0.txt)
+(licenses-binary/LICENSE-cddl-1.0.txt)
 
 org.codelibs:jhighlight
 
@@ -645,22 +638,7 @@ CDDL 1.1
 
 (licenses-binary/LICENSE-cddl-1.1.txt)
 
-com.github.pjfanning:jersey-json
-com.sun.jersey:jersey-client
-com.sun.jersey:jersey-core
-com.sun.jersey:jersey-server
-com.sun.jersey:jersey-servlet
-com.sun.jersey.contribs:jersey-guice
-com.sun.xml.bind:jaxb-impl
 javax.xml.bind:jaxb-api
-
-
-CDDL License
-------------
-
-(licenses-binary/LICENSE-cddl-license.txt)
-
-javax.ws.rs:jsr311-api
 
 
 CDDL/GPLv2+CE
@@ -669,14 +647,6 @@ CDDL/GPLv2+CE
 (licenses-binary/LICENSE-cddl-gplv2-ce.txt)
 
 javax.servlet:javax.servlet-api
-
-
-CPL
----
-
-(licenses-binary/LICENSE-cpl.txt)
-
-wsdl4j:wsdl4j
 
 
 Common Public License
@@ -694,8 +664,22 @@ EPL 2.0
 (licenses-binary/LICENSE-epl-2.0.txt)
 
 jakarta.annotation:jakarta.annotation-api
+jakarta.servlet:jakarta.servlet-api
+jakarta.servlet.jsp:jakarta.servlet.jsp-api
 jakarta.ws.rs:jakarta.ws.rs-api
 javax.ws.rs:javax.ws.rs-api
+org.glassfish.hk2:hk2-api
+org.glassfish.hk2:hk2-locator
+org.glassfish.hk2:hk2-utils
+org.glassfish.hk2:osgi-resource-locator
+org.glassfish.hk2.external:aopalliance-repackaged
+org.glassfish.hk2.external:jakarta.inject
+org.glassfish.jersey.containers:jersey-container-servlet
+org.glassfish.jersey.containers:jersey-container-servlet-core
+org.glassfish.jersey.core:jersey-client
+org.glassfish.jersey.core:jersey-common
+org.glassfish.jersey.core:jersey-server
+org.glassfish.jersey.inject:jersey-hk2
 
 
 Eclipse Distribution License v1.0
@@ -706,26 +690,11 @@ Eclipse Distribution License v1.0
 com.sun.activation:jakarta.activation
 com.sun.istack:istack-commons-runtime
 jakarta.activation:jakarta.activation-api
-jakarta.jws:jakarta.jws-api
 jakarta.xml.bind:jakarta.xml.bind-api
-jakarta.xml.soap:jakarta.xml.soap-api
-jakarta.xml.ws:jakarta.xml.ws-api
 org.eclipse.angus:angus-activation
 org.glassfish.jaxb:jaxb-core
 org.glassfish.jaxb:jaxb-runtime
 org.glassfish.jaxb:txw2
-
-
-Eclipse Public License - Version 2.0
-------------------------------------
-
-(licenses-binary/LICENSE-eclipse-public-license---version-2.0.txt)
-
-org.eclipse.jetty:jetty-http
-org.eclipse.jetty:jetty-io
-org.eclipse.jetty:jetty-security
-org.eclipse.jetty:jetty-server
-org.eclipse.jetty:jetty-util
 
 
 MIT
@@ -750,6 +719,12 @@ org.checkerframework:checker-qual
 org.jsoup:jsoup
 org.pcollections:pcollections
 org.slf4j:slf4j-api
+
+
+MPL 1.1
+-------
+
+org.javassist:javassist
 
 
 Mozilla Public License 1.1 (MPL 1.1)
@@ -796,3 +771,9 @@ UnRar License
 (licenses-binary/LICENSE-unrar-license.txt)
 
 com.github.junrar:junrar
+
+
+Zero-Clause BSD (0BSD)
+----------------------
+
+org.tukaani:xz

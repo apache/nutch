@@ -29,10 +29,9 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * An {@link org.apache.nutch.indexer.IndexingFilter} that add <code>tag</code>
  * field(s) to the document.
- * 
+ *
  * @see <a href="http://www.microformats.org/wiki/rel-tag">
  *      http://www.microformats.org/wiki/rel-tag</a>
- * @author J&eacute;r&ocirc;me Charron
  */
 public class RelTagIndexingFilter implements IndexingFilter {
 

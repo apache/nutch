@@ -73,7 +73,7 @@ public class ResolverThread implements Runnable {
     this.datum = datum;
     this.context = context;
     this.purgeFailedHostsThreshold = purgeFailedHostsThreshold;
-    
+
     // Initialize cached counters for performance
     initCounters();
   }
@@ -107,7 +107,7 @@ public class ResolverThread implements Runnable {
    */
   @Override
   public void run() {
-    // Resolve the host and act appropriatly
+    // Resolve the host and act appropriately
     try {
       // Throws an exception if host is not found
       @SuppressWarnings("unused")

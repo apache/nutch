@@ -31,9 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * JUnit based tests of class
  * {@link org.apache.nutch.metadata.SpellCheckedMetadata}.
- * 
- * @author Chris Mattmann
- * @author J&eacute;r&ocirc;me Charron
+ *
  */
 public class TestSpellCheckedMetadata {
 
@@ -188,7 +186,7 @@ public class TestSpellCheckedMetadata {
 
     meta.add("a-name", "value-1");
     assertEquals("value-1", meta.get("a-name"));
-    
+
     assertNotNull(meta.get("a-NamE"));
     assertEquals("value-1", meta.get("a-NamE"));
   }
@@ -329,7 +327,7 @@ public class TestSpellCheckedMetadata {
     assertEquals("text/html", result.get(Metadata.CONTENT_TYPE));
   }
 
-  /** 
+  /**
    * Mock class to test backward compatibility of SpellCheckedMetadata
    * after changing the internal storage to be case insensitive.
    */
@@ -357,16 +355,16 @@ public class TestSpellCheckedMetadata {
   }
 
   private SpellCheckedMetadata writeRead(SpellCheckedMetadata meta) {
-    SpellCheckedMetadata readed = new SpellCheckedMetadata();
+    SpellCheckedMetadata readBack = new SpellCheckedMetadata();
     try {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       meta.write(new DataOutputStream(out));
-      readed.readFields(new DataInputStream(new ByteArrayInputStream(out
+      readBack.readFields(new DataInputStream(new ByteArrayInputStream(out
           .toByteArray())));
     } catch (IOException ioe) {
       fail(ioe.toString());
     }
-    return readed;
+    return readBack;
   }
 
   /**

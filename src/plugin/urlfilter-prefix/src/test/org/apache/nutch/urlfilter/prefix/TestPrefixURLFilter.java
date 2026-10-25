@@ -26,8 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 /**
  * JUnit test for <code>PrefixURLFilter</code>.
  *
- * @author Talat Uyarer
- * @author Cihad Guzel
  */
 public class TestPrefixURLFilter {
   private static final String prefixes =

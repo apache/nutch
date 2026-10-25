@@ -77,11 +77,11 @@ public final class ParserFactory {
 
   /**
    * Function returns an array of {@link Parser}s for a given content type.
-   * 
+   *
    * The function consults the internal list of parse plugins for the
    * ParserFactory to determine the list of pluginIds, then gets the appropriate
    * extension points to instantiate as {@link Parser}s.
-   * 
+   *
    * @param contentType
    *          The contentType to return the <code>Array</code> of {@link Parser}
    *          s for.
@@ -155,7 +155,7 @@ public final class ParserFactory {
    * instantiated Parser. Otherwise, if it has to instantiate the Parser itself
    * , then this function will cache that Parser in the internal
    * <code>PARSER_CACHE</code>.
-   * 
+   *
    * @param id
    *          The string extension ID (e.g.,
    *          "org.apache.nutch.parse.rss.RSSParser",
@@ -206,7 +206,7 @@ public final class ParserFactory {
 
   /**
    * Finds the best-suited parse plugin for a given contentType.
-   * 
+   *
    * @param contentType
    *          Content-Type for which we seek a parse plugin.
    * @return a list of extensions to be used for this contentType. If none,
@@ -246,7 +246,7 @@ public final class ParserFactory {
    * <p>
    * It first looks for a preferred plugin defined in the parse-plugin file. If
    * none is found, it returns a list of default plugins.
-   * 
+   *
    * @param contentType
    *          Content-Type for which we seek a parse plugin.
    * @return List - List of extensions to be used for this contentType. If none,
@@ -278,7 +278,7 @@ public final class ParserFactory {
    * <li>If this list is empty, it tries to find amongst the loaded extensions
    * whether some of them might suit and warns the user.</li>
    * </ol>
-   * 
+   *
    * @param plugins
    *          List of candidate plugins.
    * @param extensions

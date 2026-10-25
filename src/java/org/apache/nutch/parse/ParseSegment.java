@@ -20,6 +20,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.segment.SegmentChecker;
 import org.apache.nutch.util.NutchConfiguration;
@@ -46,9 +47,10 @@ import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapreduce.Partitioner;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,6 +70,12 @@ public class ParseSegment extends NutchTool implements Tool {
 
   public static final String SKIP_TRUNCATED = "parser.skip.truncated";
 
+  /**
+   * Configuration property to delete documents that failed to be parsed. Also used
+   * in Fetcher and Indexer.
+   */
+  public static final String DELETE_FAILED_PARSE = "parser.delete.failed.parse";
+
   public ParseSegment() {
     this(null);
   }
@@ -77,20 +85,22 @@ public class ParseSegment extends NutchTool implements Tool {
   }
 
   public static class ParseSegmentMapper extends
-     Mapper<WritableComparable<?>, Content, Text, ParseImpl> {
+     Mapper<WritableComparable<?>, Content, Text, NutchWritable> {
 
     private ParseUtil parseUtil;
     private Text newKey = new Text();
     private ScoringFilters scfilters;
     private boolean skipTruncated;
+    private boolean deleteFailedParse;
     private LatencyTracker parseLatencyTracker;
     private ErrorTracker errorTracker;
 
     @Override
-    public void setup(Mapper<WritableComparable<?>, Content, Text, ParseImpl>.Context context) {
+    public void setup(Mapper<WritableComparable<?>, Content, Text, NutchWritable>.Context context) {
       Configuration conf = context.getConfiguration();
       scfilters = new ScoringFilters(conf);
       skipTruncated = conf.getBoolean(SKIP_TRUNCATED, true);
+      deleteFailedParse = conf.getBoolean(DELETE_FAILED_PARSE, false);
       parseLatencyTracker = new LatencyTracker(
           NutchMetrics.GROUP_PARSER, NutchMetrics.PARSER_LATENCY);
       // Initialize error tracker with cached counters
@@ -98,15 +108,19 @@ public class ParseSegment extends NutchTool implements Tool {
     }
 
     @Override
-    public void cleanup(Mapper<WritableComparable<?>, Content, Text, ParseImpl>.Context context)
+    public void cleanup(Mapper<WritableComparable<?>, Content, Text, NutchWritable>.Context context)
         throws IOException, InterruptedException {
-      // Emit parse latency metrics
-      parseLatencyTracker.emitCounters(context);
+      parseLatencyTracker.emitCountAndSumOnly(context);
+      byte[] digestBytes = parseLatencyTracker.toBytes();
+      if (digestBytes.length > 0) {
+        context.write(new Text(NutchMetrics.LATENCY_KEY),
+            new NutchWritable(new BytesWritable(digestBytes)));
+      }
     }
 
     @Override
     public void map(WritableComparable<?> key, Content content,
-        Context context)
+        Mapper<WritableComparable<?>, Content, Text, NutchWritable>.Context context)
         throws IOException, InterruptedException {
       // convert on the fly from old UTF8 keys
       if (key instanceof Text) {
@@ -119,6 +133,9 @@ public class ParseSegment extends NutchTool implements Tool {
         // no fetch status, skip document
         LOG.debug("Skipping {} as content has no fetch status", key);
         return;
+      } else if(deleteFailedParse && Integer.parseInt(fetchStatus) == CrawlDatum.STATUS_PARSE_FAILED) {
+        LOG.debug("Skipping {} as un-parseable content will be deleted", key);
+        return;
       } else if (Integer.parseInt(fetchStatus) != CrawlDatum.STATUS_FETCH_SUCCESS) {
         // content not fetched successfully, skip document
         LOG.debug("Skipping {} as content is not fetched successfully", key);
@@ -126,6 +143,7 @@ public class ParseSegment extends NutchTool implements Tool {
       }
 
       if (skipTruncated && isTruncated(content)) {
+        LOG.debug("Skipping {} as content is truncated", key);
         return;
       }
 
@@ -179,15 +197,15 @@ public class ParseSegment extends NutchTool implements Tool {
 
         context.write(
             url,
-            new ParseImpl(new ParseText(parse.getText()), parse.getData(), parse
-                .isCanonical()));
+            new NutchWritable(new ParseImpl(new ParseText(parse.getText()),
+                parse.getData(), parse.isCanonical())));
       }
     }
   }
 
   /**
    * Checks if the page's content is truncated.
-   * 
+   *
    * @param content the response {@link org.apache.nutch.protocol.Content}
    * @return If the page is truncated <code>true</code>. When it is not, or when
    *         it couldn't be determined, <code>false</code>.
@@ -235,19 +253,64 @@ public class ParseSegment extends NutchTool implements Tool {
     return false;
   }
 
-  public static class ParseSegmentReducer extends
-     Reducer<Text, Writable, Text, Writable> {
-
+  /** Sends LATENCY_KEY to partition 0 so one reducer merges all TDigests. */
+  public static class ParseSegmentPartitioner extends Partitioner<Text, NutchWritable> {
     @Override
-    public void reduce(Text key, Iterable<Writable> values,
-        Context context)
-        throws IOException, InterruptedException {
-      Iterator<Writable> valuesIter = values.iterator();
-      context.write(key, valuesIter.next()); // collect first value
+    public int getPartition(Text key, NutchWritable value, int numPartitions) {
+      if (numPartitions <= 1) {
+        return 0;
+      }
+      if (key.toString().equals(NutchMetrics.LATENCY_KEY)) {
+        return 0;
+      }
+      return (key.hashCode() & Integer.MAX_VALUE) % numPartitions;
     }
   }
 
-  public void parse(Path segment) throws IOException, 
+  public static class ParseSegmentReducer extends
+     Reducer<Text, NutchWritable, Text, ParseImpl> {
+
+    private static final Text LATENCY_KEY = new Text(NutchMetrics.LATENCY_KEY);
+
+    @Override
+    public void reduce(Text key, Iterable<NutchWritable> values,
+        Reducer<Text, NutchWritable, Text, ParseImpl>.Context context)
+        throws IOException, InterruptedException {
+        if (key.equals(LATENCY_KEY)) {
+        com.tdunning.math.stats.MergingDigest merged = null;
+        for (NutchWritable w : values) {
+          if (w.get() instanceof BytesWritable) {
+            byte[] bytes = ((BytesWritable) w.get()).copyBytes();
+            if (bytes != null && bytes.length > 0) {
+              com.tdunning.math.stats.MergingDigest d = LatencyTracker.fromBytes(bytes);
+              if (d != null) {
+                if (merged == null) {
+                  merged = d;
+                } else {
+                  merged.add(d);
+                }
+              }
+            }
+          }
+        }
+        if (merged != null) {
+          context.getCounter(NutchMetrics.GROUP_PARSER,
+              NutchMetrics.PARSER_LATENCY + LatencyTracker.SUFFIX_P50_MS).setValue((long) merged.quantile(0.50));
+          context.getCounter(NutchMetrics.GROUP_PARSER,
+              NutchMetrics.PARSER_LATENCY + LatencyTracker.SUFFIX_P95_MS).setValue((long) merged.quantile(0.95));
+          context.getCounter(NutchMetrics.GROUP_PARSER,
+              NutchMetrics.PARSER_LATENCY + LatencyTracker.SUFFIX_P99_MS).setValue((long) merged.quantile(0.99));
+        }
+        return;
+      }
+      Iterator<NutchWritable> valuesIter = values.iterator();
+      if (valuesIter.hasNext()) {
+        context.write(key, (ParseImpl) valuesIter.next().get());
+      }
+    }
+  }
+
+  public void parse(Path segment) throws IOException,
       InterruptedException, ClassNotFoundException {
     if (SegmentChecker.isParsed(segment, segment.getFileSystem(getConf()))) {
       LOG.warn("Segment: {} already parsed!! Skipped parsing this segment!!", segment); // NUTCH-1854
@@ -268,6 +331,8 @@ public class ParseSegment extends NutchTool implements Tool {
     job.setJarByClass(ParseSegment.class);
     job.setMapperClass(ParseSegment.ParseSegmentMapper.class);
     job.setReducerClass(ParseSegment.ParseSegmentReducer.class);
+    job.setPartitionerClass(ParseSegment.ParseSegmentPartitioner.class);
+    job.setMapOutputValueClass(NutchWritable.class);
 
     FileOutputFormat.setOutputPath(job, segment);
     job.setOutputFormatClass(ParseOutputFormat.class);
@@ -325,8 +390,8 @@ public class ParseSegment extends NutchTool implements Tool {
     return 0;
   }
 
-  /*
-   * Used for Nutch REST service
+  /**
+   * Programmatic entry point for {@link org.apache.nutch.util.NutchTool} callers.
    */
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
@@ -342,9 +407,9 @@ public class ParseSegment extends NutchTool implements Tool {
       }
     }
     else {
-    	String segment_dir = crawlId+"/segments";
+        String segment_dir = crawlId+"/segments";
         File segmentsDir = new File(segment_dir);
-        File[] segmentsList = segmentsDir.listFiles();  
+        File[] segmentsList = segmentsDir.listFiles();
         Arrays.sort(segmentsList, (f1, f2) -> {
           if(f1.lastModified()>f2.lastModified())
             return -1;
@@ -353,7 +418,7 @@ public class ParseSegment extends NutchTool implements Tool {
         });
         segment = new Path(segmentsList[0].getPath());
     }
-    
+
     if (args.containsKey("nofilter")) {
       getConf().setBoolean("parse.filter.urls", false);
     }

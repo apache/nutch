@@ -25,9 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * JUnit test case which tests 1. that valid urls are not filtered while invalid
  * ones are filtered. 2. that Urls' scheme, authority, path and query are
  * validated.
- * 
- * @author tejasp
- * 
+ *
+ *
  */
 
 public class TestUrlValidator {
@@ -56,7 +55,7 @@ public class TestUrlValidator {
         "Invalid url: ftp:www.example.com/main.html");
     assertNull(
         url_validator.filter("http://999.000.456.32/nutch/trunk/README.txt"),
-        "Inalid url: http://999.000.456.32/nutch/trunk/README.txt");
+        "Invalid url: http://999.000.456.32/nutch/trunk/README.txt");
     assertNull(url_validator.filter(" http://www.example.com/ma|in\\toc.html"),
         "Invalid url: http://www.example.com/ma|in\\toc.html");
 

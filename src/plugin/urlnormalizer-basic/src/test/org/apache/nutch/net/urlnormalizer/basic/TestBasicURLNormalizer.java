@@ -39,7 +39,7 @@ public class TestBasicURLNormalizer {
     conf = NutchConfiguration.create();
     normalizer.setConf(conf);
   }
-  
+
   @Test
   public void testNUTCH1098() throws Exception {
     // check that % encoding is normalized
@@ -51,7 +51,7 @@ public class TestBasicURLNormalizer {
 
     // check that % decoder do not overlap strings
     normalizeTest("http://foo.com/%66oo.ht%6d%6c", "http://foo.com/foo.html");
-    
+
     // check that % decoder leaves high bit chars alone
     normalizeTest("http://foo.com/%66oo.htm%C0", "http://foo.com/foo.htm%C0");
 
@@ -82,7 +82,7 @@ public class TestBasicURLNormalizer {
     // check encoding of Spanish chars
     normalizeTest("http://mydomain.com/en Espa\u00F1ol.aspx", "http://mydomain.com/en%20Espa%C3%B1ol.aspx");
   }
-  
+
   @Test
   public void testNUTCH2064() throws Exception {
     // Ampersand and colon and other punctuation characters are not to be unescaped
@@ -244,7 +244,7 @@ public class TestBasicURLNormalizer {
     normalizeTest("https://user@[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/path/../to/index.html",
         "https://[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/to/index.html");
   }
-  
+
   @Test
   public void testCurlyBraces() throws Exception {
     // check whether curly braces are properly escaped
@@ -258,20 +258,86 @@ public class TestBasicURLNormalizer {
     // test Internationalized Domain Names
     BasicURLNormalizer norm = new BasicURLNormalizer();
     conf = NutchConfiguration.create();
+
+    // to ASCII normalization
     conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toAscii");
     norm.setConf(conf);
     normalizeTest(norm, "https://нэб.рф/", "https://xn--90ax2c.xn--p1ai/");
     // verify escaping of percent-encoded characters in IDNs (NUTCH-2824)
     normalizeTest(norm, "https://www.0251-sachverst%c3%a4ndiger.de/",
         "https://www.xn--0251-sachverstndiger-ozb.de/");
+    // verify that host names with uppercase characters are normalized
+    normalizeTest(norm, "https://нЭб.РФ/", "https://xn--90ax2c.xn--p1ai/");
+
+    // to Unicode normalization
     conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toUnicode");
     norm.setConf(conf);
     normalizeTest(norm, "https://xn--90ax2c.xn--p1ai/", "https://нэб.рф/");
+    // verify that host names with uppercase characters are normalized
+    normalizeTest(norm, "https://Xn--90Ax2c.xN--P1ai/", "https://нэб.рф/");
+
     // test removal of trailing dot
     conf.setBoolean(BasicURLNormalizer.NORM_HOST_TRIM_TRAILING_DOT, true);
     norm.setConf(conf);
     normalizeTest(norm, "https://www.example.org./",
         "https://www.example.org/");
+  }
+
+  /**
+   * Test for IDNA2008 and IDNA2003 compatibility.
+   */
+  @Test
+  public void testHostNameIDNA2008() throws Exception {
+    // IDNA2008 (https://www.rfc-editor.org/rfc/rfc5890.html#section-1.1)
+    BasicURLNormalizer norm = new BasicURLNormalizer();
+    conf = NutchConfiguration.create();
+    conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toAscii");
+    norm.setConf(conf);
+
+    // IDNA2003 / RFC 3490
+    // Note: IDNA2008 and IDNA2003 deviate for this example
+    normalizeTest(norm, "https://straße.de/", "https://strasse.de/");
+
+    // Verify that characters not in Unicode 3.2 do not fail the normalization
+    normalizeTest(norm, "https://example.ᬩᬮᬶ.id/", "https://example.xn--9tfky.id/");
+
+    // IDNA2008 / RFC 5890
+    conf.setBoolean(BasicURLNormalizer.NORM_HOST_IDNA_2008, true);
+    norm.setConf(conf);
+    // Note: this is different from IDNA2003
+    normalizeTest(norm, "https://straße.de/", "https://xn--strae-oqa.de/");
+
+    // Verify that characters not in Unicode 3.2 do not fail the normalization
+    normalizeTest(norm, "https://example.ᬩᬮᬶ.id/", "https://example.xn--9tfky.id/");
+
+    // mixed encodings (Unicode, Punycode, percent encoding)
+    normalizeTest(norm, "https://xn--p1ai.%D1%80%D1%84/",
+        "https://xn--p1ai.xn--p1ai/");
+    normalizeTest(norm, "https://xn--p1ai.рф/", "https://xn--p1ai.xn--p1ai/");
+
+    // test conversion to Unicode (IDNA2008)
+    conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toUnicode");
+    norm.setConf(conf);
+    normalizeTest(norm, "https://xn--strae-oqa.de/", "https://straße.de/");
+    normalizeTest(norm, "https://example.xn--9tfky.id/", "https://example.ᬩᬮᬶ.id/");
+
+    // mixed encodings (Unicode, Punycode, percent encoding), mixed case
+    normalizeTest(norm, "https://xN--p1aI.Xn--P1ai/", "https://рф.рф/");
+    normalizeTest(norm, "https://xN--p1Ai.%D1%80%d1%84/", "https://рф.рф/");
+    normalizeTest(norm, "https://булГаков.xN--p1Ai.%D1%80%d1%84/", "https://булгаков.рф.рф/");
+    normalizeTest(norm, "https://гоГоль.%d1%80%D1%84.Рф/", "https://гоголь.рф.рф/");
+
+    // test conversion to Unicode (IDNA2003)
+    conf.setBoolean(BasicURLNormalizer.NORM_HOST_IDNA_2008, false);
+    norm.setConf(conf);
+    normalizeTest(norm, "https://xn--strae-oqa.de/", "https://xn--strae-oqa.de/");
+    normalizeTest(norm, "https://example.xn--9tfky.id/", "https://example.ᬩᬮᬶ.id/");
+
+    // mixed encodings (Unicode, Punycode, percent encoding), mixed case
+    normalizeTest(norm, "https://xN--p1aI.Xn--P1ai/", "https://рф.рф/");
+    normalizeTest(norm, "https://xN--p1Ai.%D1%80%d1%84/", "https://рф.рф/");
+    normalizeTest(norm, "https://булГаков.xN--p1Ai.%D1%80%d1%84/", "https://булгаков.рф.рф/");
+    normalizeTest(norm, "https://гоГоль.%d1%80%D1%84.Рф/", "https://гоголь.рф.рф/");
   }
 
   /**

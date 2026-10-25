@@ -55,7 +55,7 @@ class TestProtocolURLNormalizer {
         .normalize("https://example.io/", URLNormalizers.SCOPE_DEFAULT));
     assertEquals("https://example.nl/", normalizer
         .normalize("https://example.nl/", URLNormalizers.SCOPE_DEFAULT));
-    
+
     // http to https
     assertEquals("https://example.io/", normalizer
         .normalize("http://example.io/", URLNormalizers.SCOPE_DEFAULT));

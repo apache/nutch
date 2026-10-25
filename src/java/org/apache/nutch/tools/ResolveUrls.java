@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -29,15 +30,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.util.URLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple tool that will spin up multiple threads to resolve urls to ip
@@ -106,19 +106,19 @@ public class ResolveUrls {
       pool = Executors.newFixedThreadPool(numThreads);
 
       // read in the urls file and loop through each line, one url per line
-      BufferedReader buffRead = new BufferedReader(new FileReader(new File(
-          urlsFile)));
-      String urlStr = null;
-      while ((urlStr = buffRead.readLine()) != null) {
+      try (BufferedReader buffRead = new BufferedReader(new FileReader(
+          new File(urlsFile), StandardCharsets.UTF_8))) {
+        String urlStr = null;
+        while ((urlStr = buffRead.readLine()) != null) {
 
-        // spin up a resolver thread per url
-        LOG.info("Starting: {}", urlStr);
-        pool.execute(new ResolverThread(urlStr));
+          // spin up a resolver thread per url
+          LOG.info("Starting: {}", urlStr);
+          pool.execute(new ResolverThread(urlStr));
+        }
       }
 
-      // close the file and wait for up to 60 seconds before shutting down
-      // the thread pool to give urls time to finish resolving
-      buffRead.close();
+      // wait for up to 60 seconds before shutting down the thread pool to
+      // give urls time to finish resolving
       pool.awaitTermination(60, TimeUnit.SECONDS);
     } catch (Exception e) {
 
@@ -129,14 +129,14 @@ public class ResolveUrls {
 
     // shutdown the thread pool and log totals
     pool.shutdown();
-    LOG.info("Total: {}, Resovled: {}, Errored: {}, Average Time: {}",
+    LOG.info("Total: {}, Resolved: {}, Errored: {}, Average Time: {}",
         numTotal.get(), numResolved.get(), numErrored.get(),
         totalTime.get() / numTotal.get());
   }
 
   /**
    * Create a new ResolveUrls with a file from the local file system.
-   * 
+   *
    * @param urlsFile
    *          The local urls file, one url per line.
    */
@@ -147,7 +147,7 @@ public class ResolveUrls {
   /**
    * Create a new ResolveUrls with a urls file and a number of threads for the
    * Thread pool. Number of threads is 100 by default.
-   * 
+   *
    * @param urlsFile
    *          The local urls file, one url per line.
    * @param numThreads
@@ -160,36 +160,39 @@ public class ResolveUrls {
 
   /**
    * Runs the resolve urls tool.
-   * @param args the input arguments for this tool. Running 
+   * @param args the input arguments for this tool. Running
    * with 'help' will print parameter options.
    */
   public static void main(String[] args) {
 
     Options options = new Options();
-    OptionBuilder.withArgName("help");
-    OptionBuilder.withDescription("show this help message");
-    Option helpOpts = OptionBuilder.create("help");
+    Option helpOpts = Option.builder("help")
+        .argName("help")
+        .desc("show this help message")
+        .build();
     options.addOption(helpOpts);
 
-    OptionBuilder.withArgName("urls");
-    OptionBuilder.hasArg();
-    OptionBuilder.withDescription("the urls file to check");
-    Option urlOpts = OptionBuilder.create("urls");
+    Option urlOpts = Option.builder("urls")
+        .argName("urls")
+        .hasArg()
+        .desc("the urls file to check")
+        .build();
     options.addOption(urlOpts);
 
-    OptionBuilder.withArgName("numThreads");
-    OptionBuilder.hasArgs();
-    OptionBuilder.withDescription("the number of threads to use");
-    Option numThreadOpts = OptionBuilder.create("numThreads");
+    Option numThreadOpts = Option.builder("numThreads")
+        .argName("numThreads")
+        .hasArgs()
+        .desc("the number of threads to use")
+        .build();
     options.addOption(numThreadOpts);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     try {
       // parse out common line arguments
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("urls")) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("ResolveUrls", options);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp("ResolveUrls", "", options, "", false);
         return;
       }
 

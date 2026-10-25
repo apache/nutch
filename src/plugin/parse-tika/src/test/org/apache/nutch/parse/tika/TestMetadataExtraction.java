@@ -24,7 +24,10 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for metadata extraction from HTML documents.
@@ -51,10 +54,10 @@ public class TestMetadataExtraction {
         + "<meta name='keywords' content='keyword1, keyword2, keyword3'>"
         + "<meta name='author' content='Test Author'>"
         + "</head><body>Content</body></html>";
-    
+
     Parse parse = doParse(html);
     org.apache.nutch.metadata.Metadata parseMeta = parse.getData().getParseMeta();
-    
+
     assertEquals("Page Title", parse.getData().getTitle());
     assertEquals("Page description here", parseMeta.get("description"));
     assertEquals("keyword1, keyword2, keyword3", parseMeta.get("keywords"));
@@ -70,10 +73,10 @@ public class TestMetadataExtraction {
         + "<meta property='og:type' content='article'>"
         + "<meta property='og:url' content='http://example.com/page'>"
         + "</head><body>Content</body></html>";
-    
+
     Parse parse = doParse(html);
     org.apache.nutch.metadata.Metadata parseMeta = parse.getData().getParseMeta();
-    
+
     assertEquals("Regular Title", parse.getData().getTitle());
     // OG tags should be in metadata
     assertNotNull(parseMeta.get("og:title"));
@@ -87,10 +90,10 @@ public class TestMetadataExtraction {
         + "<meta name='twitter:title' content='Twitter Title'>"
         + "<meta name='twitter:description' content='Twitter Description'>"
         + "</head><body>Content</body></html>";
-    
+
     Parse parse = doParse(html);
     org.apache.nutch.metadata.Metadata parseMeta = parse.getData().getParseMeta();
-    
+
     assertEquals("Page Title", parse.getData().getTitle());
     // Twitter tags should be in metadata
     assertNotNull(parseMeta.get("twitter:card"));
@@ -102,9 +105,9 @@ public class TestMetadataExtraction {
         + "<meta name='robots' content='noindex'>"
         + "<title>No Index Page</title>"
         + "</head><body>This should not be indexed</body></html>";
-    
+
     Parse parse = doParse(html);
-    
+
     // With noindex, text should be empty
     assertTrue(parse.getText().isEmpty() || parse.getText().isBlank(),
         "noindex should prevent text extraction");
@@ -118,11 +121,11 @@ public class TestMetadataExtraction {
         + "<a href='http://example.com/link1'>Link 1</a>"
         + "<a href='http://example.com/link2'>Link 2</a>"
         + "</body></html>";
-    
+
     Parse parse = doParse(html);
-    
+
     // With nofollow, outlinks should be empty
-    assertEquals(0, parse.getData().getOutlinks().length, 
+    assertEquals(0, parse.getData().getOutlinks().length,
         "nofollow should prevent outlink extraction");
   }
 
@@ -135,13 +138,13 @@ public class TestMetadataExtraction {
         + "<p>Content here</p>"
         + "<a href='http://example.com/link'>Link</a>"
         + "</body></html>";
-    
+
     Parse parse = doParse(html);
-    
+
     // Both should be blocked
     assertTrue(parse.getText().isEmpty() || parse.getText().isBlank(),
         "noindex should prevent text extraction");
-    assertEquals(0, parse.getData().getOutlinks().length, 
+    assertEquals(0, parse.getData().getOutlinks().length,
         "nofollow should prevent outlink extraction");
   }
 
@@ -151,9 +154,9 @@ public class TestMetadataExtraction {
         + "<meta http-equiv='refresh' content='5;url=http://example.com/newpage'>"
         + "<title>Redirect Page</title>"
         + "</head><body>Redirecting...</body></html>";
-    
+
     Parse parse = doParse(html);
-    
+
     // Parse should still succeed
     assertNotNull(parse);
     assertEquals("Redirect Page", parse.getData().getTitle());
@@ -167,12 +170,12 @@ public class TestMetadataExtraction {
         + "</head><body>"
         + "<a href='page.html'>Relative Link</a>"
         + "</body></html>";
-    
+
     String url = "http://example.com/";
-    Content content = new Content(url, url, html.getBytes(), 
-        "text/html", new Metadata(), conf);
+    Content content = new Content(url, url, html.getBytes(UTF_8), "text/html",
+        new Metadata(), conf);
     Parse parse = parser.getParse(content).get(url);
-    
+
     // Link should be resolved relative to base href
     if (parse.getData().getOutlinks().length > 0) {
       String linkUrl = parse.getData().getOutlinks()[0].getToUrl();
@@ -188,10 +191,10 @@ public class TestMetadataExtraction {
         + "<meta name='keywords' content='first'>"
         + "<meta name='keywords' content='second'>"
         + "</head><body>Content</body></html>";
-    
+
     Parse parse = doParse(html);
     org.apache.nutch.metadata.Metadata parseMeta = parse.getData().getParseMeta();
-    
+
     // Should handle multiple meta tags with same name
     String keywords = parseMeta.get("keywords");
     assertNotNull(keywords, "Keywords should be extracted");
@@ -204,20 +207,20 @@ public class TestMetadataExtraction {
         + "<meta name='description' content=''>"
         + "<meta name='keywords'>"
         + "</head><body>Content</body></html>";
-    
+
     Parse parse = doParse(html);
-    
+
     // Should handle empty meta tags gracefully
     assertNotNull(parse);
     // Empty title should result in empty string
-    assertTrue(parse.getData().getTitle() == null || 
+    assertTrue(parse.getData().getTitle() == null ||
                parse.getData().getTitle().isEmpty());
   }
 
   private Parse doParse(String html) {
     String url = "http://example.com/";
-    Content content = new Content(url, url, html.getBytes(), 
-        "text/html", new Metadata(), conf);
+    Content content = new Content(url, url, html.getBytes(UTF_8), "text/html",
+        new Metadata(), conf);
     return parser.getParse(content).get(url);
   }
 }

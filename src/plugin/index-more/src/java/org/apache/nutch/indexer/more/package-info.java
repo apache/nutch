@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-/** 
- * A more indexing plugin, adds "more" index fields:last modified 
+/**
+ * A more indexing plugin, adds "more" index fields:last modified
  * date, MIME type, content length.
  */
 package org.apache.nutch.indexer.more;

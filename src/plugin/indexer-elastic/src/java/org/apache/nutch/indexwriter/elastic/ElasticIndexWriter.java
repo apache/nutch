@@ -101,11 +101,6 @@ public class ElasticIndexWriter implements IndexWriter {
 
   private Configuration config;
 
-  @Override
-  public void open(Configuration conf, String name) throws IOException {
-    // Implementation not required
-  }
-
   /**
    * Initializes the internal variables from a given index writer configuration.
    *
@@ -162,7 +157,7 @@ public class ElasticIndexWriter implements IndexWriter {
    * Generates a RestHighLevelClient with the hosts given
    * @param parameters implementation specific {@link org.apache.nutch.indexer.IndexWriterParams}
    * @return an initialized {@link org.elasticsearch.client.RestHighLevelClient}
-   * @throws IOException if there is an error reading the 
+   * @throws IOException if there is an error reading the
    * {@link org.apache.nutch.indexer.IndexWriterParams}
    */
   protected RestHighLevelClient makeClient(IndexWriterParams parameters)

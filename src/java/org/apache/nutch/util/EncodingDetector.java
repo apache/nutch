@@ -26,29 +26,30 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
 /**
  * A simple class for detecting character encodings.
- * 
+ *
  * <p>
  * Broadly this encompasses two functions, which are distinctly separate:
- * 
+ *
  * <ol>
  * <li>Auto detecting a set of "clues" from input text.</li>
  * <li>Taking a set of clues and making a "best guess" as to the "real"
  * encoding.</li>
  * </ol>
- * 
+ *
  * <p>
  * A caller will often have some extra information about what the encoding might
  * be (e.g. from the HTTP header or HTML meta-tags, often wrong but still
@@ -73,7 +74,7 @@ public class EncodingDetector {
     }
 
     public EncodingClue(String value, String source, int confidence) {
-      this.value = value.toLowerCase();
+      this.value = value.toLowerCase(Locale.ROOT);
       this.source = source;
       this.confidence = confidence;
     }
@@ -205,14 +206,14 @@ public class EncodingDetector {
 
   /**
    * Guess the encoding with the previously specified list of clues.
-   * 
+   *
    * @param content
    *          Content instance
    * @param defaultValue
    *          Default encoding to return if no encoding can be detected with
    *          enough confidence. Note that this will <b>not</b> be normalized
    *          with {@link EncodingDetector#resolveEncodingAlias}
-   * 
+   *
    * @return Guessed encoding or defaultValue
    */
   public String guessEncoding(Content content, String defaultValue) {
@@ -244,7 +245,7 @@ public class EncodingDetector {
       if (minConfidence >= 0 && clue.confidence >= minConfidence) {
         LOG.trace("{}: Choosing encoding: {} with confidence {}", base, charset,
             clue.confidence);
-        return resolveEncodingAlias(charset).toLowerCase();
+        return resolveEncodingAlias(charset).toLowerCase(Locale.ROOT);
       } else if (clue.confidence == NO_THRESHOLD && bestClue == defaultClue) {
         bestClue = clue;
       }
@@ -252,7 +253,7 @@ public class EncodingDetector {
 
     LOG.trace("{}: Choosing encoding: {}", base, bestClue);
 
-    return bestClue.value.toLowerCase();
+    return bestClue.value.toLowerCase(Locale.ROOT);
   }
 
   /** Clears all clues. */
@@ -316,10 +317,10 @@ public class EncodingDetector {
    * <code>null</code> is returned. <br>
    * This method was copied from org.apache.catalina.util.RequestUtil, which is
    * licensed under the Apache License, Version 2.0 (the "License").
-   * 
+   *
    * @param contentType
    *          a content type header
-   * @return a trimmed string representation of the 'charset=' value, 
+   * @return a trimmed string representation of the 'charset=' value,
    * null if this is not available
    */
   public static String parseCharacterEncoding(String contentType) {

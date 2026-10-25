@@ -18,6 +18,7 @@ package org.apache.nutch.util;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.Locale;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -36,9 +37,11 @@ public class NutchJob extends Job {
   private static final String JOB_FAILURE_LOG_FORMAT = "%s job did not succeed, job id: %s, job status: %s, reason: %s";
 
   /**
-   * @deprecated, use instead {@link #getInstance(Configuration)} or
-   * {@link Job#getInstance(Configuration, String)}.
-   * 
+   * @deprecated Use {@link Job#getInstance(Configuration)} or
+   *             {@link Job#getInstance(Configuration, String)} instead. This
+   *             constructor still initializes {@link PluginRepository} so
+   *             custom URL stream handlers are registered.
+   *
    * @param conf
    *          configuration for the job
    * @param jobName
@@ -58,9 +61,9 @@ public class NutchJob extends Job {
 
   /**
    * Clean up the file system in case of a job failure.
-   * @param tempDir The temporary directory which needs to be 
+   * @param tempDir The temporary directory which needs to be
    * deleted/cleaned-up.
-   * @param fs The {@link org.apache.hadoop.fs.FileSystem} on which 
+   * @param fs The {@link org.apache.hadoop.fs.FileSystem} on which
    * the tempDir resides.
    * @throws IOException Occurs if there is fatal I/O error whilst performing
    * the cleanup.
@@ -72,11 +75,11 @@ public class NutchJob extends Job {
 
   /**
    * Clean up the file system in case of a job failure.
-   * @param tempDir The temporary directory which needs to be 
+   * @param tempDir The temporary directory which needs to be
    * deleted/cleaned-up.
    * @param lock A lockfile if one exists.
    * @see LockUtil#removeLockFile(FileSystem, Path)
-   * @param fs The {@link org.apache.hadoop.fs.FileSystem} on which 
+   * @param fs The {@link org.apache.hadoop.fs.FileSystem} on which
    * the tempDir resides.
    * @throws IOException Occurs if there is fatal I/O error whilst performing
    * the cleanup.
@@ -98,7 +101,7 @@ public class NutchJob extends Job {
 
   /**
    * Method to return job failure log message. To be used across all Jobs
-   * 
+   *
    * @param name
    *          Name/Type of the job
    * @param job
@@ -112,8 +115,9 @@ public class NutchJob extends Job {
   public static String getJobFailureLogMessage(String name, Job job)
       throws IOException, InterruptedException {
     if (job != null) {
-      return String.format(JOB_FAILURE_LOG_FORMAT, name, job.getJobID(),
-          job.getStatus().getState(), job.getStatus().getFailureInfo());
+      return String.format(Locale.ROOT, JOB_FAILURE_LOG_FORMAT, name,
+          job.getJobID(), job.getStatus().getState(),
+          job.getStatus().getFailureInfo());
     }
     return "";
   }

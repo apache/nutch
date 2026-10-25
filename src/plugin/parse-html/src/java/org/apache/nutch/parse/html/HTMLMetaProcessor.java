@@ -17,6 +17,7 @@
 package org.apache.nutch.parse.html;
 
 import java.net.URL;
+import java.util.Locale;
 
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.HTMLMetaTags;
@@ -40,10 +41,10 @@ public class HTMLMetaProcessor {
   /**
    * Sets the indicators in <code>robotsMeta</code> to appropriate values, based
    * on any META tags found under the given <code>node</code>.
-   * @param metaTags a {@link HTMLMetaTags} to populate with tags discovered in the 
+   * @param metaTags a {@link HTMLMetaTags} to populate with tags discovered in the
    * given Node
    * @param node a DOM {@link Node} to process and extract metadata from
-   * @param currURL the cononical URL associated with the metatags and Node
+   * @param currURL the canonical URL associated with the metatags and Node
    */
   public static final void getMetaTags(HTMLMetaTags metaTags, Node node,
       URL currURL) {
@@ -67,10 +68,10 @@ public class HTMLMetaProcessor {
         Node nameNode = null;
         Node equivNode = null;
         Node contentNode = null;
-        // Retrieves name, http-equiv and content attribues
+        // Retrieves name, http-equiv and content attributes
         for (int i = 0; i < attrs.getLength(); i++) {
           Node attr = attrs.item(i);
-          String attrName = attr.getNodeName().toLowerCase();
+          String attrName = attr.getNodeName().toLowerCase(Locale.ROOT);
           if (attrName.equals("name")) {
             nameNode = attr;
           } else if (attrName.equals("http-equiv")) {
@@ -82,10 +83,11 @@ public class HTMLMetaProcessor {
 
         if (nameNode != null) {
           if (contentNode != null) {
-            String name = nameNode.getNodeValue().toLowerCase();
+            String name = nameNode.getNodeValue().toLowerCase(Locale.ROOT);
             metaTags.getGeneralTags().add(name, contentNode.getNodeValue());
             if (Nutch.ROBOTS_METATAG.equals(name)) {
-              String directives = contentNode.getNodeValue().toLowerCase();
+              String directives = contentNode.getNodeValue()
+                  .toLowerCase(Locale.ROOT);
               int index = directives.indexOf("none");
 
               if (index >= 0) {
@@ -119,11 +121,11 @@ public class HTMLMetaProcessor {
 
         if (equivNode != null) {
           if (contentNode != null) {
-            String name = equivNode.getNodeValue().toLowerCase();
+            String name = equivNode.getNodeValue().toLowerCase(Locale.ROOT);
             String content = contentNode.getNodeValue();
             metaTags.getHttpEquivTags().setProperty(name, content);
             if ("pragma".equals(name)) {
-              content = content.toLowerCase();
+              content = content.toLowerCase(Locale.ROOT);
               int index = content.indexOf("no-cache");
               if (index >= 0)
                 metaTags.setNoCache();
@@ -143,7 +145,7 @@ public class HTMLMetaProcessor {
               }
               URL refreshUrl = null;
               if (metaTags.getRefresh() && idx != -1) { // set the URL
-                idx = content.toLowerCase().indexOf("url=");
+                idx = content.toLowerCase(Locale.ROOT).indexOf("url=");
                 if (idx == -1) { // assume a mis-formatted entry with just the
                                  // url
                   idx = content.indexOf(';') + 1;

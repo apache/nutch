@@ -16,8 +16,8 @@
    limitations under the License.
 -->
 
-<ivy-module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd" 
+<ivy-module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd"
   xmlns:ns0="http://ant.apache.org/ivy/maven" version="2.0">
   <info organisation="org.apache.nutch" module="${ant.project.name}">
     <license name="Apache 2.0"/>
@@ -42,5 +42,5 @@
     <dependency org="org.seleniumhq.selenium" name="htmlunit-driver" rev="4.7.0" />
     <!-- end selenium dependencies -->
   </dependencies>
-  
+
 </ivy-module>

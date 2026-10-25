@@ -26,7 +26,7 @@ import org.apache.nutch.metadata.Metadata;
 /**
  * A class which holds the number of inlinks and outlinks for a given url along
  * with an inlink score from a link analysis program and any metadata.
- * 
+ *
  * The Node is the core unit of the NodeDb in the WebGraph.
  */
 public class Node implements Writable {

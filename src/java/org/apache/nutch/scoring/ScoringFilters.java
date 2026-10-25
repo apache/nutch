@@ -33,8 +33,7 @@ import org.apache.nutch.protocol.Content;
 
 /**
  * Creates and caches {@link ScoringFilter} implementing plugins.
- * 
- * @author Andrzej Bialecki
+ *
  */
 public class ScoringFilters extends Configured implements ScoringFilter {
 

@@ -37,9 +37,9 @@ public class TestMetadata {
   /**
    * Test to ensure that only non-null values get written when the
    * {@link Metadata} object is written using a Writeable.
-   * 
+   *
    * @since NUTCH-406
-   * 
+   *
    */
   @Test
   public void testWriteNonNull() {
@@ -267,16 +267,16 @@ public class TestMetadata {
   }
 
   private Metadata writeRead(Metadata meta) {
-    Metadata readed = new Metadata();
+    Metadata readBack = new Metadata();
     try {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       meta.write(new DataOutputStream(out));
-      readed.readFields(new DataInputStream(new ByteArrayInputStream(out
+      readBack.readFields(new DataInputStream(new ByteArrayInputStream(out
           .toByteArray())));
     } catch (IOException ioe) {
       fail(ioe.toString());
     }
-    return readed;
+    return readBack;
   }
 
 }

@@ -28,7 +28,6 @@ import java.util.List;
  * Interface for all CommonCrawl formatter. It provides the signature for the
  * method used to get JSON data.
  *
- * @author gtotaro
  *
  */
 public interface CommonCrawlFormat extends Closeable {
@@ -57,7 +56,7 @@ public interface CommonCrawlFormat extends Closeable {
    * Returns a string representation of the JSON structure of the URL content.
    * Takes into consideration the {@link Content}, {@link Metadata} and
    * {@link ParseData}.
-   * 
+   *
    * @param url the canonical url
    * @param content url {@link Content}
    * @param metadata url {@link Metadata}

@@ -309,11 +309,13 @@ public class IndexingJob extends NutchTool implements Tool {
   }
 
 
-  //Used for REST API
+  /**
+   * Programmatic entry point for {@link org.apache.nutch.util.NutchTool} callers.
+   */
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
     boolean noCommit = false;
-    boolean deleteGone = false; 
+    boolean deleteGone = false;
     boolean filter = false;
     boolean normalize = false;
     boolean isSegment = false;
@@ -369,27 +371,27 @@ public class IndexingJob extends NutchTool implements Tool {
         if (SegmentChecker.isIndexable(p,fs)) {
           segments.add(p);
         }
-      }     
+      }
     }
 
     if(args.containsKey(Nutch.ARG_SEGMENTS)) {
       Object segmentsFromArg = args.get(Nutch.ARG_SEGMENTS);
       ArrayList<String> segmentList = new ArrayList<String>();
       if(segmentsFromArg instanceof ArrayList) {
-    	  segmentList = (ArrayList<String>)segmentsFromArg; }
+        segmentList = (ArrayList<String>)segmentsFromArg; }
       else if(segmentsFromArg instanceof Path){
         segmentList.add(segmentsFromArg.toString());
       }
 
       for(String segment: segmentList) {
-    	  segments.add(new Path(segment));
+        segments.add(new Path(segment));
       }
     }
 
     if(!isSegment){
       String segment_dir = crawlId+"/segments";
       File segmentsDir = new File(segment_dir);
-      File[] segmentsList = segmentsDir.listFiles();  
+      File[] segmentsList = segmentsDir.listFiles();
       Arrays.sort(segmentsList, (f1, f2) -> {
         if(f1.lastModified()>f2.lastModified())
           return -1;

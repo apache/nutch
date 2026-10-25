@@ -17,8 +17,10 @@
 package org.apache.nutch.protocol.okhttp;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Locale;
 
@@ -71,7 +73,7 @@ public class OkHttpResponse implements Response {
   public OkHttpResponse(OkHttp okhttp, URL url, CrawlDatum datum)
       throws ProtocolException, IOException {
 
-    this.url = url;
+    this.url = url;  // provisional; overwritten below with the normalized form
 
     Request.Builder rb = new Request.Builder().url(url);
 
@@ -87,22 +89,29 @@ public class OkHttpResponse implements Response {
 
     if (okhttp.isCookieEnabled()) {
       String cookie = null;
-      
+
       if (datum.getMetaData().containsKey(HttpBase.COOKIE)) {
         cookie = ((Text)datum.getMetaData().get(HttpBase.COOKIE)).toString();
       }
-      
+
       if (cookie == null) {
         cookie = okhttp.getCookie(url);
       }
-      
+
       if (cookie != null) {
         rb.header("Cookie", cookie);
       }
     }
 
     Request request = rb.build();
-    okhttp3.Call call = okhttp.getClient(url).newCall(request);
+
+    // OkHttp parsed the URL via HttpUrl; that's the form actually going on
+    // the wire (IDN→punycode, repeated-slash repair, host lowercasing).
+    this.url = request.url().url();
+    if (LOG.isDebugEnabled() && !this.url.toString().equals(url.toString())) {
+       LOG.debug("The normalized URL different from the requested URL: {} -> {}", url, this.url);
+    }
+    okhttp3.Call call = okhttp.getClient(this.url).newCall(request);
 
     // ensure that Response and underlying ResponseBody are closed
     try (okhttp3.Response response = call.execute()) {
@@ -115,7 +124,8 @@ public class OkHttpResponse implements Response {
         String value = httpHeaders.value(i);
 
         if (key.equals(REQUEST) || key.equals(RESPONSE_HEADERS)) {
-          value = new String(Base64.getDecoder().decode(value));
+          value = new String(Base64.getDecoder().decode(value),
+              StandardCharsets.ISO_8859_1);
         }
 
         responsemetadata.add(key, value);
@@ -179,7 +189,12 @@ public class OkHttpResponse implements Response {
       } catch (IOException e) {
         if (partialAsTruncated && source.getBuffer().size() > 0) {
           // treat already fetched content as truncated
-          truncated.setReason(TruncatedContentReason.DISCONNECT);
+          if (e instanceof InterruptedIOException) {
+            // thrown by OkHttp if the call timeout is hit
+            truncated.setReason(TruncatedContentReason.TIME);
+          } else {
+            truncated.setReason(TruncatedContentReason.DISCONNECT);
+          }
           LOG.info("Truncated content for {}, partial fetch caused by:", this.url,
               e);
         } else {

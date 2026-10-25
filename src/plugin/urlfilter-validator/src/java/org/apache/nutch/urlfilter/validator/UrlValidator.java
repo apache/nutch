@@ -26,13 +26,13 @@ import org.apache.nutch.net.URLFilter;
  * <p>
  * Validates URLs.
  * </p>
- * 
+ *
  * <p>
  * Originally based in on php script by Debbie Dyer, validation.php v1.2b, Date:
  * 03/07/02, http://javascript.internet.com. However, this validation now bears
  * little resemblance to the php original.
  * </p>
- * 
+ *
  * <pre>
  *   Example of usage:
  *    UrlValidator urlValidator = UrlValidator.get();
@@ -41,17 +41,17 @@ import org.apache.nutch.net.URLFilter;
  *    } else {
  *       System.out.println("url is invalid");
  *    }
- * 
+ *
  *   prints out "url is valid"
  * </pre>
- * 
+ *
  * <p>
  * Based on UrlValidator code from Apache commons-validator.
  * </p>
- * 
+ *
  * @see <a href='https://www.ietf.org/rfc/rfc2396.txt' > Uniform Resource
  *      Identifiers (URI): Generic Syntax </a>
- * 
+ *
  */
 public class UrlValidator implements URLFilter {
 
@@ -151,7 +151,7 @@ public class UrlValidator implements URLFilter {
    * <p>
    * Checks if a field has a valid url address.
    * </p>
-   * 
+   *
    * @param value
    *          The value validation is being performed on. A <code>null</code>
    *          value is considered invalid.
@@ -195,7 +195,7 @@ public class UrlValidator implements URLFilter {
    * Validate scheme. If schemes[] was initialized to a non null, then only
    * those scheme's are allowed. Note this is slightly different than for the
    * constructor.
-   * 
+   *
    * @param scheme
    *          The scheme to validate. A <code>null</code> value is considered
    *          invalid.
@@ -213,7 +213,7 @@ public class UrlValidator implements URLFilter {
    * Returns true if the authority is properly formatted. An authority is the
    * combination of hostname and port. A <code>null</code> authority value is
    * considered invalid.
-   * 
+   *
    * @param authority
    *          Authority value to validate.
    * @return true if authority (hostname and port) is valid.
@@ -315,7 +315,7 @@ public class UrlValidator implements URLFilter {
    * Checks if the field isn't null and length of the field is greater than zero
    * not including whitespace.
    * </p>
-   * 
+   *
    * @param value
    *          The value validation is being performed on.
    * @return true if blank or null.
@@ -327,7 +327,7 @@ public class UrlValidator implements URLFilter {
   /**
    * Returns true if the path is valid. A <code>null</code> value is considered
    * invalid.
-   * 
+   *
    * @param path
    *          Path value to validate.
    * @return true if path is valid.
@@ -351,7 +351,7 @@ public class UrlValidator implements URLFilter {
   /**
    * Returns true if the query is null or it's a properly formatted query
    * string.
-   * 
+   *
    * @param query
    *          Query value to validate.
    * @return true if query is valid.
@@ -366,7 +366,7 @@ public class UrlValidator implements URLFilter {
 
   /**
    * Returns the number of times the token appears in the target.
-   * 
+   *
    * @param token
    *          Token value to be counted.
    * @param target

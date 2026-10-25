@@ -76,8 +76,8 @@ public class CrawlDbReducer extends
    * Get counter for status, caching for subsequent lookups.
    */
   private Counter getStatusCounter(byte status, Context context) {
-    return statusCounters.computeIfAbsent(status, 
-        s -> context.getCounter(NutchMetrics.GROUP_CRAWLDB, 
+    return statusCounters.computeIfAbsent(status,
+        s -> context.getCounter(NutchMetrics.GROUP_CRAWLDB,
             CrawlDatum.getStatusName(s)));
   }
 
@@ -233,7 +233,7 @@ public class CrawlDbReducer extends
       }
       break;
 
-    case CrawlDatum.STATUS_FETCH_SUCCESS: // succesful fetch
+    case CrawlDatum.STATUS_FETCH_SUCCESS: // successful fetch
     case CrawlDatum.STATUS_FETCH_REDIR_TEMP: // successful fetch, redirected
     case CrawlDatum.STATUS_FETCH_REDIR_PERM:
     case CrawlDatum.STATUS_FETCH_NOTMODIFIED: // successful fetch, notmodified
@@ -243,7 +243,7 @@ public class CrawlDbReducer extends
           result.getMetaData().put(e.getKey(), e.getValue());
         }
       }
-      
+
       // determine the modification status
       int modified = FetchSchedule.STATUS_UNKNOWN;
       if (fetch.getStatus() == CrawlDatum.STATUS_FETCH_NOTMODIFIED) {
@@ -318,6 +318,14 @@ public class CrawlDbReducer extends
         result = schedule.setPageGoneSchedule(key, result, prevFetchTime,
             prevModifiedTime, fetch.getFetchTime());
       }
+      break;
+
+    case CrawlDatum.STATUS_PARSE_FAILED: // successful fetch, but parse failed
+      if (oldSet)
+        result.setSignature(old.getSignature()); // use old signature
+      result.setStatus(CrawlDatum.STATUS_DB_PARSE_FAILED);
+      result = schedule.setPageGoneSchedule(key, result, prevFetchTime,
+          prevModifiedTime, fetch.getFetchTime());
       break;
 
     case CrawlDatum.STATUS_FETCH_GONE: // permanent failure

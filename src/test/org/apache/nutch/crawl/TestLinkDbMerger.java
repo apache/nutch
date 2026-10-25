@@ -142,7 +142,7 @@ public class TestLinkDbMerger {
       TreeMap<String, String[]> init) throws Exception {
     LOG.debug("* creating linkdb: {}", linkdb);
     Path dir = new Path(linkdb, LinkDb.CURRENT_NAME);
-    
+
     Option wKeyOpt = MapFile.Writer.keyClass(Text.class);
     org.apache.hadoop.io.SequenceFile.Writer.Option wValueOpt = SequenceFile.Writer.valueClass(Inlinks.class);
     MapFile.Writer writer = new MapFile.Writer(config, new Path(dir,

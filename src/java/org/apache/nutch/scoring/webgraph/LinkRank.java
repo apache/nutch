@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,14 +31,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.time.StopWatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -51,13 +49,13 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.CompressionCodecFactory;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
@@ -66,6 +64,8 @@ import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.URLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LinkRank extends Configured implements Tool {
 
@@ -76,12 +76,12 @@ public class LinkRank extends Configured implements Tool {
   /**
    * Runs the counter job. The counter job determines the number of links in the
    * webgraph. This is used during analysis.
-   * 
+   *
    * @param fs
    *          The job file system.
    * @param webGraphDb
    *          The web graph database to use.
-   * 
+   *
    * @return The number of nodes in the web graph.
    * @throws IOException
    *           If an error occurs while running the counter job.
@@ -124,7 +124,7 @@ public class LinkRank extends Configured implements Tool {
       LOG.error("Link counter job failed:", e);
       throw e;
     }
-    
+
     LOG.info("Finished link counter job");
 
     // read the first (and only) line from the file which should be the
@@ -140,25 +140,26 @@ public class LinkRank extends Configured implements Tool {
     }
     Path numLinksFile = numLinksFiles[0].getPath();
     LOG.info("Reading numlinks temp file {}", numLinksFile);
-    FSDataInputStream readLinks = fs.open(numLinksFile);
     CompressionCodecFactory cf = new CompressionCodecFactory(conf);
     CompressionCodec codec = cf.getCodec(numLinksFiles[0].getPath());
-    InputStream streamLinks;
-    if (codec == null) {
-      LOG.debug("No compression codec found for {}, trying uncompressed",
-          numLinksFile);
-      streamLinks = readLinks;
-    } else {
-      LOG.info("Compression codec of numlinks temp file: {}",
-          codec.getDefaultExtension());
-      readLinks.seek(0);
-      streamLinks = codec.createInputStream(readLinks);
+    String numLinksLine;
+    try (FSDataInputStream readLinks = fs.open(numLinksFile)) {
+      InputStream streamLinks;
+      if (codec == null) {
+        LOG.debug("No compression codec found for {}, trying uncompressed",
+            numLinksFile);
+        streamLinks = readLinks;
+      } else {
+        LOG.info("Compression codec of numlinks temp file: {}",
+            codec.getDefaultExtension());
+        readLinks.seek(0);
+        streamLinks = codec.createInputStream(readLinks);
+      }
+      try (BufferedReader buffer = new BufferedReader(
+          new InputStreamReader(streamLinks, StandardCharsets.UTF_8))) {
+        numLinksLine = buffer.readLine();
+      }
     }
-    BufferedReader buffer = new BufferedReader(
-        new InputStreamReader(streamLinks));
-
-    String numLinksLine = buffer.readLine();
-    readLinks.close();
 
     // check if there are links to process, if none, webgraph might be empty
     if (numLinksLine == null || numLinksLine.length() == 0) {
@@ -179,12 +180,12 @@ public class LinkRank extends Configured implements Tool {
   /**
    * Runs the initializer job. The initializer job sets up the nodes with a
    * default starting score for link analysis.
-   * 
+   *
    * @param nodeDb
    *          The node database to use.
    * @param output
    *          The job output directory.
-   * 
+   *
    * @throws IOException
    *           If an error occurs while running the initializer job.
    */
@@ -227,14 +228,14 @@ public class LinkRank extends Configured implements Tool {
   /**
    * Runs the inverter job. The inverter job flips outlinks to inlinks to be
    * passed into the analysis job.
-   * 
+   *
    * @param nodeDb
    *          The node database to use.
    * @param outlinkDb
    *          The outlink database to use.
    * @param output
    *          The output directory.
-   * 
+   *
    * @throws IOException
    *           If an error occurs while running the inverter job.
    */
@@ -279,10 +280,10 @@ public class LinkRank extends Configured implements Tool {
   /**
    * Runs the link analysis job. The link analysis job applies the link rank
    * formula to create a score per url and stores that score in the NodeDb.
-   * 
+   *
    * Typically the link analysis job is run a number of times to allow the link
    * rank scores to converge.
-   * 
+   *
    * @param nodeDb
    *          The node database from which we are getting previous link rank
    *          scores.
@@ -294,12 +295,12 @@ public class LinkRank extends Configured implements Tool {
    *          The current iteration number.
    * @param numIterations
    *          The total number of link analysis iterations
-   * 
+   *
    * @throws IOException
    *           If an error occurs during link analysis.
    */
   private void runAnalysis(Path nodeDb, Path inverted, Path output,
-      int iteration, int numIterations, float rankOne) 
+      int iteration, int numIterations, float rankOne)
       throws IOException, InterruptedException, ClassNotFoundException {
 
     Job analyzer = Job.getInstance(getConf(),
@@ -392,7 +393,7 @@ public class LinkRank extends Configured implements Tool {
     }
 
     @Override
-    public void map(Text key, Node node, Context context) 
+    public void map(Text key, Node node, Context context)
         throws IOException, InterruptedException {
 
       String url = key.toString();
@@ -414,7 +415,7 @@ public class LinkRank extends Configured implements Tool {
     /**
      * Convert values to ObjectWritable
      */
-    public static class InvertMapper extends 
+    public static class InvertMapper extends
         Mapper<Text, Writable, Text, ObjectWritable> {
 
       @Override
@@ -439,7 +440,7 @@ public class LinkRank extends Configured implements Tool {
     public static class InvertReducer extends
         Reducer<Text, ObjectWritable, Text, LinkDatum> {
 
-      private Configuration conf;      
+      private Configuration conf;
 
       @Override
       public void setup(Reducer<Text, ObjectWritable, Text, LinkDatum>.Context context) {
@@ -500,7 +501,7 @@ public class LinkRank extends Configured implements Tool {
     /**
      * Convert values to ObjectWritable
      */
-    public static class AnalyzerMapper extends 
+    public static class AnalyzerMapper extends
         Mapper<Text, Writable, Text, ObjectWritable> {
 
       private Configuration conf;
@@ -630,21 +631,21 @@ public class LinkRank extends Configured implements Tool {
   }
 
   /**
-   * Runs the complete link analysis job. The complete job determins rank one
+   * Runs the complete link analysis job. The complete job determines rank one
    * score. Then runs through a given number of invert and analyze iterations,
    * by default 10. And finally replaces the NodeDb in the WebGraph with the
    * link rank output.
-   * 
+   *
    * @param webGraphDb
    *          The WebGraph to run link analysis on.
-   * 
+   *
    * @throws IOException
    *           If a fatal I/O runtime error occurs during link analysis.
    * @throws InterruptedException if the Job is interrupted during execution
-   * @throws ClassNotFoundException if classes required to run 
+   * @throws ClassNotFoundException if classes required to run
    * the Job cannot be located
    */
-  public void analyze(Path webGraphDb) throws IOException, 
+  public void analyze(Path webGraphDb) throws IOException,
       ClassNotFoundException, InterruptedException {
 
     StopWatch stopWatch = new StopWatch();
@@ -652,7 +653,7 @@ public class LinkRank extends Configured implements Tool {
     LOG.info("LinkRank Analysis: starting");
 
     // store the link rank under the webgraphdb temporarily, final scores get
-    // upddated into the nodedb
+    // updated into the nodedb
     Path linkRank = new Path(webGraphDb, "linkrank");
     Configuration conf = getConf();
     FileSystem fs = linkRank.getFileSystem(conf);
@@ -668,10 +669,10 @@ public class LinkRank extends Configured implements Tool {
     Path nodeDb = new Path(linkRank, WebGraph.NODE_DIR);
 
     // get the number of total nodes in the webgraph, used for rank one, then
-    // initialze all urls with a default score
+    // initialize all urls with a default score
     int numLinks = runCounter(fs, webGraphDb);
     runInitializer(wgNodeDb, nodeDb);
-    float rankOneScore = (1f / (float) numLinks);
+    float rankOneScore = (1f / numLinks);
 
     LOG.info("Analysis: Number of links: {}", numLinks);
     LOG.info("Analysis: Rank One: {}", rankOneScore);
@@ -723,24 +724,26 @@ public class LinkRank extends Configured implements Tool {
   public int run(String[] args) throws Exception {
 
     Options options = new Options();
-    OptionBuilder.withArgName("help");
-    OptionBuilder.withDescription("show this help message");
-    Option helpOpts = OptionBuilder.create("help");
+    Option helpOpts = Option.builder("help")
+        .argName("help")
+        .desc("show this help message")
+        .build();
     options.addOption(helpOpts);
 
-    OptionBuilder.withArgName("webgraphdb");
-    OptionBuilder.hasArg();
-    OptionBuilder.withDescription("the web graph db to use");
-    Option webgraphOpts = OptionBuilder.create("webgraphdb");
+    Option webgraphOpts = Option.builder("webgraphdb")
+        .argName("webgraphdb")
+        .hasArg()
+        .desc("the web graph db to use")
+        .build();
     options.addOption(webgraphOpts);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     try {
 
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("LinkRank", options);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp("LinkRank", "", options, "", false);
         return -1;
       }
 

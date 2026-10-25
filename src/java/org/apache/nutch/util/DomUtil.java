@@ -48,7 +48,7 @@ public class DomUtil {
 
   /**
    * Returns parsed dom tree or null if any error
-   * 
+   *
    * @param is XML {@link InputStream}
    * @return A parsed DOM tree from the given {@link InputStream}.
    */
@@ -60,6 +60,7 @@ public class DomUtil {
 
     InputSource input;
     try {
+      XmlUtil.configureSecure(parser);
       input = new InputSource(is);
       input.setEncoding("UTF-8");
       parser.parse(input);
@@ -80,16 +81,17 @@ public class DomUtil {
 
   /**
    * Save dom into {@link OutputStream}
-   * 
+   *
    * @param os Output DOM XML stream to save to
    * @param e A specific DOM {@link org.w3c.dom.Element} to save
    */
   public static void saveDom(OutputStream os, Element e) {
 
     DOMSource source = new DOMSource(e);
-    TransformerFactory transFactory = TransformerFactory.newInstance();
+    TransformerFactory transFactory;
     Transformer transformer;
     try {
+      transFactory = XmlUtil.newSecureTransformerFactory();
       transformer = transFactory.newTransformer();
       transformer.setOutputProperty("indent", "yes");
       transformer.setOutputProperty(OutputKeys.ENCODING,
@@ -104,7 +106,7 @@ public class DomUtil {
 
   /**
    * Save dom into {@link OutputStream}
-   * 
+   *
    * @param os Output DOM XML stream to save to
    * @param doc A specific DOM {@link org.w3c.dom.DocumentFragment} to save
    */

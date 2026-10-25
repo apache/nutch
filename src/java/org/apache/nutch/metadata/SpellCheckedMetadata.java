@@ -21,20 +21,20 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 
 /**
  * A decorator to Metadata that adds spellchecking capabilities to property
  * names. Currently used spelling vocabulary contains just the HTTP headers from
  * {@link HttpHeaders} class. Other names are case insensitive.
- * 
+ *
  */
 public class SpellCheckedMetadata extends CaseInsensitiveMetadata {
 
   /**
    * Threshold divider to calculate max. Levenshtein distance for misspelled
    * header field names:
-   * 
+   *
    * <code>threshold = Math.min(3, searched.length() / TRESHOLD_DIVIDER);</code>
    */
   private static final int TRESHOLD_DIVIDER = 3;
@@ -74,7 +74,7 @@ public class SpellCheckedMetadata extends CaseInsensitiveMetadata {
 
   /**
    * Normalizes String.
-   * 
+   *
    * @param str
    *          the string to normalize
    * @return normalized String
@@ -103,7 +103,7 @@ public class SpellCheckedMetadata extends CaseInsensitiveMetadata {
    * </ul>
    * If no matching with a well-known metadata name is found, then the original
    * name is returned.
-   * 
+   *
    * @param name
    *          HTTP header name to normalize
    * @return normalized HTTP header name
@@ -115,7 +115,8 @@ public class SpellCheckedMetadata extends CaseInsensitiveMetadata {
     if ((value == null) && (normalized != null)) {
       int threshold = Math.min(3, searched.length() / TRESHOLD_DIVIDER);
       for (int i = 0; i < normalized.length && value == null; i++) {
-        if (StringUtils.getLevenshteinDistance(searched, normalized[i]) < threshold) {
+        if (LevenshteinDistance.getDefaultInstance().apply(searched,
+            normalized[i]) < threshold) {
           value = NAMES_IDX.get(normalized[i]);
         }
       }

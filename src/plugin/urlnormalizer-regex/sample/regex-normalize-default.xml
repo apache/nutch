@@ -24,7 +24,7 @@
 <!-- WATCH OUT: an xml parser reads this file an ampersands must be
      expanded to &amp; -->
 
-<!-- The following rules show how to strip out session IDs, default pages, 
+<!-- The following rules show how to strip out session IDs, default pages,
      interpage anchors, etc. Order does matter!  -->
 <regex-normalize>
 
@@ -39,7 +39,7 @@
 <regex>
   <pattern>/((?i)index|default)\.((?i)js[pf]{1}?[afx]?|cgi|cfm|asp[x]?|[psx]?htm[l]?|php[3456]?)(\?|&amp;|#|$)</pattern>
   <substitution>/$3</substitution>
-</regex> 
+</regex>
 
 <!-- removes interpage href anchors such as site.com#location -->
 <regex>

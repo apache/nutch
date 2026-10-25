@@ -19,8 +19,7 @@ package org.apache.nutch.plugin;
 /**
  * <code>PluginRuntimeException</code> will be thrown until a exception in the
  * plugin managemnt occurs.
- * 
- * @author joa23
+ *
  */
 public class PluginRuntimeException extends Exception {
 

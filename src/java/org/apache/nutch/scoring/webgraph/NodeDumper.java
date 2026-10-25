@@ -22,10 +22,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
@@ -54,7 +53,7 @@ import org.apache.nutch.util.URLUtil;
  * A tools that dumps out the top urls by number of inlinks, number of outlinks,
  * or by score, to a text file. One of the major uses of this tool is to check
  * the top scoring urls of a link analysis program such as LinkRank.
- * 
+ *
  * For number of inlinks or number of outlinks the WebGraph program will need to
  * have been run. For link analysis score a program such as LinkRank will need
  * to have been run which updates the NodeDb of the WebGraph.
@@ -87,7 +86,7 @@ public class NodeDumper extends Configured implements Tool {
      * Outputs the url with the appropriate number of inlinks, outlinks, or for
      * score.
      */
-    public static class SorterMapper extends 
+    public static class SorterMapper extends
         Mapper<Text, Node, FloatWritable, Text> {
 
       private Configuration conf;
@@ -101,8 +100,8 @@ public class NodeDumper extends Configured implements Tool {
       @Override
       public void setup(Mapper<Text, Node, FloatWritable, Text>.Context context) {
         conf = context.getConfiguration();
-	inlinks = conf.getBoolean("inlinks", false);
-	outlinks = conf.getBoolean("outlinks", false);
+        inlinks = conf.getBoolean("inlinks", false);
+        outlinks = conf.getBoolean("outlinks", false);
       }
 
       @Override
@@ -128,7 +127,7 @@ public class NodeDumper extends Configured implements Tool {
      */
     public static class SorterReducer extends
         Reducer<FloatWritable, Text, Text, FloatWritable> {
-     
+
       private Configuration conf;
       private long topn = Long.MAX_VALUE;
 
@@ -186,7 +185,7 @@ public class NodeDumper extends Configured implements Tool {
       @Override
       public void setup(Mapper<Text, Node, Text, FloatWritable>.Context context) {
         conf = context.getConfiguration();
-	inlinks = conf.getBoolean("inlinks", false);
+        inlinks = conf.getBoolean("inlinks", false);
         outlinks = conf.getBoolean("outlinks", false);
         host = conf.getBoolean("host", false);
       }
@@ -219,12 +218,12 @@ public class NodeDumper extends Configured implements Tool {
      */
     public static class DumperReducer extends
         Reducer<Text, FloatWritable, Text, FloatWritable> {
-   
+
       private Configuration conf;
       private long topn = Long.MAX_VALUE;
       private boolean sum = false;
-   
-      @Override 
+
+      @Override
       public void reduce(Text key, Iterable<FloatWritable> values,
           Context context) throws IOException, InterruptedException {
 
@@ -266,24 +265,24 @@ public class NodeDumper extends Configured implements Tool {
 
   /**
    * Runs the process to dump the top urls out to a text file.
-   * 
+   *
    * @param webGraphDb
-   *          The {@link org.apache.nutch.scoring.webgraph.WebGraph} 
+   *          The {@link org.apache.nutch.scoring.webgraph.WebGraph}
    *          from which to pull values.
-   * @param type the node property type to dump, one of 
-   * {@link NodeDumper.DumpType#INLINKS}, {@link NodeDumper.DumpType#OUTLINKS} 
+   * @param type the node property type to dump, one of
+   * {@link NodeDumper.DumpType#INLINKS}, {@link NodeDumper.DumpType#OUTLINKS}
    * or {@link NodeDumper.DumpType#SCORES}
    * @param topN maximum value of top links to dump
    * @param output a {@link org.apache.hadoop.fs.Path} to write output to
-   * @param asEff if true set equals-sign as separator for 
+   * @param asEff if true set equals-sign as separator for
    * <a href="https://lucene.apache.org/solr/api/org/apache/solr/schema/ExternalFileField.html">
    * Solr's ExternalFileField</a>, false otherwise
-   * @param nameType either {@link NodeDumper.NameType#HOST} or 
+   * @param nameType either {@link NodeDumper.NameType#HOST} or
    * {@link NodeDumper.NameType#DOMAIN}
-   * @param aggrType the aggregation type, either 
+   * @param aggrType the aggregation type, either
    * {@link NodeDumper.AggrType#MAX} or {@link NodeDumper.AggrType#SUM}
-   * @param asSequenceFile true output will be written as 
-   * {@link SequenceFileOutputFormat}, otherwise default 
+   * @param asSequenceFile true output will be written as
+   * {@link SequenceFileOutputFormat}, otherwise default
    * {@link TextOutputFormat}
    * @throws Exception
    *           If an error occurs while dumping the top values.
@@ -373,67 +372,76 @@ public class NodeDumper extends Configured implements Tool {
   public int run(String[] args) throws Exception {
 
     Options options = new Options();
-    OptionBuilder.withArgName("help");
-    OptionBuilder.withDescription("show this help message");
-    Option helpOpts = OptionBuilder.create("help");
+    Option helpOpts = Option.builder("help")
+        .argName("help")
+        .desc("show this help message")
+        .build();
     options.addOption(helpOpts);
 
-    OptionBuilder.withArgName("webgraphdb");
-    OptionBuilder.hasArg();
-    OptionBuilder.withDescription("the web graph database to use");
-    Option webGraphDbOpts = OptionBuilder.create("webgraphdb");
+    Option webGraphDbOpts = Option.builder("webgraphdb")
+        .argName("webgraphdb")
+        .hasArg()
+        .desc("the web graph database to use")
+        .build();
     options.addOption(webGraphDbOpts);
 
-    OptionBuilder.withArgName("inlinks");
-    OptionBuilder.withDescription("show highest inlinks");
-    Option inlinkOpts = OptionBuilder.create("inlinks");
+    Option inlinkOpts = Option.builder("inlinks")
+        .argName("inlinks")
+        .desc("show highest inlinks")
+        .build();
     options.addOption(inlinkOpts);
 
-    OptionBuilder.withArgName("outlinks");
-    OptionBuilder.withDescription("show highest outlinks");
-    Option outlinkOpts = OptionBuilder.create("outlinks");
+    Option outlinkOpts = Option.builder("outlinks")
+        .argName("outlinks")
+        .desc("show highest outlinks")
+        .build();
     options.addOption(outlinkOpts);
 
-    OptionBuilder.withArgName("scores");
-    OptionBuilder.withDescription("show highest scores");
-    Option scoreOpts = OptionBuilder.create("scores");
+    Option scoreOpts = Option.builder("scores")
+        .argName("scores")
+        .desc("show highest scores")
+        .build();
     options.addOption(scoreOpts);
 
-    OptionBuilder.withArgName("topn");
-    OptionBuilder.hasOptionalArg();
-    OptionBuilder.withDescription("show topN scores");
-    Option topNOpts = OptionBuilder.create("topn");
+    Option topNOpts = Option.builder("topn")
+        .argName("topn")
+        .optionalArg(true)
+        .desc("show topN scores")
+        .build();
     options.addOption(topNOpts);
 
-    OptionBuilder.withArgName("output");
-    OptionBuilder.hasArg();
-    OptionBuilder.withDescription("the output directory to use");
-    Option outputOpts = OptionBuilder.create("output");
+    Option outputOpts = Option.builder("output")
+        .argName("output")
+        .hasArg()
+        .desc("the output directory to use")
+        .build();
     options.addOption(outputOpts);
 
-    OptionBuilder.withArgName("asEff");
-    OptionBuilder
-        .withDescription("Solr ExternalFileField compatible output format");
-    Option effOpts = OptionBuilder.create("asEff");
+    Option effOpts = Option.builder("asEff")
+        .argName("asEff")
+        .desc("Solr ExternalFileField compatible output format")
+        .build();
     options.addOption(effOpts);
 
-    OptionBuilder.hasArgs(2);
-    OptionBuilder.withDescription("group <host|domain> <sum|max>");
-    Option groupOpts = OptionBuilder.create("group");
+    Option groupOpts = Option.builder("group")
+        .numberOfArgs(2)
+        .desc("group <host|domain> <sum|max>")
+        .build();
     options.addOption(groupOpts);
 
-    OptionBuilder.withArgName("asSequenceFile");
-    OptionBuilder.withDescription("whether to output as a sequencefile");
-    Option sequenceFileOpts = OptionBuilder.create("asSequenceFile");
+    Option sequenceFileOpts = Option.builder("asSequenceFile")
+        .argName("asSequenceFile")
+        .desc("whether to output as a sequencefile")
+        .build();
     options.addOption(sequenceFileOpts);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     try {
 
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("NodeDumper", options);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp("NodeDumper", "", options, "", false);
         return -1;
       }
 

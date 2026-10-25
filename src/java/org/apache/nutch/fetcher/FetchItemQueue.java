@@ -53,11 +53,11 @@ public class FetchItemQueue {
   int maxThreads;
   Text cookie;
   boolean variableFetchDelaySet = false;
-  // keep track of duplicates if fetcher.follow.outlinks.depth > 0. Some urls may 
+  // keep track of duplicates if fetcher.follow.outlinks.depth > 0. Some urls may
   // not get followed due to hash collisions. Hashing is used to reduce memory
   // usage.
   Set<Integer> alreadyFetched;
-  
+
   public FetchItemQueue(Configuration conf, int maxThreads, long crawlDelay,
       long minCrawlDelay) {
     this.maxThreads = maxThreads;
@@ -107,7 +107,7 @@ public class FetchItemQueue {
         minCrawlDelay = ((LongWritable)(it.datum.getMetaData().get(variableFetchDelayKey))).get();
         setEndTime(System.currentTimeMillis() - crawlDelay);
       }
-      
+
       // Remove it!
       it.datum.getMetaData().remove(variableFetchDelayKey);
     }
@@ -139,11 +139,11 @@ public class FetchItemQueue {
     }
     return it;
   }
-  
+
   public void setCookie(Text cookie) {
     this.cookie = cookie;
   }
-  
+
   public Text getCookie() {
     return cookie;
   }

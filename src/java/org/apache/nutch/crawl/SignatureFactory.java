@@ -29,8 +29,7 @@ import java.lang.invoke.MethodHandles;
  * Factory class, which instantiates a Signature implementation according to the
  * current Configuration configuration. This newly created instance is cached in
  * the Configuration instance, so that it could be later retrieved.
- * 
- * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
+ *
  */
 public class SignatureFactory {
   private static final Logger LOG = LoggerFactory
@@ -40,7 +39,7 @@ public class SignatureFactory {
   } // no public constructor
 
   /**
-   * Return the {@link Signature} implementation for a given 
+   * Return the {@link Signature} implementation for a given
    * {@link Configuration}, or {@link MD5Signature} by default.
    * @param conf a populated {@link Configuration}
    * @return the {@link Signature} implementation

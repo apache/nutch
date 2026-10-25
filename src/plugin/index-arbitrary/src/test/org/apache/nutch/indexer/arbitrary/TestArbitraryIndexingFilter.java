@@ -37,7 +37,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * Further tests July 2025 to demonstrate conditionally setting values for
  * arbitrary fields based on existing crawl data at the time filter() is
  * called for indexing.
- * @author Joe Gilvary
  */
 
 public class TestArbitraryIndexingFilter {
@@ -61,7 +60,7 @@ public class TestArbitraryIndexingFilter {
 
   /**
    * Test adding field with arbitrary content from POJO
-   * 
+   *
    * @throws Exception
    */
    @Test
@@ -78,7 +77,7 @@ public class TestArbitraryIndexingFilter {
 
      filter.setConf(conf);
      doc = new NutchDocument();
-    
+
      try {
        filter.filter(doc, parse, url, crawlDatum, inlinks);
      } catch (Exception e) {
@@ -94,7 +93,7 @@ public class TestArbitraryIndexingFilter {
 
   /**
    * Test supplementing a doc field with arbitrary content from POJO
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -116,7 +115,7 @@ public class TestArbitraryIndexingFilter {
     assertNotNull(filter, "No filter exists for testSupplementExistingField");
 
     filter.setConf(conf);
-    
+
     doc = new NutchDocument();
     assertNotNull(doc, "doc doesn't exist");
 
@@ -126,10 +125,10 @@ public class TestArbitraryIndexingFilter {
 
     assertEquals(1, doc.getField("description").getValues().size(),
         "field description does not have exactly one value");
-    
+
     assertTrue(doc.getField("description").getValues().contains("irrational"),
         "field description does not have initial value 'irrational'");
-    
+
     try {
       filter.filter(doc, parse, url, crawlDatum, inlinks);
     } catch (Exception e) {
@@ -153,7 +152,7 @@ public class TestArbitraryIndexingFilter {
 
   /**
    * Test overwriting a doc field with arbitrary content from POJO
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -173,13 +172,13 @@ public class TestArbitraryIndexingFilter {
     conf.set("index.arbitrary.constructorArgs.2","Popeye");
     conf.set("index.arbitrary.methodName.2","getText");
     conf.set("index.arbitrary.overwrite.2","true");
-    
+
     filter = new ArbitraryIndexingFilter();
     assertNotNull(filter, "No filter exists for testOverwritingExistingField");
 
     filter.setConf(conf);
     assertNotNull(conf, "conf does not exist");
-    
+
     doc = new NutchDocument();
 
     assertNotNull(doc, "doc does not exist");
@@ -198,7 +197,7 @@ public class TestArbitraryIndexingFilter {
 
     assertTrue(doc.getField("philosopher").getValues().contains("Socrates"),
         "field philosopher does not have initial value 'Socrates'");
-    
+
     try {
       filter.filter(doc, parse, url, crawlDatum, inlinks);
     } catch (Exception e) {

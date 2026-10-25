@@ -17,6 +17,7 @@
 package org.apache.nutch.util;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.xerces.parsers.DOMParser;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,8 +60,8 @@ public class TestNodeWalker {
       parser.setFeature(
           "http://apache.org/xml/features/nonvalidating/load-external-dtd",
           false);
-      parser
-          .parse(new InputSource(new ByteArrayInputStream(WEBPAGE.getBytes())));
+      parser.parse(new InputSource(
+          new ByteArrayInputStream(WEBPAGE.getBytes(StandardCharsets.UTF_8))));
     } catch (Exception e) {
       e.printStackTrace();
     }

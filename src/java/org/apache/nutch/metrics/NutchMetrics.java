@@ -18,7 +18,7 @@ package org.apache.nutch.metrics;
 
 /**
  * Centralized constants for Hadoop metrics counter groups and names.
- * 
+ *
  * <p>Follows <a href="https://prometheus.io/docs/practices/naming/">Prometheus
  * naming conventions</a>:
  * <ul>
@@ -27,7 +27,7 @@ package org.apache.nutch.metrics;
  *   <li>Accumulating counters use {@code _total} suffix</li>
  *   <li>Units are included in counter names where applicable (e.g., {@code _bytes})</li>
  * </ul>
- * 
+ *
  * @since 1.22
  */
 public final class NutchMetrics {
@@ -81,6 +81,9 @@ public final class NutchMetrics {
 
   /** Counter group for WARC export operations. */
   public static final String GROUP_WARC_EXPORTER = "nutch_warc_exporter";
+
+  /** Counter group for Common Crawl data dumper tool. */
+  public static final String GROUP_COMMONCRAWL_DUMPER = "nutch_commoncrawl_dumper";
 
   /** Counter group for domain statistics operations. */
   public static final String GROUP_DOMAIN_STATS = "nutch_domain_stats";
@@ -184,6 +187,9 @@ public final class NutchMetrics {
 
   /** Documents deleted as duplicates. */
   public static final String INDEXER_DELETED_DUPLICATES_TOTAL = "deleted_duplicates_total";
+
+  /** Documents deleted because parsing failed. */
+  public static final String INDEXER_DELETED_FAILED_PARSE_TOTAL = "deleted_failed_parse_total";
 
   /** Documents deleted by indexing filter. */
   public static final String INDEXER_DELETED_BY_INDEXING_FILTER_TOTAL = "deleted_by_indexing_filter_total";
@@ -368,6 +374,13 @@ public final class NutchMetrics {
    * Used with {@link LatencyTracker} to emit indexing timing counters.
    */
   public static final String INDEXER_LATENCY = "index_latency";
+
+  /**
+   * Special key used in map output to send serialized TDigest bytes to the
+   * reducer for job-level percentile merge. Reducers detect this key and merge
+   * digests instead of writing to output.
+   */
+  public static final String LATENCY_KEY = "__LATENCY__";
 
   // =========================================================================
   // Common Error Counter Names (used with component-specific groups)

@@ -16,11 +16,12 @@
  */
 package org.apache.nutch.indexwriter.dummy;
 
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
+import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -49,11 +50,6 @@ public class DummyIndexWriter implements IndexWriter {
   private boolean delete = false;
   private String path;
 
-  @Override
-  public void open(Configuration conf, String name) throws IOException {
-    //Implementation not required
-  }
-
   /**
    * Initializes the internal variables from a given index writer configuration.
    *
@@ -79,7 +75,7 @@ public class DummyIndexWriter implements IndexWriter {
 
     try {
       LOG.debug("Opening dummy index file {}", path);
-      writer = new BufferedWriter(new FileWriter(path));
+      writer = new BufferedWriter(new FileWriter(path, StandardCharsets.UTF_8));
     } catch (IOException ex) {
       LOG.error("Failed to open index file {}: {}", path,
           StringUtils.stringifyException(ex));

@@ -20,8 +20,7 @@ import org.apache.hadoop.conf.Configuration;
 
 /**
  * Simple Test plugin
- * 
- * @author joa23
+ *
  */
 public class SimpleTestPlugin extends Plugin {
 
@@ -45,7 +44,7 @@ public class SimpleTestPlugin extends Plugin {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.apache.nutch.plugin.Plugin#shutDown()
    */
   @Override

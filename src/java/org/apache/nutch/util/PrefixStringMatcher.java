@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A class for efficiently matching <code>String</code>s against a set of
@@ -132,7 +133,8 @@ public class PrefixStringMatcher extends TrieStringMatcher {
       Collections.shuffle(testsList);
       try {
         long count = testsList.parallelStream().filter(matcher::matches).count();
-        System.out.print(String.format("Cycle %4d : %d matches\r", i, count));
+        System.out.print(
+            String.format(Locale.ROOT, "Cycle %4d : %d matches\r", i, count));
       } catch (Exception e) {
         // flush output
         System.out.println("");

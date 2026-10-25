@@ -36,9 +36,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * @author mattmann
  * @version $Revision$
- * 
+ *
  *          <p>
  *          Unit tests for the {@link File}Protocol.
  *          </p>
@@ -73,9 +72,9 @@ public class TestProtocolFile {
 
   /**
    * Tests the setting of the <code>Response.CONTENT_TYPE</code> metadata field.
-   * 
+   *
    * @since NUTCH-384
-   * 
+   *
    */
   public void setContentType(String testTextFile) throws ProtocolException {
     String urlString = "file:" + sampleDir + fileSeparator + testTextFile;

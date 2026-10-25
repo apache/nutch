@@ -16,30 +16,32 @@
  */
 package org.apache.nutch.parse.html;
 
-import org.apache.nutch.parse.HTMLMetaTags;
-
 import java.io.ByteArrayInputStream;
 import java.net.URL;
 
-import org.cyberneko.html.parsers.*;
+import org.apache.html.dom.HTMLDocumentImpl;
+import org.apache.nutch.parse.HTMLMetaTags;
+import org.cyberneko.html.parsers.DOMFragmentParser;
 import org.junit.jupiter.api.Test;
-import org.xml.sax.*;
-import org.w3c.dom.*;
-import org.apache.html.dom.*;
+import org.w3c.dom.DocumentFragment;
+import org.xml.sax.InputSource;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /** Unit tests for HTMLMetaProcessor. */
 public class TestRobotsMetaProcessor {
 
   /*
-   * 
+   *
    * some sample tags:
-   * 
+   *
    * <meta name="robots" content="index,follow"> <meta name="robots"
    * content="noindex,follow"> <meta name="robots" content="index,nofollow">
    * <meta name="robots" content="noindex,nofollow">
-   * 
+   *
    * <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
    */
 
@@ -122,7 +124,7 @@ public class TestRobotsMetaProcessor {
     }
 
     for (int i = 0; i < tests.length; i++) {
-      byte[] bytes = tests[i].getBytes();
+      byte[] bytes = tests[i].getBytes(UTF_8);
 
       DocumentFragment node = new HTMLDocumentImpl().createDocumentFragment();
 
@@ -141,13 +143,13 @@ public class TestRobotsMetaProcessor {
           "got follow wrong on test " + i);
       assertEquals(robotsMeta.getNoCache(), answers[i][2],
           "got cache wrong on test " + i);
-      assertTrue(((robotsMeta.getBaseHref() == null) &&
-          (currURLsAndAnswers[i][1] == null))
-                  || ((robotsMeta.getBaseHref() != null) && robotsMeta
-                      .getBaseHref().equals(currURLsAndAnswers[i][1])),
+      assertTrue(
+          ((robotsMeta.getBaseHref() == null)
+              && (currURLsAndAnswers[i][1] == null))
+              || ((robotsMeta.getBaseHref() != null) && robotsMeta.getBaseHref()
+                  .toString().equals(currURLsAndAnswers[i][1].toString())),
           "got base href wrong on test " + i + " (got "
               + robotsMeta.getBaseHref() + ")");
-
     }
   }
 

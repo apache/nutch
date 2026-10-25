@@ -15,13 +15,15 @@
  limitations under the License.
 -->
 
+# Fast URL Filter
+
 Filters URLs based on a file of regular expressions using host/domains
 matching first. The default policy is to accept a URL if no matches
 are found.
 
 Rule Format:
 
-```
+```text
 Host www.example.org
   DenyPath /path/to/be/excluded
   DenyPath /some/other/path/excluded
@@ -75,7 +77,7 @@ The rules file is defined via the property `urlfilter.fast.file`,
 the default name is `fast-urlfilter.txt`.
 
 In addition to this, the filter checks that the length of the path element of the URL and its query
-done not exceed the values set in the properties `urlfilter.fast.url.path.max.length` and 
-`urlfilter.fast.url.query.max.length` if set. The overall length of the URL can also be used for 
+done not exceed the values set in the properties `urlfilter.fast.url.path.max.length` and
+`urlfilter.fast.url.query.max.length` if set. The overall length of the URL can also be used for
 filtering through the config `urlfilter.fast.url.max.length`.
 

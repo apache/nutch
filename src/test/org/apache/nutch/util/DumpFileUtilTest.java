@@ -16,6 +16,9 @@
  */
 package org.apache.nutch.util;
 
+import java.io.File;
+
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -24,47 +27,103 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DumpFileUtilTest {
 
-    @Test
-    public void testGetUrlMD5() throws Exception {
-        String testUrl = "http://apache.org";
+  /**
+   * Verifies that {@link DumpFileUtil#getUrlMD5} returns the lowercase hex MD5
+   * digest of a URL.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testGetUrlMD5() throws Exception {
+    String testUrl = "http://apache.org";
 
-        String result = DumpFileUtil.getUrlMD5(testUrl);
+    String result = DumpFileUtil.getUrlMD5(testUrl);
 
-        assertThat(result, is("991e599262e04ea2ec76b6c5aed499a7"));
-    }
+    assertThat(result, is("991e599262e04ea2ec76b6c5aed499a7"));
+  }
 
-    @Test
-    public void testCreateTwoLevelsDirectory() throws Exception {
-        String testUrl = "http://apache.org";
-        String basePath = "/tmp";
-        String fullDir = DumpFileUtil.createTwoLevelsDirectory(basePath, DumpFileUtil.getUrlMD5(testUrl));
+  /**
+   * Verifies that {@link DumpFileUtil#createTwoLevelsDirectory} builds a
+   * two-level dump directory from selected characters of the URL MD5, and
+   * returns {@code null} when the directory cannot be created.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testCreateTwoLevelsDirectory() throws Exception {
+    String testUrl = "http://apache.org";
+    String basePath = "/tmp";
+    String fullDir = DumpFileUtil.createTwoLevelsDirectory(basePath,
+        DumpFileUtil.getUrlMD5(testUrl));
 
-        assertThat(fullDir, is("/tmp/96/ea"));
+    assertThat(fullDir, is("/tmp/96/ea"));
 
-        String basePath2 = "/this/path/is/not/existed/just/for/testing";
-        String fullDir2 = DumpFileUtil.createTwoLevelsDirectory(basePath2, DumpFileUtil.getUrlMD5(testUrl));
+    String basePath2 = "/this/path/is/not/existed/just/for/testing";
+    String fullDir2 = DumpFileUtil.createTwoLevelsDirectory(basePath2,
+        DumpFileUtil.getUrlMD5(testUrl));
 
-        assertThat(fullDir2, nullValue());
-    }
+    assertThat(fullDir2, nullValue());
+  }
 
-    @Test
-    public void testCreateFileName() throws Exception {
-        String testUrl = "http://apache.org";
-        String baseName = "test";
-        String extension = "html";
-        String fullDir = DumpFileUtil.createFileName(DumpFileUtil.getUrlMD5(testUrl), baseName, extension);
+  /**
+   * Verifies that {@link DumpFileUtil#createFileName} formats
+   * {@code md5_basename.extension} and truncates a too-long base name or
+   * extension.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testCreateFileName() throws Exception {
+    String testUrl = "http://apache.org";
+    String baseName = "test";
+    String extension = "html";
+    String fullDir = DumpFileUtil.createFileName(
+        DumpFileUtil.getUrlMD5(testUrl), baseName, extension);
 
-        assertThat(fullDir, is("991e599262e04ea2ec76b6c5aed499a7_test.html"));
+    assertThat(fullDir, is("991e599262e04ea2ec76b6c5aed499a7_test.html"));
 
-        String tooLongBaseName = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
-        String fullDir2 = DumpFileUtil.createFileName(DumpFileUtil.getUrlMD5(testUrl), tooLongBaseName, extension);
+    String tooLongBaseName = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
+    String fullDir2 = DumpFileUtil.createFileName(
+        DumpFileUtil.getUrlMD5(testUrl), tooLongBaseName, extension);
 
-        assertThat(fullDir2,
-            is("991e599262e04ea2ec76b6c5aed499a7_testtesttesttesttesttesttesttest.html"));
+    assertThat(fullDir2, is(
+        "991e599262e04ea2ec76b6c5aed499a7_testtesttesttesttesttesttesttest.html"));
 
-        String tooLongExtension = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
-        String fullDir3 = DumpFileUtil.createFileName(DumpFileUtil.getUrlMD5(testUrl), baseName, tooLongExtension);
+    String tooLongExtension = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
+    String fullDir3 = DumpFileUtil.createFileName(
+        DumpFileUtil.getUrlMD5(testUrl), baseName, tooLongExtension);
 
-        assertThat(fullDir3, is("991e599262e04ea2ec76b6c5aed499a7_test.testt"));
-    }
+    assertThat(fullDir3, is("991e599262e04ea2ec76b6c5aed499a7_test.testt"));
+  }
+
+  /**
+   * Verifies that {@link DumpFileUtil#createFileNameFromUrl} fingerprints the
+   * URL with SHA-256 (not SHA-1) in the dump path, and truncates a too-long
+   * file extension.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testCreateFileNameFromUrl() throws Exception {
+    String testUrl = "http://apache.org";
+    String reverseKey = "org.apache.http";
+    String epoch = "1234567890";
+    String sha256 = DigestUtils.sha256Hex(testUrl);
+    String sha1 = DigestUtils.sha1Hex(testUrl);
+
+    String path = DumpFileUtil.createFileNameFromUrl("/tmp", reverseKey,
+        testUrl, epoch, "html", false);
+
+    assertThat(path, is("/tmp" + File.separator + reverseKey + File.separator
+        + sha256 + File.separator + epoch + ".html"));
+    assertThat(path.contains(sha1), is(false));
+
+    String tooLongExtension = "htmlhtmlhtml";
+    String pathTruncated = DumpFileUtil.createFileNameFromUrl("/tmp",
+        reverseKey, testUrl, epoch, tooLongExtension, false);
+
+    assertThat(pathTruncated,
+        is("/tmp" + File.separator + reverseKey + File.separator + sha256
+            + File.separator + epoch + ".htmlh"));
+  }
 }

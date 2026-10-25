@@ -16,21 +16,25 @@
  */
 package org.apache.nutch.parse.headings;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.parse.*;
+import org.apache.nutch.parse.HTMLMetaTags;
+import org.apache.nutch.parse.HtmlParseFilter;
+import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
+import org.cyberneko.html.parsers.DOMFragmentParser;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DocumentFragment;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.cyberneko.html.parsers.DOMFragmentParser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -56,7 +60,8 @@ public class TestHeadingsParseFilter {
 
     parser.parse(new InputSource(new ByteArrayInputStream(
         ("<html><head><title>test header with span element</title></head><body><h1>header with <span>span element</span></h1></body></html>")
-            .getBytes())), node);
+            .getBytes(StandardCharsets.UTF_8))),
+        node);
 
     parseResult = filter.filter(content, parseResult, metaTags, node);
 

@@ -41,8 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * CrawlDbFiltering test which tests for correct, error free url normalization
  * when the CrawlDB includes urls with <code>DB GONE</code> status and
  * <code>CRAWLDB_PURGE_404</code> is set to true.
- * 
- * @author lufeng
+ *
  */
 public class TestCrawlDbFilter {
   Configuration conf;
@@ -72,7 +71,7 @@ public class TestCrawlDbFilter {
 
   /**
    * Test url404Purging
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -120,7 +119,7 @@ public class TestCrawlDbFilter {
 
   /**
    * Read contents of fetchlist.
-   * 
+   *
    * @param fetchlist
    *          path to Generated fetchlist
    * @return Generated {@link URLCrawlDatum} objects

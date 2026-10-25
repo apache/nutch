@@ -39,7 +39,7 @@ import org.apache.hadoop.conf.Configuration;
  * Adds arbitrary searchable fields to a document from the class and method
  * the user identifies in the config. The user supplies the name of the field
  * to add with the class and method names that supply the value.
- * 
+ *
  * Example:<br><br>
  * &lt;property&gt;<br>
  *   &lt;name&gt;index.arbitrary.function.count&lt;/name&gt;<br>
@@ -83,37 +83,37 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
 
   /** How many arbitrary field definitions to set. */
   private int arbitraryAddsCount = 0;
-  
+
   /** The name of the field to insert/overwrite in the NutchDocument */
   private String fieldName;
-  
+
   /** The fully-qualified class name of the custom class to use for the
    *  new field. This class must be in the Nutch runtime classpath,
    *  e.g., nutch/lib/ dierctory. */
   private String className;
-  
+
   /** The String values to pass to the custom class constructor. The plugin
    *  will add the document url as the first argument in className's
    *  String[] args. */
   private String[] userConstrArgs;
-  
+
   /** The array where the plugin copies the url &amp; the userConstrArgs
    *  to create the instance of className. */
   private String[] constrArgs;
-  
+
   /** The name of the method in the custom class to call. Its return value
    *  will become the value of fieldName in the NutchDocument. */
   private String methodName;
-  
+
   /** The String values of the arguments to methodName. It's up to the
    *  developer of className to do any casts/conversions from String to
    *  another class in the code of className. */
   private String[] methodArgs;
-  
+
   /** The result that returns from methodName. The plugin will set the value
    *  of fieldName to this. */
   private Object result;
-  
+
   /** Optional flag to determine whether to overwrite the existing value in the
    *  NutchDocument fieldName if this is set to true. Default behavior is to
    *  add the value from calling methodName to existing values for fieldName. */
@@ -142,7 +142,7 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
    * {@code index.arbitrary.methodArgs}.<em>index</em>
    * in nutch-default.xml or nutch-site.xml where <em>index</em> ranges from 0
    * to {@code index.arbitrary.function.count} - 1.
-   * 
+   *
    * @param doc
    *          The {@link NutchDocument} object
    * @param parse
@@ -188,39 +188,39 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
         }
         if (allFieldsAccess) {
           theConstructor = theClass.getDeclaredConstructor(String[].class,
-							   NutchDocument.class,
-							   Parse.class,
-							   Text.class,
-							   CrawlDatum.class,
-							   Inlinks.class);
-	} else {
+                                                           NutchDocument.class,
+                                                           Parse.class,
+                                                           Text.class,
+                                                           CrawlDatum.class,
+                                                           Inlinks.class);
+        } else {
           theConstructor = theClass.getDeclaredConstructor(String[].class);
-	}
+        }
       } catch (NoSuchMethodException nme) {
         LOG.error("Exception preparing reflection for constructor. className was {}",
-		 String.valueOf(className));
+                  String.valueOf(className));
         nme.printStackTrace();
         continue;
       }  catch (Exception e) {
         LOG.error("Exception preparing reflection tasks. className was {}",
-		 String.valueOf(className));
+                  String.valueOf(className));
         e.printStackTrace();
         continue;
       }
       try {
         constrArgs = new String[userConstrArgs.length + 1];
         System.arraycopy(userConstrArgs,0,constrArgs,1,userConstrArgs.length);
-	if (allFieldsAccess) {
+        if (allFieldsAccess) {
           instance = theConstructor.newInstance(constrArgs,
-						doc,
-						parse,
-						url,
-						datum,
-						inlinks);
-	} else {
+                                                doc,
+                                                parse,
+                                                url,
+                                                datum,
+                                                inlinks);
+        } else {
           constrArgs[0] = url.toString();
           instance = theConstructor.newInstance(new Object[]{constrArgs});
-	}
+        }
 
         if (methodArgs.length > 0) {
           result = theMethod.invoke(instance, new Object[]{methodArgs});
@@ -229,8 +229,8 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
         }
       } catch (Exception e) {
         LOG.error("Exception in reflection trying to instantiate/invoke. "
-		  + "url was {} & className was {}",
-		  String.valueOf(url), String.valueOf(className));
+                  + "url was {} & className was {}",
+                  String.valueOf(url), String.valueOf(className));
         if (constrArgs.length > 1) {
           LOG.error("constrArgs[1] was {}", String.valueOf(constrArgs[1]));
         }
@@ -239,19 +239,19 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
           LOG.error("methodArgs[0] was {}", String.valueOf(methodArgs[0]));
         }
         e.printStackTrace();
-	continue;
+        continue;
       }
 
       LOG.debug("{}.{}() returned {} for field {}.", className,
-		methodName, String.valueOf(result), String.valueOf(fieldName));
-      
+                methodName, String.valueOf(result), String.valueOf(fieldName));
+
       // If user chose to overwrite, remove existing value
       if (overwrite) {
-	LOG.debug("overwrite == true for fieldName == {} ", fieldName);
-	if (doc.getFieldNames().contains(fieldName)) {
-	  LOG.debug("Removing field '{}' from doc for overwrite", fieldName);
-	  doc.removeField(fieldName);
-	}
+        LOG.debug("overwrite == true for fieldName == {} ", fieldName);
+        if (doc.getFieldNames().contains(fieldName)) {
+          LOG.debug("Removing field '{}' from doc for overwrite", fieldName);
+          doc.removeField(fieldName);
+        }
       }
       if (result == null) {
         LOG.debug("Call to {}.{} returned null", className, methodName);
@@ -288,7 +288,7 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
     LOG.debug("In setIndexedConf() where ndx was passed in as {}", String.valueOf(ndx));
     fieldName = conf.get("index.arbitrary.fieldName.".concat(String.valueOf(ndx)));
     LOG.debug("Looking now for index.arbitrary.fieldname.{} which was: {}",
-	      String.valueOf(ndx),String.valueOf(fieldName));
+              String.valueOf(ndx),String.valueOf(fieldName));
 
     if (fieldName == null || fieldName == "") {
       throw new RuntimeException ("Problem in configuration where the index.arbitrary.fieldName."

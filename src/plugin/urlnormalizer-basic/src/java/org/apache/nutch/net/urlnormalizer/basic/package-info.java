@@ -23,11 +23,11 @@
  * <li>remove anchors</li>
  * <li>use percent-encoding (only) where needed</li>
  * </ul>
- * 
+ *
  * E.g.,
  * <code>https://www.example.org/a/../b//./select%2Dlang.php?lang=español#anchor</code>
  * is normalized to <code>https://www.example.org/b/select-lang.php?lang=espa%C3%B1ol</code>
- * 
+ *
  * Optional and configurable normalizations are:
  * <ul>
  * <li>convert Internationalized Domain Names (IDNs) uniquely either to the

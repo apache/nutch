@@ -16,6 +16,8 @@
  */
 package org.apache.nutch.indexer.filter;
 
+import java.util.Locale;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -28,11 +30,12 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * JUnit based tests of class
@@ -63,9 +66,9 @@ public class MimeTypeIndexingFilterTest {
   public void testMissingConfigFile() throws Exception {
     String file = conf.get(MimeTypeIndexingFilter.MIMEFILTER_REGEX_FILE, "");
     assertEquals("", file,
-        String
-            .format("Property %s must not be present in the the configuration file",
-                MimeTypeIndexingFilter.MIMEFILTER_REGEX_FILE));
+        String.format(Locale.ROOT,
+            "Property %s must not be present in the the configuration file",
+            MimeTypeIndexingFilter.MIMEFILTER_REGEX_FILE));
 
     filter.setConf(conf);
 

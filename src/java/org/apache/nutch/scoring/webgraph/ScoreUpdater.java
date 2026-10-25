@@ -23,10 +23,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
@@ -83,7 +82,7 @@ public class ScoreUpdater extends Configured implements Tool{
    * Creates new CrawlDatum objects with the updated score from the NodeDb or
    * with a cleared score.
    */
-  public static class ScoreUpdaterReducer extends 
+  public static class ScoreUpdaterReducer extends
       Reducer<Text, ObjectWritable, Text, CrawlDatum> {
     private float clearScore = 0.0f;
 
@@ -139,9 +138,9 @@ public class ScoreUpdater extends Configured implements Tool{
 
 
   /**
-   * Updates the inlink score in the web graph node databsae into the crawl
+   * Updates the inlink score in the web graph node database into the crawl
    * database.
-   * 
+   *
    * @param crawlDb
    *          The crawl database to update
    * @param webGraphDb
@@ -149,7 +148,7 @@ public class ScoreUpdater extends Configured implements Tool{
    * @throws IOException
    *           If an error occurs while updating the scores.
    * @throws InterruptedException if the Job is interrupted during execution
-   * @throws ClassNotFoundException if classes required to run 
+   * @throws ClassNotFoundException if classes required to run
    * the Job cannot be located
    */
   public void update(Path crawlDb, Path webGraphDb) throws IOException,
@@ -229,31 +228,34 @@ public class ScoreUpdater extends Configured implements Tool{
   public int run(String[] args) throws Exception {
 
     Options options = new Options();
-    OptionBuilder.withArgName("help");
-    OptionBuilder.withDescription("show this help message");
-    Option helpOpts = OptionBuilder.create("help");
+    Option helpOpts = Option.builder("help")
+        .argName("help")
+        .desc("show this help message")
+        .build();
     options.addOption(helpOpts);
 
-    OptionBuilder.withArgName("crawldb");
-    OptionBuilder.hasArg();
-    OptionBuilder.withDescription("the crawldb to use");
-    Option crawlDbOpts = OptionBuilder.create("crawldb");
+    Option crawlDbOpts = Option.builder("crawldb")
+        .argName("crawldb")
+        .hasArg()
+        .desc("the crawldb to use")
+        .build();
     options.addOption(crawlDbOpts);
 
-    OptionBuilder.withArgName("webgraphdb");
-    OptionBuilder.hasArg();
-    OptionBuilder.withDescription("the webgraphdb to use");
-    Option webGraphOpts = OptionBuilder.create("webgraphdb");
+    Option webGraphOpts = Option.builder("webgraphdb")
+        .argName("webgraphdb")
+        .hasArg()
+        .desc("the webgraphdb to use")
+        .build();
     options.addOption(webGraphOpts);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     try {
 
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")
           || !line.hasOption("crawldb")) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("ScoreUpdater", options);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp("ScoreUpdater", "", options, "", false);
         return -1;
       }
 

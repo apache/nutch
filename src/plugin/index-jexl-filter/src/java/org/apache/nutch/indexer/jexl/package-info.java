@@ -16,8 +16,8 @@
  */
 
 /**
- * <p>This plugin implements a dynamic indexing filter which uses JEXL 
- * expressions to allow filtering based on the page's metadata 
+ * <p>This plugin implements a dynamic indexing filter which uses JEXL
+ * expressions to allow filtering based on the page's metadata
  * <p>Available primitives in the JEXL context:<ul>
   * <li>status, fetchTime, modifiedTime, retries, interval, score, signature, url, text, title</li></ul>
  * <p>Available objects in the JEXL context:<ul>
@@ -26,6 +26,6 @@
  *   Each property value is always an array of Strings (so if you expect one value, use [0])</li>
  * <li>doc - contains all the NutchFields from the NutchDocument.<br>
  *   Each property value is always an array of Objects.</li></ul>
- * 
+ *
  */
 package org.apache.nutch.indexer.jexl;

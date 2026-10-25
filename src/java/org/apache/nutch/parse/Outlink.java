@@ -59,7 +59,7 @@ public class Outlink implements Writable {
   /**
    * Skips over one Outlink in the input.
    * @param in the {@link DataInput} tuple stream holding the
-   * toUrl and archor pair.
+   * toUrl and anchor pair.
    * @throws IOException if there is an error processing the {@link DataInput}
    */
   public static void skip(DataInput in) throws IOException {

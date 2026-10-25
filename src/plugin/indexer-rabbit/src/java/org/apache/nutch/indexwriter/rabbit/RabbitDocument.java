@@ -16,10 +16,11 @@
  */
 package org.apache.nutch.indexwriter.rabbit;
 
-import com.google.gson.Gson;
-
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.google.gson.Gson;
 
 class RabbitDocument {
   private List<RabbitDocumentField> fields;
@@ -45,7 +46,7 @@ class RabbitDocument {
 
   byte[] getBytes() {
     Gson gson = new Gson();
-    return gson.toJson(this).getBytes();
+    return gson.toJson(this).getBytes(StandardCharsets.UTF_8);
   }
 
   static class RabbitDocumentField {

@@ -37,7 +37,7 @@ import org.apache.nutch.protocol.Content;
  * This class wraps all {@link SegmentMergeFilter} extensions in a single object
  * so it is easier to operate on them. If any of extensions returns
  * <code>false</code> this one will return <code>false</code> as well.
- * 
+ *
  */
 public class SegmentMergeFilters {
   private static final Logger LOG = LoggerFactory

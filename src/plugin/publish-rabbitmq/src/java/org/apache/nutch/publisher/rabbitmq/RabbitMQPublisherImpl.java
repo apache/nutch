@@ -17,6 +17,7 @@
 package org.apache.nutch.publisher.rabbitmq;
 
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.StringUtils;
@@ -80,11 +81,11 @@ public class RabbitMQPublisherImpl implements NutchPublisher {
   public void publish(Object event, Configuration conf) {
     try {
       RabbitMQMessage message = new RabbitMQMessage();
-      message.setBody(getJSONString(event).getBytes());
+      message.setBody(getJSONString(event).getBytes(StandardCharsets.UTF_8));
       message.setHeaders(headersStatic);
       client.publish(exchange, routingKey, message);
     } catch (Exception e) {
-      LOG.error("Error occured while publishing - {}",
+      LOG.error("Error occurred while publishing - {}",
           StringUtils.stringifyException(e));
     }
   }

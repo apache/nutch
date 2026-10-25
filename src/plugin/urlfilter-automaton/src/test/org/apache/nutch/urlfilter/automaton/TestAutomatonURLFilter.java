@@ -29,8 +29,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * JUnit based test of class <code>AutomatonURLFilter</code>.
- * 
- * @author J&eacute;r&ocirc;me Charron
+ *
  */
 public class TestAutomatonURLFilter extends RegexURLFilterBaseTest {
 

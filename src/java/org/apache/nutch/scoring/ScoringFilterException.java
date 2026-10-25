@@ -18,8 +18,7 @@ package org.apache.nutch.scoring;
 
 /**
  * Specialized exception for errors during scoring.
- * 
- * @author Andrzej Bialecki
+ *
  */
 @SuppressWarnings("serial")
 public class ScoringFilterException extends Exception {

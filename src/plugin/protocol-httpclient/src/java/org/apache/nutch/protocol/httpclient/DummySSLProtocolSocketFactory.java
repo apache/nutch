@@ -59,7 +59,7 @@ public class DummySSLProtocolSocketFactory implements
 
   private static SSLContext createEasySSLContext() {
     try {
-      SSLContext context = SSLContext.getInstance("SSL");
+      SSLContext context = SSLContext.getInstance("TLS");
       context.init(null,
           new TrustManager[] { new DummyX509TrustManager(null) }, null);
       return context;
@@ -97,7 +97,7 @@ public class DummySSLProtocolSocketFactory implements
    * does not return until the timeout expires, the controller terminates and
    * throws an {@link ConnectTimeoutException}
    * </p>
-   * 
+   *
    * @param host
    *          the host name/IP
    * @param port
@@ -108,9 +108,9 @@ public class DummySSLProtocolSocketFactory implements
    *          the port on the local machine
    * @param params
    *          {@link HttpConnectionParams Http connection parameters}
-   * 
+   *
    * @return Socket a new socket
-   * 
+   *
    * @throws IOException
    *           if an I/O error occurs while creating the socket
    * @throws UnknownHostException

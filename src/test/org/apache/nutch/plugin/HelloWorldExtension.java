@@ -18,14 +18,13 @@ package org.apache.nutch.plugin;
 
 /**
  * Simple Test-extensions
- * 
- * @author joa23
+ *
  */
 public class HelloWorldExtension implements ITestExtension {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * org.apache.nutch.plugin.ITestExtension#testGetExtension(java.lang.String)
    */

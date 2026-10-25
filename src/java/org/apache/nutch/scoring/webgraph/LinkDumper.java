@@ -27,10 +27,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
@@ -216,7 +215,7 @@ public class LinkDumper extends Configured implements Tool {
     /**
      * Wraps all values in ObjectWritables.
      */
-    public static class InvertMapper extends 
+    public static class InvertMapper extends
         Mapper<Text, Writable, Text, ObjectWritable> {
 
       @Override
@@ -252,7 +251,7 @@ public class LinkDumper extends Configured implements Tool {
         String fromUrl = key.toString();
         List<LinkDatum> outlinks = new ArrayList<>();
         Node node = null;
-        
+
         // loop through all values aggregating outlinks, saving node
         for (ObjectWritable write : values) {
           Object obj = write.get();
@@ -318,13 +317,13 @@ public class LinkDumper extends Configured implements Tool {
    * Runs the inverter and merger jobs of the LinkDumper tool to create the url
    * to inlink node database.
    * @param webGraphDb the {@link org.apache.hadoop.fs.Path} to the output
-   * of {@link org.apache.nutch.scoring.webgraph.WebGraph#createWebGraph(Path, Path[], boolean, boolean)} 
+   * of {@link org.apache.nutch.scoring.webgraph.WebGraph#createWebGraph(Path, Path[], boolean, boolean)}
    * @throws IOException if there is a fatal I/O issue at runtime
    * @throws InterruptedException if the Job is interrupted during execution
-   * @throws ClassNotFoundException if classes required to run 
+   * @throws ClassNotFoundException if classes required to run
    * the Job cannot be located
    */
-  public void dumpLinks(Path webGraphDb) throws IOException, 
+  public void dumpLinks(Path webGraphDb) throws IOException,
       InterruptedException, ClassNotFoundException {
 
     StopWatch stopWatch = new StopWatch();
@@ -417,24 +416,26 @@ public class LinkDumper extends Configured implements Tool {
   public int run(String[] args) throws Exception {
 
     Options options = new Options();
-    OptionBuilder.withArgName("help");
-    OptionBuilder.withDescription("show this help message");
-    Option helpOpts = OptionBuilder.create("help");
+    Option helpOpts = Option.builder("help")
+        .argName("help")
+        .desc("show this help message")
+        .build();
     options.addOption(helpOpts);
 
-    OptionBuilder.withArgName("webgraphdb");
-    OptionBuilder.hasArg();
-    OptionBuilder.withDescription("the web graph database to use");
-    Option webGraphDbOpts = OptionBuilder.create("webgraphdb");
+    Option webGraphDbOpts = Option.builder("webgraphdb")
+        .argName("webgraphdb")
+        .hasArg()
+        .desc("the web graph database to use")
+        .build();
     options.addOption(webGraphDbOpts);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     try {
 
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("LinkDumper", options);
+        HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp("LinkDumper", "", options, "", false);
         return -1;
       }
 

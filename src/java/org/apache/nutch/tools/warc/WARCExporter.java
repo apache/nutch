@@ -42,24 +42,24 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metrics.ErrorTracker;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.tools.WARCUtils;
-import org.apache.nutch.metrics.ErrorTracker;
-import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -68,10 +68,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
 import com.martinkl.warc.WARCRecord;
 import com.martinkl.warc.WARCWritable;
 import com.martinkl.warc.mapreduce.WARCOutputFormat;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * MapReduce job to exports Nutch segments as WARC files. The file format is
@@ -209,7 +210,7 @@ public class WARCExporter extends Configured implements Tool {
           if (!headersVerbatim.endsWith(CRLF + CRLF)) {
             headersVerbatim += CRLF + CRLF;
           }
-          httpheaders = headersVerbatim.getBytes();
+          httpheaders = headersVerbatim.getBytes(UTF_8);
         }
 
         String mainId = UUID.randomUUID().toString();
@@ -283,7 +284,7 @@ public class WARCExporter extends Configured implements Tool {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         // store the headers
-        bos.write(buffer.toString().getBytes("UTF-8"));
+        bos.write(buffer.toString().getBytes(UTF_8));
         bos.write(CRLF_BYTES);
         // the http headers
         bos.write(httpheaders);
@@ -336,7 +337,7 @@ public class WARCExporter extends Configured implements Tool {
           buffer.append("Content-Type").append(": ").append("application/json")
               .append(CRLF);
 
-          contentLength = payload.toString().getBytes("UTF-8").length;
+          contentLength = payload.toString().getBytes(UTF_8).length;
           buffer.append("Content-Length").append(": ")
               .append(Integer.toString(contentLength)).append(CRLF);
 
@@ -352,9 +353,9 @@ public class WARCExporter extends Configured implements Tool {
           }
 
           bos = new ByteArrayOutputStream();
-          bos.write(buffer.toString().getBytes("UTF-8"));
+          bos.write(buffer.toString().getBytes(UTF_8));
           bos.write(CRLF_BYTES); // separate header and payload
-          bos.write(payload.toString().getBytes("UTF-8"));
+          bos.write(payload.toString().getBytes(UTF_8));
           bos.write(CRLF_BYTES);
           bos.write(CRLF_BYTES); // separation between records
 
@@ -395,7 +396,7 @@ public class WARCExporter extends Configured implements Tool {
           buffer.append("Content-Type").append(": ").append("text/plain")
               .append(CRLF);
 
-          contentLength = payload.toString().getBytes("UTF-8").length;
+          contentLength = payload.toString().getBytes(UTF_8).length;
           buffer.append("Content-Length").append(": ")
               .append(Integer.toString(contentLength)).append(CRLF);
 
@@ -411,9 +412,9 @@ public class WARCExporter extends Configured implements Tool {
           }
 
           bos = new ByteArrayOutputStream();
-          bos.write(buffer.toString().getBytes("UTF-8"));
+          bos.write(buffer.toString().getBytes(UTF_8));
           bos.write(CRLF_BYTES); // separate header and payload
-          bos.write(payload.toString().getBytes("UTF-8"));
+          bos.write(payload.toString().getBytes(UTF_8));
           bos.write(CRLF_BYTES);
           bos.write(CRLF_BYTES); // separation between records
 

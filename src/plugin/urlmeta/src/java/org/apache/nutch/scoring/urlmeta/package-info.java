@@ -17,9 +17,9 @@
 
 /**
  * <p>URL Meta Tag Scoring Plugin</p>
- * <p>Propagates Meta Tags, injected alongside a URL 
- * (see <a href="https://issues.apache.org/jira/browse/NUTCH-655">NUTCH-655</a>) 
- * and specified in the "urlmeta.tags" property, along to their outlinks. 
+ * <p>Propagates Meta Tags, injected alongside a URL
+ * (see <a href="https://issues.apache.org/jira/browse/NUTCH-655">NUTCH-655</a>)
+ * and specified in the "urlmeta.tags" property, along to their outlinks.
  * This does not actually perform scoring.</p>
  */
 package org.apache.nutch.scoring.urlmeta;

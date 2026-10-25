@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
  * even if it comes from a plugin classpath.
  * As the JVM allows only one instance of URLStreamHandlerFactory
  * to be registered, this class implements a singleton pattern.
- * @author Hiran Chaudhuri
  *
  */
 public class URLStreamHandlerFactory
@@ -72,7 +71,7 @@ public class URLStreamHandlerFactory
    * Protocols covered by standard JVM URL handlers. These protocols must not be
    * handled by Nutch plugins, in order to avoid that basic actions (eg. loading
    * of classes and configuration files) break.
-   * 
+   *
    * Also the "ftp" protocol is included: it's usually supported by the standard
    * JVM URL handler and Nutch does not yet provide a dedicated URL stream
    * handler.
@@ -100,7 +99,7 @@ public class URLStreamHandlerFactory
     }
   }
 
-  /** 
+  /**
    * Get the singleton instance of this class.
    * @return a {@link org.apache.nutch.plugin.URLStreamHandlerFactory} instance
    */
@@ -109,7 +108,7 @@ public class URLStreamHandlerFactory
   }
 
   /** Use this method once a new PluginRepository was created to register it.
-   * 
+   *
    * @param pr The PluginRepository to be registered.
    */
   public void registerPluginRepository(PluginRepository pr) {

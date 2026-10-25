@@ -24,19 +24,19 @@ import java.util.function.BooleanSupplier;
 
 /**
  * Utility class for making long-running tests cancellation-aware.
- * 
+ *
  * <p>This supports JUnit 6's fail-fast mode by allowing tests to check
  * for cancellation requests and exit gracefully, ensuring proper resource
  * cleanup even when the test suite is stopped early.</p>
- * 
+ *
  * <p>Usage example:</p>
  * <pre>{@code
  * @Test
  * @Timeout(value = 5, unit = TimeUnit.MINUTES)
  * void testLongRunningOperation() throws Exception {
- *     CancellationAwareTestUtils.CancellationToken token = 
+ *     CancellationAwareTestUtils.CancellationToken token =
  *         CancellationAwareTestUtils.createToken();
- *     
+ *
  *     try {
  *         while (hasMoreWork() && !token.isCancelled()) {
  *             doWork();
@@ -65,7 +65,7 @@ public class CancellationAwareTestUtils {
         /**
          * Check if cancellation has been requested.
          * This checks both explicit cancellation and thread interruption.
-         * 
+         *
          * @return true if the operation should be cancelled
          */
         public boolean isCancelled() {
@@ -93,7 +93,7 @@ public class CancellationAwareTestUtils {
         /**
          * Throws InterruptedException if cancellation has been requested.
          * Useful for cooperative cancellation in loops.
-         * 
+         *
          * @throws InterruptedException if cancelled
          */
         public void throwIfCancelled() throws InterruptedException {
@@ -105,7 +105,7 @@ public class CancellationAwareTestUtils {
 
     /**
      * Creates a new cancellation token.
-     * 
+     *
      * @return a new CancellationToken instance
      */
     @NonNull
@@ -115,7 +115,7 @@ public class CancellationAwareTestUtils {
 
     /**
      * Creates a cancellation token with an additional cancellation condition.
-     * 
+     *
      * @param additionalCheck additional condition that triggers cancellation
      * @return a new CancellationToken instance
      */
@@ -126,7 +126,7 @@ public class CancellationAwareTestUtils {
 
     /**
      * Executes an operation with periodic cancellation checks.
-     * 
+     *
      * @param token the cancellation token to check
      * @param operation the operation to execute (should be short-lived)
      * @param iterations number of times to execute the operation
@@ -139,7 +139,7 @@ public class CancellationAwareTestUtils {
             @NonNull Runnable operation,
             int iterations,
             int checkInterval) throws InterruptedException {
-        
+
         int completed = 0;
         for (int i = 0; i < iterations; i++) {
             if (i % checkInterval == 0) {
@@ -154,12 +154,12 @@ public class CancellationAwareTestUtils {
     /**
      * Sleeps for the specified duration while remaining cancellation-aware.
      * Checks for cancellation every 100ms.
-     * 
+     *
      * @param token the cancellation token
      * @param millis total milliseconds to sleep
      * @throws InterruptedException if cancelled or interrupted
      */
-    public static void sleepWithCancellation(@NonNull CancellationToken token, long millis) 
+    public static void sleepWithCancellation(@NonNull CancellationToken token, long millis)
             throws InterruptedException {
         long remaining = millis;
         while (remaining > 0) {
@@ -172,14 +172,14 @@ public class CancellationAwareTestUtils {
 
     /**
      * Interface for operations that can be interrupted and resumed.
-     * 
+     *
      * @param <T> the result type
      */
     @FunctionalInterface
     public interface CancellableOperation<T> {
         /**
          * Execute a portion of the operation.
-         * 
+         *
          * @param token cancellation token to check
          * @return the result, or null if more work is needed
          * @throws Exception if the operation fails
@@ -190,7 +190,7 @@ public class CancellationAwareTestUtils {
 
     /**
      * Runs a cancellable operation, returning null if cancelled before completion.
-     * 
+     *
      * @param <T> the result type
      * @param operation the operation to run
      * @return the result, or null if cancelled

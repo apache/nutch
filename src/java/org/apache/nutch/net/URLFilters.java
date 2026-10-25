@@ -41,7 +41,7 @@ public class URLFilters {
   /**
    * Run all defined filters. Assume logical AND. To control performance, the
    * ULFilter classes can be ordered by the property "urlfilter.order".
-   * 
+   *
    * @param urlString
    *          to execute filters on
    * @return filtered result

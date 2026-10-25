@@ -35,7 +35,7 @@
 <property>
   <name>fetcher.server.delay</name>
   <value>0.2</value>
-  <description>The number of seconds the fetcher will delay between 
+  <description>The number of seconds the fetcher will delay between
    successive requests to the same server.</description>
 </property>
 
@@ -54,14 +54,14 @@
   <value>true</value>
 </property>
 
-<property>                                                                                                                                                   
-  <name>http.robots.agents</name>                                                                                                                            
-  <value>test-nutch,*</value>                                                                                                                                
-  <description>The agent strings we'll look for in robots.txt files,                                                                                         
-  comma-separated, in decreasing order of precedence. You should                                                                                             
-  put the value of http.agent.name as the first agent name, and keep the                                                                                     
-  default * at the end of the list. E.g.: BlurflDev,Blurfl,*                                                                                                 
-  </description>                                                                                                                                             
+<property>
+  <name>http.robots.agents</name>
+  <value>test-nutch,*</value>
+  <description>The agent strings we'll look for in robots.txt files,
+  comma-separated, in decreasing order of precedence. You should
+  put the value of http.agent.name as the first agent name, and keep the
+  default * at the end of the list. E.g.: BlurflDev,Blurfl,*
+  </description>
 </property>
 
 <property>

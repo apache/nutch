@@ -79,6 +79,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -88,11 +89,10 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.tdunning.math.stats.MergingDigest;
 import com.tdunning.math.stats.TDigest;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * Read utility for the CrawlDB.
- * 
- * @author Andrzej Bialecki
- * 
  */
 public class CrawlDbReader extends AbstractChecker implements Closeable {
 
@@ -116,7 +116,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     synchronized (this) {
       if (readers != null) {
         if (this.lastModified == lastModified) {
-          // CrawlDB not modified, re-use readers
+          // CrawlDB not modified, reuse readers
           return;
         } else {
           // CrawlDB modified, close and re-open readers
@@ -167,8 +167,9 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       public LineRecordWriter(DataOutputStream out) {
         this.out = out;
         try {
-          out.writeBytes(
-              "Url,Status code,Status name,Fetch Time,Modified Time,Retries since fetch,Retry interval seconds,Retry interval days,Score,Signature,Metadata\n");
+          out.write(
+              "Url,Status code,Status name,Fetch Time,Modified Time,Retries since fetch,Retry interval seconds,Retry interval days,Score,Signature,Metadata\n"
+                  .getBytes(UTF_8));
         } catch (IOException e) {
           LOG.error("Failed to write header line", e);
         }
@@ -178,41 +179,44 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       public synchronized void write(Text key, CrawlDatum value)
           throws IOException {
         out.writeByte('"');
-        out.writeBytes(key.toString());
+        out.write(key.getBytes());
         out.writeByte('"');
         out.writeByte(',');
-        out.writeBytes(Integer.toString(value.getStatus()));
+        out.write(Integer.toString(value.getStatus()).getBytes(UTF_8));
         out.writeByte(',');
         out.writeByte('"');
-        out.writeBytes(CrawlDatum.getStatusName(value.getStatus()));
+        out.write(CrawlDatum.getStatusName(value.getStatus()).getBytes(UTF_8));
         out.writeByte('"');
         out.writeByte(',');
-        out.writeBytes(new Date(value.getFetchTime()).toString());
+        out.write(new Date(value.getFetchTime()).toString().getBytes(UTF_8));
         out.writeByte(',');
-        out.writeBytes(new Date(value.getModifiedTime()).toString());
+        out.write(new Date(value.getModifiedTime()).toString().getBytes(UTF_8));
         out.writeByte(',');
-        out.writeBytes(Integer.toString(value.getRetriesSinceFetch()));
+        out.write(
+            Integer.toString(value.getRetriesSinceFetch()).getBytes(UTF_8));
         out.writeByte(',');
-        out.writeBytes(Float.toString(value.getFetchInterval()));
+        out.write(Float.toString(value.getFetchInterval()).getBytes(UTF_8));
         out.writeByte(',');
-        out.writeBytes(Float.toString(
-            (value.getFetchInterval() / FetchSchedule.SECONDS_PER_DAY)));
+        out.write(Float
+            .toString(
+                (value.getFetchInterval() / FetchSchedule.SECONDS_PER_DAY))
+            .getBytes(UTF_8));
         out.writeByte(',');
-        out.writeBytes(Float.toString(value.getScore()));
+        out.write(Float.toString(value.getScore()).getBytes(UTF_8));
         out.writeByte(',');
         out.writeByte('"');
-        out.writeBytes(value.getSignature() != null
-            ? StringUtil.toHexString(value.getSignature())
-            : "null");
+        out.write(value.getSignature() != null
+            ? StringUtil.toHexString(value.getSignature()).getBytes(UTF_8)
+            : "null".getBytes(UTF_8));
         out.writeByte('"');
         out.writeByte(',');
         out.writeByte('"');
         if (value.getMetaData() != null) {
           for (Entry<Writable, Writable> e : value.getMetaData().entrySet()) {
-            out.writeBytes(e.getKey().toString());
+            out.write(e.getKey().toString().getBytes(UTF_8));
             out.writeByte(':');
-            out.writeBytes(e.getValue().toString());
-            out.writeBytes("|||");
+            out.write(e.getValue().toString().getBytes(UTF_8));
+            out.write("|||".getBytes(UTF_8));
           }
         }
         out.writeByte('"');
@@ -262,8 +266,8 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
       public LineRecordWriter(DataOutputStream out) {
         this.out = out;
-        jsonMapper.getFactory()
-            .configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
+        jsonMapper.getFactory().configure(
+            JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature(), true);
         SimpleModule module = new SimpleModule();
         module.addSerializer(Writable.class, new WritableSerializer());
         jsonMapper.registerModule(module);
@@ -906,7 +910,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       retry = config.getInt("retry", -1);
 
       if (config.get("expr", null) != null) {
-        expr = JexlUtil.parseExpression(config.get("expr", null));
+        expr = JexlUtil.parseExpression(config, config.get("expr", null));
       }
       sample = config.getFloat("sample", 1);
     }

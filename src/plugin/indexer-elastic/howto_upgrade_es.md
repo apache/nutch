@@ -15,6 +15,8 @@
  limitations under the License.
 -->
 
+# How to Upgrade Elasticsearch in Nutch
+
 1. Upgrade Elasticsearch dependency in src/plugin/indexer-elastic/ivy.xml
 
 2. Upgrade the Elasticsearch specific dependencies in src/plugin/indexer-elastic/plugin.xml
@@ -29,7 +31,7 @@
       <!-- end of Elastic Rest Client dependencies -->
    with the output of the command above.
 
-4. (Optionally) remove overlapping dependencies between indexer-elastic and Nutch core dependencies:
+3. (Optionally) remove overlapping dependencies between indexer-elastic and Nutch core dependencies:
    - check for libs present both in
        build/lib
      and
@@ -40,11 +42,11 @@
    - but it should be made sure that the library versions in ivy/ivy.xml correspond to
      those required by Tika
 
-5. Remove the locally "installed" dependencies in src/plugin/indexer-elastic/lib/:
+4. Remove the locally "installed" dependencies in src/plugin/indexer-elastic/lib/:
 
     $ rm -rf lib/
 
-6. Build Nutch and run all unit tests:
+5. Build Nutch and run all unit tests:
 
     $ cd ../../../
     $ ant clean runtime test

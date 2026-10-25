@@ -18,8 +18,11 @@ package org.apache.nutch.parsefilter.naivebayes;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Locale;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -58,8 +61,8 @@ public class Classify {
 
     String result = "1";
 
-    String[] linearray = line.replaceAll("[^a-zA-Z ]", "").toLowerCase()
-        .split(" ");
+    String[] linearray = line.replaceAll("[^a-zA-Z ]", "")
+        .toLowerCase(Locale.ROOT).split(" ");
 
     // read the training file
     // read the line
@@ -67,23 +70,23 @@ public class Classify {
       Configuration configuration = new Configuration();
       FileSystem fs = FileSystem.get(configuration);
 
-      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
-          fs.open(new Path("naivebayes-model"))));
+      try (BufferedReader bufferedReader = new BufferedReader(
+          new InputStreamReader(fs.open(new Path("naivebayes-model")),
+              StandardCharsets.UTF_8))) {
 
-      uniquewords_size = Integer.parseInt(bufferedReader.readLine());
-      bufferedReader.readLine();
+        uniquewords_size = Integer.parseInt(bufferedReader.readLine());
+        bufferedReader.readLine();
 
-      numof_ir = Integer.parseInt(bufferedReader.readLine());
-      numwords_ir = Integer.parseInt(bufferedReader.readLine());
-      wordfreq_ir = unflattenToHashmap(bufferedReader.readLine());
-      bufferedReader.readLine();
-      numof_r = Integer.parseInt(bufferedReader.readLine());
-      numwords_r = Integer.parseInt(bufferedReader.readLine());
-      wordfreq_r = unflattenToHashmap(bufferedReader.readLine());
+        numof_ir = Integer.parseInt(bufferedReader.readLine());
+        numwords_ir = Integer.parseInt(bufferedReader.readLine());
+        wordfreq_ir = unflattenToHashmap(bufferedReader.readLine());
+        bufferedReader.readLine();
+        numof_r = Integer.parseInt(bufferedReader.readLine());
+        numwords_r = Integer.parseInt(bufferedReader.readLine());
+        wordfreq_r = unflattenToHashmap(bufferedReader.readLine());
 
-      ismodel = true;
-
-      bufferedReader.close();
+        ismodel = true;
+      }
 
     }
 

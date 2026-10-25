@@ -70,15 +70,15 @@ Plugin order
 Testing your match patterns
     Online Regexp testers like http://www.regexplanet.com/advanced/java/index.html
     can help get the basics of your pattern working.
-    To test in nutch: 
-        Prepare a test HTML file with the field contents you want to test. 
+    To test in nutch:
+        Prepare a test HTML file with the field contents you want to test.
         Place this in a directory accessible to nutch.
         Use the file:/// syntax to list the test file(s) in a test/urls seed list.
         See the nutch faq "index my local file system" for conf settings you will need.
         (Note the urlmatch and hostmatch patterns may not conform to your test file host and url; This
         test approach confirms only how your global matches behave, unless your urlmatch and hostmatch
         patterns also match the file: URL pattern)
- 
+
     Run..
         bin/nutch inject crawl/crawldb test
         bin/nutch generate crawl/crawldb crawl/segments
@@ -86,7 +86,7 @@ Testing your match patterns
         bin/nutch parse crawl/segments/[segment]
         bin/nutch invertlinks crawl/linkdb -dir crawl/segments
         ...index your document, for example with SOLR...
-        bin/nutch solrindex http://localhost:8983/solr crawl/crawldb/ -linkdb crawl/linkdb/ crawl/segement[segment] -filter -normalize
+        bin/nutch solrindex http://localhost:8983/solr crawl/crawldb/ -linkdb crawl/linkdb/ crawl/segment[segment] -filter -normalize
 
     Inspect hadoop.log for info about pattern parsing and compilation..
         grep replace logs/hadoop.log

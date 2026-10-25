@@ -17,15 +17,16 @@
 package org.apache.nutch.segment;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileRecordReader;
 import org.apache.nutch.protocol.Content;
@@ -74,7 +75,7 @@ public class ContentAsTextInputFormat extends
     }
 
     @SuppressWarnings("unused")
-    public synchronized boolean next(Text key, Text value) 
+    public synchronized boolean next(Text key, Text value)
         throws IOException, InterruptedException {
 
       // convert the content object to text
@@ -83,7 +84,8 @@ public class ContentAsTextInputFormat extends
         return false;
       }
       tKey.set(innerKey.toString());
-      String contentAsStr = new String(innerValue.getContent());
+      String contentAsStr = new String(innerValue.getContent(),
+          StandardCharsets.UTF_8);
 
       // replace new line endings with spaces
       contentAsStr = contentAsStr.replaceAll("\n", " ");

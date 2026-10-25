@@ -15,6 +15,8 @@
  limitations under the License.
 -->
 
+# How to Upgrade OkHttp in Nutch
+
 1. Upgrade OkHttp dependency in src/plugin/protocol-okhttp/ivy.xml
 
 2. Upgrade OkHttp's own dependencies in src/plugin/protocol-okhttp/plugin.xml

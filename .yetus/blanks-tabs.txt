@@ -1,0 +1,13 @@
+# Ignore tabs in Yetus-generated patch dir (not source files).
+# See --blanks-tabs-ignore-file in the blanks plugin.
+^out/
+CHANGES.md
+# some configuration files define key-value mappings using tabs
+^conf/.*\.txt\.template
+^src/test/host-protocol-mapping\.txt
+# Tab-delimited data or a documented tab layout, not indentation.
+^src/plugin/urlnormalizer-protocol/data/protocols\.txt
+^src/plugin/parsefilter-regex/data/regex-parsefilter\.txt
+^src/plugin/parsefilter-regex/README\.txt
+# Fixture bytes, including a leading BOM.
+^src/plugin/parse-tika/sample/ootest\.txt

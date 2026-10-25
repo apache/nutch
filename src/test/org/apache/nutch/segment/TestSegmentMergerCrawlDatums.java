@@ -18,6 +18,8 @@ package org.apache.nutch.segment;
 
 import java.lang.invoke.MethodHandles;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.Random;
 
 import org.apache.hadoop.conf.Configuration;
@@ -25,14 +27,14 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
-import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.MapFile.Writer.Option;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -247,7 +249,8 @@ public class TestSegmentMergerCrawlDatums {
         + System.currentTimeMillis());
 
     // Format for the segments
-    DecimalFormat df = new DecimalFormat("0000000");
+    DecimalFormat df = new DecimalFormat("0000000",
+        new DecimalFormatSymbols(Locale.ROOT));
 
     // Create our segment paths
     Path[] segmentPaths = new Path[rounds];

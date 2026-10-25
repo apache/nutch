@@ -35,7 +35,7 @@ public class TestIndexingFilters {
 
   /**
    * Test behaviour when defined filter does not exist.
-   * 
+   *
    * @throws IndexingException
    */
   @Test
@@ -74,7 +74,7 @@ public class TestIndexingFilters {
 
   /**
    * Test behaviour when reset the index filter order will not take effect
-   * 
+   *
    * @throws IndexingException
    */
   @Test

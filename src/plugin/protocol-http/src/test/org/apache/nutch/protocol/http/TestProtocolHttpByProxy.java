@@ -44,7 +44,7 @@ public class TestProtocolHttpByProxy extends AbstractHttpProtocolPluginTest {
 
   public static final String TARGET_HOST = "www.baidu.com";
   public static final Integer TARGET_PORT = 443;
-  
+
   private HttpProxyServer server;
 
   @BeforeEach
@@ -58,13 +58,13 @@ public class TestProtocolHttpByProxy extends AbstractHttpProtocolPluginTest {
     server = DefaultHttpProxyServer.bootstrap()
         .withPort(proxyPort).start();
   }
-  
+
   private Integer findOpenPort() throws IOException {
     try (ServerSocket socket = new ServerSocket(0)) {
       return socket.getLocalPort();
     }
   }
-  
+
   @AfterEach
   public void tearDown() {
     server.stop();

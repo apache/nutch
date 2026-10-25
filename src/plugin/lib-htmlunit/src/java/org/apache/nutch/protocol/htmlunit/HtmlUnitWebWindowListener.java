@@ -23,18 +23,18 @@ public class HtmlUnitWebWindowListener implements WebWindowListener {
 
   private Integer redirectCount = 0;
   private Integer maxRedirects = 0;
-  
+
   public HtmlUnitWebWindowListener() {
-    
+
   }
-  
+
   public HtmlUnitWebWindowListener(int maxRedirects) {
     this.maxRedirects = maxRedirects;
   }
-  
+
   @Override
   public void webWindowOpened(WebWindowEvent event) {
-    
+
   }
 
   @Override
@@ -46,8 +46,8 @@ public class HtmlUnitWebWindowListener implements WebWindowListener {
 
   @Override
   public void webWindowClosed(WebWindowEvent event) {
-    
+
   }
-  
+
 }
 

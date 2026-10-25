@@ -16,7 +16,8 @@
  */
 package org.apache.nutch.util;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
@@ -29,15 +30,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TestEncodingDetector {
   private static Configuration conf = NutchConfiguration.create();
 
-  private static byte[] contentInOctets;
-
-  static {
-    try {
-      contentInOctets = "çñôöøДЛжҶ".getBytes("utf-8");
-    } catch (UnsupportedEncodingException e) {
-      // not possible
-    }
-  }
+  private static byte[] contentInOctets = "çñôöøДЛжҶ"
+      .getBytes(StandardCharsets.UTF_8);
 
   @Test
   public void testGuessing() {
@@ -55,7 +49,7 @@ public class TestEncodingDetector {
     detector.autoDetectClues(content, true);
     encoding = detector.guessEncoding(content, "windows-1252");
     // no information is available, so it should return default encoding
-    assertEquals("windows-1252", encoding.toLowerCase());
+    assertEquals("windows-1252", encoding.toLowerCase(Locale.ROOT));
 
     metadata.clear();
     metadata.set(Response.CONTENT_TYPE, "text/plain; charset=UTF-16");
@@ -64,7 +58,7 @@ public class TestEncodingDetector {
     detector = new EncodingDetector(conf);
     detector.autoDetectClues(content, true);
     encoding = detector.guessEncoding(content, "windows-1252");
-    assertEquals("utf-16", encoding.toLowerCase());
+    assertEquals("utf-16", encoding.toLowerCase(Locale.ROOT));
 
     metadata.clear();
     content = new Content("http://www.example.com", "http://www.example.com/",
@@ -73,7 +67,7 @@ public class TestEncodingDetector {
     detector.autoDetectClues(content, true);
     detector.addClue("windows-1254", "sniffed");
     encoding = detector.guessEncoding(content, "windows-1252");
-    assertEquals("windows-1254", encoding.toLowerCase());
+    assertEquals("windows-1254", encoding.toLowerCase(Locale.ROOT));
 
     // enable autodetection
     conf.setInt(EncodingDetector.MIN_CONFIDENCE_KEY, 50);
@@ -85,7 +79,7 @@ public class TestEncodingDetector {
     detector.autoDetectClues(content, true);
     detector.addClue("utf-32", "sniffed");
     encoding = detector.guessEncoding(content, "windows-1252");
-    assertEquals("utf-8", encoding.toLowerCase());
+    assertEquals("utf-8", encoding.toLowerCase(Locale.ROOT));
   }
 
 }

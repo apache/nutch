@@ -28,7 +28,7 @@ import org.w3c.dom.NodeList;
  * stack and all of its children are automatically added to the stack to be
  * called in tree order.
  * </p>
- * 
+ *
  * <p>
  * Currently this class is not thread safe. It is assumed that only one thread
  * will be accessing the <code>NodeWalker</code> at any given time.
@@ -43,7 +43,7 @@ public class NodeWalker {
 
   /**
    * Starts the {@link org.w3c.dom.Node} tree from the root node.
-   * 
+   *
    * @param rootNode A root node which will contain all nodes
    */
   public NodeWalker(Node rootNode) {
@@ -59,7 +59,7 @@ public class NodeWalker {
    * of recursion. If there are no more nodes on the stack then null is
    * returned.
    * </p>
-   * 
+   *
    * @return Node The next <code>Node</code> on the stack or null if there isn't
    *         a next node.
    */
@@ -91,12 +91,12 @@ public class NodeWalker {
    * automatically added to the stack. You can call this method to remove those
    * children from the stack.
    * </p>
-   * 
+   *
    * <p>
    * This is useful when you don't want to process deeper into the current path
    * of the node tree but you want to continue processing sibling nodes.
    * </p>
-   * 
+   *
    */
   public void skipChildren() {
 
@@ -112,7 +112,7 @@ public class NodeWalker {
 
   /**
    * Return the current node.
-   * 
+   *
    * @return Node
    */
   public Node getCurrentNode() {
@@ -121,7 +121,7 @@ public class NodeWalker {
 
   /**
    * @return returns true if there are more nodes on the current stack.
-   * 
+   *
    */
   public boolean hasNext() {
     return (nodes.size() > 0);

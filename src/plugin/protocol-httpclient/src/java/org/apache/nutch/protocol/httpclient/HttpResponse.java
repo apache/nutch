@@ -40,8 +40,7 @@ import org.apache.hadoop.io.Text;
 
 /**
  * An HTTP response.
- * 
- * @author Susam Pal
+ *
  */
 public class HttpResponse implements Response {
 
@@ -52,7 +51,7 @@ public class HttpResponse implements Response {
 
   /**
    * Fetches the given <code>url</code> and prepares HTTP response.
-   * 
+   *
    * @param http
    *          An instance of the implementation class of this plugin
    * @param url
@@ -99,27 +98,38 @@ public class HttpResponse implements Response {
     // XXX the request body was sent the method is not retried, so there is
     // XXX little danger in retrying...
     // params.setParameter(HttpMethodParams.RETRY_HANDLER, null);
-    
+
     if (http.isCookieEnabled()) {
       String cookie = null;
-      
+
       if (datum.getMetaData().containsKey(http.COOKIE)) {
         cookie = ((Text)datum.getMetaData().get(http.COOKIE)).toString();
       }
-      
+
       if (cookie == null) {
         cookie = http.getCookie(url);
       }
-      
+
       if (cookie != null) {
         get.addRequestHeader("Cookie", cookie);
       }
     }
-    
+
     try {
       HttpClient client = Http.getClient();
       client.getParams().setParameter("http.useragent", http.getUserAgent()); // NUTCH-1941
       code = client.executeMethod(get);
+
+      // When followRedirects=true HC3 walks the redirect chain internally;
+      // getURI() returns the final URI. Capture it so getUrl() honors the
+      // contract — without this, robots.txt redirects via this plugin
+      // report the original URL even though a different URL was fetched.
+      try {
+        this.url = new URL(get.getURI().toString());
+      } catch (org.apache.commons.httpclient.URIException
+          | java.net.MalformedURLException e) {
+        // Keep the input URL or try to normalize it?
+      }
 
       Header[] heads = get.getResponseHeaders();
 

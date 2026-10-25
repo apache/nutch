@@ -15,37 +15,37 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Author     : mattmann 
-    Description: Test parse-plugins.xml file. 
+    Author     : mattmann
+    Description: Test parse-plugins.xml file.
 -->
 
 <parse-plugins>
 
-  <!--  by default if the mimeType is set to *, or 
+  <!--  by default if the mimeType is set to *, or
         if it can't be determined, use parse-tika -->
   <mimeType name="*">
     <plugin id="parse-tika" />
   </mimeType>
-	
+
   <!--  test these 4 plugins -->
   <mimeType name="text/html">
     <!--
-     ! Test that if a parser cannot be instanciated,
+     ! Test that if a parser cannot be instantiated,
      ! it should not block the process and then the next one is used
      !-->
     <plugin id="parse-plugin-that-not-exist"/>
   </mimeType>
- 	 
+
   <mimeType name="application/x-javascript">
     <plugin id="parse-js"/>
   </mimeType>
- 	 
+
   <mimeType name="text/rss">
     <!-- Test that an extension-id can be directly used here -->
     <plugin id="org.apache.nutch.parse.rss.RSSParser"/>
   </mimeType>
 
-  <!--  alias mappings for parse-xxx names to the actual extension implementation 
+  <!--  alias mappings for parse-xxx names to the actual extension implementation
   ids described in each plugin's plugin.xml file -->
   <aliases>
     <alias name="parse-js"
@@ -53,6 +53,6 @@
     <alias name="parse-rss"
            extension-id="org.apache.nutch.parse.rss.RSSParser" />
     <alias name="parse-tika"
-           extension-id="org.apache.nutch.parse.tika.TikaParser" />	
+           extension-id="org.apache.nutch.parse.tika.TikaParser" />
   </aliases>
 </parse-plugins>

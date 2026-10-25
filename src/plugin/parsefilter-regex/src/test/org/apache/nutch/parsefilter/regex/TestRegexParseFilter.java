@@ -16,6 +16,8 @@
  */
 package org.apache.nutch.parsefilter.regex;
 
+import java.nio.charset.StandardCharsets;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
@@ -44,14 +46,17 @@ class TestRegexParseFilter {
 
     String url = "http://nutch.apache.org/";
     String html = "<body><html><h1>nutch</h1><p>this is the extracted text blablabla</p></body></html>";
-    Content content = new Content(url, url, html.getBytes("UTF-8"), "text/html", new Metadata(), conf);
-    Parse parse = new ParseImpl("nutch this is the extracted text blablabla", new ParseData());
-    
+    Content content = new Content(url, url,
+        html.getBytes(StandardCharsets.UTF_8), "text/html", new Metadata(),
+        conf);
+    Parse parse = new ParseImpl("nutch this is the extracted text blablabla",
+        new ParseData());
+
     ParseResult result = ParseResult.createParseResult(url, parse);
     result = filter.filter(content, result, null, null);
 
     Metadata meta = parse.getData().getParseMeta();
-    
+
     assertEquals("true", meta.get("first"));
     assertEquals("true", meta.get("second"));
   }
@@ -67,14 +72,17 @@ class TestRegexParseFilter {
 
     String url = "http://nutch.apache.org/";
     String html = "<body><html><h2>nutch</h2><p>this is the extracted text no bla</p></body></html>";
-    Content content = new Content(url, url, html.getBytes("UTF-8"), "text/html", new Metadata(), conf);
-    Parse parse = new ParseImpl("nutch this is the extracted text bla", new ParseData());
-    
+    Content content = new Content(url, url,
+        html.getBytes(StandardCharsets.UTF_8), "text/html", new Metadata(),
+        conf);
+    Parse parse = new ParseImpl("nutch this is the extracted text bla",
+        new ParseData());
+
     ParseResult result = ParseResult.createParseResult(url, parse);
     result = filter.filter(content, result, null, null);
 
     Metadata meta = parse.getData().getParseMeta();
-    
+
     assertEquals("false", meta.get("first"));
     assertEquals("false", meta.get("second"));
   }
