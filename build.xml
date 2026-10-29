@@ -523,7 +523,7 @@
     <ant dir="src/plugin" target="test" inheritAll="false"/>
   </target>
 
-  <target name="test-plugin" depends="resolve-test, compile, compile-core-test" description="--> run JUnit tests for a single plugin">
+  <target name="test-plugin" depends="resolve-test, compile, compile-core-test, jacoco-download" description="--> run JUnit tests for a single plugin">
     <ant dir="src/plugin" target="test-single" inheritAll="false"/>
   </target>
 
