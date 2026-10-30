@@ -255,8 +255,12 @@ jobs:
               - 'src/plugin/**'
             indexer_plugins:
               - 'src/plugin/indexer-*/**'
+              - 'src/plugin/lib-rabbitmq/**'
             protocol_plugins:
               - 'src/plugin/protocol-*/**'
+              - 'src/plugin/lib-http/**'
+              - 'src/plugin/lib-htmlunit/**'
+              - 'src/plugin/lib-selenium/**'
             buildconf:
               - 'build.xml'
               - 'ivy/ivy.xml'
