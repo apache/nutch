@@ -16,6 +16,8 @@
 # limitations under the License.
 #
 
+## @audience private
+## @stability stable
 function set_up() {
   local root
   root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
@@ -27,6 +29,8 @@ function set_up() {
 # Rows are: wait argument, expected seconds, description shown in the report.
 # Lowercase suffixes follow the usage text. Uppercase letters are dropped by
 # the suffix filter, so the remaining digits are counted as seconds.
+## @audience private
+## @stability stable
 function provider_wait_suffixes() {
   bashunit::data_set "1h" "3600" "lowercase h is one hour, so --wait 1h is 3600 seconds"
   bashunit::data_set "2h" "7200" "lowercase h is one hour, so --wait 2h is 7200 seconds"
@@ -40,6 +44,8 @@ function provider_wait_suffixes() {
   bashunit::data_set "1D" "1" "uppercase D is dropped by the suffix filter, so --wait 1D is 1 second"
 }
 
+## @audience private
+## @stability stable
 # @data_provider provider_wait_suffixes
 function test_wait_suffix_::1::_is_::2::_seconds() {
   bashunit::set_test_title "$3"
