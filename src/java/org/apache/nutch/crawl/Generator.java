@@ -356,61 +356,42 @@ public class Generator extends NutchTool implements Tool {
     }
   }
 
-  /** Selects entries due for fetch. Partitions by host/domain/IP (with HostDb support). */
+  /**
+   * Selects entries due for fetch when HostDb is configured. Partitions by the
+   * extracted host. <code>SCOPE_PARTITION</code> normalization is not applied.
+   * HostDb rows and CrawlDb rows share
+   * {@link URLPartitioner#getPartitionForRoot(String, int)}.
+   */
   public static class SelectorWithHostDb extends Partitioner<FloatTextPair, Writable>
       implements Configurable {
 
     private final URLPartitioner partitioner = new URLPartitioner();
-    private final Map<String, Integer> partitionByHost = new HashMap<>();
     private Configuration conf;
-    private int seed;
-    private int cachedReduceTasks = -1;
-    private String mode = URLPartitioner.PARTITION_MODE_HOST;
 
     /**
-     * Partition by host / domain or IP.
-     * For HostDb entries (key.second is non-empty), partition by the hostname.
-     * For CrawlDb entries (key.second is empty), use the URLPartitioner.
-     *
-     * Note: When partition.url.mode is not "byHost", HostDb entries may not
-     * be correctly grouped with their corresponding CrawlDb entries. For best
-     * results, use "byHost" mode (the default) when using HostDb.
+     * Partition by the lowercased host. HostDb rows use the hostname in the
+     * key. CrawlDb rows use the host parsed from the URL. A URL with no scheme
+     * or host falls through to {@link URLPartitioner#getPartition}.
      */
     @Override
     public int getPartition(FloatTextPair key, Writable value,
         int numReduceTasks) {
       SelectorEntry entry = (SelectorEntry) value;
-      // For HostDb entries, use the hostname from the key
-      // For CrawlDb entries, use the URL from the entry
       if (key.second.getLength() > 0) {
-        // HostDb entry - partition by hostname
-        // This works best with "byHost" mode; other modes may cause
-        // HostDb entries to not be grouped with their CrawlDb entries
-        int hashCode = key.second.toString().hashCode();
-        hashCode ^= seed;
-        return (hashCode & Integer.MAX_VALUE) % numReduceTasks;
-      }
-      if (cachedReduceTasks != numReduceTasks) {
-        partitionByHost.clear();
-        cachedReduceTasks = numReduceTasks;
+        return partitioner.getPartitionForRoot(
+            key.second.toString().toLowerCase(Locale.ROOT), numReduceTasks);
       }
       String host = rawHost(entry.url);
       if (host != null) {
-        Integer cached = partitionByHost.get(host);
-        if (cached != null) {
-          return cached;
-        }
+        return partitioner.getPartitionForRoot(host, numReduceTasks);
       }
-      int part = partitioner.getPartition(entry.url, key.first, numReduceTasks);
-      if (host != null) {
-        partitionByHost.put(host, part);
-      }
-      return part;
+      return partitioner.getPartition(entry.url, key.first, numReduceTasks);
     }
 
     /**
-     * Host used as the CrawlDb partition cache key. Returns null when the URL
-     * has no scheme or host, so those URLs keep the uncached partitioner path.
+     * Host used to partition a CrawlDb URL during HostDb generation. Returns
+     * null when the URL has no scheme or host, so those URLs keep the
+     * {@link URLPartitioner} path.
      */
     private static String rawHost(Text url) {
       int length = url.getLength();
@@ -472,20 +453,16 @@ public class Generator extends NutchTool implements Tool {
     @Override
     public void setConf(Configuration conf) {
       this.conf = conf;
-      this.seed = conf.getInt("partition.url.seed", 0);
-      this.mode = conf.get(URLPartitioner.PARTITION_MODE_KEY,
-          URLPartitioner.PARTITION_MODE_HOST);
-      partitionByHost.clear();
-      cachedReduceTasks = -1;
       partitioner.setConf(conf);
 
-      // Warn if mode is not byHost and hostdb is configured
+      String mode = conf.get(URLPartitioner.PARTITION_MODE_KEY,
+          URLPartitioner.PARTITION_MODE_HOST);
       String hostdb = conf.get(GENERATOR_HOSTDB);
       if (hostdb != null && !mode.equals(URLPartitioner.PARTITION_MODE_HOST)) {
-        LOG.warn("HostDb is configured but partition.url.mode is '{}'. " +
-            "For correct HostDb integration, use 'byHost' mode (the default). " +
-            "Other modes may cause HostDb entries to not be grouped with their CrawlDb entries.",
-            mode);
+        LOG.error("HostDb is configured but partition.url.mode is '{}'. "
+            + "Forcing byHost for HostDb generation so HostDb rows and "
+            + "CrawlDb URLs share a reducer. "
+            + "The job configuration is unchanged.", mode);
       }
     }
   }

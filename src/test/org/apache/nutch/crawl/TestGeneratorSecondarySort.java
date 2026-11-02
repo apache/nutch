@@ -238,46 +238,62 @@ public class TestGeneratorSecondarySort {
   }
 
   /**
-   * CrawlDb partition caching must return the same partition as URLPartitioner,
-   * including the second URL on a host. HostDb keys stay on the hostname hash.
+   * HostDb generation partitions by the extracted host. HostDb keys and
+   * CrawlDb URLs for that host share getPartitionForRoot, including when
+   * partition.url.mode is not byHost.
    */
   @Test
-  public void testHostDbPartitionCacheMatchesUrlPartitioner() {
+  public void testHostDbPartitionUsesExtractedHost() {
     Configuration conf = NutchConfiguration.create();
     SelectorWithHostDb selector = new SelectorWithHostDb();
     selector.setConf(conf);
     URLPartitioner partitioner = new URLPartitioner();
     partitioner.setConf(conf);
     int tasks = 8;
+    String host = "h00000.bench.invalid";
+    int expected = partitioner.getPartitionForRoot(host, tasks);
     // Pieces stay separate so the source has no userinfo URI literal.
     String userInfoUrl = new StringBuilder("http://").append("aa")
         .append(':').append("bb").append('@')
-        .append("h00000.bench.invalid:80/p2").toString();
+        .append(host).append(":80/p2").toString();
     String[] urls = {
         "http://h00000.bench.invalid/p0",
         "http://h00000.bench.invalid/p1",
         "http://h00000.bench.invalid/index.html",
         "http://h00000.bench.invalid/p0?x=1",
         userInfoUrl,
-        "http://H00000.bench.invalid/p3",
-        "http://h00001.bench.invalid/p0",
-        "https://h00001.bench.invalid/other" };
+        "http://H00000.bench.invalid/p3" };
     for (String url : urls) {
       SelectorEntry entry = new SelectorEntry();
       entry.url = new Text(url);
       FloatTextPair key = new FloatTextPair(1.0f, "");
-      int expected = partitioner.getPartition(entry.url, key.getFirst(), tasks);
       assertEquals(expected, selector.getPartition(key, entry, tasks), url);
-      assertEquals(expected, selector.getPartition(key, entry, tasks),
-          url + " cache hit");
     }
 
     SelectorEntry hostEntry = new SelectorEntry();
     hostEntry.url = new Text("http://h00000.bench.invalid/p0");
     FloatTextPair hostKey = new FloatTextPair(-Float.MAX_VALUE,
-        "h00000.bench.invalid");
-    int hostHash = "h00000.bench.invalid".hashCode();
-    int hostPart = (hostHash & Integer.MAX_VALUE) % tasks;
-    assertEquals(hostPart, selector.getPartition(hostKey, hostEntry, tasks));
+        "H00000.bench.invalid");
+    assertEquals(expected, selector.getPartition(hostKey, hostEntry, tasks));
+
+    int otherHost = partitioner.getPartitionForRoot("h00001.bench.invalid",
+        tasks);
+    SelectorEntry otherEntry = new SelectorEntry();
+    otherEntry.url = new Text("https://h00001.bench.invalid/other");
+    assertEquals(otherHost, selector.getPartition(new FloatTextPair(1.0f, ""),
+        otherEntry, tasks));
+
+    Configuration domainConf = NutchConfiguration.create();
+    domainConf.set(URLPartitioner.PARTITION_MODE_KEY,
+        URLPartitioner.PARTITION_MODE_DOMAIN);
+    domainConf.set(Generator.GENERATOR_HOSTDB, "hostdb");
+    SelectorWithHostDb domainSelector = new SelectorWithHostDb();
+    domainSelector.setConf(domainConf);
+    SelectorEntry domainEntry = new SelectorEntry();
+    domainEntry.url = new Text("http://h00000.bench.invalid/p0");
+    assertEquals(expected, domainSelector.getPartition(
+        new FloatTextPair(1.0f, ""), domainEntry, tasks));
+    assertEquals(domainConf.get(URLPartitioner.PARTITION_MODE_KEY),
+        URLPartitioner.PARTITION_MODE_DOMAIN);
   }
 }
