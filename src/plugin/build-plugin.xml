@@ -88,6 +88,9 @@
       <include name="junit*.jar" />
       <include name="opentest4j*.jar" />
       <include name="testcontainers*.jar" />
+      <include name="docker-java*.jar" />
+      <include name="duct-tape*.jar" />
+      <include name="jna*.jar" />
     </fileset>
     <path refid="classpath"/>
   </path>
