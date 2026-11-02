@@ -176,7 +176,7 @@ public abstract class HttpBase implements Protocol {
   protected long maxCrawlDelay = -1L;
 
   /** Whether to check TLS/SSL certificates */
-  protected boolean tlsCheckCertificate = false;
+  protected boolean tlsCheckCertificate = true;
 
   /** Which TLS/SSL protocols to support */
   protected Set<String> tlsPreferredProtocols;
@@ -241,7 +241,7 @@ public abstract class HttpBase implements Protocol {
     this.useHttp11 = conf.getBoolean("http.useHttp11", true);
     this.useHttp2 = conf.getBoolean("http.useHttp2", false);
     this.tlsCheckCertificate = conf.getBoolean("http.tls.certificates.check",
-        false);
+        true);
     this.responseTime = conf.getBoolean("http.store.responsetime", true);
     this.storeIPAddress = conf.getBoolean("store.ip.address", false);
     this.storeHttpRequest = conf.getBoolean("store.http.request", false);
