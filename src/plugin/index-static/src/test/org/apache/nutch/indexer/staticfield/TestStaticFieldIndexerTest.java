@@ -68,13 +68,7 @@ public class TestStaticFieldIndexerTest {
     filter.setConf(conf);
 
     NutchDocument doc = new NutchDocument();
-
-    try {
-      filter.filter(doc, parse, url, crawlDatum, inlinks);
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail(e.getMessage());
-    }
+    filter.filter(doc, parse, url, crawlDatum, inlinks);
 
     assertNotNull(doc);
     assertTrue(doc.getFieldNames().isEmpty(),
@@ -95,13 +89,7 @@ public class TestStaticFieldIndexerTest {
     filter.setConf(conf);
 
     NutchDocument doc = new NutchDocument();
-
-    try {
-      filter.filter(doc, parse, url, crawlDatum, inlinks);
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail(e.getMessage());
-    }
+    filter.filter(doc, parse, url, crawlDatum, inlinks);
 
     assertNotNull(doc);
     assertFalse(doc.getFieldNames().isEmpty(),
@@ -133,13 +121,7 @@ public class TestStaticFieldIndexerTest {
     filter.setConf(conf);
 
     NutchDocument doc = new NutchDocument();
-
-    try {
-      filter.filter(doc, parse, url, crawlDatum, inlinks);
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail(e.getMessage());
-    }
+    filter.filter(doc, parse, url, crawlDatum, inlinks);
 
     assertNotNull(doc);
     assertFalse(doc.getFieldNames().isEmpty(),
@@ -171,13 +153,7 @@ public class TestStaticFieldIndexerTest {
     filter.setConf(conf);
 
     NutchDocument doc = new NutchDocument();
-
-    try {
-      filter.filter(doc, parse, url, crawlDatum, inlinks);
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail(e.getMessage());
-    }
+    filter.filter(doc, parse, url, crawlDatum, inlinks);
 
     assertNotNull(doc);
     assertFalse(doc.getFieldNames().isEmpty(),
