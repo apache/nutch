@@ -465,6 +465,40 @@
     </antcall>
   </target>
 
+  <!-- bashunit is a test-only download. It is not part of the JUnit suite. -->
+  <target name="bashunit-check">
+    <mkdir dir="${build.dir}"/>
+    <available file="${build.dir}/bashunit-${bashunit.version}" property="bashunit.present"/>
+  </target>
+
+  <target name="bashunit-download" depends="bashunit-check" unless="bashunit.present"
+          description="--> download the pinned bashunit release">
+    <get src="https://github.com/TypedDevs/bashunit/releases/download/${bashunit.version}/bashunit"
+         dest="${build.dir}/bashunit-${bashunit.version}" usetimestamp="false"/>
+  </target>
+
+  <target name="bashunit-verify" depends="bashunit-download">
+    <checksum file="${build.dir}/bashunit-${bashunit.version}" algorithm="SHA-256"
+              property="bashunit.sha256.actual"/>
+    <condition property="bashunit.checksum.ok">
+      <equals arg1="${bashunit.sha256.actual}" arg2="${bashunit.sha256}" casesensitive="false"/>
+    </condition>
+    <!-- Drop a bad download so the next run fetches it again. -->
+    <antcall target="bashunit-reject"/>
+    <chmod file="${build.dir}/bashunit-${bashunit.version}" perm="755"/>
+  </target>
+
+  <target name="bashunit-reject" unless="bashunit.checksum.ok">
+    <delete file="${build.dir}/bashunit-${bashunit.version}"/>
+    <fail message="bashunit ${bashunit.version} checksum mismatch (expected ${bashunit.sha256}, got ${bashunit.sha256.actual})"/>
+  </target>
+
+  <target name="test-bash" depends="bashunit-verify" description="--> run bashunit tests for src/bin">
+    <exec executable="${build.dir}/bashunit-${bashunit.version}" failonerror="true" dir="${basedir}">
+      <arg value="src/test/bin"/>
+    </exec>
+  </target>
+
   <target name="test-core"
           depends="compile-core-test, job, jacoco-download"
           description="--> run core JUnit tests">

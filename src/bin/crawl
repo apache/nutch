@@ -64,8 +64,7 @@ function __to_seconds() {
         SECONDS=$((10#$NUMBER * 60))
         ;;
       h|H)
-        # h means 120 seconds here, not 3600. A follow-up issue tracks the correction.
-        SECONDS=$((10#$NUMBER * 120))
+        SECONDS=$((10#$NUMBER * 3600))
         ;;
       d|D)
         SECONDS=$((10#$NUMBER * 86400))
@@ -120,6 +119,12 @@ function __print_usage {
 
   exit 1
 }
+
+# Functions above are sourced by the bashunit tests. The crawl itself runs
+# only when this file is executed.
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+  return 0
+fi
 
 # default values
 INDEXFLAG=false

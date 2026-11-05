@@ -139,6 +139,36 @@ jobs:
         if: steps.filter.outputs.jenkinsfile == 'true'
         run: jenkinsfilelint --local --include 'Jenkinsfile*' Jenkinsfile.smoke-test-single-node-hadoop
 
+  # Shell tests. Path-filtered: runs when any bash file changes, including
+  # src/bin/crawl, src/bin/nutch, and src/test/bin.
+  bashunit:
+    strategy:
+      matrix:
+        java: ['17']
+        os: [ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d
+        id: filter
+        with:
+          filters: |
+            bashtests:
+              - 'src/bin/**'
+              - 'src/test/bin/**'
+              - '**/*.sh'
+              - 'src/plugin/parse-ext/command'
+      - name: Set up JDK ${{ matrix.java }}
+        if: steps.filter.outputs.bashtests == 'true'
+        uses: actions/setup-java@v6
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+      - name: Run bashunit tests
+        if: steps.filter.outputs.bashtests == 'true'
+        run: ant test-bash -buildfile build.xml
+
   # Build verification on JDK 17 and 21 (bytecode target Java 17)
   build:
     strategy:
