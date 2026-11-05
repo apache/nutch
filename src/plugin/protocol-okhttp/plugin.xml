@@ -29,12 +29,12 @@
       <library name="annotations-13.0.jar"/>
       <library name="dec-0.1.2.jar"/>
       <library name="kotlin-stdlib-2.1.21.jar"/>
-      <library name="okhttp-5.4.0.jar"/>
-      <library name="okhttp-brotli-5.4.0.jar"/>
-      <library name="okhttp-jvm-5.4.0.jar"/>
-      <library name="okhttp-zstd-5.4.0.jar"/>
-      <library name="okio-3.17.0.jar"/>
-      <library name="okio-jvm-3.17.0.jar"/>
+      <library name="okhttp-5.5.1.jar"/>
+      <library name="okhttp-brotli-5.5.1.jar"/>
+      <library name="okhttp-jvm-5.5.1.jar"/>
+      <library name="okhttp-zstd-5.5.1.jar"/>
+      <library name="okio-3.18.1.jar"/>
+      <library name="okio-jvm-3.18.1.jar"/>
       <library name="zstd-kmp-jvm-0.4.0.jar"/>
       <library name="zstd-kmp-okio-jvm-0.4.0.jar"/>
       <!-- end of dependencies of OkHttp -->
