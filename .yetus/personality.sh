@@ -38,3 +38,23 @@ function docker_do_env_adds
     fi
   done
 }
+
+# markdownlint-cli 0.44.0 (ghcr.io/apache/yetus:0.15.1) calls program.help()
+# when every path is excluded by .markdownlintignore. Yetus counts that usage
+# text as findings on a full master scan (NUTCH-3237). Skip CHANGES.md here so
+# the CLI is only invoked on files it will lint. Other plugins still see it.
+## @audience private
+## @stability stable
+function markdownlint_filefilter
+{
+  declare filename=$1
+
+  if [[ "${filename}" == "CHANGES.md" ]]; then
+    return
+  fi
+
+  if [[ ${filename} =~ \.md$ ]]; then
+    add_test markdownlint
+    yetus_add_array_element MARKDOWNLINT_CHECKFILES "${filename}"
+  fi
+}
