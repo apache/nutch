@@ -1,1 +1,5 @@
+# CHANGES.md is also skipped in .yetus/personality.sh (NUTCH-3237).
+# markdownlint-cli 0.44 prints its usage text when every argument is
+# ignored, and Yetus counts those lines as findings. Do not rely on
+# this ignore alone.
 CHANGES.md
