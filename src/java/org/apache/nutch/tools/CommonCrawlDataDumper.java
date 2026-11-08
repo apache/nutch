@@ -532,11 +532,11 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
   }
 
   /**
-   * Reduces a crawled metadata value to a single archive path segment.
-   * Letters, digits, space, comma, colon, plus, and hyphen are kept.
-   * Every other character becomes an underscore, and leading dots are
-   * removed. A null value stays the string {@code null}, which is the
-   * name produced by concatenating a missing value today.
+   * Reduces a crawled metadata value to one archive path segment.
+   * Letters, digits, space, comma, colon, plus, and hyphen are kept so a
+   * normal HTTP date is unchanged. Every other character, including dots,
+   * slashes, and backslashes, becomes an underscore. A null value stays
+   * the string "null", which is the filename a missing value produces today.
    *
    * @param value crawled metadata value, or null
    * @return a single safe path segment
@@ -545,22 +545,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
     if (value == null) {
       return "null";
     }
-    StringBuilder sanitized = new StringBuilder(value.length());
-    for (int i = 0; i < value.length(); i++) {
-      char c = value.charAt(i);
-      if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
-          || (c >= '0' && c <= '9') || c == ' ' || c == ',' || c == ':'
-          || c == '+' || c == '-') {
-        sanitized.append(c);
-      } else {
-        sanitized.append('_');
-      }
-    }
-    int start = 0;
-    while (start < sanitized.length() && sanitized.charAt(start) == '.') {
-      start++;
-    }
-    return sanitized.substring(start);
+    return value.replaceAll("[^A-Za-z0-9 ,:+-]", "_");
   }
 
   /**

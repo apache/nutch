@@ -143,9 +143,32 @@ public class TestCommonCrawlDataDumper {
   }
 
   /**
-   * A crawled {@code date} value is copied into the tar entry name when both
-   * gzip and epoch filenames are requested. Parent-directory segments and
-   * separators in that value must not survive. A normal HTTP date must.
+   * With gzip and epoch filenames both enabled, CommonCrawlDataDumper copies
+   * the crawled metadata key "date" into each tar entry name. That value
+   * comes from a response header a remote server controls, so it must not be
+   * able to change the directory an entry is written under.
+   *
+   * What this test does:
+   * <ol>
+   * <li>Writes one segment containing two documents. The first document has
+   * the date "../../../tmp/evil/x", a parent-directory path. The second has
+   * the normal HTTP date "Thu, 25 Sep 2014 04:16:58 GMT".</li>
+   * <li>Runs {@code dump} with gzip and epoch filenames enabled, which is the
+   * code path that builds entry names from the date.</li>
+   * <li>Reads the entry names back from the resulting .tar.gz. The archive is
+   * never extracted, so the test writes nothing outside its temporary
+   * directories.</li>
+   * <li>For every entry, checks that the name has no ".." segment, is not
+   * absolute, and that its final path segment has no slash, no backslash, and
+   * none of the unsafe date text.</li>
+   * <li>Checks that the normal HTTP date still appears in an entry name. This
+   * stops the sanitizer from rewriting legitimate dates.</li>
+   * </ol>
+   *
+   * Why: a regression here would let a crawled site choose where archive
+   * entries land, and the failure would show up only later, when someone
+   * unpacks the archive. Checking the names directly catches the problem at
+   * the point where Nutch writes them.
    */
   @Test
   public void testEpochGzipEntryNamesIgnoreUnsafeDateMetadata()
@@ -180,6 +203,13 @@ public class TestCommonCrawlDataDumper {
     assertTrue(sawBenign, "normal HTTP date was not kept in an entry name");
   }
 
+  /**
+   * Writes the two test documents as a single SequenceFile at
+   * {@code segment/content/part-00000/data}. That is the layout the dumper
+   * scans for, so the file must sit in exactly this location. Each document
+   * is stored with its own URL and a metadata record holding only the
+   * lowercase "date" key.
+   */
   private void writeContentSegment(File segmentDir, String unsafeUrl,
       String unsafeDate, String benignUrl, String benignDate) throws Exception {
     File partDir = new File(segmentDir, "content/part-00000");
@@ -199,6 +229,11 @@ public class TestCommonCrawlDataDumper {
     }
   }
 
+  /**
+   * Builds a Content record whose metadata has only the lowercase key "date".
+   * The dumper reads that exact key when it builds the entry name, so using a
+   * different case would bypass the code path under test.
+   */
   private Content contentWithDate(String url, String date, byte[] body,
       Configuration conf) {
     Metadata metadata = new Metadata();
@@ -206,6 +241,11 @@ public class TestCommonCrawlDataDumper {
     return new Content(url, url, body, "text/html", metadata, conf);
   }
 
+  /**
+   * Finds the single .tar.gz that the dump wrote into {@code outputDir} and
+   * returns every entry name it contains. Fails the test if no archive was
+   * written. Entry names are read as text only; nothing is extracted.
+   */
   private List<String> readTarEntryNames(File outputDir) throws Exception {
     File archive = null;
     File[] files = outputDir.listFiles();
