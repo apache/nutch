@@ -334,7 +334,8 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
                         reverseKey, url, timestamp, extensionName, !gzip);
                 outputRelativePath = outputFullPath
                     .substring(0, outputFullPath.lastIndexOf(File.separator) - 1);
-                filename = content.getMetadata().get(Metadata.DATE) + "."
+                filename = sanitizeArchiveFileName(
+                    content.getMetadata().get(Metadata.DATE)) + "."
                     + extensionName;
               } else {
                 String md5Ofurl = DumpFileUtil.getUrlMD5(url);
@@ -528,6 +529,38 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
   private void collectStats(Map<String, Integer> typeCounts, String mimeType) {
     typeCounts.put(mimeType,
         typeCounts.containsKey(mimeType) ? typeCounts.get(mimeType) + 1 : 1);
+  }
+
+  /**
+   * Reduces a crawled metadata value to a single archive path segment.
+   * Letters, digits, space, comma, colon, plus, and hyphen are kept.
+   * Every other character becomes an underscore, and leading dots are
+   * removed. A null value stays the string {@code null}, which is the
+   * name produced by concatenating a missing value today.
+   *
+   * @param value crawled metadata value, or null
+   * @return a single safe path segment
+   */
+  static String sanitizeArchiveFileName(String value) {
+    if (value == null) {
+      return "null";
+    }
+    StringBuilder sanitized = new StringBuilder(value.length());
+    for (int i = 0; i < value.length(); i++) {
+      char c = value.charAt(i);
+      if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
+          || (c >= '0' && c <= '9') || c == ' ' || c == ',' || c == ':'
+          || c == '+' || c == '-') {
+        sanitized.append(c);
+      } else {
+        sanitized.append('_');
+      }
+    }
+    int start = 0;
+    while (start < sanitized.length() && sanitized.charAt(start) == '.') {
+      start++;
+    }
+    return sanitized.substring(start);
   }
 
   /**

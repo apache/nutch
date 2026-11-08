@@ -17,15 +17,30 @@
 package org.apache.nutch.tools;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metrics.ErrorTracker;
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -125,6 +140,94 @@ public class TestCommonCrawlDataDumper {
     dumper.dump(outputDir, emptySegmentDir, null, false, null, false, "", false);
 
     verify(mockErrorTracker, times(1)).recordError(ErrorTracker.ErrorType.OTHER);
+  }
+
+  /**
+   * A crawled {@code date} value is copied into the tar entry name when both
+   * gzip and epoch filenames are requested. Parent-directory segments and
+   * separators in that value must not survive. A normal HTTP date must.
+   */
+  @Test
+  public void testEpochGzipEntryNamesIgnoreUnsafeDateMetadata()
+      throws Exception {
+    String benignDate = "Thu, 25 Sep 2014 04:16:58 GMT";
+    String unsafeDate = "../../../tmp/evil/x";
+    File segmentDir = Files.createTempDirectory("epoch-segment").toFile();
+    File outputDir = Files.createTempDirectory("epoch-output").toFile();
+    writeContentSegment(segmentDir,
+        "http://example.test/unsafe.html", unsafeDate,
+        "http://example.test/benign.html", benignDate);
+
+    CommonCrawlDataDumper dumper = new CommonCrawlDataDumper(
+        new CommonCrawlConfig());
+    dumper.dump(outputDir, segmentDir, null, true, null, true, "", false);
+
+    List<String> entryNames = readTarEntryNames(outputDir);
+    assertFalse(entryNames.isEmpty(), "gzip epoch dump wrote no tar entries");
+    boolean sawBenign = false;
+    for (String name : entryNames) {
+      assertFalse(name.contains(".."), "entry name contains ..: " + name);
+      assertFalse(name.startsWith("/"), "entry name is absolute: " + name);
+      String segment = name.substring(name.lastIndexOf('/') + 1);
+      assertFalse(segment.contains(".."), segment);
+      assertFalse(segment.indexOf('/') >= 0, segment);
+      assertFalse(segment.indexOf('\\') >= 0, segment);
+      assertFalse(segment.contains(unsafeDate), segment);
+      if (name.contains(benignDate)) {
+        sawBenign = true;
+      }
+    }
+    assertTrue(sawBenign, "normal HTTP date was not kept in an entry name");
+  }
+
+  private void writeContentSegment(File segmentDir, String unsafeUrl,
+      String unsafeDate, String benignUrl, String benignDate) throws Exception {
+    File partDir = new File(segmentDir, "content/part-00000");
+    assertTrue(partDir.mkdirs(), "could not create " + partDir);
+    Configuration conf = NutchConfiguration.create();
+    Path data = new Path(new File(partDir, "data").getAbsolutePath());
+    byte[] body = "<html><body>example</body></html>"
+        .getBytes(StandardCharsets.UTF_8);
+    try (SequenceFile.Writer writer = SequenceFile.createWriter(conf,
+        SequenceFile.Writer.file(data),
+        SequenceFile.Writer.keyClass(Text.class),
+        SequenceFile.Writer.valueClass(Content.class))) {
+      writer.append(new Text(unsafeUrl),
+          contentWithDate(unsafeUrl, unsafeDate, body, conf));
+      writer.append(new Text(benignUrl),
+          contentWithDate(benignUrl, benignDate, body, conf));
+    }
+  }
+
+  private Content contentWithDate(String url, String date, byte[] body,
+      Configuration conf) {
+    Metadata metadata = new Metadata();
+    metadata.set("date", date);
+    return new Content(url, url, body, "text/html", metadata, conf);
+  }
+
+  private List<String> readTarEntryNames(File outputDir) throws Exception {
+    File archive = null;
+    File[] files = outputDir.listFiles();
+    if (files != null) {
+      for (File file : files) {
+        if (file.getName().endsWith(".tar.gz")) {
+          archive = file;
+          break;
+        }
+      }
+    }
+    assertTrue(archive != null && archive.isFile(),
+        "gzip epoch dump did not write a tar.gz");
+    List<String> names = new ArrayList<>();
+    try (TarArchiveInputStream tar = new TarArchiveInputStream(
+        new GzipCompressorInputStream(new FileInputStream(archive)))) {
+      TarArchiveEntry entry;
+      while ((entry = tar.getNextEntry()) != null) {
+        names.add(entry.getName());
+      }
+    }
+    return names;
   }
 
   private boolean hasFile(String fileName, Collection<File> files) {
