@@ -17,15 +17,30 @@
 package org.apache.nutch.tools;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metrics.ErrorTracker;
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -125,6 +140,134 @@ public class TestCommonCrawlDataDumper {
     dumper.dump(outputDir, emptySegmentDir, null, false, null, false, "", false);
 
     verify(mockErrorTracker, times(1)).recordError(ErrorTracker.ErrorType.OTHER);
+  }
+
+  /**
+   * With gzip and epoch filenames both enabled, CommonCrawlDataDumper copies
+   * the crawled metadata key "date" into each tar entry name. That value
+   * comes from a response header a remote server controls, so it must not be
+   * able to change the directory an entry is written under.
+   *
+   * What this test does:
+   * <ol>
+   * <li>Writes one segment containing two documents. The first document has
+   * the date "../../../tmp/evil/x", a parent-directory path. The second has
+   * the normal HTTP date "Thu, 25 Sep 2014 04:16:58 GMT".</li>
+   * <li>Runs {@code dump} with gzip and epoch filenames enabled, which is the
+   * code path that builds entry names from the date.</li>
+   * <li>Reads the entry names back from the resulting .tar.gz. The archive is
+   * never extracted, so the test writes nothing outside its temporary
+   * directories.</li>
+   * <li>For every entry, checks that the name has no ".." segment, is not
+   * absolute, and that its final path segment has no slash, no backslash, and
+   * none of the unsafe date text.</li>
+   * <li>Checks that the normal HTTP date still appears in an entry name. This
+   * stops the sanitizer from rewriting legitimate dates.</li>
+   * </ol>
+   *
+   * Why: a regression here would let a crawled site choose where archive
+   * entries land, and the failure would show up only later, when someone
+   * unpacks the archive. Checking the names directly catches the problem at
+   * the point where Nutch writes them.
+   */
+  @Test
+  public void testEpochGzipEntryNamesIgnoreUnsafeDateMetadata()
+      throws Exception {
+    String benignDate = "Thu, 25 Sep 2014 04:16:58 GMT";
+    String unsafeDate = "../../../tmp/evil/x";
+    File segmentDir = Files.createTempDirectory("epoch-segment").toFile();
+    File outputDir = Files.createTempDirectory("epoch-output").toFile();
+    writeContentSegment(segmentDir,
+        "http://example.test/unsafe.html", unsafeDate,
+        "http://example.test/benign.html", benignDate);
+
+    CommonCrawlDataDumper dumper = new CommonCrawlDataDumper(
+        new CommonCrawlConfig());
+    dumper.dump(outputDir, segmentDir, null, true, null, true, "", false);
+
+    List<String> entryNames = readTarEntryNames(outputDir);
+    assertFalse(entryNames.isEmpty(), "gzip epoch dump wrote no tar entries");
+    boolean sawBenign = false;
+    for (String name : entryNames) {
+      assertFalse(name.contains(".."), "entry name contains ..: " + name);
+      assertFalse(name.startsWith("/"), "entry name is absolute: " + name);
+      String segment = name.substring(name.lastIndexOf('/') + 1);
+      assertFalse(segment.contains(".."), segment);
+      assertFalse(segment.indexOf('/') >= 0, segment);
+      assertFalse(segment.indexOf('\\') >= 0, segment);
+      assertFalse(segment.contains(unsafeDate), segment);
+      if (name.contains(benignDate)) {
+        sawBenign = true;
+      }
+    }
+    assertTrue(sawBenign, "normal HTTP date was not kept in an entry name");
+  }
+
+  /**
+   * Writes the two test documents as a single SequenceFile at
+   * {@code segment/content/part-00000/data}. That is the layout the dumper
+   * scans for, so the file must sit in exactly this location. Each document
+   * is stored with its own URL and a metadata record holding only the
+   * lowercase "date" key.
+   */
+  private void writeContentSegment(File segmentDir, String unsafeUrl,
+      String unsafeDate, String benignUrl, String benignDate) throws Exception {
+    File partDir = new File(segmentDir, "content/part-00000");
+    assertTrue(partDir.mkdirs(), "could not create " + partDir);
+    Configuration conf = NutchConfiguration.create();
+    Path data = new Path(new File(partDir, "data").getAbsolutePath());
+    byte[] body = "<html><body>example</body></html>"
+        .getBytes(StandardCharsets.UTF_8);
+    try (SequenceFile.Writer writer = SequenceFile.createWriter(conf,
+        SequenceFile.Writer.file(data),
+        SequenceFile.Writer.keyClass(Text.class),
+        SequenceFile.Writer.valueClass(Content.class))) {
+      writer.append(new Text(unsafeUrl),
+          contentWithDate(unsafeUrl, unsafeDate, body, conf));
+      writer.append(new Text(benignUrl),
+          contentWithDate(benignUrl, benignDate, body, conf));
+    }
+  }
+
+  /**
+   * Builds a Content record whose metadata has only the lowercase key "date".
+   * The dumper reads that exact key when it builds the entry name, so using a
+   * different case would bypass the code path under test.
+   */
+  private Content contentWithDate(String url, String date, byte[] body,
+      Configuration conf) {
+    Metadata metadata = new Metadata();
+    metadata.set("date", date);
+    return new Content(url, url, body, "text/html", metadata, conf);
+  }
+
+  /**
+   * Finds the single .tar.gz that the dump wrote into {@code outputDir} and
+   * returns every entry name it contains. Fails the test if no archive was
+   * written. Entry names are read as text only; nothing is extracted.
+   */
+  private List<String> readTarEntryNames(File outputDir) throws Exception {
+    File archive = null;
+    File[] files = outputDir.listFiles();
+    if (files != null) {
+      for (File file : files) {
+        if (file.getName().endsWith(".tar.gz")) {
+          archive = file;
+          break;
+        }
+      }
+    }
+    assertTrue(archive != null && archive.isFile(),
+        "gzip epoch dump did not write a tar.gz");
+    List<String> names = new ArrayList<>();
+    try (TarArchiveInputStream tar = new TarArchiveInputStream(
+        new GzipCompressorInputStream(new FileInputStream(archive)))) {
+      TarArchiveEntry entry;
+      while ((entry = tar.getNextEntry()) != null) {
+        names.add(entry.getName());
+      }
+    }
+    return names;
   }
 
   private boolean hasFile(String fileName, Collection<File> files) {

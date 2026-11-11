@@ -334,7 +334,8 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
                         reverseKey, url, timestamp, extensionName, !gzip);
                 outputRelativePath = outputFullPath
                     .substring(0, outputFullPath.lastIndexOf(File.separator) - 1);
-                filename = content.getMetadata().get(Metadata.DATE) + "."
+                filename = sanitizeArchiveFileName(
+                    content.getMetadata().get(Metadata.DATE)) + "."
                     + extensionName;
               } else {
                 String md5Ofurl = DumpFileUtil.getUrlMD5(url);
@@ -528,6 +529,23 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
   private void collectStats(Map<String, Integer> typeCounts, String mimeType) {
     typeCounts.put(mimeType,
         typeCounts.containsKey(mimeType) ? typeCounts.get(mimeType) + 1 : 1);
+  }
+
+  /**
+   * Reduces a crawled metadata value to one archive path segment.
+   * Letters, digits, space, comma, colon, plus, and hyphen are kept so a
+   * normal HTTP date is unchanged. Every other character, including dots,
+   * slashes, and backslashes, becomes an underscore. A null value stays
+   * the string "null", which is the filename a missing value produces today.
+   *
+   * @param value crawled metadata value, or null
+   * @return a single safe path segment
+   */
+  static String sanitizeArchiveFileName(String value) {
+    if (value == null) {
+      return "null";
+    }
+    return value.replaceAll("[^A-Za-z0-9 ,:+-]", "_");
   }
 
   /**
