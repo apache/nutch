@@ -17,7 +17,6 @@
 package org.apache.nutch.crawl;
 
 import java.lang.invoke.MethodHandles;
-import java.net.InetAddress;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
@@ -71,12 +70,28 @@ public class URLPartitioner extends Partitioner<Text, Writable> implements Confi
     return conf;
   }
 
+  /**
+   * Partition by an already extracted host, domain, or IP. A null root hashes
+   * as 0 before <code>partition.url.seed</code> is applied.
+   *
+   * @param root
+   *          the partition key, or null when the root cannot be resolved
+   * @param numReduceTasks
+   *          number of reduce tasks
+   * @return the partition number
+   */
+  public int getPartitionForRoot(String root, int numReduceTasks) {
+    int hashCode = root == null ? 0 : root.hashCode();
+    // make hosts wind up in different partitions on different runs
+    hashCode ^= seed;
+    return (hashCode & Integer.MAX_VALUE) % numReduceTasks;
+  }
+
   /** Hash by host or domain name or IP address. */
   @Override
   public int getPartition(Text key, Writable value, int numReduceTasks) {
     String urlString = key.toString();
     URL url = null;
-    int hashCode = 0;
     try {
       urlString = normalizers.normalize(urlString,
           URLNormalizers.SCOPE_PARTITION);
@@ -85,26 +100,16 @@ public class URLPartitioner extends Partitioner<Text, Writable> implements Confi
       LOG.warn("Malformed URL: '{}'", urlString);
     }
 
-    if (url == null) {
-      // failed to parse URL, must take URL string as fall-back
-      hashCode = urlString.hashCode();
-    } else if (mode.equals(PARTITION_MODE_HOST)) {
-      hashCode = url.getHost().hashCode();
-    } else if (mode.equals(PARTITION_MODE_DOMAIN)) {
-      hashCode = URLUtil.getDomainName(url).hashCode();
-    } else if (mode.equals(PARTITION_MODE_IP)) {
+    String root = urlString;
+    if (url != null) {
       try {
-        InetAddress address = InetAddress.getByName(url.getHost());
-        hashCode = address.getHostAddress().hashCode();
+        root = URLUtil.getUrlRootByMode(url, mode);
       } catch (UnknownHostException e) {
         Generator.LOG.info("Couldn't find IP for host: {}", url.getHost());
+        root = null;
       }
     }
-
-    // make hosts wind up in different partitions on different runs
-    hashCode ^= seed;
-
-    return (hashCode & Integer.MAX_VALUE) % numReduceTasks;
+    return getPartitionForRoot(root, numReduceTasks);
   }
 
 }
