@@ -1112,7 +1112,8 @@
   <value>byHost</value>
   <description>
     Determines how to partition URLs. Default value is 'byHost',
-    also takes 'byDomain' or 'byIP'.
+    also takes 'byDomain' or 'byIP'. HostDb generation forces 'byHost'
+    and partitions on the extracted host.
   </description>
 </property>
 
