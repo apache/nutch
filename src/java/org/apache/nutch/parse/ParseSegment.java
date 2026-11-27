@@ -128,16 +128,12 @@ public class ParseSegment extends NutchTool implements Tool {
         key = newKey;
       }
 
-      String fetchStatus = content.getMetadata().get(Nutch.FETCH_STATUS_KEY);
-      if (fetchStatus == null) {
-        // no fetch status, skip document
-        LOG.debug("Skipping {} as content has no fetch status", key);
-        return;
-      } else if(deleteFailedParse && Integer.parseInt(fetchStatus) == CrawlDatum.STATUS_PARSE_FAILED) {
+      int fetchStatus = getFetchStatus(content);
+      if (deleteFailedParse && fetchStatus == CrawlDatum.STATUS_PARSE_FAILED) {
         LOG.debug("Skipping {} as un-parseable content will be deleted", key);
         return;
-      } else if (Integer.parseInt(fetchStatus) != CrawlDatum.STATUS_FETCH_SUCCESS) {
-        // content not fetched successfully, skip document
+      } else if (fetchStatus != CrawlDatum.STATUS_FETCH_SUCCESS) {
+        // no, malformed or unsuccessful fetch status, skip document
         LOG.debug("Skipping {} as content is not fetched successfully", key);
         return;
       }
@@ -200,6 +196,27 @@ public class ParseSegment extends NutchTool implements Tool {
             new NutchWritable(new ParseImpl(new ParseText(parse.getText()),
                 parse.getData(), parse.isCanonical())));
       }
+    }
+  }
+
+  /**
+   * Returns the fetch status stored in the content metadata by the fetcher.
+   *
+   * @param content
+   *          the content to check
+   * @return the fetch status, or -1 if it is missing or malformed
+   */
+  public static int getFetchStatus(Content content) {
+    String fetchStatus = content.getMetadata().get(Nutch.FETCH_STATUS_KEY);
+    if (fetchStatus == null) {
+      return -1;
+    }
+    try {
+      return Integer.parseInt(fetchStatus);
+    } catch (NumberFormatException e) {
+      LOG.warn("Malformed fetch status '{}' for {}", fetchStatus,
+          content.getUrl());
+      return -1;
     }
   }
 

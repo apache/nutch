@@ -30,8 +30,10 @@ import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.metrics.LatencyTestUtil;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.protocols.Response;
@@ -136,5 +138,44 @@ public class TestParseSegment {
         new NutchWritable(new BytesWritable()), 1));
     assertEquals(0, partitioner.getPartition(new Text("http://example.com/"),
         new NutchWritable(new BytesWritable()), 1));
+  }
+
+  private static Content contentWithFetchStatus(String... values) {
+    Content content = new Content();
+    Metadata metadata = new Metadata();
+    for (String value : values) {
+      metadata.add(Nutch.FETCH_STATUS_KEY, value);
+    }
+    content.setMetadata(metadata);
+    content.setContent(BYTES);
+    return content;
+  }
+
+  @Test
+  public void testFetchStatus() {
+    assertEquals(CrawlDatum.STATUS_FETCH_SUCCESS,
+        ParseSegment.getFetchStatus(contentWithFetchStatus(
+            Integer.toString(CrawlDatum.STATUS_FETCH_SUCCESS))));
+    assertEquals(CrawlDatum.STATUS_PARSE_FAILED,
+        ParseSegment.getFetchStatus(contentWithFetchStatus(
+            Integer.toString(CrawlDatum.STATUS_PARSE_FAILED))));
+    // no fetch status
+    assertEquals(-1, ParseSegment.getFetchStatus(contentWithFetchStatus()));
+  }
+
+  /**
+   * NUTCH-3252: a malformed fetch status (e.g. a server sent a "_fst_"
+   * response header) must skip the record, not fail the parse job.
+   */
+  @Test
+  public void testMalformedFetchStatus() {
+    for (String bad : new String[] { "not-a-number", "", " ", "33.0",
+        "99999999999" }) {
+      assertEquals(-1, ParseSegment.getFetchStatus(contentWithFetchStatus(bad)),
+          "malformed fetch status: '" + bad + "'");
+    }
+    // segments written before the fix hold the header value first
+    assertEquals(-1, ParseSegment.getFetchStatus(contentWithFetchStatus(
+        "not-a-number", Integer.toString(CrawlDatum.STATUS_FETCH_SUCCESS))));
   }
 }

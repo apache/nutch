@@ -754,9 +754,11 @@ public class FetcherThread extends Thread {
 
       /*
        * Store status code in content So we can read this value during parsing
-       * (as a separate job) and decide to parse or not.
+       * (as a separate job) and decide to parse or not. Use set() so that a
+       * "_fst_" response header cannot shadow it (NUTCH-3252).
        */
-      content.getMetadata().add(Nutch.FETCH_STATUS_KEY, Integer.toString(status));
+      content.getMetadata().set(Nutch.FETCH_STATUS_KEY,
+          Integer.toString(status));
     }
 
     try {
@@ -776,7 +778,8 @@ public class FetcherThread extends Thread {
             parse = parseStatus.getEmptyParse(conf);
             if (deleteFailedParse && content != null) {
               // forward the failure status in the content
-              content.getMetadata().add(Nutch.FETCH_STATUS_KEY, Integer.toString(CrawlDatum.STATUS_PARSE_FAILED));
+              content.getMetadata().set(Nutch.FETCH_STATUS_KEY,
+                  Integer.toString(CrawlDatum.STATUS_PARSE_FAILED));
             }
           }
 
