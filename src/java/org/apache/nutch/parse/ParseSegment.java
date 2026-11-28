@@ -134,7 +134,13 @@ public class ParseSegment extends NutchTool implements Tool {
         return;
       } else if (fetchStatus != CrawlDatum.STATUS_FETCH_SUCCESS) {
         // no, malformed or unsuccessful fetch status, skip document
-        LOG.debug("Skipping {} as content is not fetched successfully", key);
+        if (fetchStatus == MISSING_FETCH_STATUS) {
+          LOG.debug("Skipping {} as content has no fetch status", key);
+          context.getCounter(NutchMetrics.GROUP_PARSER,
+              NutchMetrics.PARSER_INVALID_FETCH_STATUS_TOTAL).increment(1);
+        } else {
+          LOG.debug("Skipping {} as content is not fetched successfully", key);
+        }
         return;
       }
 
@@ -200,23 +206,30 @@ public class ParseSegment extends NutchTool implements Tool {
   }
 
   /**
+   * Fetch status was missing or not an integer.
+   * Not a {@link org.apache.nutch.crawl.CrawlDatum} status.
+   */
+  public static final int MISSING_FETCH_STATUS = -1;
+
+  /**
    * Returns the fetch status stored in the content metadata by the fetcher.
    *
    * @param content
    *          the content to check
-   * @return the fetch status, or -1 if it is missing or malformed
+   * @return the fetch status, or {@link #MISSING_FETCH_STATUS} if it is
+   *         missing or malformed
    */
   public static int getFetchStatus(Content content) {
     String fetchStatus = content.getMetadata().get(Nutch.FETCH_STATUS_KEY);
     if (fetchStatus == null) {
-      return -1;
+      return MISSING_FETCH_STATUS;
     }
     try {
       return Integer.parseInt(fetchStatus);
     } catch (NumberFormatException e) {
       LOG.warn("Malformed fetch status '{}' for {}", fetchStatus,
           content.getUrl());
-      return -1;
+      return MISSING_FETCH_STATUS;
     }
   }
 
