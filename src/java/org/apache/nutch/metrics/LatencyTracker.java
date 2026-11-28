@@ -190,6 +190,13 @@ public class LatencyTracker {
    *
    * <p>Should be called once during cleanup to emit aggregated metrics.
    *
+   * <p><b>Only correct when a single task emits.</b> Hadoop sums counters across
+   * tasks, and percentiles are not summable: with N tasks each publishing its own
+   * p50, the job counter becomes roughly N times the true median. For jobs with
+   * more than one task, emit only count and sum with
+   * {@link #emitCountAndSumOnly(TaskInputOutputContext)}, write the digest with
+   * {@link #toBytes()}, and compute percentiles once from the merged digest.
+   *
    * @param context the Hadoop task context
    */
   public void emitCounters(TaskInputOutputContext<?, ?, ?, ?> context) {

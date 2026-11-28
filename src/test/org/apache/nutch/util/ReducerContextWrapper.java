@@ -23,6 +23,7 @@ import java.util.Objects;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -45,6 +46,7 @@ import org.mockito.stubbing.Answer;
 public class ReducerContextWrapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
 
   private final Configuration config;
+  private final TaskAttemptID taskAttemptId;
   private final Counters counters = new Counters();
   private final Map<KEYOUT, VALUEOUT> valuesOut;
 
@@ -57,9 +59,23 @@ public class ReducerContextWrapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
    */
   public ReducerContextWrapper(Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> reducer,
       Configuration config, Map<KEYOUT, VALUEOUT> valuesOut) {
+    this(reducer, config, valuesOut, null);
+  }
+
+  /**
+   * @param reducer   reducer under test (retained for call-site clarity; not used by the mock)
+   * @param config    configuration exposed by {@link Reducer.Context#getConfiguration()}
+   * @param valuesOut map receiving {@link Reducer.Context#write(Object, Object)} calls
+   * @param taskAttemptId task attempt returned by
+   *                  {@link Reducer.Context#getTaskAttemptID()}; may be null
+   */
+  public ReducerContextWrapper(Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> reducer,
+      Configuration config, Map<KEYOUT, VALUEOUT> valuesOut,
+      TaskAttemptID taskAttemptId) {
     Objects.requireNonNull(reducer, "reducer");
     this.config = Objects.requireNonNull(config, "config");
     this.valuesOut = Objects.requireNonNull(valuesOut, "valuesOut");
+    this.taskAttemptId = taskAttemptId;
     initContext();
   }
 
@@ -87,6 +103,7 @@ public class ReducerContextWrapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
         Mockito.withSettings().defaultAnswer(Mockito.RETURNS_DEFAULTS));
 
     Mockito.lenient().when(context.getConfiguration()).thenReturn(config);
+    Mockito.lenient().when(context.getTaskAttemptID()).thenReturn(taskAttemptId);
 
     Mockito.lenient().when(context.getCounter(ArgumentMatchers.<Enum<?>>any()))
         .thenAnswer(inv -> counters.findCounter(inv.getArgument(0, Enum.class)));

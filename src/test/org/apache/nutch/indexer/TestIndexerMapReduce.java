@@ -18,7 +18,9 @@ package org.apache.nutch.indexer;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
@@ -26,6 +28,12 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.ParseData;
+import org.apache.hadoop.mapreduce.Counters;
+import org.apache.hadoop.mapreduce.JobID;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
+import org.apache.hadoop.mapreduce.TaskID;
+import org.apache.hadoop.mapreduce.TaskType;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseText;
@@ -33,9 +41,13 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.ReducerContextWrapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.tdunning.math.stats.MergingDigest;
+
+import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.Charset;
@@ -46,8 +58,13 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.apache.nutch.metrics.LatencyTestUtil.assertCountAndSum;
+import static org.apache.nutch.metrics.LatencyTestUtil.assertCountSumAndPercentilesZero;
+import static org.apache.nutch.metrics.LatencyTestUtil.assertPercentilesZero;
 
 /** Test {@link IndexerMapReduce} */
 public class TestIndexerMapReduce {
@@ -198,6 +215,116 @@ public class TestIndexerMapReduce {
       assertEquals(htmlDoc, binaryContent,
           "Binary content (" + charset + ") not correctly saved as base64");
     }
+  }
+
+  /**
+   * Two reduce tasks with disjoint latency samples. Hadoop sums each counter
+   * across tasks, so the indexer must not publish per-task percentiles as
+   * counters: summed medians are not the median of the union.
+   */
+  @Test
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void testLatencyPercentilesNotSummedAcrossReducers() throws Exception {
+    configuration = newLatencyConfiguration();
+    Counters jobCounters = new Counters();
+    // Task 0: 10..50 ms, task 1: 500..900 ms. Union count 10, sum 3650.
+    jobCounters.incrAllCounters(runLatencyReducer(new long[] { 10, 20, 30, 40, 50 }, null));
+    jobCounters.incrAllCounters(runLatencyReducer(new long[] { 500, 600, 700, 800, 900 }, null));
+
+    assertCountAndSum(jobCounters, NutchMetrics.GROUP_INDEXER,
+        NutchMetrics.INDEXER_LATENCY, 10, 3650);
+    assertPercentilesZero(jobCounters, NutchMetrics.GROUP_INDEXER,
+        NutchMetrics.INDEXER_LATENCY);
+  }
+
+  /**
+   * Two reduce tasks write their digests under the job output. The driver merges
+   * them, so the percentiles describe the union of all samples.
+   */
+  @Test
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void testMergeLatencyDigestsAcrossReducers(@TempDir File tempDir) throws Exception {
+    configuration = newLatencyConfiguration();
+    configuration.set(FileOutputFormat.OUTDIR, tempDir.toURI().toString());
+
+    runLatencyReducer(new long[] { 10, 20, 30, 40, 50 }, attemptId(0));
+    runLatencyReducer(new long[] { 500, 600, 700, 800, 900 }, attemptId(1));
+
+    File latencyDir = new File(tempDir, IndexerMapReduce.LATENCY_DIR);
+    String[] digestFiles = latencyDir.list(
+        (dir, name) -> name.endsWith(IndexerMapReduce.LATENCY_DIGEST_SUFFIX));
+    assertEquals(2, digestFiles == null ? 0 : digestFiles.length,
+        "expected one digest file per reduce task");
+
+    MergingDigest merged = IndexerMapReduce.mergeLatencyDigests(configuration,
+        new Path(tempDir.toURI()));
+    assertNotNull(merged, "merged digest expected");
+    assertEquals(10, merged.size());
+    // Median of the union lies between the two groups. A sum of per-task
+    // medians (about 30 + 700) would fall outside this range.
+    double p50 = merged.quantile(0.50);
+    double p95 = merged.quantile(0.95);
+    double p99 = merged.quantile(0.99);
+    assertTrue(p50 >= 50 && p50 <= 500, "p50=" + p50 + " not in [50,500]");
+    assertTrue(p95 >= 500 && p95 <= 900, "p95=" + p95 + " not in [500,900]");
+    assertTrue(p99 >= 500 && p99 <= 900, "p99=" + p99 + " not in [500,900]");
+  }
+
+  /**
+   * A reduce task with no samples writes no digest and publishes zero count,
+   * sum and percentiles. Merging then finds nothing, for a missing or empty output.
+   */
+  @Test
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void testNoLatencyDigestWithoutSamples(@TempDir File tempDir) throws Exception {
+    configuration = newLatencyConfiguration();
+    configuration.set(FileOutputFormat.OUTDIR, tempDir.toURI().toString());
+
+    Counters counters = runLatencyReducer(new long[0], attemptId(0));
+
+    assertCountSumAndPercentilesZero(counters, NutchMetrics.GROUP_INDEXER,
+        NutchMetrics.INDEXER_LATENCY);
+    assertFalse(new File(tempDir, IndexerMapReduce.LATENCY_DIR).exists(),
+        "no digest directory expected for empty input");
+    assertNull(IndexerMapReduce.mergeLatencyDigests(configuration,
+        new Path(tempDir.toURI())));
+    assertNull(IndexerMapReduce.mergeLatencyDigests(configuration,
+        new Path(new File(tempDir, "missing").toURI())));
+  }
+
+  private static TaskAttemptID attemptId(int partition) {
+    TaskID taskId = new TaskID(new JobID("test", 1), TaskType.REDUCE, partition);
+    return new TaskAttemptID(taskId, 0);
+  }
+
+  /**
+   * Configuration for latency tests: same plugin selection as the other tests in
+   * this class, so that {@link IndexerMapReduce.IndexerReducer#setup} succeeds.
+   */
+  private Configuration newLatencyConfiguration() {
+    Configuration conf = NutchConfiguration.create();
+    conf.set("plugin.includes", "protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|indexer-csv|scoring-opic|urlnormalizer-(pass|regex|basic)");
+    return conf;
+  }
+
+  /**
+   * Runs one reducer instance through setup, records the given samples, and runs
+   * cleanup, as a single reduce task would.
+   *
+   * @return the counters that task published
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  private Counters runLatencyReducer(long[] samples, TaskAttemptID attemptId)
+      throws Exception {
+    IndexerMapReduce.IndexerReducer latencyReducer = new IndexerMapReduce.IndexerReducer();
+    ReducerContextWrapper contextWrapper = new ReducerContextWrapper(latencyReducer,
+        configuration, new HashMap<>(), attemptId);
+    latencyReducer.setup(contextWrapper.getContext());
+    for (long sample : samples) {
+      latencyReducer.getLatencyTracker().record(sample);
+    }
+    latencyReducer.cleanup(contextWrapper.getContext());
+    return contextWrapper.getCounters();
   }
 
   /**
