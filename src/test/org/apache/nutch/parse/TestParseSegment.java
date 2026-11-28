@@ -19,6 +19,12 @@ package org.apache.nutch.parse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -30,8 +36,14 @@ import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.counters.GenericCounter;
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.metrics.LatencyTestUtil;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.protocols.Response;
@@ -136,5 +148,77 @@ public class TestParseSegment {
         new NutchWritable(new BytesWritable()), 1));
     assertEquals(0, partitioner.getPartition(new Text("http://example.com/"),
         new NutchWritable(new BytesWritable()), 1));
+  }
+
+  private static Content contentWithFetchStatus(String... values) {
+    Content content = new Content();
+    Metadata metadata = new Metadata();
+    for (String value : values) {
+      metadata.add(Nutch.FETCH_STATUS_KEY, value);
+    }
+    content.setMetadata(metadata);
+    content.setContent(BYTES);
+    return content;
+  }
+
+  @Test
+  public void testFetchStatus() {
+    assertEquals(CrawlDatum.STATUS_FETCH_SUCCESS,
+        ParseSegment.getFetchStatus(contentWithFetchStatus(
+            Integer.toString(CrawlDatum.STATUS_FETCH_SUCCESS))));
+    assertEquals(CrawlDatum.STATUS_PARSE_FAILED,
+        ParseSegment.getFetchStatus(contentWithFetchStatus(
+            Integer.toString(CrawlDatum.STATUS_PARSE_FAILED))));
+    // no fetch status
+    assertEquals(ParseSegment.MISSING_FETCH_STATUS,
+        ParseSegment.getFetchStatus(contentWithFetchStatus()));
+  }
+
+  /**
+   * NUTCH-3252: a malformed fetch status (e.g. a server sent a "_fst_"
+   * response header) must skip the record, not fail the parse job.
+   */
+  @Test
+  public void testMalformedFetchStatus() {
+    for (String bad : new String[] { "not-a-number", "", " ", "33.0",
+        "99999999999" }) {
+      assertEquals(ParseSegment.MISSING_FETCH_STATUS,
+          ParseSegment.getFetchStatus(contentWithFetchStatus(bad)),
+          "malformed fetch status: '" + bad + "'");
+    }
+    // segments written before the fix hold the header value first
+    assertEquals(ParseSegment.MISSING_FETCH_STATUS,
+        ParseSegment.getFetchStatus(contentWithFetchStatus("not-a-number",
+            Integer.toString(CrawlDatum.STATUS_FETCH_SUCCESS))));
+  }
+
+  /**
+   * NUTCH-3252: records with a missing or malformed fetch status are skipped
+   * and counted; an unsuccessful fetch status is skipped but not counted.
+   */
+  @Test
+  @SuppressWarnings("unchecked")
+  public void testMapperCountsInvalidFetchStatus() throws Exception {
+    Map<String, Counter> counters = new HashMap<>();
+    Mapper<WritableComparable<?>, Content, Text, NutchWritable>.Context
+        context = mock(Mapper.Context.class);
+    when(context.getConfiguration()).thenReturn(NutchConfiguration.create());
+    when(context.getCounter(anyString(), anyString())).thenAnswer(
+        inv -> counters.computeIfAbsent(
+            inv.getArgument(0) + "/" + inv.getArgument(1),
+            k -> new GenericCounter()));
+
+    ParseSegment.ParseSegmentMapper mapper =
+        new ParseSegment.ParseSegmentMapper();
+    mapper.setup(context);
+    Text key = new Text("http://example.com/");
+    mapper.map(key, contentWithFetchStatus(), context);
+    mapper.map(key, contentWithFetchStatus("not-a-number"), context);
+    mapper.map(key, contentWithFetchStatus(
+        Integer.toString(CrawlDatum.STATUS_FETCH_GONE)), context);
+
+    assertEquals(2, counters.get(NutchMetrics.GROUP_PARSER + "/"
+        + NutchMetrics.PARSER_INVALID_FETCH_STATUS_TOTAL).getValue());
+    verify(context, never()).write(any(), any());
   }
 }

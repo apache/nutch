@@ -28,11 +28,13 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDBTestUtil;
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.crawl.Injector;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.CancellationAwareTestUtils;
 import org.apache.nutch.util.CancellationAwareTestUtils.CancellationToken;
@@ -44,6 +46,8 @@ import org.mockserver.integration.ClientAndServer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 
 /**
  * Basic fetcher test 1. generate seedlist 2. inject 3. generate 3. fetch 4.
@@ -219,6 +223,53 @@ public class TestFetcher {
 
     assertTrue(handledurls.containsAll(urls));
     assertTrue(urls.containsAll(handledurls));
+  }
+
+  /**
+   * NUTCH-3252: a "_fst_" response header must not override the fetch status
+   * stored by the fetcher, nor fail a separate ParseSegment job.
+   */
+  @Test
+  @Timeout(value = 5, unit = TimeUnit.MINUTES)
+  public void testFetchStatusHeaderCollision() throws Exception {
+    mockServer.when(request().withMethod("GET").withPath("/fst.html"))
+        .respond(response().withStatusCode(200)
+            .withHeader("Content-Type", "text/html")
+            .withHeader(Nutch.FETCH_STATUS_KEY, "not-a-number")
+            .withBody("<html><body>Nutch fetcher test page</body></html>"));
+
+    ArrayList<String> urls = new ArrayList<String>();
+    addUrl(urls, "fst.html");
+    CrawlDBTestUtil.generateSeedList(fs, urlPath, urls);
+    new Injector(conf).inject(crawldbPath, urlPath);
+    Path segment = new Generator(conf).generate(crawldbPath, segmentsPath, 1,
+        Long.MAX_VALUE, Long.MAX_VALUE, false, false, false, 1, null)[0];
+
+    conf.setBoolean("fetcher.parse", false);
+    new Fetcher(conf).fetch(segment, 1);
+
+    Path contentPath = new Path(new Path(segment, Content.DIR_NAME),
+        "part-r-00000/data");
+    try (SequenceFile.Reader reader = new SequenceFile.Reader(conf,
+        SequenceFile.Reader.file(contentPath))) {
+      Text key = new Text();
+      Content value = new Content();
+      assertTrue(reader.next(key, value));
+      assertEquals(Integer.toString(CrawlDatum.STATUS_FETCH_SUCCESS),
+          value.getMetadata().get(Nutch.FETCH_STATUS_KEY));
+    }
+
+    // must not throw and must parse the page
+    new ParseSegment(conf).parse(segment);
+    Path parseData = new Path(new Path(segment, ParseData.DIR_NAME),
+        "part-r-00000/data");
+    try (SequenceFile.Reader reader = new SequenceFile.Reader(conf,
+        SequenceFile.Reader.file(parseData))) {
+      Text key = new Text();
+      ParseData value = new ParseData();
+      assertTrue(reader.next(key, value));
+      assertEquals(urls.get(0), key.toString());
+    }
   }
 
   private void addUrl(ArrayList<String> urls, String page) {

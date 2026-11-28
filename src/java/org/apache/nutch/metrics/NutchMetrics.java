@@ -173,6 +173,13 @@ public final class NutchMetrics {
   public static final String GENERATOR_HOSTS_AFFECTED_PER_HOST_OVERFLOW_TOTAL = "hosts_affected_per_host_overflow_total";
 
   // =========================================================================
+  // Parser Counters
+  // =========================================================================
+
+  /** Records skipped because the fetch status was missing or malformed. */
+  public static final String PARSER_INVALID_FETCH_STATUS_TOTAL = "invalid_fetch_status_total";
+
+  // =========================================================================
   // Indexer Counters
   // =========================================================================
 
