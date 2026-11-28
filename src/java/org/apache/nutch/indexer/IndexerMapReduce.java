@@ -26,6 +26,10 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -33,8 +37,11 @@ import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.Inlinks;
@@ -56,6 +63,9 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.segment.SegmentReader;
+
+import com.tdunning.math.stats.MergingDigest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,6 +101,15 @@ public class IndexerMapReduce extends Configured {
   public static final String URL_FILTERING = "indexer.url.filters";
   public static final String URL_NORMALIZING = "indexer.url.normalizers";
   public static final String INDEXER_BINARY_AS_BASE64 = "indexer.binary.base64";
+
+  /**
+   * Sub-directory of the job output holding one serialized latency digest per
+   * reduce task. Deliberately not prefixed with {@code _} or {@code .}, which
+   * Hadoop treats as hidden.
+   */
+  public static final String LATENCY_DIR = "latency";
+  /** File suffix for serialized per-task latency digests. */
+  static final String LATENCY_DIGEST_SUFFIX = ".digest";
 
   /*// using normalizers and/or filters
   private static boolean normalize = false;
@@ -302,8 +321,20 @@ public class IndexerMapReduce extends Configured {
     @Override
     public void cleanup(Reducer<Text, NutchWritable, Text, NutchIndexAction>.Context context)
         throws IOException, InterruptedException {
-      // Emit indexing latency metrics
-      indexLatencyTracker.emitCounters(context);
+      // Hadoop sums counters across reduce tasks, so percentiles must not be
+      // published here. Count and sum are summable and are published as counters;
+      // the digest is written to a side file and merged by the driver.
+      indexLatencyTracker.emitCountAndSumOnly(context);
+      writeLatencyDigest(context, indexLatencyTracker);
+    }
+
+    /**
+     * Exposes the latency tracker so tests can record deterministic samples.
+     *
+     * @return the latency tracker used by this reducer
+     */
+    LatencyTracker getLatencyTracker() {
+      return indexLatencyTracker;
     }
 
     @Override
@@ -510,6 +541,89 @@ public class IndexerMapReduce extends Configured {
       NutchIndexAction action = new NutchIndexAction(doc, NutchIndexAction.ADD);
       context.write(key, action);
     }
+  }
+
+  /**
+   * Writes this reduce task's latency digest to
+   * {@code <output>/<LATENCY_DIR>/<taskId>.digest}. The driver merges all
+   * per-task digests after the job completes (see
+   * {@link #mergeLatencyDigests(Configuration, Path)}), which is the only way to
+   * obtain job-level percentiles: they cannot be summed as counters.
+   *
+   * <p>No-op when there are no samples, or when the context has no output path
+   * or task attempt id (for example in unit tests).
+   *
+   * @param context the reduce task context
+   * @param tracker the latency tracker holding this task's samples
+   * @throws IOException if the digest file cannot be written
+   */
+  static void writeLatencyDigest(TaskAttemptContext context,
+      LatencyTracker tracker) throws IOException {
+    byte[] bytes = tracker.toBytes();
+    Path outputPath = FileOutputFormat.getOutputPath(context);
+    TaskAttemptID attemptId = context.getTaskAttemptID();
+    if (bytes.length == 0 || outputPath == null || attemptId == null) {
+      return;
+    }
+
+    FileSystem fs = outputPath.getFileSystem(context.getConfiguration());
+    Path dir = new Path(outputPath, LATENCY_DIR);
+    fs.mkdirs(dir);
+
+    // Keyed by task (not attempt) so a retried attempt replaces the earlier one.
+    String fileName = attemptId.getTaskID().toString() + LATENCY_DIGEST_SUFFIX;
+    Path tmpFile = new Path(dir, fileName + ".tmp");
+    Path finalFile = new Path(dir, fileName);
+    try (FSDataOutputStream out = fs.create(tmpFile, true)) {
+      out.write(bytes);
+    }
+    fs.delete(finalFile, false);
+    if (!fs.rename(tmpFile, finalFile)) {
+      throw new IOException("Failed to rename " + tmpFile + " to " + finalFile);
+    }
+  }
+
+  /**
+   * Merges the per-task latency digests written by
+   * {@link #writeLatencyDigest(TaskAttemptContext, LatencyTracker)} under
+   * {@code <outputPath>/<LATENCY_DIR>}. Unreadable digest files are skipped with
+   * a warning.
+   *
+   * @param conf       job configuration
+   * @param outputPath job output directory
+   * @return the merged digest, or null if no digest files exist
+   * @throws IOException if the latency directory cannot be listed
+   */
+  public static MergingDigest mergeLatencyDigests(Configuration conf,
+      Path outputPath) throws IOException {
+    Path dir = new Path(outputPath, LATENCY_DIR);
+    FileSystem fs = dir.getFileSystem(conf);
+    if (!fs.exists(dir)) {
+      return null;
+    }
+
+    FileStatus[] files = fs.listStatus(dir,
+        path -> path.getName().endsWith(LATENCY_DIGEST_SUFFIX));
+    MergingDigest merged = null;
+    for (FileStatus status : files) {
+      try (FSDataInputStream in = fs.open(status.getPath())) {
+        byte[] bytes = new byte[(int) status.getLen()];
+        in.readFully(bytes);
+        MergingDigest digest = LatencyTracker.fromBytes(bytes);
+        if (digest == null) {
+          continue;
+        }
+        if (merged == null) {
+          merged = digest;
+        } else {
+          merged.add(digest);
+        }
+      } catch (IOException | RuntimeException e) {
+        LOG.warn("Skipping unreadable latency digest {}: {}", status.getPath(),
+            e.toString());
+      }
+    }
+    return merged;
   }
 
   public static void initMRJob(Path crawlDb, Path linkDb,

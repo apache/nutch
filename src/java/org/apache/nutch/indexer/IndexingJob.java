@@ -30,8 +30,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.LatencyTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.segment.SegmentChecker;
+
+import com.tdunning.math.stats.MergingDigest;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -165,11 +169,37 @@ public class IndexingJob extends NutchTool implements Tool {
               counter.getName());
         }
       }
+      logLatencyPercentiles(conf, tmp);
       stopWatch.stop();
       LOG.info("Indexer: finished, elapsed: {} ms", stopWatch.getTime(
           TimeUnit.MILLISECONDS));
     } finally {
       tmp.getFileSystem(conf).delete(tmp, true);
+    }
+  }
+
+  /**
+   * Logs job-level indexer latency percentiles, merged from the per-task digests
+   * in the job output. Percentiles are not published as Hadoop counters because
+   * Hadoop sums counters across reduce tasks. A failure here is logged and never
+   * fails the indexing job.
+   */
+  private static void logLatencyPercentiles(Configuration conf, Path output) {
+    try {
+      MergingDigest digest = IndexerMapReduce.mergeLatencyDigests(conf, output);
+      if (digest == null || digest.size() == 0) {
+        return;
+      }
+      LOG.info("Indexer: job-level latency over {} samples:", digest.size());
+      LOG.info("Indexer: {} ms  {}", (long) digest.quantile(0.50),
+          NutchMetrics.INDEXER_LATENCY + LatencyTracker.SUFFIX_P50_MS);
+      LOG.info("Indexer: {} ms  {}", (long) digest.quantile(0.95),
+          NutchMetrics.INDEXER_LATENCY + LatencyTracker.SUFFIX_P95_MS);
+      LOG.info("Indexer: {} ms  {}", (long) digest.quantile(0.99),
+          NutchMetrics.INDEXER_LATENCY + LatencyTracker.SUFFIX_P99_MS);
+    } catch (IOException | RuntimeException e) {
+      LOG.warn("Indexer: could not compute latency percentiles: {}",
+          StringUtils.stringifyException(e));
     }
   }
 
